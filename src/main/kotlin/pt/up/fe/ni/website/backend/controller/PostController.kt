@@ -23,4 +23,7 @@ class PostController(private val service: PostService) {
 
     @PostMapping("/new")
     fun createPost(@RequestBody post: Post) = service.createPost(post)
+
+    @PatchMapping("/{postID}")
+    fun updatePost(@PathVariable postID: String, @RequestBody json: Map<String, String>) = service.updatePost(postID, json["description"], json["link"])
 }
