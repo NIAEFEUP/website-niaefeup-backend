@@ -26,4 +26,7 @@ class PostController(private val service: PostService) {
 
     @PatchMapping("/{postID}")
     fun updatePost(@PathVariable postID: String, @RequestBody json: Map<String, String>) = service.updatePost(postID, json["description"], json["link"])
+
+    @DeleteMapping("/{postID}")
+    fun deletePost(@PathVariable postID: String) = service.deletePost(postID)
 }
