@@ -1,0 +1,45 @@
+on:
+  push:
+    branches:
+      - master
+      - develop
+  pull_request:
+    branches: 
+      - master
+      - develop
+
+jobs:
+  lint:
+    name: 'Lint'
+    runs-on: ubuntu-latest
+    container: gradle:7.5.1-jdk17
+    steps:
+      - name: Fetch sources
+        uses: actions/checkout@v2
+
+      - name: Setup Gradle Dependencies Cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-caches-${{ hashFiles('**/*.gradle', '**/*.gradle.kts') }}
+
+      - name: Setup Gradle Wrapper Cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
+
+      - name: Run linter
+        run: gradle ktlintCheck
+
+  test:
+    name: 'Test'
+    needs: lint
+    runs-on: ubuntu-latest
+    container: gradle:7.5-jdk17
+    steps:
+      - name: Fetch sources
+        uses: actions/checkout@v2
+
+      - name: Run test suite
+        run: gradle test
