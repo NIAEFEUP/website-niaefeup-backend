@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 class ErrorController : ErrorController {
-    val errorKey : String = "error"
+    val errorKey: String = "error"
 
     @RequestMapping("/**")
     fun endpointNotFound(): Map<String, String> = mapOf(errorKey to "invalid endpoint")
