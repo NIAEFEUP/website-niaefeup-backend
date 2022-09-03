@@ -1,0 +1,34 @@
+openapi: "3.0.2"
+
+info:
+  title: Website NIAEFEUP - BackEnd
+  version: "1.0"
+
+tags:
+  - name: "Projects"
+  - name: "Events"
+  - name: "Users"
+  - name: "Posts"
+  - name: "Misc"
+
+security:
+  - cookieAuth: []
+
+paths:
+  /:
+    get:
+      summary: "Health check"
+      description: "Check if the service is up"
+      tags:
+        - "Misc"
+      responses:
+        "200":
+          description: "Service is up"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  online:
+                    type: "string"
+                    example: "true"
