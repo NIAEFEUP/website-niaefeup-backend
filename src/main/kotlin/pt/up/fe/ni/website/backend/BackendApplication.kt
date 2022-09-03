@@ -3,7 +3,7 @@ package pt.up.fe.ni.website.backend
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
-@SpringBootApplication()
+@SpringBootApplication
 class BackendApplication
 
 fun main(args: Array<String>) {
