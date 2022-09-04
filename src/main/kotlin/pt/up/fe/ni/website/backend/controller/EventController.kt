@@ -12,7 +12,7 @@ import pt.up.fe.ni.website.backend.service.EventService
 @RequestMapping("/events")
 class EventController(private val service: EventService) {
     @GetMapping
-    fun getAllEvents(): Collection<Event> = service.getAllEvents()
+    fun getAllEvents() = service.getAllEvents()
 
     @PostMapping("/new")
     fun createEvent(@RequestBody event: Event) = service.createEvent(event)
