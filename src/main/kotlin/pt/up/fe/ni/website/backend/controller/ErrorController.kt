@@ -9,5 +9,5 @@ class ErrorController : ErrorController {
     val errorKey: String = "error"
 
     @RequestMapping("/**")
-    fun endpointNotFound(): Map<String, String> = mapOf(errorKey to "invalid endpoint")
+    fun endpointNotFound() = mapOf(errorKey to "invalid endpoint")
 }

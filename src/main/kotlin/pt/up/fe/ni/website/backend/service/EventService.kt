@@ -6,7 +6,7 @@ import pt.up.fe.ni.website.backend.repository.EventRepository
 
 @Service
 class EventService(private val repository: EventRepository) {
-    fun getAllEvents(): Collection<Event> = repository.findAll().toList()
+    fun getAllEvents(): List<Event> = repository.findAll().toList()
 
     fun createEvent(event: Event) = repository.save(event)
 }
