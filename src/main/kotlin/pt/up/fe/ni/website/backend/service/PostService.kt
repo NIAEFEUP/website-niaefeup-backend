@@ -22,8 +22,6 @@ class PostService(private val repository: PostRepository) {
 
     }
 
-    fun deletePost(postID : String) {
-        val targetPost = repository.findByIdOrNull(postID.toLong()) ?: throw NoSuchElementException("Post Not Found")
-        repository.delete(targetPost)
+    fun deletePost(@ExistingPost postID : Long) {
+        repository.deleteById(postID)
     }
-}
