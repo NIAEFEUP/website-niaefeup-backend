@@ -7,7 +7,7 @@ import pt.up.fe.ni.website.backend.repository.PostRepository
 
 @Service
 class PostService(private val repository: PostRepository) {
-    fun getAllPosts(): Collection<Post> = repository.findAll().toList()
+    fun getAllPosts(): List<Post> = repository.findAll().toList()
 
     fun getPost(postID : String): Post = repository.findByIdOrNull(postID.toLong()) ?: throw NoSuchElementException("Post Not Found")
 
