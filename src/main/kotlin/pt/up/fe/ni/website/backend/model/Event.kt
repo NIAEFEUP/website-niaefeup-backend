@@ -1,12 +1,12 @@
 package pt.up.fe.ni.website.backend.model
 
-import java.util.*
+import java.util.Date
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
 
 @Entity
-class Event (
+class Event(
     val title: String,
     val description: String,
     val date: Date,
