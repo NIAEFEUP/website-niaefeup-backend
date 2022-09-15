@@ -10,5 +10,6 @@ class Event(
     val title: String,
     val description: String,
     val date: Date,
-    @Id @GeneratedValue val id: Long? = null
+    @Id @GeneratedValue
+    val id: Long? = null
 )
