@@ -3,6 +3,7 @@ package pt.up.fe.ni.website.backend.service
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import pt.up.fe.ni.website.backend.model.Post
+import pt.up.fe.ni.website.backend.model.PostDTO
 import pt.up.fe.ni.website.backend.repository.PostRepository
 
 @Service
@@ -14,10 +15,11 @@ class PostService(private val repository: PostRepository) {
 
     fun createPost(post: Post) = repository.save(post)
 
-    fun updatePost(postID: Long, post: Post) {
+    fun updatePost(postID: Long, post: PostDTO) {
         val targetPost = repository.findByIdOrNull(postID) ?: throw NoSuchElementException("Post Not Found")
         targetPost.description = post.description ?: targetPost.description
         targetPost.link = post.link ?: targetPost.link
+        targetPost.date = post.date ?: targetPost.date
 
         repository.save(targetPost)
     }

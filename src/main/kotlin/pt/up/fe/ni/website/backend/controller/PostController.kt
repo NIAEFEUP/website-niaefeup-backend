@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import pt.up.fe.ni.website.backend.model.Post
+import pt.up.fe.ni.website.backend.model.PostDTO
 import pt.up.fe.ni.website.backend.service.PostService
 
 @RestController
@@ -25,7 +26,7 @@ class PostController(private val service: PostService) {
     fun createPost(@RequestBody post: Post) = service.createPost(post)
 
     @PatchMapping("/{postID}")
-    fun updatePost(@PathVariable postID: Long, @RequestBody post: Post) = service.updatePost(postID, post)
+    fun updatePost(@PathVariable postID: Long, @RequestBody post: PostDTO) = service.updatePost(postID, post)
 
     @DeleteMapping("/{postID}")
     fun deletePost(@PathVariable postID: Long) = service.deletePost(postID)

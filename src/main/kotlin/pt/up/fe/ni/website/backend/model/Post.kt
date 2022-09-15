@@ -9,6 +9,6 @@ import javax.persistence.Id
 class Post(
     var description: String,
     var link: String,
-    val date: Date,
+    var date: Date,
     @Id @GeneratedValue val id: Long? = null
 )
