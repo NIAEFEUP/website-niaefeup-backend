@@ -25,7 +25,6 @@ class PostService(private val repository: PostRepository) {
         val targetPost = repository.findByIdOrNull(postID) ?: throw NoSuchElementException("Post Not Found")
         targetPost.description = post.description ?: targetPost.description
         targetPost.link = post.link ?: targetPost.link
-        targetPost.date = post.date ?: targetPost.date
 
         repository.save(targetPost)
     }
