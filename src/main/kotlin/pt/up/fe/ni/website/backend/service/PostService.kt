@@ -7,9 +7,11 @@ import pt.up.fe.ni.website.backend.repository.PostRepository
 import java.util.Date
 
 class PostDTO {
-    val description: String? = null
-    val link: String? = null
-    val date: Date? = null
+    var title: String? = null
+    var body: String? = null
+    var href: String? = null
+    var templatePath: String? = null
+    var publishDate: Date? = null
 }
 
 @Service
@@ -23,8 +25,10 @@ class PostService(private val repository: PostRepository) {
 
     fun updatePost(postID: Long, post: PostDTO) {
         val targetPost = repository.findByIdOrNull(postID) ?: throw NoSuchElementException("Post Not Found")
-        targetPost.description = post.description ?: targetPost.description
-        targetPost.link = post.link ?: targetPost.link
+        targetPost.title = post.title ?: targetPost.title
+        targetPost.body = post.body ?: targetPost.body
+        targetPost.href = post.href ?: targetPost.href
+        targetPost.templatePath = post.templatePath ?: targetPost.templatePath
 
         repository.save(targetPost)
     }

@@ -7,8 +7,10 @@ import javax.persistence.Id
 
 @Entity
 class Post(
-    var description: String,
-    var link: String,
-    var date: Date,
+    var title: String,
+    var body: String,
+    var href: String,
+    var templatePath: String,
+    var publishDate: Date,
     @Id @GeneratedValue val id: Long? = null
 )
