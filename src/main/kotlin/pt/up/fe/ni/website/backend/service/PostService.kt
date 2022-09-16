@@ -3,8 +3,14 @@ package pt.up.fe.ni.website.backend.service
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import pt.up.fe.ni.website.backend.model.Post
-import pt.up.fe.ni.website.backend.model.PostDTO
 import pt.up.fe.ni.website.backend.repository.PostRepository
+import java.util.Date
+
+class PostDTO {
+    val description: String? = null
+    val link: String? = null
+    val date: Date? = null
+}
 
 @Service
 class PostService(private val repository: PostRepository) {
