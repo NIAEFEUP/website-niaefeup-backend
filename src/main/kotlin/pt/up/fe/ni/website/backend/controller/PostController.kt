@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import pt.up.fe.ni.website.backend.model.Post
-import pt.up.fe.ni.website.backend.model.PostDTO
+import pt.up.fe.ni.website.backend.service.PostDTO
 import pt.up.fe.ni.website.backend.service.PostService
 
 @RestController
