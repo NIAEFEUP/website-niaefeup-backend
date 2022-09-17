@@ -11,6 +11,6 @@ class Post(
     var body: String,
     var href: String,
     var templatePath: String,
-    var publishDate: Date,
+    val publishDate: Date,
     @Id @GeneratedValue val id: Long? = null
 )
