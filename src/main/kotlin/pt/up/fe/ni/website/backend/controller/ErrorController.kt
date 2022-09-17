@@ -25,16 +25,22 @@ class ErrorController : ErrorController {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun invalidArguments(e: MethodArgumentNotValidException): CustomError {
         val errors: MultipleErrors = mutableListOf()
-        e.bindingResult.allErrors.forEach {error: ObjectError ->
+        e.bindingResult.allErrors.forEach { error: ObjectError ->
             val fieldError = (error as FieldError)
-            errors.add(mapOf(
-                "param" to fieldError.field,
-                "message" to error.defaultMessage,
-                "value" to fieldError.rejectedValue
-            ))
+            errors.add(
+                mapOf(
+                    "param" to fieldError.field,
+                    "message" to error.defaultMessage,
+                    "value" to fieldError.rejectedValue
+                )
+            )
         }
         return mapOf(errorKey to errors)
     }
+
+    @ExceptionHandler(Exception::class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    fun unexpectedError(e: Exception): CustomError = wrapSimpleError(e.message ?: "unexpected error")
 
     fun wrapSimpleError(msg: String): CustomError = mapOf(
         errorKey to mutableListOf(mapOf("message" to msg))
