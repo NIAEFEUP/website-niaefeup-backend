@@ -10,7 +10,7 @@ class Post(
     var title: String,
     var body: String,
     var href: String,
-    var templatePath: String,
+    var thumbnailPath: String,
     val publishDate: Date,
     @Id @GeneratedValue val id: Long? = null
 )
