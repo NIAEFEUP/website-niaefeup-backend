@@ -10,12 +10,16 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.servlet.NoHandlerFoundException
 
-typealias MultipleErrors = MutableList<Map<String, Any?>>
-typealias CustomError = Map<String, MultipleErrors>
+data class SimpleError(
+    val message: String,
+    val param: String? = null,
+    val value: Any? = null
+)
+
+data class CustomError(val errors: List<SimpleError>)
 
 @RestControllerAdvice
 class ErrorController : ErrorController {
-    val errorKey: String = "errors"
 
     @ExceptionHandler(NoHandlerFoundException::class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -24,25 +28,25 @@ class ErrorController : ErrorController {
     @ExceptionHandler(MethodArgumentNotValidException::class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun invalidArguments(e: MethodArgumentNotValidException): CustomError {
-        val errors: MultipleErrors = mutableListOf()
+        val errors = mutableListOf<SimpleError>()
         e.bindingResult.allErrors.forEach { error: ObjectError ->
             val fieldError = (error as FieldError)
             errors.add(
-                mapOf(
-                    "param" to fieldError.field,
-                    "message" to error.defaultMessage,
-                    "value" to fieldError.rejectedValue
+                SimpleError(
+                    error.defaultMessage ?: "invalid",
+                    fieldError.field,
+                    fieldError.rejectedValue
                 )
             )
         }
-        return mapOf(errorKey to errors)
+        return CustomError(errors)
     }
 
     @ExceptionHandler(Exception::class)
-    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     fun unexpectedError(e: Exception): CustomError = wrapSimpleError(e.message ?: "unexpected error")
 
-    fun wrapSimpleError(msg: String): CustomError = mapOf(
-        errorKey to mutableListOf(mapOf("message" to msg))
+    fun wrapSimpleError(msg: String, param: String? = null) = CustomError(
+        mutableListOf(SimpleError(msg, param))
     )
 }
