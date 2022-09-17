@@ -9,7 +9,6 @@ import javax.persistence.Id
 class Post(
     var title: String,
     var body: String,
-    var href: String,
     var thumbnailPath: String,
     val publishDate: Date,
     @Id @GeneratedValue val id: Long? = null

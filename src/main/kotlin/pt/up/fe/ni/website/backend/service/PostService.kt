@@ -4,14 +4,11 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import pt.up.fe.ni.website.backend.model.Post
 import pt.up.fe.ni.website.backend.repository.PostRepository
-import java.util.Date
 
 class PostDTO {
     var title: String? = null
     var body: String? = null
-    var href: String? = null
-    var templatePath: String? = null
-    var publishDate: Date? = null
+    var thumbnailPath: String? = null
 }
 
 @Service
@@ -27,8 +24,7 @@ class PostService(private val repository: PostRepository) {
         val targetPost = repository.findByIdOrNull(postID) ?: throw NoSuchElementException("Post Not Found")
         targetPost.title = post.title ?: targetPost.title
         targetPost.body = post.body ?: targetPost.body
-        targetPost.href = post.href ?: targetPost.href
-        targetPost.templatePath = post.templatePath ?: targetPost.templatePath
+        targetPost.thumbnailPath = post.thumbnailPath ?: targetPost.thumbnailPath
 
         repository.save(targetPost)
     }
