@@ -16,7 +16,7 @@ class PostService(private val repository: PostRepository) {
     fun getAllPosts(): List<Post> = repository.findAll().toList()
 
     fun getPost(PostId: Long): Post =
-        repository.findByIdOrNull(PostId.toLong()) ?: throw NoSuchElementException("Post Not Found")
+        repository.findByIdOrNull(PostId) ?: throw NoSuchElementException("Post Not Found")
 
     fun createPost(post: Post) = repository.save(post)
 
