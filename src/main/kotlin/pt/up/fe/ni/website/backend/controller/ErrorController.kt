@@ -44,7 +44,10 @@ class ErrorController : ErrorController {
 
     @ExceptionHandler(Exception::class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    fun unexpectedError(e: Exception): CustomError = wrapSimpleError(e.message ?: "unexpected error")
+    fun unexpectedError(e: Exception): CustomError {
+        System.err.println(e)
+        return wrapSimpleError("unexpected error")
+    }
 
     fun wrapSimpleError(msg: String, param: String? = null) = CustomError(
         mutableListOf(SimpleError(msg, param))
