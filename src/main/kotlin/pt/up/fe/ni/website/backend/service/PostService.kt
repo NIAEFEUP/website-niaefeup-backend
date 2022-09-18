@@ -20,13 +20,13 @@ class PostService(private val repository: PostRepository) {
 
     fun createPost(post: Post) = repository.save(post)
 
-    fun updatePost(PostId: Long, post: PostDto) {
+    fun updatePost(PostId: Long, post: PostDto): Post {
         val targetPost = repository.findByIdOrNull(PostId) ?: throw NoSuchElementException("Post Not Found")
         targetPost.title = post.title ?: targetPost.title
         targetPost.body = post.body ?: targetPost.body
         targetPost.thumbnailPath = post.thumbnailPath ?: targetPost.thumbnailPath
 
-        repository.save(targetPost)
+        return repository.save(targetPost)
     }
 
     fun deletePost(PostId: Long) {
