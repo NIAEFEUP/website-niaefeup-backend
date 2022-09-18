@@ -11,16 +11,17 @@ import javax.persistence.GeneratedValue
 import javax.persistence.Id
 import javax.validation.constraints.NotEmpty
 import javax.validation.constraints.Size
+import pt.up.fe.ni.website.backend.model.constants.PostConstants as Constants
 
 @Entity
 @EntityListeners(AuditingEntityListener::class)
 class Post(
     @JsonProperty(required = true)
-    @field:Size(min = 2, max = 500)
+    @field:Size(min = Constants.Title.minSize, max = Constants.Title.maxSize)
     var title: String,
 
     @JsonProperty(required = true)
-    @field:Size(min = 10, message = "size must be greater than 10")
+    @field:Size(min = Constants.Body.minSize, message = "size must be greater than ${Constants.Body.minSize}")
     var body: String,
 
     @field:NotEmpty
@@ -36,10 +37,10 @@ class Post(
     val id: Long? = null
 ) {
     data class PatchModel(
-        @field:Size(min = 2, max = 500)
+        @field:Size(min = Constants.Title.minSize, max = Constants.Title.maxSize)
         var title: String?,
 
-        @field:Size(min = 10, message = "size must be greater than 10")
+        @field:Size(min = Constants.Body.minSize, message = "size must be greater than ${Constants.Body.minSize}")
         var body: String?,
 
         // Using @Size because @NotEmpty doesn't validate nulls
