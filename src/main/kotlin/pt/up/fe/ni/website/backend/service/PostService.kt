@@ -15,13 +15,13 @@ class PostDto {
 class PostService(private val repository: PostRepository) {
     fun getAllPosts(): List<Post> = repository.findAll().toList()
 
-    fun getPost(postID: Long): Post =
-        repository.findByIdOrNull(postID.toLong()) ?: throw NoSuchElementException("Post Not Found")
+    fun getPost(PostId: Long): Post =
+        repository.findByIdOrNull(PostId.toLong()) ?: throw NoSuchElementException("Post Not Found")
 
     fun createPost(post: Post) = repository.save(post)
 
-    fun updatePost(postID: Long, post: PostDto) {
-        val targetPost = repository.findByIdOrNull(postID) ?: throw NoSuchElementException("Post Not Found")
+    fun updatePost(PostId: Long, post: PostDto) {
+        val targetPost = repository.findByIdOrNull(PostId) ?: throw NoSuchElementException("Post Not Found")
         targetPost.title = post.title ?: targetPost.title
         targetPost.body = post.body ?: targetPost.body
         targetPost.thumbnailPath = post.thumbnailPath ?: targetPost.thumbnailPath
@@ -29,8 +29,8 @@ class PostService(private val repository: PostRepository) {
         repository.save(targetPost)
     }
 
-    fun deletePost(postID: Long) {
-        repository.findByIdOrNull(postID) ?: throw NoSuchElementException("Post Not Found")
-        repository.deleteById(postID)
+    fun deletePost(PostId: Long) {
+        repository.findByIdOrNull(PostId) ?: throw NoSuchElementException("Post Not Found")
+        repository.deleteById(PostId)
     }
 }
