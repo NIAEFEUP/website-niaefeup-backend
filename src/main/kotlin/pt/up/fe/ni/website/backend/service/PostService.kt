@@ -20,7 +20,7 @@ class PostService(private val repository: PostRepository) {
 
     fun createPost(post: Post) = repository.save(post)
 
-    fun updatePost(postID: Long, post: PostDTO) {
+    fun updatePost(postID: Long, post: PostDto) {
         val targetPost = repository.findByIdOrNull(postID) ?: throw NoSuchElementException("Post Not Found")
         targetPost.title = post.title ?: targetPost.title
         targetPost.body = post.body ?: targetPost.body
