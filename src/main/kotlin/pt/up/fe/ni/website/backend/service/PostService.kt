@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service
 import pt.up.fe.ni.website.backend.model.Post
 import pt.up.fe.ni.website.backend.repository.PostRepository
 
-class PostDTO {
+class PostDto {
     var title: String? = null
     var body: String? = null
     var thumbnailPath: String? = null
