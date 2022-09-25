@@ -19,8 +19,8 @@ class PostController(private val service: PostService) {
     @GetMapping
     fun getAllPosts(): Collection<Post> = service.getAllPosts()
 
-    @GetMapping("/{PostId}")
-    fun getPost(@PathVariable PostId: Long): Post = service.getPost(PostId)
+    @GetMapping("/{postId}")
+    fun getPost(@PathVariable postId: Long): Post = service.getPost(postId)
 
     @PostMapping("/new")
     fun createPost(
@@ -28,13 +28,13 @@ class PostController(private val service: PostService) {
         post: Post
     ) = service.createPost(post)
 
-    @PatchMapping("/{PostId}")
+    @PatchMapping("/{postId}")
     fun updatePost(
-        @PathVariable PostId: Long,
+        @PathVariable postId: Long,
         @Valid @RequestBody
         post: Post.PatchModel
-    ) = service.updatePost(PostId, post)
+    ) = service.updatePost(postId, post)
 
-    @DeleteMapping("/{PostId}")
-    fun deletePost(@PathVariable PostId: Long) = service.deletePost(PostId)
+    @DeleteMapping("/{postId}")
+    fun deletePost(@PathVariable postId: Long) = service.deletePost(postId)
 }
