@@ -10,7 +10,7 @@ class ProjectService(private val repository: ProjectRepository) {
 
     fun getAllProjects() = repository.findAll().toList()
 
-    fun createProject(project: Project) = repository.save(project)
+    fun saveProject(project: Project) = repository.save(project)
 
     fun getProjectById(id: Long): Optional<Project> = repository.findById(id)
 

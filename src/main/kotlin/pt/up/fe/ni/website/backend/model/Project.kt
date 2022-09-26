@@ -6,8 +6,13 @@ import javax.persistence.Id
 
 @Entity
 class Project(
-    val name: String,
-    val description: String,
+    var name: String,
+    var description: String,
     @Id @GeneratedValue
-    val id: Long? = null,
-)
+    val id: Long? = null
+) {
+    companion object {
+        @JvmStatic
+        val BLANK_PROJECT = Project("", "")
+    }
+}
