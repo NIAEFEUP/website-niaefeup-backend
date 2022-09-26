@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import pt.up.fe.ni.website.backend.model.Event
 import pt.up.fe.ni.website.backend.service.EventService
+import javax.validation.Valid
 
 @RestController
 @RequestMapping("/events")
@@ -15,5 +16,8 @@ class EventController(private val service: EventService) {
     fun getAllEvents() = service.getAllEvents()
 
     @PostMapping("/new")
-    fun createEvent(@RequestBody event: Event) = service.createEvent(event)
+    fun createEvent(
+        @Valid @RequestBody
+        event: Event
+    ) = service.createEvent(event)
 }

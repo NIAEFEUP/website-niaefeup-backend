@@ -5,23 +5,18 @@ import org.springframework.stereotype.Service
 import pt.up.fe.ni.website.backend.model.Post
 import pt.up.fe.ni.website.backend.repository.PostRepository
 
-class PostDto {
-    var title: String? = null
-    var body: String? = null
-    var thumbnailPath: String? = null
-}
-
 @Service
 class PostService(private val repository: PostRepository) {
     fun getAllPosts(): List<Post> = repository.findAll().toList()
 
-    fun getPost(PostId: Long): Post =
-        repository.findByIdOrNull(PostId) ?: throw NoSuchElementException("Post Not Found")
+    fun getPost(postId: Long): Post =
+        repository.findByIdOrNull(postId) ?: throw NoSuchElementException("post not found with id $postId")
 
-    fun createPost(post: Post) = repository.save(post)
+    fun createPost(post: Post): Post = repository.save(post)
 
-    fun updatePost(PostId: Long, post: PostDto): Post {
-        val targetPost = repository.findByIdOrNull(PostId) ?: throw NoSuchElementException("Post Not Found")
+    fun updatePost(postId: Long, post: Post.PatchModel): Post {
+        val targetPost =
+            repository.findByIdOrNull(postId) ?: throw NoSuchElementException("post not found with id $postId")
         targetPost.title = post.title ?: targetPost.title
         targetPost.body = post.body ?: targetPost.body
         targetPost.thumbnailPath = post.thumbnailPath ?: targetPost.thumbnailPath
@@ -29,9 +24,9 @@ class PostService(private val repository: PostRepository) {
         return repository.save(targetPost)
     }
 
-    fun deletePost(PostId: Long): Map<String, String> {
-        repository.findByIdOrNull(PostId) ?: throw NoSuchElementException("Post Not Found")
-        repository.deleteById(PostId)
+    fun deletePost(postId: Long): Map<String, String> {
+        repository.findByIdOrNull(postId) ?: throw NoSuchElementException("post not found with id $postId")
+        repository.deleteById(postId)
 
         return mapOf()
     }

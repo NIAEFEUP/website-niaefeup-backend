@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import pt.up.fe.ni.website.backend.model.Post
-import pt.up.fe.ni.website.backend.service.PostDto
 import pt.up.fe.ni.website.backend.service.PostService
+import javax.validation.Valid
 
 @RestController
 @RequestMapping("/posts")
@@ -19,15 +19,22 @@ class PostController(private val service: PostService) {
     @GetMapping
     fun getAllPosts(): Collection<Post> = service.getAllPosts()
 
-    @GetMapping("/{PostId}")
-    fun getPost(@PathVariable PostId: Long): Post = service.getPost(PostId)
+    @GetMapping("/{postId}")
+    fun getPost(@PathVariable postId: Long): Post = service.getPost(postId)
 
     @PostMapping("/new")
-    fun createPost(@RequestBody post: Post) = service.createPost(post)
+    fun createPost(
+        @Valid @RequestBody
+        post: Post
+    ) = service.createPost(post)
 
-    @PatchMapping("/{PostId}")
-    fun updatePost(@PathVariable PostId: Long, @RequestBody post: PostDto) = service.updatePost(PostId, post)
+    @PatchMapping("/{postId}")
+    fun updatePost(
+        @PathVariable postId: Long,
+        @Valid @RequestBody
+        post: Post.PatchModel
+    ) = service.updatePost(postId, post)
 
-    @DeleteMapping("/{PostId}")
-    fun deletePost(@PathVariable PostId: Long) = service.deletePost(PostId)
+    @DeleteMapping("/{postId}")
+    fun deletePost(@PathVariable postId: Long) = service.deletePost(postId)
 }
