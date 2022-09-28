@@ -2,11 +2,12 @@ package pt.up.fe.ni.website.backend.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.hamcrest.CoreMatchers.containsString
-import org.hamcrest.Matchers.greaterThan
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -18,6 +19,7 @@ import org.springframework.test.web.servlet.post
 import pt.up.fe.ni.website.backend.model.Event
 import pt.up.fe.ni.website.backend.utils.TestUtils
 import java.util.Calendar
+import pt.up.fe.ni.website.backend.model.constants.EventConstants as Constants
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -87,24 +89,39 @@ internal class EventControllerTest @Autowired constructor(
                 }
         }
 
-        @Test
-        fun `should fail if the title is missing`() {
-            val event = mapOf(
-                "description" to "This was a nice and iconic event",
-                "date" to TestUtils.createDate(2022, Calendar.JULY, 28)
+        @Nested
+        @DisplayName("Input Validation")
+        inner class InputValidation {
+            private val validationTester = ValidationTester(
+                req = { params: Map<String, Any> ->
+                    mockMvc.post("/events/new") {
+                        contentType = MediaType.APPLICATION_JSON
+                        content = objectMapper.writeValueAsString(params)
+                    }
+                },
+                requiredFields = mapOf(
+                    "title" to testEvent.title,
+                    "description" to testEvent.description,
+                    "date" to testEvent.date
+                )
             )
 
-            mockMvc.post("/events/new") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(event)
-            }
-                .andExpect {
-                    status { isBadRequest() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.errors.length()") { value(greaterThan(0)) }
-                    jsonPath("$.errors[0].message") { value("required") }
-                    jsonPath("$.errors[0].param") { value("title") }
+            @Nested
+            @DisplayName("title")
+            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+            inner class TitleValidation {
+                @BeforeAll
+                fun setParam() {
+                    validationTester.param = "title"
                 }
+
+                @Test
+                fun `should be required`() = validationTester.isRequired()
+
+                @Test
+                @DisplayName("size should be between ${Constants.Title.minSize} and ${Constants.Title.maxSize}")
+                fun size() = validationTester.hasSizeBetween(Constants.Title.minSize, Constants.Title.maxSize)
+            }
         }
     }
 }
