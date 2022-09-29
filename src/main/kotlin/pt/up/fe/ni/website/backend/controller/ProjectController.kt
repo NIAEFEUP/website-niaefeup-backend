@@ -24,7 +24,7 @@ class ProjectController(private val service: ProjectService) {
 
     @PostMapping("/new")
     fun createNewProject(@RequestBody dto: ProjectDto): Project {
-        val project = dto.update(Project.BLANK_PROJECT)
+        val project = dto.create()
         return service.saveProject(project)
     }
 

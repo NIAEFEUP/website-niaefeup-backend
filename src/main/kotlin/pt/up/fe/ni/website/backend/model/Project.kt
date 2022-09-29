@@ -10,9 +10,4 @@ class Project(
     var description: String,
     @Id @GeneratedValue
     val id: Long? = null
-) {
-    companion object {
-        @JvmStatic
-        val BLANK_PROJECT = Project("", "")
-    }
-}
+)
