@@ -119,8 +119,42 @@ internal class EventControllerTest @Autowired constructor(
                 fun `should be required`() = validationTester.isRequired()
 
                 @Test
-                @DisplayName("size should be between ${Constants.Title.minSize} and ${Constants.Title.maxSize}")
+                @DisplayName("size should be between ${Constants.Title.minSize} and ${Constants.Title.maxSize}()")
                 fun size() = validationTester.hasSizeBetween(Constants.Title.minSize, Constants.Title.maxSize)
+            }
+
+            @Nested
+            @DisplayName("description")
+            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+            inner class DescriptionValidation {
+                @BeforeAll
+                fun setParam() {
+                    validationTester.param = "description"
+                }
+
+                @Test
+                fun `should be required`() = validationTester.isRequired()
+
+                @Test
+                @DisplayName("size should be between ${Constants.Description.minSize} and ${Constants.Description.maxSize}()")
+                fun size() =
+                    validationTester.hasSizeBetween(Constants.Description.minSize, Constants.Description.maxSize)
+            }
+
+            @Nested
+            @DisplayName("date")
+            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+            inner class DateValidation {
+                @BeforeAll
+                fun setParam() {
+                    validationTester.param = "date"
+                }
+
+                @Test
+                fun `should be required`() = validationTester.isRequired()
+
+                @Test
+                fun `should be a Date`() = validationTester.isDate()
             }
         }
     }

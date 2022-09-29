@@ -1,6 +1,5 @@
 package pt.up.fe.ni.website.backend.controller
 
-import org.hamcrest.Matchers.greaterThan
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.ResultActionsDsl
 
@@ -14,10 +13,8 @@ class ValidationTester(
         val params = requiredFields.toMutableMap()
         params.remove(param)
         req(params)
+            .expectValidationError()
             .andExpect {
-                status { isBadRequest() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.errors.length()") { value(1) }
                 jsonPath("$.errors[0].message") { value("required") }
                 jsonPath("$.errors[0].param") { value(param) }
             }
@@ -25,28 +22,48 @@ class ValidationTester(
 
     fun hasSizeBetween(min: Int, max: Int) {
         val params = requiredFields.toMutableMap()
-        params[param] = "a".repeat(min - 1)
+        val smallValue = "a".repeat(min - 1)
+        params[param] = smallValue
         req(params)
+            .expectValidationError()
             .andExpect {
-                status { isBadRequest() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.errors.length()") { value(greaterThan(0)) }
                 jsonPath("$.errors[0].message") {
                     value("size must be between $min and $max")
                 }
                 jsonPath("$.errors[0].param") { value(param) }
+                jsonPath("$.errors[0].value") { value(smallValue) }
             }
 
-        params[param] = "a".repeat(max + 1)
+        val bigValue = "a".repeat(max + 1)
+        params[param] = bigValue
         req(params)
+            .expectValidationError()
             .andExpect {
-                status { isBadRequest() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.errors.length()") { value(greaterThan(0)) }
                 jsonPath("$.errors[0].message") {
                     value("size must be between $min and $max")
                 }
                 jsonPath("$.errors[0].param") { value(param) }
+                jsonPath("$.errors[0].value") { value(bigValue) }
             }
+    }
+
+    fun isDate() {
+        val params = requiredFields.toMutableMap()
+        params[param] = "invalid"
+        req(params)
+            .expectValidationError()
+            .andExpect {
+                jsonPath("$.errors[0].message") { value("must be date") }
+                jsonPath("$.errors[0].value") { value("invalid") }
+            }
+    }
+
+    private fun ResultActionsDsl.expectValidationError(): ResultActionsDsl {
+        andExpect {
+            status { isBadRequest() }
+            content { contentType(MediaType.APPLICATION_JSON) }
+            jsonPath("$.errors.length()") { value(1) }
+        }
+        return this
     }
 }
