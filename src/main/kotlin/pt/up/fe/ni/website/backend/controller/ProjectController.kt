@@ -20,7 +20,7 @@ class ProjectController(private val service: ProjectService) {
     fun getAllProjects() = service.getAllProjects()
 
     @GetMapping("/{id}")
-    fun getProjectById(@PathVariable id: Long) = service.getProjectById(id).orElseThrow()!!
+    fun getProjectById(@PathVariable id: Long) = service.getProjectById(id)
 
     @PostMapping("/new")
     fun createNewProject(@RequestBody dto: ProjectDto): Project {
@@ -35,9 +35,5 @@ class ProjectController(private val service: ProjectService) {
     fun updatePostById(
         @PathVariable id: Long,
         @RequestBody dto: ProjectDto
-    ): Project {
-        val project = service.getProjectById(id).orElseThrow()!!
-        val newProject = dto.update(project)
-        return service.saveProject(newProject)
-    }
+    ) = service.updateProjectById(id, dto)
 }
