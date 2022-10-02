@@ -15,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import pt.up.fe.ni.website.backend.model.Post
@@ -85,7 +86,7 @@ internal class PostControllerTest @Autowired constructor(
         }
 
         @Test
-        fun `fail if the post does not exist`() {
+        fun `should fail if the post does not exist`() {
             mockMvc.get("/posts/1234").andExpect {
                 status { isNotFound() }
                 content { contentType(MediaType.APPLICATION_JSON) }
@@ -181,6 +182,36 @@ internal class PostControllerTest @Autowired constructor(
 
                 @Test
                 fun `should not be empty`() = validationTester.isNotEmpty()
+            }
+        }
+    }
+
+    @Nested
+    @DisplayName("DELETE /posts/{postId}")
+    inner class DeletePost {
+        @BeforeEach
+        fun addEvent() {
+            repository.save(testPost)
+        }
+
+        @Test
+        fun `should delete the post`() {
+            mockMvc.delete("/posts/${testPost.id}").andExpect {
+                status { isOk() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                jsonPath("$") { isEmpty() }
+            }
+
+            assert(repository.findById(testPost.id!!).isEmpty)
+        }
+
+        @Test
+        fun `should fail if the post does not exist`() {
+            mockMvc.delete("/posts/1234").andExpect {
+                status { isNotFound() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                jsonPath("$.errors.length()") { value(1) }
+                jsonPath("$.errors[0].message") { value("post not found with id 1234") }
             }
         }
     }
