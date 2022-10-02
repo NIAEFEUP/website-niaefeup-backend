@@ -21,9 +21,10 @@ class Post(
     var title: String,
 
     @JsonProperty(required = true)
-    @field:Size(min = Constants.Body.minSize, message = "size must be greater than ${Constants.Body.minSize}")
+    @field:Size(min = Constants.Body.minSize, message = "size must be greater or equal to ${Constants.Body.minSize}")
     var body: String,
 
+    @JsonProperty(required = true)
     @field:NotEmpty
     var thumbnailPath: String,
 
