@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import pt.up.fe.ni.website.backend.model.Event
+import pt.up.fe.ni.website.backend.repository.EventRepository
 import pt.up.fe.ni.website.backend.utils.TestUtils
 import java.util.Calendar
 import pt.up.fe.ni.website.backend.model.constants.EventConstants as Constants
@@ -26,7 +27,8 @@ import pt.up.fe.ni.website.backend.model.constants.EventConstants as Constants
 @AutoConfigureTestDatabase
 internal class EventControllerTest @Autowired constructor(
     val mockMvc: MockMvc,
-    val objectMapper: ObjectMapper
+    val objectMapper: ObjectMapper,
+    val repository: EventRepository
 ) {
     val testEvent = Event(
         "Great event",
@@ -48,12 +50,7 @@ internal class EventControllerTest @Autowired constructor(
                 )
             )
 
-            for (event in testEvents) {
-                mockMvc.post("/events/new") {
-                    contentType = MediaType.APPLICATION_JSON
-                    content = objectMapper.writeValueAsString(event)
-                }
-            }
+            for (event in testEvents) repository.save(event)
         }
 
         @Test
