@@ -1,5 +1,8 @@
 package pt.up.fe.ni.website.backend.config
 
+import com.nimbusds.jose.jwk.JWKSet
+import com.nimbusds.jose.jwk.RSAKey
+import com.nimbusds.jose.jwk.source.ImmutableJWKSet
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.Customizer
@@ -9,7 +12,9 @@ import org.springframework.security.config.annotation.web.configurers.oauth2.ser
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.oauth2.jwt.JwtDecoder
+import org.springframework.security.oauth2.jwt.JwtEncoder
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
+import org.springframework.security.oauth2.jwt.NimbusJwtEncoder
 import org.springframework.security.provisioning.InMemoryUserDetailsManager
 import org.springframework.security.web.SecurityFilterChain
 
@@ -37,5 +42,11 @@ class AuthConfig(val rsaKeys: RSAKeyProperties) {
     @Bean
     fun jwtDecoder(): JwtDecoder {
         return NimbusJwtDecoder.withPublicKey(rsaKeys::publicKey.get()).build()
+    }
+
+    @Bean
+    fun jwtEncoder(): JwtEncoder {
+        val jwt = RSAKey.Builder(rsaKeys::publicKey.get()).privateKey(rsaKeys::privateKey.get()).build()
+        return NimbusJwtEncoder(ImmutableJWKSet(JWKSet(jwt)))
     }
 }
