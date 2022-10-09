@@ -25,5 +25,5 @@ class Account(
     val role: Role,
 
     @Id @GeneratedValue
-    val id: Long? = null,
+    val id: Long? = null
 )
