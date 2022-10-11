@@ -96,15 +96,15 @@ open class Dto<T : Any> {
          * reflective operations in your code, and since the type argument stays the same for every different kind of
          * Dto, we can cache it, thus reducing the amount of reflective operations performed.
          *
-         * The goal behind `genericArgumentClass` is to reuse code. We have a type cache and all types in the cache 
-         * are verified to be types that are annotated with @Entity. With `genericArgumentClass`, we skip the
-         * automatic type determination but we still ensure it's an entity before putting it on the cache.
+         * The goal behind `conversionClass` is to reuse code. We have a type cache and all types in the cache are
+         * verified to be types that are annotated with @Entity. With `conversionClass`, we skip the automatic type
+         * determination but we still ensure it's an entity before putting it on the cache.
          */
         @Suppress("UNCHECKED_CAST")
-        fun <T : Any> getTypeConversionClassWithCache(clazz: KClass<out Dto<T>>, genericArgumentClass: KClass<T>? = null): KClass<T> {
+        fun <T : Any> getTypeConversionClassWithCache(clazz: KClass<out Dto<T>>, conversionClass: KClass<T>? = null): KClass<T> {
             if (clazz == Dto::class) throw IllegalCallerException("DTO is not extended by any class")
             if (!typeArgumentCache.containsKey(clazz)) {
-                val typeArgumentErasure = genericArgumentClass ?: getTypeConversionClass(clazz)
+                val typeArgumentErasure = conversionClass ?: getTypeConversionClass(clazz)
                 typeArgumentCache[clazz] = ensureEntity(typeArgumentErasure)
             }
 
