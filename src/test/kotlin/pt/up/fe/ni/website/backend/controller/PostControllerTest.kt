@@ -52,7 +52,7 @@ internal class PostControllerTest @Autowired constructor(
         )
 
         @BeforeEach
-        fun addEvents() {
+        fun addPosts() {
             for (post in testPosts) repository.save(post)
         }
 
@@ -70,7 +70,7 @@ internal class PostControllerTest @Autowired constructor(
     @DisplayName("GET /posts/{postId}")
     inner class GetPost {
         @BeforeEach
-        fun addEvent() {
+        fun addPost() {
             repository.save(testPost)
         }
 
@@ -192,7 +192,7 @@ internal class PostControllerTest @Autowired constructor(
     @DisplayName("DELETE /posts/{postId}")
     inner class DeletePost {
         @BeforeEach
-        fun addEvent() {
+        fun addPost() {
             repository.save(testPost)
         }
 
@@ -222,7 +222,7 @@ internal class PostControllerTest @Autowired constructor(
     @DisplayName("PUT /posts/{postId}")
     inner class UpdatePost {
         @BeforeEach
-        fun addEvent() {
+        fun addPost() {
             repository.save(testPost)
         }
 
