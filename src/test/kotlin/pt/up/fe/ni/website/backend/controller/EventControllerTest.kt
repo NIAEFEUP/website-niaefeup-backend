@@ -39,17 +39,17 @@ internal class EventControllerTest @Autowired constructor(
     @Nested
     @DisplayName("GET /events")
     inner class GetAllEvents {
+        private val testEvents = listOf(
+            testEvent,
+            Event(
+                "Bad event",
+                "This event was a failure",
+                TestUtils.createDate(2021, Calendar.OCTOBER, 27)
+            )
+        )
+
         @BeforeEach
         fun addEvents() {
-            val testEvents = listOf(
-                testEvent,
-                Event(
-                    "Bad event",
-                    "This event was a failure",
-                    TestUtils.createDate(2021, Calendar.OCTOBER, 27)
-                )
-            )
-
             for (event in testEvents) repository.save(event)
         }
 
@@ -59,10 +59,7 @@ internal class EventControllerTest @Autowired constructor(
                 .andExpect {
                     status { isOk() }
                     content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.length()") { value(2) }
-                    jsonPath("$[0].title") { value(testEvent.title) }
-                    jsonPath("$[0].description") { value(testEvent.description) }
-                    jsonPath("$[0].date") { value(containsString("2022-07-28T")) }
+                    content { json(objectMapper.writeValueAsString(testEvents)) }
                 }
         }
     }
