@@ -21,9 +21,10 @@ class Post(
     var title: String,
 
     @JsonProperty(required = true)
-    @field:Size(min = Constants.Body.minSize, message = "size must be greater than ${Constants.Body.minSize}")
+    @field:Size(min = Constants.Body.minSize, message = "size must be greater or equal to ${Constants.Body.minSize}")
     var body: String,
 
+    @JsonProperty(required = true)
     @field:NotEmpty
     var thumbnailPath: String,
 
@@ -35,16 +36,4 @@ class Post(
 
     @Id @GeneratedValue
     val id: Long? = null
-) {
-    data class PatchModel(
-        @field:Size(min = Constants.Title.minSize, max = Constants.Title.maxSize)
-        var title: String?,
-
-        @field:Size(min = Constants.Body.minSize, message = "size must be greater than ${Constants.Body.minSize}")
-        var body: String?,
-
-        // Using @Size because @NotEmpty doesn't validate nulls
-        @field:Size(min = 1, message = "must not be empty")
-        var thumbnailPath: String?
-    )
-}
+)

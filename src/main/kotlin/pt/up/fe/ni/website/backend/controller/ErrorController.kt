@@ -5,14 +5,12 @@ import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
 import org.springframework.boot.web.servlet.error.ErrorController
 import org.springframework.http.HttpStatus
 import org.springframework.http.converter.HttpMessageNotReadableException
-import org.springframework.validation.FieldError
-import org.springframework.validation.ObjectError
-import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import javax.validation.ConstraintViolationException
 
 data class SimpleError(
     val message: String,
@@ -30,17 +28,16 @@ class ErrorController : ErrorController {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     fun endpointNotFound(): CustomError = wrapSimpleError("invalid endpoint")
 
-    @ExceptionHandler(MethodArgumentNotValidException::class)
+    @ExceptionHandler(ConstraintViolationException::class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    fun invalidArguments(e: MethodArgumentNotValidException): CustomError {
+    fun invalidArguments(e: ConstraintViolationException): CustomError {
         val errors = mutableListOf<SimpleError>()
-        e.bindingResult.allErrors.forEach { error: ObjectError ->
-            val fieldError = (error as FieldError)
+        e.constraintViolations.forEach { violation ->
             errors.add(
                 SimpleError(
-                    error.defaultMessage ?: "invalid",
-                    fieldError.field,
-                    fieldError.rejectedValue
+                    violation.message,
+                    violation.propertyPath.toString(),
+                    violation.invalidValue
                 )
             )
         }

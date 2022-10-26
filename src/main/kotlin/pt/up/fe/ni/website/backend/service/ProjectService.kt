@@ -9,9 +9,12 @@ import pt.up.fe.ni.website.backend.repository.ProjectRepository
 @Service
 class ProjectService(private val repository: ProjectRepository) {
 
-    fun getAllProjects() = repository.findAll().toList()
+    fun getAllProjects(): List<Project> = repository.findAll().toList()
 
-    fun saveProject(project: Project) = repository.save(project)
+    fun createProject(dto: ProjectDto): Project {
+        val project = dto.create()
+        return repository.save(project)
+    }
 
     fun getProjectById(id: Long): Project = repository.findByIdOrNull(id)
         ?: throw NoSuchElementException("project not found with id $id")
@@ -19,7 +22,7 @@ class ProjectService(private val repository: ProjectRepository) {
     fun updateProjectById(id: Long, dto: ProjectDto): Project {
         val project = getProjectById(id)
         val newProject = dto.update(project)
-        return saveProject(newProject)
+        return repository.save(newProject)
     }
 
     fun deleteProjectById(id: Long): Map<String, String> {
