@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing
 
 @SpringBootApplication
 @EnableJpaAuditing
-@OpenAPIDefinition(info=Info(title="NI Website REST API"))
+@OpenAPIDefinition(info = Info(title = "NI Website REST API"))
 
 class BackendApplication
 

@@ -76,3 +76,8 @@ gradle test
   - `repository/` - Data access layer methods (Spring Data repositories)
   - `service/` - Business logic for the controllers
 - `src/test/` - Self explanatory: unit tests, functional (end-to-end) tests, etc.
+
+### REST API documentation
+
+The api is documented using `openapi` with the `swagger` ui. When running the application, the ui it is accessible at 
+`/swagger-ui.html` and the `JSON` file is available at `/v3/api-docs`.
