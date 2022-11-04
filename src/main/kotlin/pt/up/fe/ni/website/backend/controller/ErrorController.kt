@@ -2,19 +2,45 @@ package pt.up.fe.ni.website.backend.controller
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException
 import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.boot.web.servlet.error.ErrorController
 import org.springframework.http.HttpStatus
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import pt.up.fe.ni.website.backend.model.Project
+import pt.up.fe.ni.website.backend.model.constants.PostConstants
 import javax.validation.ConstraintViolationException
 
 data class SimpleError(
+        @field:Schema(
+                description = "Error message",
+                example = "invalid endpoint",
+                type = "string"
+        )
     val message: String,
+        @field:Schema(
+                description = "Param related to the error",
+                example = "title",
+                type = "string",
+                nullable = true
+        )
     val param: String? = null,
+        @field:Schema(
+                description = "Value related to the error",
+                example = "1970-01-01T00:00:00",
+                type = "string",
+                nullable = true
+        )
     val value: Any? = null
 )
 
@@ -22,9 +48,11 @@ data class CustomError(val errors: List<SimpleError>)
 
 @RestController
 @RestControllerAdvice
+@Tag(name = "Error handling", description = "Error handling related endpoints")
+
 class ErrorController : ErrorController {
 
-    @RequestMapping("/**")
+    @RequestMapping("{_:^(?!swagger-ui\\.html).*$}")
     @ResponseStatus(HttpStatus.NOT_FOUND)
     fun endpointNotFound(): CustomError = wrapSimpleError("invalid endpoint")
 
@@ -34,11 +62,11 @@ class ErrorController : ErrorController {
         val errors = mutableListOf<SimpleError>()
         e.constraintViolations.forEach { violation ->
             errors.add(
-                SimpleError(
-                    violation.message,
-                    violation.propertyPath.toString(),
-                    violation.invalidValue
-                )
+                    SimpleError(
+                            violation.message,
+                            violation.propertyPath.toString(),
+                            violation.invalidValue
+                    )
             )
         }
         return CustomError(errors)
@@ -51,15 +79,15 @@ class ErrorController : ErrorController {
             is InvalidFormatException -> {
                 val type = cause.targetType.simpleName.lowercase()
                 return wrapSimpleError(
-                    "must be $type",
-                    value = cause.value
+                        "must be $type",
+                        value = cause.value
                 )
             }
 
             is MissingKotlinParameterException -> {
                 return wrapSimpleError(
-                    "required",
-                    param = cause.parameter.name
+                        "required",
+                        param = cause.parameter.name
                 )
             }
         }
@@ -81,6 +109,6 @@ class ErrorController : ErrorController {
     }
 
     fun wrapSimpleError(msg: String, param: String? = null, value: Any? = null) = CustomError(
-        mutableListOf(SimpleError(msg, param, value))
+            mutableListOf(SimpleError(msg, param, value))
     )
 }
