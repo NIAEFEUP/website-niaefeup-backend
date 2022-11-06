@@ -18,6 +18,9 @@ class ProjectController(private val service: ProjectService) {
     @GetMapping
     fun getAllProjects() = service.getAllProjects()
 
+    @GetMapping("/category/{cat}")
+    fun getProjectsByCategory(@PathVariable cat: String) = service.getProjectsByCategory(cat)
+
     @GetMapping("/{id}")
     fun getProjectById(@PathVariable id: Long) = service.getProjectById(id)
 

@@ -17,6 +17,10 @@ class Project(
     @field:Size(min = Constants.Description.minSize, max = Constants.Description.maxSize)
     var description: String,
 
+    @JsonProperty(required = true)
+    @field:Size(min = 2, max = 100)
+    var category: String,
+
     @Id @GeneratedValue
     val id: Long? = null
 )

@@ -11,6 +11,8 @@ class ProjectService(private val repository: ProjectRepository) {
 
     fun getAllProjects(): List<Project> = repository.findAll().toList()
 
+    fun getProjectsByCategory(category: String): List<Project> = repository.findAllByCategory(category)
+
     fun createProject(dto: ProjectDto): Project {
         val project = dto.create()
         return repository.save(project)

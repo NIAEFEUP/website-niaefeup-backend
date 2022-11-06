@@ -5,4 +5,6 @@ import org.springframework.stereotype.Repository
 import pt.up.fe.ni.website.backend.model.Project
 
 @Repository
-interface ProjectRepository : CrudRepository<Project, Long>
+interface ProjectRepository : CrudRepository<Project, Long> {
+    fun findAllByCategory(category: String): List<Project>
+}
