@@ -1,6 +1,7 @@
 package pt.up.fe.ni.website.backend.controller
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException
+import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
 import org.springframework.boot.web.servlet.error.ErrorController
 import org.springframework.http.HttpStatus
@@ -62,6 +63,13 @@ class ErrorController : ErrorController {
                     param = cause.parameter.name
                 )
             }
+
+            is MismatchedInputException -> {
+                return wrapSimpleError(
+                    "must be ${cause.targetType.simpleName.lowercase()}",
+                    param = cause.path.joinToString(".") { it.fieldName }
+                )
+            }
         }
 
         return wrapSimpleError(e.message ?: "invalid request body")
@@ -71,6 +79,12 @@ class ErrorController : ErrorController {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     fun elementNotFound(e: NoSuchElementException): CustomError {
         return wrapSimpleError(e.message ?: "element not found")
+    }
+
+    @ExceptionHandler(IllegalArgumentException::class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    fun illegalArgument(e: IllegalArgumentException): CustomError {
+        return wrapSimpleError(e.message ?: "invalid argument")
     }
 
     @ExceptionHandler(Exception::class)
