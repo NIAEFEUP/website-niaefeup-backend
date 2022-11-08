@@ -13,31 +13,31 @@ class Project(
     @JsonProperty(required = true)
     @field:Size(min = Constants.Name.minSize, max = Constants.Name.maxSize)
     @field:Schema(
-            description = "Name of the project",
-            example = "Uni",
-            type = "string",
-            minLength = Constants.Name.minSize,
-            maxLength = Constants.Name.maxSize
+        description = "Name of the project",
+        example = "Uni",
+        type = "string",
+        minLength = Constants.Name.minSize,
+        maxLength = Constants.Name.maxSize
     )
     var name: String,
 
     @JsonProperty(required = true)
     @field:Size(min = Constants.Description.minSize, max = Constants.Description.maxSize)
     @field:Schema(
-            description = "Description of the project",
-            example = "Uni bring the information of the various UPorto services to the tip of students' fingers.",
-            type = "string",
-            minLength = Constants.Description.minSize,
-            maxLength = Constants.Description.maxSize
+        description = "Description of the project",
+        example = "Uni bring the information of the various UPorto services to the tip of students' fingers.",
+        type = "string",
+        minLength = Constants.Description.minSize,
+        maxLength = Constants.Description.maxSize
     )
     var description: String,
 
     @Id @GeneratedValue
     @field:Schema(
-            description = "ID of the project",
-            example = "2",
-            type = "integer",
-            format = "int64"
+        description = "ID of the project",
+        example = "2",
+        type = "integer",
+        format = "int64"
     )
     val id: Long? = null
 )
