@@ -4,10 +4,13 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import org.hibernate.validator.constraints.URL
 import pt.up.fe.ni.website.backend.annotations.validation.NullOrNotBlank
 import java.util.Date
+import javax.persistence.CascadeType
 import javax.persistence.Column
 import javax.persistence.Entity
+import javax.persistence.FetchType
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
+import javax.persistence.JoinColumn
 import javax.persistence.OneToMany
 import javax.persistence.Temporal
 import javax.persistence.TemporalType
@@ -48,7 +51,8 @@ class Account(
     @field:URL
     var github: String?,
 
-    @OneToMany // TODO doesn't seem to be working
+    @JoinColumn
+    @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
     val websites: List<CustomWebsite>,
 
     @Id @GeneratedValue
