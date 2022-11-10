@@ -1,0 +1,18 @@
+= Spring REST Docs JUnit 5 Sample
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+
+
+
+One showing how to make a request using cURL:
+
+include::{snippets}/list-events/curl-request.adoc[]
+
+One showing the HTTP request:
+
+include::{snippets}/list-events/http-request.adoc[]
+
+And one showing the HTTP response:
+
+include::{snippets}/list-events/http-response.adoc[]
