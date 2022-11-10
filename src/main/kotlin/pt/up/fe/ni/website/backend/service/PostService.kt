@@ -11,7 +11,7 @@ class PostService(private val repository: PostRepository) {
     fun getAllPosts(): List<Post> = repository.findAll().toList()
 
     fun getPostById(postId: Long): Post =
-        repository.findByIdOrNull(postId) ?: throw NoSuchElementException("post not found with id $postId")
+        repository.findByIdOrNull(postId) ?: throw NoSuchElementException(ErrorMessages.postNotFound(postId))
 
     fun createPost(dto: PostDto): Post {
         val post = dto.create()
@@ -25,7 +25,7 @@ class PostService(private val repository: PostRepository) {
     }
 
     fun deletePostById(postId: Long): Map<String, String> {
-        repository.findByIdOrNull(postId) ?: throw NoSuchElementException("post not found with id $postId")
+        repository.findByIdOrNull(postId) ?: throw NoSuchElementException(ErrorMessages.postNotFound(postId))
         repository.deleteById(postId)
         return mapOf()
     }
