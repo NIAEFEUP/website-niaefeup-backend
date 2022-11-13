@@ -11,19 +11,11 @@ import pt.up.fe.ni.website.backend.model.constants.EventConstants as Constants
 @Entity
 class Event(
     @JsonProperty(required = true)
-    @field:Size(
-        min = Constants.Title.minSize,
-        max = Constants.Title.maxSize,
-        message = "size must be between ${Constants.Title.minSize} and ${Constants.Title.maxSize}"
-    )
+    @field:Size(min = Constants.Title.minSize, max = Constants.Title.maxSize)
     val title: String,
 
     @JsonProperty(required = true)
-    @field:Size(
-        min = Constants.Description.minSize,
-        max = Constants.Description.maxSize,
-        message = "size must be between ${Constants.Description.minSize} and ${Constants.Description.maxSize}"
-    )
+    @field:Size(min = Constants.Description.minSize, max = Constants.Description.maxSize)
     val description: String,
 
     @JsonProperty(required = true)

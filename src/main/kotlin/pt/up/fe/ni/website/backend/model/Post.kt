@@ -17,15 +17,11 @@ import pt.up.fe.ni.website.backend.model.constants.PostConstants as Constants
 @EntityListeners(AuditingEntityListener::class)
 class Post(
     @JsonProperty(required = true)
-    @field:Size(
-        min = Constants.Title.minSize,
-        max = Constants.Title.maxSize,
-        message = "size must be between ${Constants.Title.minSize} and ${Constants.Title.maxSize}"
-    )
+    @field:Size(min = Constants.Title.minSize, max = Constants.Title.maxSize)
     var title: String,
 
     @JsonProperty(required = true)
-    @field:Size(min = Constants.Body.minSize, message = "size must be greater or equal to ${Constants.Body.minSize}")
+    @field:Size(min = Constants.Body.minSize, message = "{size.min}")
     var body: String,
 
     @JsonProperty(required = true)
