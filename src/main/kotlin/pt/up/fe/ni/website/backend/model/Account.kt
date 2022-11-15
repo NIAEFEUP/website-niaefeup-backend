@@ -56,6 +56,9 @@ class Account(
     @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
     val websites: List<@Valid CustomWebsite> = emptyList(),
 
+    @field:ManyToMany
+    val roles: List<Role>,
+
     @Id @GeneratedValue
     val id: Long? = null
 )
