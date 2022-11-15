@@ -1,18 +1,24 @@
 package pt.up.fe.ni.website.backend.permissions
 
+import java.util.Collections
 import java.util.TreeSet
 
-class Permissions(val perms: Set<Permission>) : Set<Permission> by perms {
+class Permissions(private val permissions: MutableSet<Permission> = Collections.emptySet()) : MutableSet<Permission> by TreeSet(permissions) {
 
-    private val permissions = TreeSet<Permission>()
+    companion object {
+        fun fromLong(encoded: Long): Permissions {
+            val result = Permissions()
+            for (perm in Permission.values()) {
+                val encodedBit = encoded ushr perm.bit and 1L
+                if (encodedBit == 1L) {
+                    result.add(perm)
+                }
+            }
 
-    init {
-        this.permissions = TreeSet<Permission>().also {
-            it.addAll(permissions)
+            return result
         }
     }
-
-    fun hasPermission(permission: Permission) {
-        return 
+    fun toLong() = permissions.fold(0L) { acc, perm ->
+        return acc or (1L shl perm.bit)
     }
 }
