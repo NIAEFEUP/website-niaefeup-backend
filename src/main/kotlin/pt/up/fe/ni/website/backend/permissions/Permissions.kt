@@ -18,6 +18,7 @@ class Permissions(private val permissions: MutableSet<Permission> = Collections.
             return result
         }
     }
+
     fun toLong() = permissions.fold(0L) { acc, perm ->
         return acc or (1L shl perm.bit)
     }
