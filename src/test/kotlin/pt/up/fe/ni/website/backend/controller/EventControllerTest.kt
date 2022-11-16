@@ -88,7 +88,7 @@ internal class EventControllerTest @Autowired constructor(
         @DisplayName("Input Validation")
         inner class InputValidation {
             private val validationTester = ValidationTester(
-                req = { params: Map<String, Any> ->
+                req = { params: Map<String, Any?> ->
                     mockMvc.post("/events/new") {
                         contentType = MediaType.APPLICATION_JSON
                         content = objectMapper.writeValueAsString(params)

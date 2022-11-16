@@ -115,7 +115,7 @@ internal class ProjectControllerTest @Autowired constructor(
         @DisplayName("Input Validation")
         inner class InputValidation {
             private val validationTester = ValidationTester(
-                req = { params: Map<String, Any> ->
+                req = { params: Map<String, Any?> ->
                     mockMvc.post("/projects/new") {
                         contentType = MediaType.APPLICATION_JSON
                         content = objectMapper.writeValueAsString(params)
@@ -251,7 +251,7 @@ internal class ProjectControllerTest @Autowired constructor(
         @DisplayName("Input Validation")
         inner class InputValidation {
             private val validationTester = ValidationTester(
-                req = { params: Map<String, Any> ->
+                req = { params: Map<String, Any?> ->
                     mockMvc.put("/projects/${testProject.id}") {
                         contentType = MediaType.APPLICATION_JSON
                         content = objectMapper.writeValueAsString(params)

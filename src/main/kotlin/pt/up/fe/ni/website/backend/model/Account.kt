@@ -30,7 +30,7 @@ class Account(
     @field:Email
     var email: String,
 
-    @field:Size(min = Constants.Name.minSize, max = Constants.Name.maxSize)
+    @field:Size(min = Constants.Bio.minSize, max = Constants.Bio.maxSize)
     var bio: String?,
 
     @field:Past
