@@ -8,15 +8,21 @@ class ValidationTester(
     private val requiredFields: Map<String, Any?> = mapOf()
 ) {
     lateinit var param: String
+    var parameterName: String? = null
+
+    private fun getParamName(): String {
+        return parameterName ?: param
+    }
 
     fun isRequired() {
         val params = requiredFields.toMutableMap()
         params.remove(param)
         req(params)
+            .andDo { print() }
             .expectValidationError()
             .andExpect {
                 jsonPath("$.errors[0].message") { value("required") }
-                jsonPath("$.errors[0].param") { value(param) }
+                jsonPath("$.errors[0].param") { value(getParamName()) }
             }
     }
 
@@ -27,7 +33,7 @@ class ValidationTester(
             .expectValidationError()
             .andExpect {
                 jsonPath("$.errors[0].message") { value("must not be empty") }
-                jsonPath("$.errors[0].param") { value(param) }
+                jsonPath("$.errors[0].param") { value(getParamName()) }
                 jsonPath("$.errors[0].value") { value("") }
             }
     }
@@ -39,7 +45,7 @@ class ValidationTester(
             .expectValidationError()
             .andExpect {
                 jsonPath("$.errors[0].message") { value("must be null or not blank") }
-                jsonPath("$.errors[0].param") { value(param) }
+                jsonPath("$.errors[0].param") { value(getParamName()) }
                 jsonPath("$.errors[0].value") { value("") }
             }
     }
@@ -51,7 +57,7 @@ class ValidationTester(
             .expectValidationError()
             .andExpect {
                 jsonPath("$.errors[0].message") { value("must be a valid URL") }
-                jsonPath("$.errors[0].param") { value(param) }
+                jsonPath("$.errors[0].param") { value(getParamName()) }
                 jsonPath("$.errors[0].value") { value("invalid.com") }
             }
     }
@@ -66,7 +72,7 @@ class ValidationTester(
                 jsonPath("$.errors[0].message") {
                     value("size must be between $min and $max")
                 }
-                jsonPath("$.errors[0].param") { value(param) }
+                jsonPath("$.errors[0].param") { value(getParamName()) }
                 jsonPath("$.errors[0].value") { value(smallValue) }
             }
 
@@ -78,7 +84,7 @@ class ValidationTester(
                 jsonPath("$.errors[0].message") {
                     value("size must be between $min and $max")
                 }
-                jsonPath("$.errors[0].param") { value(param) }
+                jsonPath("$.errors[0].param") { value(getParamName()) }
                 jsonPath("$.errors[0].value") { value(bigValue) }
             }
     }
@@ -93,7 +99,7 @@ class ValidationTester(
                 jsonPath("$.errors[0].message") {
                     value("size must be greater or equal to $min")
                 }
-                jsonPath("$.errors[0].param") { value(param) }
+                jsonPath("$.errors[0].param") { value(getParamName()) }
                 jsonPath("$.errors[0].value") { value(smallValue) }
             }
     }
@@ -128,7 +134,7 @@ class ValidationTester(
             .andExpect {
                 jsonPath("$.errors[0].message") { value("must be a well-formed email address") }
                 jsonPath("$.errors[0].value") { value("not-and-email") }
-                jsonPath("$.errors[0].param") { value(param) }
+                jsonPath("$.errors[0].param") { value(getParamName()) }
             }
     }
 

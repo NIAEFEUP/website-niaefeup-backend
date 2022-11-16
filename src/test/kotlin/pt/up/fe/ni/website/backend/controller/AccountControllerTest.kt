@@ -3,6 +3,7 @@ package pt.up.fe.ni.website.backend.controller
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -278,6 +279,73 @@ class AccountControllerTest @Autowired constructor(
 
                 @Test
                 fun `should be URL`() = validationTester.isUrl()
+            }
+
+            @Nested
+            @DisplayName("websites")
+            inner class WebsitesValidation {
+                private val validationTester = ValidationTester(
+                    req = { params: Map<String, Any?> ->
+                        mockMvc.post("/accounts/new") {
+                            contentType = MediaType.APPLICATION_JSON
+                            content = objectMapper.writeValueAsString(
+                                mapOf(
+                                    "name" to testAccount.name,
+                                    "email" to testAccount.email,
+                                    "websites" to listOf<Any>(params)
+                                )
+                            )
+                        }
+                    },
+                    requiredFields = mapOf(
+                        "url" to "https://www.google.com"
+                    )
+                )
+
+                @Nested
+                @DisplayName("url")
+                inner class UrlValidation {
+                    @BeforeEach
+                    fun setParam() {
+                        validationTester.param = "url"
+                    }
+
+                    @Test
+                    fun `should be required`() = validationTester.isRequired()
+
+                    @Test
+                    fun `should not be empty`() {
+                        validationTester.parameterName = "websites[0].url"
+                        validationTester.isNotEmpty()
+                    }
+
+                    @Test
+                    fun `should be URL`() {
+                        validationTester.parameterName = "websites[0].url"
+                        validationTester.isUrl()
+                    }
+                }
+
+                @Nested
+                @DisplayName("iconPath")
+                inner class IconPathValidation {
+                    @BeforeEach
+                    fun setParam() {
+                        validationTester.param = "iconPath"
+                    }
+
+                    @Test
+                    fun `should be bull or not blank`() {
+                        validationTester.parameterName = "websites[0].iconPath"
+                        validationTester.isNullOrNotBlank()
+                    }
+
+                    @Test
+                    fun `should be URL`() {
+                        validationTester.parameterName = "websites[0].iconPath"
+                        validationTester.isUrl()
+                    }
+                }
             }
         }
 

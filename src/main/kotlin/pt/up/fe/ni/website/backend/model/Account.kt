@@ -12,6 +12,7 @@ import javax.persistence.GeneratedValue
 import javax.persistence.Id
 import javax.persistence.JoinColumn
 import javax.persistence.OneToMany
+import javax.validation.Valid
 import javax.validation.constraints.Email
 import javax.validation.constraints.NotEmpty
 import javax.validation.constraints.Past
@@ -50,7 +51,7 @@ class Account(
 
     @JoinColumn
     @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
-    val websites: List<CustomWebsite>,
+    val websites: List<@Valid CustomWebsite>,
 
     @Id @GeneratedValue
     val id: Long? = null

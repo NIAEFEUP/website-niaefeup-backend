@@ -6,10 +6,12 @@ import pt.up.fe.ni.website.backend.annotations.validation.NullOrNotBlank
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
+import javax.validation.constraints.NotEmpty
 
 @Entity
 class CustomWebsite(
     @JsonProperty(required = true)
+    @field:NotEmpty
     @field:URL
     val url: String,
 
