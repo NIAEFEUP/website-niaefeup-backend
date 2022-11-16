@@ -3,7 +3,6 @@ package pt.up.fe.ni.website.backend.controller
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.hamcrest.CoreMatchers.containsString
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -13,6 +12,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
+import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
@@ -25,6 +25,7 @@ import pt.up.fe.ni.website.backend.model.constants.EventConstants as Constants
 @SpringBootTest
 @AutoConfigureMockMvc
 @AutoConfigureTestDatabase
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 internal class EventControllerTest @Autowired constructor(
     val mockMvc: MockMvc,
     val objectMapper: ObjectMapper,
@@ -38,6 +39,7 @@ internal class EventControllerTest @Autowired constructor(
 
     @Nested
     @DisplayName("GET /events")
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class GetAllEvents {
         private val testEvents = listOf(
             testEvent,
@@ -48,7 +50,7 @@ internal class EventControllerTest @Autowired constructor(
             )
         )
 
-        @BeforeEach
+        @BeforeAll
         fun addEvents() {
             for (event in testEvents) repository.save(event)
         }

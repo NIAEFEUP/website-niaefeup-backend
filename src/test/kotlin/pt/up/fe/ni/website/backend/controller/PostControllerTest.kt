@@ -15,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
+import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.get
@@ -29,6 +30,7 @@ import pt.up.fe.ni.website.backend.model.constants.PostConstants as Constants
 @SpringBootTest
 @AutoConfigureMockMvc
 @AutoConfigureTestDatabase
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 internal class PostControllerTest @Autowired constructor(
     val mockMvc: MockMvc,
     val objectMapper: ObjectMapper,
@@ -42,6 +44,7 @@ internal class PostControllerTest @Autowired constructor(
 
     @Nested
     @DisplayName("GET /posts")
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class GetAllPosts {
         private val testPosts = listOf(
             testPost,
@@ -52,7 +55,7 @@ internal class PostControllerTest @Autowired constructor(
             )
         )
 
-        @BeforeEach
+        @BeforeAll
         fun addPosts() {
             for (post in testPosts) repository.save(post)
         }
@@ -69,8 +72,9 @@ internal class PostControllerTest @Autowired constructor(
 
     @Nested
     @DisplayName("GET /posts/{postId}")
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class GetPost {
-        @BeforeEach
+        @BeforeAll
         fun addPost() {
             repository.save(testPost)
         }
@@ -224,7 +228,6 @@ internal class PostControllerTest @Autowired constructor(
     inner class UpdatePost {
         @BeforeEach
         fun addPost() {
-            testPost.lastUpdatedAt = Date(0)
             repository.save(testPost)
         }
 
