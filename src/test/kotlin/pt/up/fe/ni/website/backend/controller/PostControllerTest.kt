@@ -78,7 +78,6 @@ internal class PostControllerTest @Autowired constructor(
         @Test
         fun `should return the post`() {
             mockMvc.get("/posts/${testPost.id}")
-                .andDo { print() }
                 .andExpect {
                     status { isOk() }
                     content { contentType(MediaType.APPLICATION_JSON) }
@@ -110,7 +109,6 @@ internal class PostControllerTest @Autowired constructor(
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(testPost)
             }
-                .andDo { print() }
                 .andExpect {
                     status { isOk() }
                     content { contentType(MediaType.APPLICATION_JSON) }
