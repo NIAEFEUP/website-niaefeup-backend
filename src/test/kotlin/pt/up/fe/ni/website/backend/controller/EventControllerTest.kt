@@ -20,7 +20,7 @@ import pt.up.fe.ni.website.backend.model.Event
 import pt.up.fe.ni.website.backend.repository.EventRepository
 import pt.up.fe.ni.website.backend.utils.TestUtils
 import java.util.Calendar
-import pt.up.fe.ni.website.backend.model.constants.EventConstants as Constants
+import pt.up.fe.ni.website.backend.model.constants.ActivityConstants as Constants
 
 @SpringBootTest
 @AutoConfigureMockMvc
