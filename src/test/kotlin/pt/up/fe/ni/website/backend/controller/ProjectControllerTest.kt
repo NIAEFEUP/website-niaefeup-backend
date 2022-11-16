@@ -203,13 +203,15 @@ internal class ProjectControllerTest @Autowired constructor(
         fun `should update the project`() {
             val newName = "New Name"
             val newDescription = "New description of the project"
+            val newIsArchived = true
 
             mockMvc.put("/projects/${testProject.id}") {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(
                     mapOf(
                         "name" to newName,
-                        "description" to newDescription
+                        "description" to newDescription,
+                        "isArchived" to newIsArchived
                     )
                 )
             }
@@ -218,11 +220,13 @@ internal class ProjectControllerTest @Autowired constructor(
                     content { contentType(MediaType.APPLICATION_JSON) }
                     jsonPath("$.name") { value(newName) }
                     jsonPath("$.description") { value(newDescription) }
+                    jsonPath("$.isArchived") { value(newIsArchived) }
                 }
 
             val updatedProject = repository.findById(testProject.id!!).get()
             assertEquals(newName, updatedProject.name)
             assertEquals(newDescription, updatedProject.description)
+            assertEquals(newIsArchived, updatedProject.isArchived)
         }
 
         @Test
