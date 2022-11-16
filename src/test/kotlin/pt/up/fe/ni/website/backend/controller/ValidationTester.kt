@@ -128,12 +128,12 @@ class ValidationTester(
 
     fun isEmail() {
         val params = requiredFields.toMutableMap()
-        params[param] = "not-and-email"
+        params[param] = "not-an-email"
         req(params)
             .expectValidationError()
             .andExpect {
                 jsonPath("$.errors[0].message") { value("must be a well-formed email address") }
-                jsonPath("$.errors[0].value") { value("not-and-email") }
+                jsonPath("$.errors[0].value") { value("not-an-email") }
                 jsonPath("$.errors[0].param") { value(getParamName()) }
             }
     }
