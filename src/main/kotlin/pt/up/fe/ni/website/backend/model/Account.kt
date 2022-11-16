@@ -12,8 +12,6 @@ import javax.persistence.GeneratedValue
 import javax.persistence.Id
 import javax.persistence.JoinColumn
 import javax.persistence.OneToMany
-import javax.persistence.Temporal
-import javax.persistence.TemporalType
 import javax.validation.constraints.Email
 import javax.validation.constraints.NotEmpty
 import javax.validation.constraints.Past
@@ -35,7 +33,6 @@ class Account(
     @field:Size(min = Constants.Name.minSize, max = Constants.Name.maxSize)
     var bio: String?,
 
-    @Temporal(TemporalType.DATE)
     @field:Past
     var birthDate: Date?,
 
