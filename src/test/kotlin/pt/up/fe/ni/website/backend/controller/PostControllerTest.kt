@@ -22,6 +22,7 @@ import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.put
 import pt.up.fe.ni.website.backend.model.Post
 import pt.up.fe.ni.website.backend.repository.PostRepository
+import java.text.SimpleDateFormat
 import java.util.Date
 import pt.up.fe.ni.website.backend.model.constants.PostConstants as Constants
 
@@ -36,7 +37,7 @@ internal class PostControllerTest @Autowired constructor(
     val testPost = Post(
         "New test released",
         "this is a test post",
-        "thumbnails/test.png"
+        "https://thumbnails/test.png"
     )
 
     @Nested
@@ -47,7 +48,7 @@ internal class PostControllerTest @Autowired constructor(
             Post(
                 "NIAEFEUP gets a new president",
                 "New president promised to buy new chairs",
-                "thumbnails/pres.png"
+                "https://thumbnails/pres.png"
             )
         )
 
@@ -76,15 +77,17 @@ internal class PostControllerTest @Autowired constructor(
 
         @Test
         fun `should return the post`() {
-            mockMvc.get("/posts/${testPost.id}").andExpect {
-                status { isOk() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.title") { value(testPost.title) }
-                jsonPath("$.body") { value(testPost.body) }
-                jsonPath("$.thumbnailPath") { value(testPost.thumbnailPath) }
-                jsonPath("$.publishDate") { value(testPost.publishDate.toJson()) }
-                jsonPath("$.lastUpdatedAt") { value(testPost.lastUpdatedAt.toJson()) }
-            }
+            mockMvc.get("/posts/${testPost.id}")
+                .andDo { print() }
+                .andExpect {
+                    status { isOk() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$.title") { value(testPost.title) }
+                    jsonPath("$.body") { value(testPost.body) }
+                    jsonPath("$.thumbnailPath") { value(testPost.thumbnailPath) }
+                    jsonPath("$.publishDate") { value(testPost.publishDate.toJson()) }
+                    jsonPath("$.lastUpdatedAt") { value(testPost.lastUpdatedAt.toJson(true)) }
+                }
         }
 
         @Test
@@ -223,6 +226,7 @@ internal class PostControllerTest @Autowired constructor(
     inner class UpdatePost {
         @BeforeEach
         fun addPost() {
+            testPost.lastUpdatedAt = Date(0)
             repository.save(testPost)
         }
 
@@ -230,7 +234,7 @@ internal class PostControllerTest @Autowired constructor(
         fun `should update the post`() {
             val newTitle = "New Title"
             val newBody = "New Body of the post"
-            val newThumbnailPath = "thumbnails/new.png"
+            val newThumbnailPath = "https://thumbnails/new.png"
 
             mockMvc.put("/posts/${testPost.id}") {
                 contentType = MediaType.APPLICATION_JSON
@@ -249,7 +253,7 @@ internal class PostControllerTest @Autowired constructor(
                     jsonPath("$.body") { value(newBody) }
                     jsonPath("$.thumbnailPath") { value(newThumbnailPath) }
                     jsonPath("$.publishDate") { value(testPost.publishDate.toJson()) }
-                    jsonPath("$.lastUpdatedAt") { value(not(testPost.lastUpdatedAt.toJson())) }
+                    jsonPath("$.lastUpdatedAt") { exists() }
                 }
 
             val updatedPost = repository.findById(testPost.id!!).get()
@@ -349,8 +353,11 @@ internal class PostControllerTest @Autowired constructor(
         }
     }
 
-    fun Date?.toJson(): String {
-        val quotedDate = objectMapper.writeValueAsString(this)
+    fun Date?.toJson(includeHour: Boolean = false): String {
+        val dateMapper = objectMapper.copy()
+        if (includeHour) dateMapper.dateFormat = SimpleDateFormat("dd-MM-yyyy HH:mm:ss")
+
+        val quotedDate = dateMapper.writeValueAsString(this)
         // objectMapper adds quotes to the date, so remove them
         return quotedDate.substring(1, quotedDate.length - 1)
     }

@@ -79,7 +79,7 @@ internal class EventControllerTest @Autowired constructor(
                     content { contentType(MediaType.APPLICATION_JSON) }
                     jsonPath("$.title") { value(testEvent.title) }
                     jsonPath("$.description") { value(testEvent.description) }
-                    jsonPath("$.date") { value(containsString("2022-07-28T")) }
+                    jsonPath("$.date") { value(containsString("28-07-2022")) }
                 }
         }
 
