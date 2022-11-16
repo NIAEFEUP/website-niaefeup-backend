@@ -17,7 +17,7 @@ annotation class NullOrNotBlank(
 )
 
 class NullOrNotBlankValidator : ConstraintValidator<NullOrNotBlank, String?> {
-    override fun isValid(value: String?, context: ConstraintValidatorContext): Boolean {
+    override fun isValid(value: String?, context: ConstraintValidatorContext?): Boolean {
         return value == null || value.isNotBlank()
     }
 }
