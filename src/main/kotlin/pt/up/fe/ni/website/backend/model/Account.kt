@@ -12,17 +12,6 @@ import javax.persistence.OneToMany
 class Account(
     @Column(nullable = false)
     val name: String,
-    val bio: String?,
-    val birthDate: Date?,
-    val photo: String?,
-    val linkedin: String?,
-    @OneToMany
-    val websites: List<CustomWebsite>,
-
-    val permissions: Long,
-
-    @ManyToOne
-    val role: Role,
 
     @Id @GeneratedValue
     val id: Long? = null
