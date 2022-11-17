@@ -72,6 +72,7 @@ gradle test
 - `src/main`
   - `controller/` - Methods that register endpoints for the app
   - `model/` - Database entity models (Spring Data JPA entities)
+    - `dto/` - Data Transfer Objects for creating and modifying entities
   - `repository/` - Data access layer methods (Spring Data repositories)
   - `service/` - Business logic for the controllers
 - `src/test/` - Self explanatory: unit tests, functional (end-to-end) tests, etc.

@@ -1,25 +1,21 @@
 package pt.up.fe.ni.website.backend.model
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import java.util.Date
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
 import javax.validation.constraints.Size
-import pt.up.fe.ni.website.backend.model.constants.EventConstants as Constants
+import pt.up.fe.ni.website.backend.model.constants.ProjectConstants as Constants
 
 @Entity
-class Event(
+class Project(
     @JsonProperty(required = true)
-    @field:Size(min = Constants.Title.minSize, max = Constants.Title.maxSize)
-    val title: String,
+    @field:Size(min = Constants.Name.minSize, max = Constants.Name.maxSize)
+    var name: String,
 
     @JsonProperty(required = true)
     @field:Size(min = Constants.Description.minSize, max = Constants.Description.maxSize)
-    val description: String,
-
-    @JsonProperty(required = true)
-    val date: Date,
+    var description: String,
 
     @Id @GeneratedValue
     val id: Long? = null
