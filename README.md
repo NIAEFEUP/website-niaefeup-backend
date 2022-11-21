@@ -75,4 +75,6 @@ gradle test
     - `dto/` - Data Transfer Objects for creating and modifying entities
   - `repository/` - Data access layer methods (Spring Data repositories)
   - `service/` - Business logic for the controllers
+  - `annotations/` - Custom annotations used in the project
+    - `validation/` - Custom validations used across the different models
 - `src/test/` - Self explanatory: unit tests, functional (end-to-end) tests, etc.

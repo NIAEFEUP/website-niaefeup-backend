@@ -13,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
+import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.get
@@ -25,6 +26,7 @@ import pt.up.fe.ni.website.backend.model.constants.ProjectConstants as Constants
 @SpringBootTest
 @AutoConfigureMockMvc
 @AutoConfigureTestDatabase
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 internal class ProjectControllerTest @Autowired constructor(
     val mockMvc: MockMvc,
     val objectMapper: ObjectMapper,
@@ -37,6 +39,7 @@ internal class ProjectControllerTest @Autowired constructor(
 
     @Nested
     @DisplayName("GET /projects")
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class GetAllProjects {
         private val testProjects = listOf(
             testProject,
@@ -46,7 +49,7 @@ internal class ProjectControllerTest @Autowired constructor(
             )
         )
 
-        @BeforeEach
+        @BeforeAll
         fun addProjects() {
             for (project in testProjects) repository.save(project)
         }
@@ -63,8 +66,9 @@ internal class ProjectControllerTest @Autowired constructor(
 
     @Nested
     @DisplayName("GET /projects/{projectId}")
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class GetProject {
-        @BeforeEach
+        @BeforeAll
         fun addProject() {
             repository.save(testProject)
         }
@@ -99,7 +103,6 @@ internal class ProjectControllerTest @Autowired constructor(
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(testProject)
             }
-                .andDo { print() }
                 .andExpect {
                     status { isOk() }
                     content { contentType(MediaType.APPLICATION_JSON) }
@@ -112,7 +115,7 @@ internal class ProjectControllerTest @Autowired constructor(
         @DisplayName("Input Validation")
         inner class InputValidation {
             private val validationTester = ValidationTester(
-                req = { params: Map<String, Any> ->
+                req = { params: Map<String, Any?> ->
                     mockMvc.post("/projects/new") {
                         contentType = MediaType.APPLICATION_JSON
                         content = objectMapper.writeValueAsString(params)
@@ -248,7 +251,7 @@ internal class ProjectControllerTest @Autowired constructor(
         @DisplayName("Input Validation")
         inner class InputValidation {
             private val validationTester = ValidationTester(
-                req = { params: Map<String, Any> ->
+                req = { params: Map<String, Any?> ->
                     mockMvc.put("/projects/${testProject.id}") {
                         contentType = MediaType.APPLICATION_JSON
                         content = objectMapper.writeValueAsString(params)
