@@ -33,4 +33,16 @@ class ProjectService(private val repository: ProjectRepository) {
         repository.deleteById(id)
         return emptyMap()
     }
+
+    fun archiveProjectById(id: Long): Project {
+        val project = getProjectById(id)
+        project.isArchived = true
+        return repository.save(project)
+    }
+
+    fun unarchiveProjectById(id: Long): Project {
+        val project = getProjectById(id)
+        project.isArchived = false
+        return repository.save(project)
+    }
 }
