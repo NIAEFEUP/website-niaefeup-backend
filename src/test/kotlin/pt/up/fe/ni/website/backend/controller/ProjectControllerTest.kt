@@ -300,4 +300,56 @@ internal class ProjectControllerTest @Autowired constructor(
             }
         }
     }
+
+    @Nested
+    @DisplayName("PUT /projects/archive/{projectId}")
+    inner class ArchiveProject {
+        @BeforeEach
+        fun addProject() {
+            repository.save(testProject)
+        }
+        @Test
+        fun `should archive the project`() {
+            val newIsArchived = true
+
+            mockMvc.put("/projects/archive/${testProject.id}") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString("isArchived" to newIsArchived)
+            }
+                    .andExpect {
+                        status { isOk() }
+                        content { contentType(MediaType.APPLICATION_JSON) }
+                        jsonPath("$.isArchived") { value(newIsArchived) }
+                    }
+
+            val archivedProject = repository.findById(testProject.id!!).get()
+            assertEquals(newIsArchived, archivedProject.isArchived)
+        }
+    }
+
+    @Nested
+    @DisplayName("PUT /projects/unarchive/{projectId}")
+    inner class UnarchiveProject {
+        @BeforeEach
+        fun addProject() {
+            repository.save(testProject)
+        }
+        @Test
+        fun `should archive the project`() {
+            val newIsArchived = false
+
+            mockMvc.put("/projects/unarchive/${testProject.id}") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString("isArchived" to newIsArchived)
+            }
+                    .andExpect {
+                        status { isOk() }
+                        content { contentType(MediaType.APPLICATION_JSON) }
+                        jsonPath("$.isArchived") { value(newIsArchived) }
+                    }
+
+            val unarchivedProject = repository.findById(testProject.id!!).get()
+            assertEquals(newIsArchived, unarchivedProject.isArchived)
+        }
+    }
 }
