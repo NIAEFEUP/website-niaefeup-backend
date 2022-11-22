@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import pt.up.fe.ni.website.backend.model.dto.ProjectDto
 import pt.up.fe.ni.website.backend.service.ProjectService
-import java.util.spi.LocaleNameProvider
 
 @RestController
 @RequestMapping("/projects")

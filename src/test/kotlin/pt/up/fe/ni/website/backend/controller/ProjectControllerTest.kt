@@ -308,6 +308,7 @@ internal class ProjectControllerTest @Autowired constructor(
         fun addProject() {
             repository.save(testProject)
         }
+
         @Test
         fun `should archive the project`() {
             val newIsArchived = true
@@ -316,11 +317,11 @@ internal class ProjectControllerTest @Autowired constructor(
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString("isArchived" to newIsArchived)
             }
-                    .andExpect {
-                        status { isOk() }
-                        content { contentType(MediaType.APPLICATION_JSON) }
-                        jsonPath("$.isArchived") { value(newIsArchived) }
-                    }
+                .andExpect {
+                    status { isOk() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$.isArchived") { value(newIsArchived) }
+                }
 
             val archivedProject = repository.findById(testProject.id!!).get()
             assertEquals(newIsArchived, archivedProject.isArchived)
@@ -334,6 +335,7 @@ internal class ProjectControllerTest @Autowired constructor(
         fun addProject() {
             repository.save(testProject)
         }
+
         @Test
         fun `should archive the project`() {
             val newIsArchived = false
@@ -342,11 +344,11 @@ internal class ProjectControllerTest @Autowired constructor(
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString("isArchived" to newIsArchived)
             }
-                    .andExpect {
-                        status { isOk() }
-                        content { contentType(MediaType.APPLICATION_JSON) }
-                        jsonPath("$.isArchived") { value(newIsArchived) }
-                    }
+                .andExpect {
+                    status { isOk() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$.isArchived") { value(newIsArchived) }
+                }
 
             val unarchivedProject = repository.findById(testProject.id!!).get()
             assertEquals(newIsArchived, unarchivedProject.isArchived)
