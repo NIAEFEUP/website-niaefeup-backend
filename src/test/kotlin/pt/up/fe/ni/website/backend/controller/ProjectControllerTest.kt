@@ -302,7 +302,7 @@ internal class ProjectControllerTest @Autowired constructor(
     }
 
     @Nested
-    @DisplayName("PUT /projects/archive/{projectId}")
+    @DisplayName("PUT /projects/{projectId}/archive")
     inner class ArchiveProject {
         @BeforeEach
         fun addProject() {
@@ -313,7 +313,7 @@ internal class ProjectControllerTest @Autowired constructor(
         fun `should archive the project`() {
             val newIsArchived = true
 
-            mockMvc.put("/projects/archive/${testProject.id}") {
+            mockMvc.put("/projects/${testProject.id}/archive") {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString("isArchived" to newIsArchived)
             }
@@ -329,18 +329,23 @@ internal class ProjectControllerTest @Autowired constructor(
     }
 
     @Nested
-    @DisplayName("PUT /projects/unarchive/{projectId}")
+    @DisplayName("PUT /projects/{projectId}/unarchive")
     inner class UnarchiveProject {
+        private val project = Project(
+            "proj1",
+            "very cool project",
+            true
+        )
         @BeforeEach
         fun addProject() {
-            repository.save(testProject)
+            repository.save(project)
         }
 
         @Test
-        fun `should archive the project`() {
+        fun `should unarchive the project`() {
             val newIsArchived = false
 
-            mockMvc.put("/projects/unarchive/${testProject.id}") {
+            mockMvc.put("/projects/${project.id}/unarchive") {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString("isArchived" to newIsArchived)
             }
@@ -350,7 +355,7 @@ internal class ProjectControllerTest @Autowired constructor(
                     jsonPath("$.isArchived") { value(newIsArchived) }
                 }
 
-            val unarchivedProject = repository.findById(testProject.id!!).get()
+            val unarchivedProject = repository.findById(project.id!!).get()
             assertEquals(newIsArchived, unarchivedProject.isArchived)
         }
     }

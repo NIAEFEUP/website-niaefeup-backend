@@ -33,9 +33,9 @@ class ProjectController(private val service: ProjectService) {
         @RequestBody dto: ProjectDto
     ) = service.updateProjectById(id, dto)
 
-    @PutMapping("/archive/{id}")
+    @PutMapping("/{id}/archive")
     fun archiveProjectById(@PathVariable id: Long) = service.archiveProjectById(id)
 
-    @PutMapping("/unarchive/{id}")
+    @PutMapping("/{id}/unarchive")
     fun unarchiveProjectById(@PathVariable id: Long) = service.unarchiveProjectById(id)
 }
