@@ -17,6 +17,8 @@ class Project(
     @field:Size(min = Constants.Description.minSize, max = Constants.Description.maxSize)
     var description: String,
 
+    var isArchived: Boolean = false,
+
     @Id @GeneratedValue
     val id: Long? = null
 )
