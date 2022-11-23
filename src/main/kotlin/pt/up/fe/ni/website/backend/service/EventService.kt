@@ -13,4 +13,20 @@ class EventService(private val repository: EventRepository) {
         val event = dto.create()
         return repository.save(event)
     }
+
+    fun getEventsByCategory(category: String): List<Event> = repository.findAllByCategory(category)
+
+    fun getEventById(eventId: Long): Event = repository.findById(eventId).get()
+
+    fun updateEventById(eventId: Long, dto: EventDto): Event {
+        val event = getEventById(eventId)
+        val newEvent = dto.update(event)
+        return repository.save(newEvent)
+    }
+
+    fun deleteEventById(eventId: Long): Map<String, String> {
+        repository.findById(eventId).get()
+        repository.deleteById(eventId)
+        return mapOf()
+    }
 }

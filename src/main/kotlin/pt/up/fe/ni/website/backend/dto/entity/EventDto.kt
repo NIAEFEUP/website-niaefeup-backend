@@ -7,5 +7,9 @@ class EventDto(
     val title: String,
     val description: String,
     val registerUrl: String?,
-    val date: Date
+    val startDate: Date,
+    val endDate: Date?,
+    val location: String?,
+    val category: String?,
+    val thumbnailPath: String
 ) : EntityDto<Event>()
