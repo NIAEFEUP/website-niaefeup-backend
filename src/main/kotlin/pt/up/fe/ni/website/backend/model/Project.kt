@@ -17,7 +17,6 @@ class Project(
     @field:Size(min = Constants.Description.minSize, max = Constants.Description.maxSize)
     var description: String,
 
-    @JsonProperty
     var isArchived: Boolean = false,
 
     @Id @GeneratedValue
