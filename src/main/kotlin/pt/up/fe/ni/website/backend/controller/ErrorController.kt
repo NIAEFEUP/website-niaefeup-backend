@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import javax.validation.ConstraintViolationException
+import org.springframework.security.access.AccessDeniedException
 
 data class SimpleError(
     val message: String,
@@ -71,6 +72,12 @@ class ErrorController : ErrorController {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     fun elementNotFound(e: NoSuchElementException): CustomError {
         return wrapSimpleError(e.message ?: "element not found")
+    }
+
+    @ExceptionHandler(AccessDeniedException::class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    fun unauthorized(e: AccessDeniedException): CustomError {
+        return wrapSimpleError(e.message ?: "unauthorized")
     }
 
     @ExceptionHandler(Exception::class)
