@@ -15,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
+import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.get
@@ -22,12 +23,14 @@ import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.put
 import pt.up.fe.ni.website.backend.model.Post
 import pt.up.fe.ni.website.backend.repository.PostRepository
+import java.text.SimpleDateFormat
 import java.util.Date
 import pt.up.fe.ni.website.backend.model.constants.PostConstants as Constants
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @AutoConfigureTestDatabase
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 internal class PostControllerTest @Autowired constructor(
     val mockMvc: MockMvc,
     val objectMapper: ObjectMapper,
@@ -36,22 +39,23 @@ internal class PostControllerTest @Autowired constructor(
     val testPost = Post(
         "New test released",
         "this is a test post",
-        "thumbnails/test.png"
+        "https://thumbnails/test.png"
     )
 
     @Nested
     @DisplayName("GET /posts")
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class GetAllPosts {
         private val testPosts = listOf(
             testPost,
             Post(
                 "NIAEFEUP gets a new president",
                 "New president promised to buy new chairs",
-                "thumbnails/pres.png"
+                "https://thumbnails/pres.png"
             )
         )
 
-        @BeforeEach
+        @BeforeAll
         fun addPosts() {
             for (post in testPosts) repository.save(post)
         }
@@ -68,23 +72,25 @@ internal class PostControllerTest @Autowired constructor(
 
     @Nested
     @DisplayName("GET /posts/{postId}")
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class GetPost {
-        @BeforeEach
+        @BeforeAll
         fun addPost() {
             repository.save(testPost)
         }
 
         @Test
         fun `should return the post`() {
-            mockMvc.get("/posts/${testPost.id}").andExpect {
-                status { isOk() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.title") { value(testPost.title) }
-                jsonPath("$.body") { value(testPost.body) }
-                jsonPath("$.thumbnailPath") { value(testPost.thumbnailPath) }
-                jsonPath("$.publishDate") { value(testPost.publishDate.toJson()) }
-                jsonPath("$.lastUpdatedAt") { value(testPost.lastUpdatedAt.toJson()) }
-            }
+            mockMvc.get("/posts/${testPost.id}")
+                .andExpect {
+                    status { isOk() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$.title") { value(testPost.title) }
+                    jsonPath("$.body") { value(testPost.body) }
+                    jsonPath("$.thumbnailPath") { value(testPost.thumbnailPath) }
+                    jsonPath("$.publishDate") { value(testPost.publishDate.toJson()) }
+                    jsonPath("$.lastUpdatedAt") { value(testPost.lastUpdatedAt.toJson(true)) }
+                }
         }
 
         @Test
@@ -107,7 +113,6 @@ internal class PostControllerTest @Autowired constructor(
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(testPost)
             }
-                .andDo { print() }
                 .andExpect {
                     status { isOk() }
                     content { contentType(MediaType.APPLICATION_JSON) }
@@ -123,7 +128,7 @@ internal class PostControllerTest @Autowired constructor(
         @DisplayName("Input Validation")
         inner class InputValidation {
             private val validationTester = ValidationTester(
-                req = { params: Map<String, Any> ->
+                req = { params: Map<String, Any?> ->
                     mockMvc.post("/posts/new") {
                         contentType = MediaType.APPLICATION_JSON
                         content = objectMapper.writeValueAsString(params)
@@ -230,7 +235,7 @@ internal class PostControllerTest @Autowired constructor(
         fun `should update the post`() {
             val newTitle = "New Title"
             val newBody = "New Body of the post"
-            val newThumbnailPath = "thumbnails/new.png"
+            val newThumbnailPath = "https://thumbnails/new.png"
 
             mockMvc.put("/posts/${testPost.id}") {
                 contentType = MediaType.APPLICATION_JSON
@@ -249,7 +254,7 @@ internal class PostControllerTest @Autowired constructor(
                     jsonPath("$.body") { value(newBody) }
                     jsonPath("$.thumbnailPath") { value(newThumbnailPath) }
                     jsonPath("$.publishDate") { value(testPost.publishDate.toJson()) }
-                    jsonPath("$.lastUpdatedAt") { value(not(testPost.lastUpdatedAt.toJson())) }
+                    jsonPath("$.lastUpdatedAt") { exists() }
                 }
 
             val updatedPost = repository.findById(testPost.id!!).get()
@@ -284,7 +289,7 @@ internal class PostControllerTest @Autowired constructor(
         @DisplayName("Input Validation")
         inner class InputValidation {
             private val validationTester = ValidationTester(
-                req = { params: Map<String, Any> ->
+                req = { params: Map<String, Any?> ->
                     mockMvc.put("/posts/${testPost.id}") {
                         contentType = MediaType.APPLICATION_JSON
                         content = objectMapper.writeValueAsString(params)
@@ -349,8 +354,11 @@ internal class PostControllerTest @Autowired constructor(
         }
     }
 
-    fun Date?.toJson(): String {
-        val quotedDate = objectMapper.writeValueAsString(this)
+    fun Date?.toJson(includeHour: Boolean = false): String {
+        val dateMapper = objectMapper.copy()
+        if (includeHour) dateMapper.dateFormat = SimpleDateFormat("dd-MM-yyyy HH:mm:ss")
+
+        val quotedDate = dateMapper.writeValueAsString(this)
         // objectMapper adds quotes to the date, so remove them
         return quotedDate.substring(1, quotedDate.length - 1)
     }

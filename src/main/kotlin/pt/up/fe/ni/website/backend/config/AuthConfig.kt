@@ -24,9 +24,9 @@ class AuthConfig(val rsaKeys: RSAKeyProperties) {
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         return http.csrf { csrf -> csrf.disable() }
-                .oauth2ResourceServer(OAuth2ResourceServerConfigurer<HttpSecurity>::jwt)
-                .sessionManagement { session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
-                .httpBasic(Customizer.withDefaults()).build()
+            .oauth2ResourceServer(OAuth2ResourceServerConfigurer<HttpSecurity>::jwt)
+            .sessionManagement { session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+            .httpBasic(Customizer.withDefaults()).build()
     }
 
     @Bean

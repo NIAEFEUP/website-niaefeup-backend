@@ -26,19 +26,19 @@ class AuthService(val encoder: JwtEncoder) {
 
     private fun generateToken(authentication: Authentication): String {
         val scope = authentication
-                .authorities
-                .stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(" "))
+            .authorities
+            .stream()
+            .map(GrantedAuthority::getAuthority)
+            .collect(Collectors.joining(" "))
         val currentInstant = Instant.now()
         val claims = JwtClaimsSet
-                .builder()
-                .issuer("self")
-                .issuedAt(currentInstant)
-                .expiresAt(currentInstant.plus(Period.ofDays(1)))
-                .subject(authentication.name)
-                .claim("scope", scope)
-                .build()
+            .builder()
+            .issuer("self")
+            .issuedAt(currentInstant)
+            .expiresAt(currentInstant.plus(Period.ofDays(1)))
+            .subject(authentication.name)
+            .claim("scope", scope)
+            .build()
         return encoder.encode(JwtEncoderParameters.from(claims)).tokenValue
     }
 }
