@@ -12,11 +12,13 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import javax.validation.ConstraintViolationException
 import org.springframework.security.access.AccessDeniedException
+import org.springframework.web.server.ResponseStatusException
+import javax.servlet.http.HttpServletResponse
 
 data class SimpleError(
-    val message: String,
-    val param: String? = null,
-    val value: Any? = null
+        val message: String,
+        val param: String? = null,
+        val value: Any? = null
 )
 
 data class CustomError(val errors: List<SimpleError>)
@@ -35,11 +37,11 @@ class ErrorController : ErrorController {
         val errors = mutableListOf<SimpleError>()
         e.constraintViolations.forEach { violation ->
             errors.add(
-                SimpleError(
-                    violation.message,
-                    violation.propertyPath.toString(),
-                    violation.invalidValue
-                )
+                    SimpleError(
+                            violation.message,
+                            violation.propertyPath.toString(),
+                            violation.invalidValue
+                    )
             )
         }
         return CustomError(errors)
@@ -52,15 +54,15 @@ class ErrorController : ErrorController {
             is InvalidFormatException -> {
                 val type = cause.targetType.simpleName.lowercase()
                 return wrapSimpleError(
-                    "must be $type",
-                    value = cause.value
+                        "must be $type",
+                        value = cause.value
                 )
             }
 
             is MissingKotlinParameterException -> {
                 return wrapSimpleError(
-                    "required",
-                    param = cause.parameter.name
+                        "required",
+                        param = cause.parameter.name
                 )
             }
         }
@@ -80,14 +82,20 @@ class ErrorController : ErrorController {
         return wrapSimpleError(e.message ?: "unauthorized")
     }
 
+    @ExceptionHandler(ResponseStatusException::class)
+    fun expectedError(e: ResponseStatusException, response: HttpServletResponse): CustomError {
+        response.status = e.status.value()
+        return wrapSimpleError(e.reason ?: (e.message))
+    }
+
     @ExceptionHandler(Exception::class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     fun unexpectedError(e: Exception): CustomError {
         System.err.println(e)
-        return wrapSimpleError("unexpected error")
+        return wrapSimpleError("unexpected error: " + e.message)
     }
 
     fun wrapSimpleError(msg: String, param: String? = null, value: Any? = null) = CustomError(
-        mutableListOf(SimpleError(msg, param, value))
+            mutableListOf(SimpleError(msg, param, value))
     )
 }

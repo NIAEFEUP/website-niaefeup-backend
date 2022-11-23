@@ -1,11 +1,13 @@
 package pt.up.fe.ni.website.backend.service
 
+import org.springframework.http.HttpStatus
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.oauth2.jwt.JwtClaimsSet
 import org.springframework.security.oauth2.jwt.JwtEncoder
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters
 import org.springframework.stereotype.Service
+import org.springframework.web.server.ResponseStatusException
 import java.time.Instant
 import java.time.Period
 import java.util.stream.Collectors
@@ -14,7 +16,7 @@ import java.util.stream.Collectors
 class AuthService(val encoder: JwtEncoder) {
     fun authenticate(authentication: Authentication): String {
         if (!okCredentials(authentication)) {
-            throw Error("Invalid credentials")
+            throw ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Invalid credentials")
         }
         return generateToken(authentication)
     }
