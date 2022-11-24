@@ -4,8 +4,8 @@ import javax.persistence.Entity
 
 @Entity
 class Project(
-    override val title: String,
-    override val description: String,
-    override val id: Long? = null,
+    title: String,
+    description: String,
     var isArchived: Boolean = false,
+    id: Long? = null
 ) : Activity(title, description, id)

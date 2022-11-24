@@ -6,11 +6,11 @@ import javax.persistence.Entity
 
 @Entity
 class Event(
-    override val title: String,
-    override val description: String,
+    title: String,
+    description: String,
 
     @JsonProperty(required = true)
     val date: Date,
 
-    override val id: Long? = null
+    id: Long? = null
 ) : Activity(title, description, id)

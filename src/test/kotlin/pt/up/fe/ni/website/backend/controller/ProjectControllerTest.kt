@@ -339,6 +339,7 @@ internal class ProjectControllerTest @Autowired constructor(
             "very cool project",
             true
         )
+
         @BeforeEach
         fun addProject() {
             repository.save(project)
