@@ -13,7 +13,7 @@ import pt.up.fe.ni.website.backend.service.AuthService
 @RestController
 @RequestMapping("/auth")
 class AuthController(val authService: AuthService) {
-    @PostMapping("/new_token")
+    @PostMapping("/new")
     fun getNewToken(authentication: Authentication?): Map<String, String> {
         if (authentication == null) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "No credentials were provided")

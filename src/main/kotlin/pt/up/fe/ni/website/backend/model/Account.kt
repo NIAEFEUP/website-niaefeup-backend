@@ -1,5 +1,6 @@
 package pt.up.fe.ni.website.backend.model
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.hibernate.validator.constraints.URL
 import pt.up.fe.ni.website.backend.annotations.validation.NullOrNotBlank
@@ -30,6 +31,7 @@ class Account(
     @field:Size(min = Constants.Name.minSize, max = Constants.Name.maxSize)
     var name: String,
 
+    @JsonIgnore
     @field:Size(min = Constants.Password.minSize, max = Constants.Password.maxSize)
     var password: String,
 

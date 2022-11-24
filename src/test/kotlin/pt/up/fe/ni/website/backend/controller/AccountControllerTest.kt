@@ -37,6 +37,7 @@ class AccountControllerTest @Autowired constructor(
     val testAccount = Account(
         "Test Account",
         "test_account@test.com",
+        "test_password",
         "This is a test account",
         TestUtils.createDate(2001, Calendar.JULY, 28),
         "https://test-photo.com",
@@ -56,6 +57,7 @@ class AccountControllerTest @Autowired constructor(
             Account(
                 "Test Account 2",
                 "test_account2@test.com",
+                "test_password",
                 null,
                 null,
                 null,
