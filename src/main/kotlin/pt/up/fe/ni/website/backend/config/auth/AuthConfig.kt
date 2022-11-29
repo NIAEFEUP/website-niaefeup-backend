@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -16,6 +15,8 @@ import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.security.oauth2.jwt.JwtEncoder
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
@@ -23,12 +24,12 @@ import org.springframework.web.filter.CorsFilter
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(securedEnabled = false, prePostEnabled = true)
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 class AuthConfig(val authConfigProperties: AuthConfigProperties) {
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         return http.csrf { csrf -> csrf.disable() }.cors().and()
-            .oauth2ResourceServer(OAuth2ResourceServerConfigurer<HttpSecurity>::jwt)
+            .oauth2ResourceServer().jwt().jwtAuthenticationConverter(rolesConverter()).and().and()
             .sessionManagement { session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .httpBasic().disable().build()
     }
@@ -60,5 +61,13 @@ class AuthConfig(val authConfigProperties: AuthConfigProperties) {
         config.addAllowedMethod("*")
         source.registerCorsConfiguration("/**", config)
         return CorsFilter(source)
+    }
+
+    fun rolesConverter(): JwtAuthenticationConverter? {
+        val authoritiesConverter = JwtGrantedAuthoritiesConverter()
+        authoritiesConverter.setAuthorityPrefix("ROLE_")
+        val converter = JwtAuthenticationConverter()
+        converter.setJwtGrantedAuthoritiesConverter(authoritiesConverter)
+        return converter
     }
 }

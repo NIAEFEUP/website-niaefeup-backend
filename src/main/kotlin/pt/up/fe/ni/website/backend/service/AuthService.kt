@@ -33,7 +33,7 @@ class AuthService(
             throw ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Invalid credentials")
         }
         val authorities = listOf("BOARD", "MEMBER").stream() // TODO: get roles from account
-            .map { role -> SimpleGrantedAuthority("ROLE_$role") }
+            .map { role -> SimpleGrantedAuthority(role) }
             .collect(Collectors.toList())
         return UsernamePasswordAuthenticationToken(email, password, authorities)
     }
@@ -43,7 +43,7 @@ class AuthService(
     }
 
     fun generateRefreshToken(authentication: Authentication): String {
-        return generateToken(authentication, Duration.ofDays(authConfigProperties.jwtRefreshExpirationDays))
+        return generateToken(authentication, Duration.ofDays(authConfigProperties.jwtRefreshExpirationDays), true)
     }
 
     fun refreshToken(refreshToken: String): String {
@@ -61,9 +61,9 @@ class AuthService(
         return accountService.getAccountByEmail(authentication.name)
     }
 
-    private fun generateToken(authentication: Authentication, expiration: Duration): String {
-        val scope = authentication
-            .authorities
+    private fun generateToken(authentication: Authentication, expiration: Duration, isRefresh: Boolean = false): String {
+        val roles = if (isRefresh) emptyList<GrantedAuthority>() else authentication.authorities
+        val scope = roles
             .stream()
             .map(GrantedAuthority::getAuthority)
             .collect(Collectors.joining(" "))
