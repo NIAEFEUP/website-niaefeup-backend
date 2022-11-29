@@ -1,4 +1,4 @@
-package pt.up.fe.ni.website.backend.controller
+package pt.up.fe.ni.website.backend.utils
 
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.ResultActionsDsl

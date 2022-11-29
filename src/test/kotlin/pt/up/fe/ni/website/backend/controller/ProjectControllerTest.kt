@@ -21,6 +21,7 @@ import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.put
 import pt.up.fe.ni.website.backend.model.Project
 import pt.up.fe.ni.website.backend.repository.ProjectRepository
+import pt.up.fe.ni.website.backend.utils.ValidationTester
 import pt.up.fe.ni.website.backend.model.constants.ProjectConstants as Constants
 
 @SpringBootTest

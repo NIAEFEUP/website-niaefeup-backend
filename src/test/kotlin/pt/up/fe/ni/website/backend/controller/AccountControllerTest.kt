@@ -21,6 +21,7 @@ import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.CustomWebsite
 import pt.up.fe.ni.website.backend.repository.AccountRepository
 import pt.up.fe.ni.website.backend.utils.TestUtils
+import pt.up.fe.ni.website.backend.utils.ValidationTester
 import java.util.Calendar
 import java.util.Date
 import pt.up.fe.ni.website.backend.model.constants.AccountConstants as Constants

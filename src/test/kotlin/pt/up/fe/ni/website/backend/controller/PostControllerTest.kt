@@ -1,7 +1,6 @@
 package pt.up.fe.ni.website.backend.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.hamcrest.Matchers.not
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.BeforeAll
@@ -23,6 +22,7 @@ import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.put
 import pt.up.fe.ni.website.backend.model.Post
 import pt.up.fe.ni.website.backend.repository.PostRepository
+import pt.up.fe.ni.website.backend.utils.ValidationTester
 import java.text.SimpleDateFormat
 import java.util.Date
 import pt.up.fe.ni.website.backend.model.constants.PostConstants as Constants

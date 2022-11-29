@@ -2,7 +2,6 @@ package pt.up.fe.ni.website.backend.service
 
 import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.core.Authentication
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
@@ -27,33 +26,36 @@ class AuthService(
     val jwtDecoder: JwtDecoder,
     private val passwordEncoder: PasswordEncoder
 ) {
-    fun authenticate(email: String, password: String): Authentication {
+    fun authenticate(email: String, password: String): Account {
         val account = accountService.getAccountByEmail(email)
         if (!passwordEncoder.matches(password, account.password)) {
-            throw ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Invalid credentials")
+            throw ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "invalid credentials")
         }
-        val authorities = listOf("BOARD", "MEMBER").stream() // TODO: get roles from account
-            .map { role -> SimpleGrantedAuthority(role) }
-            .collect(Collectors.toList())
-        return UsernamePasswordAuthenticationToken(email, password, authorities)
+        val authentication = UsernamePasswordAuthenticationToken(email, password, getAuthorities(account))
+        SecurityContextHolder.getContext().authentication = authentication
+        return account
     }
 
-    fun generateAccessToken(authentication: Authentication): String {
-        return generateToken(authentication, Duration.ofMinutes(authConfigProperties.jwtAccessExpirationMinutes))
+    fun generateAccessToken(account: Account): String {
+        return generateToken(account, Duration.ofMinutes(authConfigProperties.jwtAccessExpirationMinutes))
     }
 
-    fun generateRefreshToken(authentication: Authentication): String {
-        return generateToken(authentication, Duration.ofDays(authConfigProperties.jwtRefreshExpirationDays), true)
+    fun generateRefreshToken(account: Account): String {
+        return generateToken(account, Duration.ofDays(authConfigProperties.jwtRefreshExpirationDays), true)
     }
 
-    fun refreshToken(refreshToken: String): String {
-        val jwt = jwtDecoder.decode(refreshToken)
+    fun refreshAccessToken(refreshToken: String): String {
+        val jwt =
+            try {
+                jwtDecoder.decode(refreshToken)
+            } catch (e: Exception) {
+                throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "invalid refresh token")
+            }
         if (jwt.expiresAt?.isBefore(Instant.now()) != false) {
-            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh token has expired")
+            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "refresh token has expired")
         }
         val account = accountService.getAccountByEmail(jwt.subject)
-        val authentication = authenticate(account.email, account.password)
-        return generateAccessToken(authentication)
+        return generateAccessToken(account)
     }
 
     fun getAuthenticatedAccount(): Account {
@@ -61,8 +63,8 @@ class AuthService(
         return accountService.getAccountByEmail(authentication.name)
     }
 
-    private fun generateToken(authentication: Authentication, expiration: Duration, isRefresh: Boolean = false): String {
-        val roles = if (isRefresh) emptyList<GrantedAuthority>() else authentication.authorities
+    private fun generateToken(account: Account, expiration: Duration, isRefresh: Boolean = false): String {
+        val roles = if (isRefresh) emptyList() else getAuthorities(account)
         val scope = roles
             .stream()
             .map(GrantedAuthority::getAuthority)
@@ -73,9 +75,15 @@ class AuthService(
             .issuer("self")
             .issuedAt(currentInstant)
             .expiresAt(currentInstant.plus(expiration))
-            .subject(authentication.name)
+            .subject(account.email)
             .claim("scope", scope)
             .build()
         return jwtEncoder.encode(JwtEncoderParameters.from(claims)).tokenValue
+    }
+
+    private fun getAuthorities(account: Account): List<GrantedAuthority> {
+        return listOf("BOARD", "MEMBER").stream() // TODO: get roles from account
+            .map { role -> SimpleGrantedAuthority(role) }
+            .collect(Collectors.toList())
     }
 }
