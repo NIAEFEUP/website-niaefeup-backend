@@ -22,7 +22,7 @@ import org.springframework.security.web.SecurityFilterChain
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-class AuthConfig(val rsaKeys: RSAKeyProperties) {
+class AuthConfig(val authConfigProperties: AuthConfigProperties) {
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         return http.csrf { csrf -> csrf.disable() }
@@ -33,12 +33,12 @@ class AuthConfig(val rsaKeys: RSAKeyProperties) {
 
     @Bean
     fun jwtDecoder(): JwtDecoder {
-        return NimbusJwtDecoder.withPublicKey(rsaKeys::publicKey.get()).build()
+        return NimbusJwtDecoder.withPublicKey(authConfigProperties::publicKey.get()).build()
     }
 
     @Bean
     fun jwtEncoder(): JwtEncoder {
-        val jwt = RSAKey.Builder(rsaKeys::publicKey.get()).privateKey(rsaKeys::privateKey.get()).build()
+        val jwt = RSAKey.Builder(authConfigProperties::publicKey.get()).privateKey(authConfigProperties::privateKey.get()).build()
         return NimbusJwtEncoder(ImmutableJWKSet(JWKSet(jwt)))
     }
 

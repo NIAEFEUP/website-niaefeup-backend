@@ -14,13 +14,15 @@ import pt.up.fe.ni.website.backend.service.AuthService
 class AuthController(val authService: AuthService) {
     @PostMapping("/new")
     fun getNewToken(@RequestBody loginDto: LoginDto): Map<String, String> {
-        val token = authService.authenticate(loginDto.email, loginDto.password)
-        return mapOf("token" to token)
+        val authentication = authService.authenticate(loginDto.email, loginDto.password)
+        val accessToken = authService.generateAccessToken(authentication)
+        return mapOf("access_token" to accessToken)
     }
 
     @GetMapping
     @PreAuthorize("isAuthenticated()")
-    fun authCheck(): Map<String, String> {
-        return mapOf("authenticated" to "true")
+    fun checkAuthentication(): Map<String, String> {
+        val account = authService.getAuthenticatedAccount()
+        return mapOf("authenticated_user" to account.email)
     }
 }

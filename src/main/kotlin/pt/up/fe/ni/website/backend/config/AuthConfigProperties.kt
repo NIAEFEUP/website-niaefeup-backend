@@ -6,8 +6,10 @@ import java.security.interfaces.RSAPrivateKey
 import java.security.interfaces.RSAPublicKey
 
 @ConstructorBinding
-@ConfigurationProperties(prefix = "rsa")
-data class RSAKeyProperties(
+@ConfigurationProperties(prefix = "auth")
+data class AuthConfigProperties(
     val publicKey: RSAPublicKey,
-    val privateKey: RSAPrivateKey
+    val privateKey: RSAPrivateKey,
+    val jwtAccessExpirationMinutes: Long,
+    val jwtRefreshExpirationDays: Long
 )
