@@ -134,7 +134,7 @@ class AccountControllerTest @Autowired constructor(
         fun `should create the account`() {
             mockMvc.post("/accounts/new") {
                 contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(testAccount)
+                content = testAccount.toJson()
             }.andExpect {
                 status { isOk() }
                 content { contentType(MediaType.APPLICATION_JSON) }
@@ -164,6 +164,7 @@ class AccountControllerTest @Autowired constructor(
                 requiredFields = mapOf(
                     "name" to testAccount.name,
                     "email" to testAccount.email,
+                    "password" to testAccount.password,
                     "websites" to emptyList<CustomWebsite>()
                 )
             )
@@ -202,6 +203,23 @@ class AccountControllerTest @Autowired constructor(
 
                 @Test
                 fun `should be a valid email`() = validationTester.isEmail()
+            }
+
+            @Nested
+            @DisplayName("password")
+            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+            inner class PasswordValidation {
+                @BeforeAll
+                fun setParam() {
+                    validationTester.param = "password"
+                }
+
+                @Test
+                fun `should be required`() = validationTester.isRequired()
+
+                @Test
+                @DisplayName("size should be between ${Constants.Password.minSize} and ${Constants.Password.maxSize}()")
+                fun size() = validationTester.hasSizeBetween(Constants.Password.minSize, Constants.Password.maxSize)
             }
 
             @Nested
@@ -294,6 +312,7 @@ class AccountControllerTest @Autowired constructor(
                                 mapOf(
                                     "name" to testAccount.name,
                                     "email" to testAccount.email,
+                                    "password" to testAccount.password,
                                     "websites" to listOf<Any>(params)
                                 )
                             )
@@ -353,14 +372,15 @@ class AccountControllerTest @Autowired constructor(
 
         @Test
         fun `should fail to create account with existing email`() {
+            println("testAccount: ${objectMapper.writeValueAsString(testAccount)}")
             mockMvc.post("/accounts/new") {
                 contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(testAccount)
+                content = testAccount.toJson()
             }.andExpect { status { isOk() } }
 
             mockMvc.post("/accounts/new") {
                 contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(testAccount)
+                content = testAccount.toJson()
             }.andExpect {
                 status { isUnprocessableEntity() }
                 content { contentType(MediaType.APPLICATION_JSON) }
@@ -374,5 +394,23 @@ class AccountControllerTest @Autowired constructor(
         val quotedDate = objectMapper.writeValueAsString(this)
         // objectMapper adds quotes to the date, so remove them
         return quotedDate.substring(1, quotedDate.length - 1)
+    }
+
+    fun Account?.toJson(): String {
+        // password is ignored on serialization, so add it manually
+        // for account creation test cases
+        return objectMapper.writeValueAsString(
+            mapOf(
+                "name" to this?.name,
+                "email" to this?.email,
+                "password" to this?.password,
+                "bio" to this?.bio,
+                "birthDate" to this?.birthDate.toJson(),
+                "photoPath" to this?.photoPath,
+                "linkedin" to this?.linkedin,
+                "github" to this?.github,
+                "websites" to this?.websites
+            )
+        )
     }
 }

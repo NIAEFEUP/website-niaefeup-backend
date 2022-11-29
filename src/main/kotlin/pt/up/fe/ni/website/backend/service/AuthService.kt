@@ -1,8 +1,10 @@
 package pt.up.fe.ni.website.backend.service
 
 import org.springframework.http.HttpStatus
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.oauth2.jwt.JwtClaimsSet
 import org.springframework.security.oauth2.jwt.JwtEncoder
@@ -19,16 +21,16 @@ class AuthService(
     val jwtEncoder: JwtEncoder,
     private val passwordEncoder: PasswordEncoder
 ) {
-    fun authenticate(authentication: Authentication): String {
-        if (!okCredentials(authentication)) {
+    fun authenticate(email: String, password: String): String {
+        val account = accountService.getAccountByEmail(email)
+        if (!passwordEncoder.matches(password, account.password)) {
             throw ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Invalid credentials")
         }
+        val authorities = listOf("BOARD", "MEMBER").stream() // TODO: get roles from account
+            .map { role -> SimpleGrantedAuthority("ROLE_$role") }
+            .collect(Collectors.toList())
+        val authentication = UsernamePasswordAuthenticationToken(email, password, authorities)
         return generateToken(authentication)
-    }
-
-    private fun okCredentials(authentication: Authentication): Boolean {
-        val account = accountService.getAccountByEmail(authentication.name)
-        return passwordEncoder.matches(authentication.credentials.toString(), account.password)
     }
 
     private fun generateToken(authentication: Authentication): String {

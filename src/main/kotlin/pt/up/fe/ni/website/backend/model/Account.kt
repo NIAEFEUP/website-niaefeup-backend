@@ -1,6 +1,5 @@
 package pt.up.fe.ni.website.backend.model
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.hibernate.validator.constraints.URL
 import pt.up.fe.ni.website.backend.annotations.validation.NullOrNotBlank
@@ -22,16 +21,16 @@ import pt.up.fe.ni.website.backend.model.constants.AccountConstants as Constants
 
 @Entity
 class Account(
+    @field:Size(min = Constants.Name.minSize, max = Constants.Name.maxSize)
+    var name: String,
+
     @JsonProperty(required = true)
     @Column(unique = true)
     @field:NotEmpty
     @field:Email
     var email: String,
 
-    @field:Size(min = Constants.Name.minSize, max = Constants.Name.maxSize)
-    var name: String,
-
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY, required = true)
     @field:Size(min = Constants.Password.minSize, max = Constants.Password.maxSize)
     var password: String,
 
