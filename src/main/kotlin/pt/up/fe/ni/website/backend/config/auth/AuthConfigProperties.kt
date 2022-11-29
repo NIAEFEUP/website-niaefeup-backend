@@ -1,4 +1,4 @@
-package pt.up.fe.ni.website.backend.config
+package pt.up.fe.ni.website.backend.config.auth
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.ConstructorBinding

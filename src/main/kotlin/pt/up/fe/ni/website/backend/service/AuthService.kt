@@ -8,15 +8,15 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.oauth2.jwt.JwtClaimsSet
+import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.security.oauth2.jwt.JwtEncoder
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
-import pt.up.fe.ni.website.backend.config.AuthConfigProperties
+import pt.up.fe.ni.website.backend.config.auth.AuthConfigProperties
 import pt.up.fe.ni.website.backend.model.Account
 import java.time.Duration
 import java.time.Instant
-import java.time.temporal.ChronoUnit
 import java.util.stream.Collectors
 
 @Service
@@ -24,6 +24,7 @@ class AuthService(
     val accountService: AccountService,
     val authConfigProperties: AuthConfigProperties,
     val jwtEncoder: JwtEncoder,
+    val jwtDecoder: JwtDecoder,
     private val passwordEncoder: PasswordEncoder
 ) {
     fun authenticate(email: String, password: String): Authentication {
@@ -38,6 +39,29 @@ class AuthService(
     }
 
     fun generateAccessToken(authentication: Authentication): String {
+        return generateToken(authentication, Duration.ofMinutes(authConfigProperties.jwtAccessExpirationMinutes))
+    }
+
+    fun generateRefreshToken(authentication: Authentication): String {
+        return generateToken(authentication, Duration.ofDays(authConfigProperties.jwtRefreshExpirationDays))
+    }
+
+    fun refreshToken(refreshToken: String): String {
+        val jwt = jwtDecoder.decode(refreshToken)
+        if (jwt.expiresAt?.isBefore(Instant.now()) != false) {
+            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh token has expired")
+        }
+        val account = accountService.getAccountByEmail(jwt.subject)
+        val authentication = authenticate(account.email, account.password)
+        return generateAccessToken(authentication)
+    }
+
+    fun getAuthenticatedAccount(): Account {
+        val authentication = SecurityContextHolder.getContext().authentication
+        return accountService.getAccountByEmail(authentication.name)
+    }
+
+    private fun generateToken(authentication: Authentication, expiration: Duration): String {
         val scope = authentication
             .authorities
             .stream()
@@ -48,15 +72,10 @@ class AuthService(
             .builder()
             .issuer("self")
             .issuedAt(currentInstant)
-            .expiresAt(currentInstant.plus(Duration.of(authConfigProperties.jwtAccessExpirationMinutes, ChronoUnit.MINUTES)))
+            .expiresAt(currentInstant.plus(expiration))
             .subject(authentication.name)
             .claim("scope", scope)
             .build()
         return jwtEncoder.encode(JwtEncoderParameters.from(claims)).tokenValue
-    }
-
-    fun getAuthenticatedAccount(): Account {
-        val authentication = SecurityContextHolder.getContext().authentication
-        return accountService.getAccountByEmail(authentication.name)
     }
 }

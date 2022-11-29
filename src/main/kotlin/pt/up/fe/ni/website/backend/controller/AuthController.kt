@@ -6,8 +6,16 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import pt.up.fe.ni.website.backend.model.dto.LoginDto
 import pt.up.fe.ni.website.backend.service.AuthService
+
+data class LoginDto(
+    val email: String,
+    val password: String
+)
+
+data class TokenDto(
+    val token: String
+)
 
 @RestController
 @RequestMapping("/auth")
@@ -16,6 +24,13 @@ class AuthController(val authService: AuthService) {
     fun getNewToken(@RequestBody loginDto: LoginDto): Map<String, String> {
         val authentication = authService.authenticate(loginDto.email, loginDto.password)
         val accessToken = authService.generateAccessToken(authentication)
+        val refreshToken = authService.generateRefreshToken(authentication)
+        return mapOf("access_token" to accessToken, "refresh_token" to refreshToken)
+    }
+
+    @PostMapping("/refresh")
+    fun refreshAccessToken(@RequestBody tokenDto: TokenDto): Map<String, String> {
+        val accessToken = authService.refreshToken(tokenDto.token)
         return mapOf("access_token" to accessToken)
     }
 

@@ -4,7 +4,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.runApplication
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing
-import pt.up.fe.ni.website.backend.config.AuthConfigProperties
+import pt.up.fe.ni.website.backend.config.auth.AuthConfigProperties
 
 @SpringBootApplication
 @EnableConfigurationProperties(AuthConfigProperties::class)
