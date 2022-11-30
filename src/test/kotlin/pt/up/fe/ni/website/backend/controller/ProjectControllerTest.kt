@@ -128,12 +128,12 @@ internal class ProjectControllerTest @Autowired constructor(
             )
 
             @Nested
-            @DisplayName("name")
+            @DisplayName("title")
             @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-            inner class NameValidation {
+            inner class TitleValidation {
                 @BeforeAll
                 fun setParam() {
-                    validationTester.param = "name"
+                    validationTester.param = "title"
                 }
 
                 @Test
@@ -238,7 +238,7 @@ internal class ProjectControllerTest @Autowired constructor(
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(
                     mapOf(
-                        "name" to "New Name",
+                        "title" to "New Title",
                         "description" to "New description of the project"
                     )
                 )
@@ -268,12 +268,12 @@ internal class ProjectControllerTest @Autowired constructor(
             )
 
             @Nested
-            @DisplayName("name")
+            @DisplayName("title")
             @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-            inner class NameValidation {
+            inner class TitleValidation {
                 @BeforeAll
                 fun setParam() {
-                    validationTester.param = "name"
+                    validationTester.param = "title"
                 }
 
                 @Test
