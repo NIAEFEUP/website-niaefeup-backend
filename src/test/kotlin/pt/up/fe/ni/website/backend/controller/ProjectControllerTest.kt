@@ -20,16 +20,16 @@ import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.put
 import pt.up.fe.ni.website.backend.model.Project
 import pt.up.fe.ni.website.backend.repository.ProjectRepository
+import pt.up.fe.ni.website.backend.utils.MockMvcBase
 import pt.up.fe.ni.website.backend.model.constants.ProjectConstants as Constants
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @AutoConfigureTestDatabase
 internal class ProjectControllerTest @Autowired constructor(
-    val mockMvc: MockMvc,
     val objectMapper: ObjectMapper,
     val repository: ProjectRepository
-) {
+) : MockMvcBase() {
     val testProject = Project(
         "Awesome project",
         "this is a test project"
@@ -52,7 +52,7 @@ internal class ProjectControllerTest @Autowired constructor(
         }
 
         @Test
-        fun `should return all projects`() {
+        fun shouldReturnAllProjects() {
             mockMvc.get("/projects").andExpect {
                 status { isOk() }
                 content { contentType(MediaType.APPLICATION_JSON) }
@@ -70,7 +70,7 @@ internal class ProjectControllerTest @Autowired constructor(
         }
 
         @Test
-        fun `should return the project`() {
+        fun shouldReturnProject() {
             mockMvc.get("/projects/${testProject.id}").andExpect {
                 status { isOk() }
                 content { contentType(MediaType.APPLICATION_JSON) }
@@ -80,7 +80,7 @@ internal class ProjectControllerTest @Autowired constructor(
         }
 
         @Test
-        fun `should fail if the project does not exist`() {
+        fun shouldFailIfProjectDoesNotExist() {
             mockMvc.get("/projects/1234").andExpect {
                 status { isNotFound() }
                 content { contentType(MediaType.APPLICATION_JSON) }
@@ -94,7 +94,7 @@ internal class ProjectControllerTest @Autowired constructor(
     @DisplayName("POST /projects/new")
     inner class CreateProject {
         @Test
-        fun `should create a new project`() {
+        fun shouldCreateNewProject() {
             mockMvc.post("/projects/new") {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(testProject)
@@ -134,7 +134,7 @@ internal class ProjectControllerTest @Autowired constructor(
                 }
 
                 @Test
-                fun `should be required`() = validationTester.isRequired()
+                fun shouldBeRequired() = validationTester.isRequired()
 
                 @Test
                 @DisplayName("size should be between ${Constants.Name.minSize} and ${Constants.Name.maxSize}()")
@@ -151,7 +151,7 @@ internal class ProjectControllerTest @Autowired constructor(
                 }
 
                 @Test
-                fun `should be required`() = validationTester.isRequired()
+                fun shouldBeRequired() = validationTester.isRequired()
 
                 @Test
                 @DisplayName("size should be between ${Constants.Description.minSize} and ${Constants.Description.maxSize}()")
@@ -170,7 +170,7 @@ internal class ProjectControllerTest @Autowired constructor(
         }
 
         @Test
-        fun `should delete the project`() {
+        fun shouldDeleteProject() {
             mockMvc.delete("/projects/${testProject.id}").andExpect {
                 status { isOk() }
                 content { contentType(MediaType.APPLICATION_JSON) }
@@ -181,7 +181,7 @@ internal class ProjectControllerTest @Autowired constructor(
         }
 
         @Test
-        fun `should fail if the project does not exist`() {
+        fun shouldFailIfProjectDoesNotExist() {
             mockMvc.delete("/projects/1234").andExpect {
                 status { isNotFound() }
                 content { contentType(MediaType.APPLICATION_JSON) }
@@ -200,7 +200,7 @@ internal class ProjectControllerTest @Autowired constructor(
         }
 
         @Test
-        fun `should update the project`() {
+        fun shouldUpdateProject() {
             val newName = "New Name"
             val newDescription = "New description of the project"
 
@@ -226,7 +226,7 @@ internal class ProjectControllerTest @Autowired constructor(
         }
 
         @Test
-        fun `should fail if the project does not exist`() {
+        fun shouldFailIfProjectDoesNotExist() {
             mockMvc.put("/projects/1234") {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(
@@ -270,7 +270,7 @@ internal class ProjectControllerTest @Autowired constructor(
                 }
 
                 @Test
-                fun `should be required`() = validationTester.isRequired()
+                fun shouldBeRequired() = validationTester.isRequired()
 
                 @Test
                 @DisplayName("size should be between ${Constants.Name.minSize} and ${Constants.Name.maxSize}()")
@@ -287,7 +287,7 @@ internal class ProjectControllerTest @Autowired constructor(
                 }
 
                 @Test
-                fun `should be required`() = validationTester.isRequired()
+                fun shouldBeRequired() = validationTester.isRequired()
 
                 @Test
                 @DisplayName("size should be between ${Constants.Description.minSize} and ${Constants.Description.maxSize}()")

@@ -22,6 +22,7 @@ import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.put
 import pt.up.fe.ni.website.backend.model.Post
 import pt.up.fe.ni.website.backend.repository.PostRepository
+import pt.up.fe.ni.website.backend.utils.MockMvcBase
 import java.util.Date
 import pt.up.fe.ni.website.backend.model.constants.PostConstants as Constants
 
@@ -29,10 +30,9 @@ import pt.up.fe.ni.website.backend.model.constants.PostConstants as Constants
 @AutoConfigureMockMvc
 @AutoConfigureTestDatabase
 internal class PostControllerTest @Autowired constructor(
-    val mockMvc: MockMvc,
     val objectMapper: ObjectMapper,
     val repository: PostRepository
-) {
+) : MockMvcBase() {
     val testPost = Post(
         "New test released",
         "this is a test post",
@@ -57,7 +57,7 @@ internal class PostControllerTest @Autowired constructor(
         }
 
         @Test
-        fun `should return all posts`() {
+        fun shouldReturnAllPosts() {
             mockMvc.get("/posts").andExpect {
                 status { isOk() }
                 content { contentType(MediaType.APPLICATION_JSON) }
@@ -75,7 +75,7 @@ internal class PostControllerTest @Autowired constructor(
         }
 
         @Test
-        fun `should return the post`() {
+        fun shouldReturnPost() {
             mockMvc.get("/posts/${testPost.id}").andExpect {
                 status { isOk() }
                 content { contentType(MediaType.APPLICATION_JSON) }
@@ -88,7 +88,7 @@ internal class PostControllerTest @Autowired constructor(
         }
 
         @Test
-        fun `should fail if the post does not exist`() {
+        fun shouldFailIfPostDoesNotExist() {
             mockMvc.get("/posts/1234").andExpect {
                 status { isNotFound() }
                 content { contentType(MediaType.APPLICATION_JSON) }
@@ -102,7 +102,7 @@ internal class PostControllerTest @Autowired constructor(
     @DisplayName("POST /posts/new")
     inner class CreatePost {
         @Test
-        fun `should create a new post`() {
+        fun shouldCreateNewPost() {
             mockMvc.post("/posts/new") {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(testPost)
@@ -146,7 +146,7 @@ internal class PostControllerTest @Autowired constructor(
                 }
 
                 @Test
-                fun `should be required`() = validationTester.isRequired()
+                fun shouldBeRequired() = validationTester.isRequired()
 
                 @Test
                 @DisplayName("size should be between ${Constants.Title.minSize} and ${Constants.Title.maxSize}()")
@@ -163,7 +163,7 @@ internal class PostControllerTest @Autowired constructor(
                 }
 
                 @Test
-                fun `should be required`() = validationTester.isRequired()
+                fun shouldBeRequired() = validationTester.isRequired()
 
                 @Test
                 @DisplayName("size must be greater or equal to ${Constants.Body.minSize}()")
@@ -180,10 +180,10 @@ internal class PostControllerTest @Autowired constructor(
                 }
 
                 @Test
-                fun `should be required`() = validationTester.isRequired()
+                fun shouldBeRequired() = validationTester.isRequired()
 
                 @Test
-                fun `should not be empty`() = validationTester.isNotEmpty()
+                fun shouldNotBeEmpty() = validationTester.isNotEmpty()
             }
         }
     }
@@ -197,7 +197,7 @@ internal class PostControllerTest @Autowired constructor(
         }
 
         @Test
-        fun `should delete the post`() {
+        fun shouldDeletePost() {
             mockMvc.delete("/posts/${testPost.id}").andExpect {
                 status { isOk() }
                 content { contentType(MediaType.APPLICATION_JSON) }
@@ -208,7 +208,7 @@ internal class PostControllerTest @Autowired constructor(
         }
 
         @Test
-        fun `should fail if the post does not exist`() {
+        fun shouldFailIfPostDoesNotExist() {
             mockMvc.delete("/posts/1234").andExpect {
                 status { isNotFound() }
                 content { contentType(MediaType.APPLICATION_JSON) }
@@ -227,7 +227,7 @@ internal class PostControllerTest @Autowired constructor(
         }
 
         @Test
-        fun `should update the post`() {
+        fun shouldUpdatePost() {
             val newTitle = "New Title"
             val newBody = "New Body of the post"
             val newThumbnailPath = "thumbnails/new.png"
@@ -261,7 +261,7 @@ internal class PostControllerTest @Autowired constructor(
         }
 
         @Test
-        fun `should fail if the post does not exist`() {
+        fun shouldFailIfPostDoesNotExist() {
             mockMvc.put("/posts/1234") {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(
@@ -307,7 +307,7 @@ internal class PostControllerTest @Autowired constructor(
                 }
 
                 @Test
-                fun `should be required`() = validationTester.isRequired()
+                fun shouldBeRequired() = validationTester.isRequired()
 
                 @Test
                 @DisplayName("size should be between ${Constants.Title.minSize} and ${Constants.Title.maxSize}()")
@@ -324,7 +324,7 @@ internal class PostControllerTest @Autowired constructor(
                 }
 
                 @Test
-                fun `should be required`() = validationTester.isRequired()
+                fun shouldBeRequired() = validationTester.isRequired()
 
                 @Test
                 @DisplayName("size must be greater or equal to ${Constants.Body.minSize}()")
@@ -341,10 +341,10 @@ internal class PostControllerTest @Autowired constructor(
                 }
 
                 @Test
-                fun `should be required`() = validationTester.isRequired()
+                fun shouldBeRequired() = validationTester.isRequired()
 
                 @Test
-                fun `should not be empty`() = validationTester.isNotEmpty()
+                fun shouldNotBeEmpty() = validationTester.isNotEmpty()
             }
         }
     }

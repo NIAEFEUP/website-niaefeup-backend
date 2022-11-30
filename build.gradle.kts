@@ -15,6 +15,7 @@ java.sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
     mavenCentral()
+    mavenLocal()
 }
 
 val asciidoctorExtensions: Configuration by configurations.creating
@@ -25,17 +26,21 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation:2.7.3")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    implementation("capital.scalable:spring-auto-restdocs-core:2.0.11")
     runtimeOnly("com.h2database:h2")
 
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
+    testImplementation("capital.scalable:spring-auto-restdocs-core:2.0.11")
     testImplementation("org.junit.jupiter:junit-jupiter-api")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 
-    asciidoctorExtensions("org.springframework.restdocs:spring-restdocs-asciidoctor:2.0.5.RELEASE")
+    testImplementation("com.jayway.jsonpath:json-path-assert")
+    asciidoctorExtensions("org.springframework.restdocs:spring-restdocs-asciidoctor:2.0.6.RELEASE")
 }
 
 tasks {
@@ -54,24 +59,21 @@ tasks {
     }
 
     asciidoctor {
-        configurations(
-            listOf(asciidoctorExtensions)
-        )
+        configurations(listOf(asciidoctorExtensions))
+        inputs.dir(snippetsDir)
 
         dependsOn(test)
-        inputs.dir(snippetsDir)
-    }
 
-    bootJar {
-        val asciidoctorTask = asciidoctor.get()
 
-        dependsOn(asciidoctor)
-        from("${asciidoctorTask.outputDir}/html5") {
-            into("docs")
+        doLast {
+            copy {
+                from(file("$outputDir"))
+                into(file("docs"))
+            }
         }
     }
-}
 
-tasks.bootJar {
-    dependsOn(tasks.asciidoctor)
+    jar {
+        dependsOn(asciidoctor)
+    }
 }

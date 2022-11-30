@@ -1,0 +1,19 @@
+= NIAEFEUP Website API Documentation
+:doctype: book
+:page-layout!:
+:toc: right
+:toclevels: 2
+:sectanchors:
+:sectlinks:
+:sectnums:
+:linkattrs:
+:source-highlighter: highlightjs
+
+
+[[endpoints-doc]]
+= Endpoints
+
+[[event]]
+== Event
+include::{snippets}/create-event/should-create-new-event/auto-section.adoc[]
+

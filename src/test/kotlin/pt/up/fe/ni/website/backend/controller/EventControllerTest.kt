@@ -3,57 +3,30 @@ package pt.up.fe.ni.website.backend.controller
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.hamcrest.CoreMatchers.containsString
 import org.junit.jupiter.api.*
-import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
-import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 import org.springframework.http.MediaType
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder.json
-import org.springframework.restdocs.RestDocumentationContextProvider
-import org.springframework.restdocs.RestDocumentationExtension
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation
-import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration
-import org.springframework.test.context.junit.jupiter.SpringExtension
-import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
-import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
-import org.springframework.test.web.servlet.setup.MockMvcBuilders
-import org.springframework.web.context.WebApplicationContext
-import org.springframework.web.servlet.function.RequestPredicates.contentType
 import pt.up.fe.ni.website.backend.model.Event
 import pt.up.fe.ni.website.backend.repository.EventRepository
+import pt.up.fe.ni.website.backend.utils.MockMvcBase
 import pt.up.fe.ni.website.backend.utils.TestUtils
 import java.util.*
 import pt.up.fe.ni.website.backend.model.constants.EventConstants as Constants
 
-
-@SpringBootTest
-@AutoConfigureMockMvc
-@AutoConfigureTestDatabase
-@ExtendWith(RestDocumentationExtension::class, SpringExtension::class)
 internal class EventControllerTest @Autowired constructor(
-        var mockMvc: MockMvc,
         val objectMapper: ObjectMapper,
-        val repository: EventRepository,
-        val context: WebApplicationContext
-) {
+        val repository: EventRepository
+): MockMvcBase() {
     val testEvent = Event(
         "Great event",
         "This was a nice and iconic event",
         TestUtils.createDate(2022, Calendar.JULY, 28)
     )
-
-    @BeforeEach
-    fun setUp(restDocumentation: RestDocumentationContextProvider?) {
-        mockMvc = MockMvcBuilders.webAppContextSetup(context)
-                .apply<DefaultMockMvcBuilder>(documentationConfiguration(restDocumentation)).build()
-    }
 
     @Nested
     @DisplayName("GET /events")
@@ -73,7 +46,7 @@ internal class EventControllerTest @Autowired constructor(
         }
 
         @Test
-        fun `should return all events`() {
+        fun shouldReturnAllEvents() {
             mockMvc.perform(get("/events"))
                 .andExpect {
                     status().isOk
@@ -88,7 +61,7 @@ internal class EventControllerTest @Autowired constructor(
     @DisplayName("POST /events/new")
     inner class CreateEvent {
         @Test
-        fun `should create a new event`() {
+        fun shouldCreateNewEvent() {
             mockMvc.post("/events/new") {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(testEvent)
@@ -130,7 +103,7 @@ internal class EventControllerTest @Autowired constructor(
                 }
 
                 @Test
-                fun `should be required`() = validationTester.isRequired()
+                fun shouldBeRequired() = validationTester.isRequired()
 
                 @Test
                 @DisplayName("size should be between ${Constants.Title.minSize} and ${Constants.Title.maxSize}()")
@@ -147,7 +120,7 @@ internal class EventControllerTest @Autowired constructor(
                 }
 
                 @Test
-                fun `should be required`() = validationTester.isRequired()
+                fun shouldBeRequired() = validationTester.isRequired()
 
                 @Test
                 @DisplayName("size should be between ${Constants.Description.minSize} and ${Constants.Description.maxSize}()")
@@ -165,10 +138,10 @@ internal class EventControllerTest @Autowired constructor(
                 }
 
                 @Test
-                fun `should be required`() = validationTester.isRequired()
+                fun shouldBeRequired() = validationTester.isRequired()
 
                 @Test
-                fun `should be a Date`() = validationTester.isDate()
+                fun shouldBeDate() = validationTester.isDate()
             }
         }
     }
