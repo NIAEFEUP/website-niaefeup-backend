@@ -12,7 +12,6 @@ plugins {
 
 jacoco {
     toolVersion = "0.8.8"
-    reportsDirectory.set(layout.buildDirectory.dir("coverage"))
 }
 
 group = "pt.up.fe.ni.website"
@@ -55,6 +54,5 @@ tasks.jacocoTestReport {
     reports {
         xml.required.set(false)
         csv.required.set(false)
-        html.outputLocation.set(layout.buildDirectory.dir("jacoco"))
     }
 }

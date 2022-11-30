@@ -58,3 +58,8 @@ jobs:
 
       - name: Run test suite
         run: ./gradlew test
+
+      - name: Upload code coverage to Codecov
+        uses: codecov/codecov-action@v3  
+        with:
+          directory: ./reports/jacoco/
