@@ -1,4 +1,5 @@
-# Website NIAEFEUP - BackEnd
+# Website NIAEFEUP - BackEnd  
+[![codecov](https://codecov.io/gh/NIAEFEUP/website-niaefeup-backend/branch/develop/graph/badge.svg?token=4OPGXYESGP)](https://codecov.io/gh/NIAEFEUP/website-niaefeup-backend)  
 The online platform for NIAEFEUP.
 
 ## Development setup
