@@ -1,7 +1,7 @@
 package pt.up.fe.ni.website.backend.model.constants
 
-object ProjectConstants {
-    object Name {
+object ActivityConstants {
+    object Title {
         const val minSize = 2
         const val maxSize = 500
     }
