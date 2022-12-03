@@ -7,6 +7,7 @@ import org.springframework.boot.web.servlet.error.ErrorController
 import org.springframework.http.HttpStatus
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.security.access.AccessDeniedException
+import org.springframework.security.core.AuthenticationException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
@@ -98,9 +99,15 @@ class ErrorController : ErrorController {
     }
 
     @ExceptionHandler(AccessDeniedException::class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    fun forbidden(e: AccessDeniedException): CustomError {
+        return wrapSimpleError(e.message ?: "you don't have permission to access this resource")
+    }
+
+    @ExceptionHandler(AuthenticationException::class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    fun unauthorized(e: AccessDeniedException): CustomError {
-        return wrapSimpleError(e.message ?: "unauthorized")
+    fun invalidAuthentication(e: AuthenticationException): CustomError {
+        return wrapSimpleError(e.message ?: "invalid authentication")
     }
 
     @ExceptionHandler(ResponseStatusException::class)

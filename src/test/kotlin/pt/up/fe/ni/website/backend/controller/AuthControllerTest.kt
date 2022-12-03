@@ -1,6 +1,7 @@
 package pt.up.fe.ni.website.backend.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.hamcrest.Matchers.startsWith
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -148,7 +149,7 @@ class AuthControllerTest @Autowired constructor(
         @Test
         fun `should fail when no access token is provided`() {
             mockMvc.get("/auth").andExpect {
-                status { isUnauthorized() }
+                status { isForbidden() }
                 jsonPath("$.errors[0].message") { value("Access is denied") }
             }
         }
@@ -159,6 +160,7 @@ class AuthControllerTest @Autowired constructor(
                 header("Authorization", "Bearer invalid_access_token")
             }.andExpect {
                 status { isUnauthorized() }
+                jsonPath("$.errors[0].message") { startsWith("An error occurred while attempting to decode the Jwt") }
             }
         }
 

@@ -3,6 +3,7 @@ package pt.up.fe.ni.website.backend.config.auth
 import com.nimbusds.jose.jwk.JWKSet
 import com.nimbusds.jose.jwk.RSAKey
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
@@ -21,15 +22,23 @@ import org.springframework.security.web.SecurityFilterChain
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 import org.springframework.web.filter.CorsFilter
+import org.springframework.web.servlet.HandlerExceptionResolver
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-class AuthConfig(val authConfigProperties: AuthConfigProperties) {
+class AuthConfig(
+    val authConfigProperties: AuthConfigProperties,
+    @Qualifier("handlerExceptionResolver") val exceptionResolver: HandlerExceptionResolver
+) {
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         return http.csrf { csrf -> csrf.disable() }.cors().and()
-            .oauth2ResourceServer().jwt().jwtAuthenticationConverter(rolesConverter()).and().and()
+            .oauth2ResourceServer().jwt()
+            .jwtAuthenticationConverter(rolesConverter())
+            .and().authenticationEntryPoint { request, response, exception ->
+                exceptionResolver.resolveException(request, response, null, exception)
+            }.and()
             .sessionManagement { session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .httpBasic().disable().build()
     }

@@ -22,7 +22,7 @@ import org.springframework.test.web.servlet.put
 import pt.up.fe.ni.website.backend.model.Project
 import pt.up.fe.ni.website.backend.repository.ProjectRepository
 import pt.up.fe.ni.website.backend.utils.ValidationTester
-import pt.up.fe.ni.website.backend.model.constants.ProjectConstants as Constants
+import pt.up.fe.ni.website.backend.model.constants.ActivityConstants as Constants
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -79,7 +79,7 @@ internal class ProjectControllerTest @Autowired constructor(
             mockMvc.get("/projects/${testProject.id}").andExpect {
                 status { isOk() }
                 content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.name") { value(testProject.name) }
+                jsonPath("$.title") { value(testProject.title) }
                 jsonPath("$.description") { value(testProject.description) }
             }
         }
@@ -107,7 +107,7 @@ internal class ProjectControllerTest @Autowired constructor(
                 .andExpect {
                     status { isOk() }
                     content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.name") { value(testProject.name) }
+                    jsonPath("$.title") { value(testProject.title) }
                     jsonPath("$.description") { value(testProject.description) }
                 }
         }
@@ -123,26 +123,26 @@ internal class ProjectControllerTest @Autowired constructor(
                     }
                 },
                 requiredFields = mapOf(
-                    "name" to testProject.name,
+                    "title" to testProject.title,
                     "description" to testProject.description
                 )
             )
 
             @Nested
-            @DisplayName("name")
+            @DisplayName("title")
             @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-            inner class NameValidation {
+            inner class TitleValidation {
                 @BeforeAll
                 fun setParam() {
-                    validationTester.param = "name"
+                    validationTester.param = "title"
                 }
 
                 @Test
                 fun `should be required`() = validationTester.isRequired()
 
                 @Test
-                @DisplayName("size should be between ${Constants.Name.minSize} and ${Constants.Name.maxSize}()")
-                fun size() = validationTester.hasSizeBetween(Constants.Name.minSize, Constants.Name.maxSize)
+                @DisplayName("size should be between ${Constants.Title.minSize} and ${Constants.Title.maxSize}()")
+                fun size() = validationTester.hasSizeBetween(Constants.Title.minSize, Constants.Title.maxSize)
             }
 
             @Nested
@@ -205,28 +205,32 @@ internal class ProjectControllerTest @Autowired constructor(
 
         @Test
         fun `should update the project`() {
-            val newName = "New Name"
+            val newTitle = "New Title"
             val newDescription = "New description of the project"
+            val newIsArchived = true
 
             mockMvc.put("/projects/${testProject.id}") {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(
                     mapOf(
-                        "name" to newName,
-                        "description" to newDescription
+                        "title" to newTitle,
+                        "description" to newDescription,
+                        "isArchived" to newIsArchived
                     )
                 )
             }
                 .andExpect {
                     status { isOk() }
                     content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.name") { value(newName) }
+                    jsonPath("$.title") { value(newTitle) }
                     jsonPath("$.description") { value(newDescription) }
+                    jsonPath("$.isArchived") { value(newIsArchived) }
                 }
 
             val updatedProject = repository.findById(testProject.id!!).get()
-            assertEquals(newName, updatedProject.name)
+            assertEquals(newTitle, updatedProject.title)
             assertEquals(newDescription, updatedProject.description)
+            assertEquals(newIsArchived, updatedProject.isArchived)
         }
 
         @Test
@@ -235,7 +239,7 @@ internal class ProjectControllerTest @Autowired constructor(
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(
                     mapOf(
-                        "name" to "New Name",
+                        "title" to "New Title",
                         "description" to "New description of the project"
                     )
                 )
@@ -259,26 +263,26 @@ internal class ProjectControllerTest @Autowired constructor(
                     }
                 },
                 requiredFields = mapOf(
-                    "name" to testProject.name,
+                    "title" to testProject.title,
                     "description" to testProject.description
                 )
             )
 
             @Nested
-            @DisplayName("name")
+            @DisplayName("title")
             @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-            inner class NameValidation {
+            inner class TitleValidation {
                 @BeforeAll
                 fun setParam() {
-                    validationTester.param = "name"
+                    validationTester.param = "title"
                 }
 
                 @Test
                 fun `should be required`() = validationTester.isRequired()
 
                 @Test
-                @DisplayName("size should be between ${Constants.Name.minSize} and ${Constants.Name.maxSize}()")
-                fun size() = validationTester.hasSizeBetween(Constants.Name.minSize, Constants.Name.maxSize)
+                @DisplayName("size should be between ${Constants.Title.minSize} and ${Constants.Title.maxSize}()")
+                fun size() = validationTester.hasSizeBetween(Constants.Title.minSize, Constants.Title.maxSize)
             }
 
             @Nested
@@ -298,6 +302,66 @@ internal class ProjectControllerTest @Autowired constructor(
                 fun size() =
                     validationTester.hasSizeBetween(Constants.Description.minSize, Constants.Description.maxSize)
             }
+        }
+    }
+
+    @Nested
+    @DisplayName("PUT /projects/{projectId}/archive")
+    inner class ArchiveProject {
+        @BeforeEach
+        fun addProject() {
+            repository.save(testProject)
+        }
+
+        @Test
+        fun `should archive the project`() {
+            val newIsArchived = true
+
+            mockMvc.put("/projects/${testProject.id}/archive") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString("isArchived" to newIsArchived)
+            }
+                .andExpect {
+                    status { isOk() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$.isArchived") { value(newIsArchived) }
+                }
+
+            val archivedProject = repository.findById(testProject.id!!).get()
+            assertEquals(newIsArchived, archivedProject.isArchived)
+        }
+    }
+
+    @Nested
+    @DisplayName("PUT /projects/{projectId}/unarchive")
+    inner class UnarchiveProject {
+        private val project = Project(
+            "proj1",
+            "very cool project",
+            true
+        )
+
+        @BeforeEach
+        fun addProject() {
+            repository.save(project)
+        }
+
+        @Test
+        fun `should unarchive the project`() {
+            val newIsArchived = false
+
+            mockMvc.put("/projects/${project.id}/unarchive") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString("isArchived" to newIsArchived)
+            }
+                .andExpect {
+                    status { isOk() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$.isArchived") { value(newIsArchived) }
+                }
+
+            val unarchivedProject = repository.findById(project.id!!).get()
+            assertEquals(newIsArchived, unarchivedProject.isArchived)
         }
     }
 }
