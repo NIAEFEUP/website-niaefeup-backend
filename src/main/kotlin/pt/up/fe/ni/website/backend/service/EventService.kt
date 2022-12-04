@@ -1,5 +1,6 @@
 package pt.up.fe.ni.website.backend.service
 
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import pt.up.fe.ni.website.backend.dto.entity.EventDto
 import pt.up.fe.ni.website.backend.model.Event
@@ -16,7 +17,8 @@ class EventService(private val repository: EventRepository) {
 
     fun getEventsByCategory(category: String): List<Event> = repository.findAllByCategory(category)
 
-    fun getEventById(eventId: Long): Event = repository.findById(eventId).get()
+    fun getEventById(eventId: Long): Event = repository.findByIdOrNull(eventId)
+        ?: throw NoSuchElementException("event not found with id $eventId")
 
     fun updateEventById(eventId: Long, dto: EventDto): Event {
         val event = getEventById(eventId)
@@ -25,7 +27,10 @@ class EventService(private val repository: EventRepository) {
     }
 
     fun deleteEventById(eventId: Long): Map<String, String> {
-        repository.findById(eventId).get()
+        if (!repository.existsById(eventId)) {
+            throw NoSuchElementException("event not found with id $eventId")
+        }
+
         repository.deleteById(eventId)
         return mapOf()
     }

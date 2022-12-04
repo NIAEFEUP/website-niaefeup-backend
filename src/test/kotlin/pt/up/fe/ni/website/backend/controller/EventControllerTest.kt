@@ -430,8 +430,8 @@ internal class EventControllerTest @Autowired constructor(
             val updatedEvent = repository.findById(testEvent.id!!).get()
             assertEquals(newTitle, updatedEvent.title)
             assertEquals(newDescription, updatedEvent.description)
-            assertEquals(newStartDate, updatedEvent.startDate)
-            assertEquals(newEndDate, updatedEvent.endDate)
+            assertEquals(newStartDate.toJson(), updatedEvent.startDate.toJson())
+            assertEquals(newEndDate.toJson(), updatedEvent.endDate.toJson())
             assertEquals(newUrl, updatedEvent.url)
             assertEquals(newLocation, updatedEvent.location)
             assertEquals(newCategory, updatedEvent.category)
@@ -444,7 +444,10 @@ internal class EventControllerTest @Autowired constructor(
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(
                     mapOf(
-                        "title" to "New Title"
+                        "title" to "New Title",
+                        "description" to "New Description",
+                        "startDate" to TestUtils.createDate(2022, Calendar.DECEMBER, 1),
+                        "thumbnailPath" to "http://test.com/thumbnail/1"
                     )
                 )
             }
