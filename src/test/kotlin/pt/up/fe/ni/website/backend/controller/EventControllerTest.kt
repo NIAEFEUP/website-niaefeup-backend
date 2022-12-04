@@ -398,7 +398,7 @@ internal class EventControllerTest @Autowired constructor(
                     content { contentType(MediaType.APPLICATION_JSON) }
                     jsonPath("$.title") { value(newTitle) }
                     jsonPath("$.description") { value(newDescription) }
-                    jsonPath("$.registerUrl") { value(testEvent.registerUrl) }
+                    jsonPath("$.registerUrl") { value(newRegisterUrl) }
                     jsonPath("$.startDate") { value(newStartDate.toJson()) }
                     jsonPath("$.endDate") { value(newEndDate.toJson()) }
                     jsonPath("$.location") { value(newLocation) }
@@ -410,8 +410,8 @@ internal class EventControllerTest @Autowired constructor(
             assertEquals(newTitle, updatedEvent.title)
             assertEquals(newDescription, updatedEvent.description)
             assertEquals(newRegisterUrl, updatedEvent.registerUrl)
-            assertEquals(newStartDate, updatedEvent.startDate)
-            assertEquals(newEndDate, updatedEvent.endDate)
+            assertEquals(newStartDate.toJson(), updatedEvent.startDate.toJson())
+            assertEquals(newEndDate.toJson(), updatedEvent.endDate.toJson())
             assertEquals(newLocation, updatedEvent.location)
             assertEquals(newCategory, updatedEvent.category)
             assertEquals(newThumbnailPath, updatedEvent.thumbnailPath)
@@ -423,7 +423,10 @@ internal class EventControllerTest @Autowired constructor(
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(
                     mapOf(
-                        "title" to "New Title"
+                        "title" to "New Title",
+                        "description" to "New Description",
+                        "startDate" to TestUtils.createDate(2022, Calendar.DECEMBER, 1),
+                        "thumbnailPath" to "http://test.com/thumbnail/1"
                     )
                 )
             }
