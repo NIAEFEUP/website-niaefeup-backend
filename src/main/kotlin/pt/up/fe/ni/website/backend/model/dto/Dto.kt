@@ -2,9 +2,10 @@ package pt.up.fe.ni.website.backend.model.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.databind.ObjectMapper
+import pt.up.fe.ni.website.backend.config.ApplicationContextUtils
 import javax.persistence.Entity
 import javax.validation.ConstraintViolationException
-import javax.validation.Validation
+import javax.validation.Validator
 import kotlin.reflect.KClass
 import kotlin.reflect.full.hasAnnotation
 import kotlin.reflect.jvm.jvmErasure
@@ -21,8 +22,8 @@ open class Dto<T : Any> {
     }
 
     companion object {
-        private val objectMapper = ObjectMapper()
-        private val validatorFactory = Validation.buildDefaultValidatorFactory()
+        private val objectMapper = ApplicationContextUtils.getBean(ObjectMapper::class.java)
+        private val validator = ApplicationContextUtils.getBean(Validator::class.java)
     }
 
     fun create(): T {
@@ -36,7 +37,6 @@ open class Dto<T : Any> {
     }
 
     private fun ensureValid(entity: T): T {
-        val validator = validatorFactory.validator
         val violations = validator.validate(entity)
 
         if (violations.isNotEmpty()) {

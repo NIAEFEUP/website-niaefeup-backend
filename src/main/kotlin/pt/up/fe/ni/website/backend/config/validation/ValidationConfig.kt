@@ -1,4 +1,4 @@
-package pt.up.fe.ni.website.backend.model.validator
+package pt.up.fe.ni.website.backend.config.validation
 
 import org.springframework.context.MessageSource
 import org.springframework.context.annotation.Bean
@@ -8,7 +8,7 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean
 import javax.validation.Validator
 
 @Configuration
-class MessageValidator {
+class ValidationConfig {
     @Bean
     fun validatorFactory(messageSource: MessageSource): Validator {
         val validator = LocalValidatorFactoryBean()
