@@ -60,7 +60,7 @@ class AuthControllerTest @Autowired constructor(
         }
 
         @Test
-        fun `should fail when email is invalid`() {
+        fun `should fail when email is not registered`() {
             mockMvc.post("/auth/new") {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(
@@ -81,7 +81,7 @@ class AuthControllerTest @Autowired constructor(
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(LoginDto(testAccount.email, "wrong_password"))
             }.andExpect {
-                status { isUnprocessableEntity() }
+                status { isUnauthorized() }
                 jsonPath("$.errors[0].message") { value("invalid credentials") }
             }
         }
@@ -179,7 +179,5 @@ class AuthControllerTest @Autowired constructor(
                 }
             }
         }
-
-        // TODO: Add tests for role access when implemented
     }
 }

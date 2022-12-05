@@ -401,16 +401,10 @@ class AccountControllerTest @Autowired constructor(
         // password is ignored on serialization, so add it manually
         // for account creation test cases
         return objectMapper.writeValueAsString(
-            mapOf(
-                "name" to this?.name,
-                "email" to this?.email,
-                "password" to this?.password,
-                "bio" to this?.bio,
-                "birthDate" to this?.birthDate.toJson(),
-                "photoPath" to this?.photoPath,
-                "linkedin" to this?.linkedin,
-                "github" to this?.github,
-                "websites" to this?.websites
+            objectMapper.convertValue(this, Map::class.java).plus(
+                mapOf(
+                    "password" to this?.password
+                )
             )
         )
     }

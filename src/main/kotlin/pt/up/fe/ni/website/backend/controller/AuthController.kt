@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import pt.up.fe.ni.website.backend.service.AuthService
-import javax.servlet.http.HttpServletRequest
 
 data class LoginDto(
     val email: String,
@@ -37,7 +36,7 @@ class AuthController(val authService: AuthService) {
 
     @GetMapping
     @PreAuthorize("hasRole('MEMBER')")
-    fun checkAuthentication(request: HttpServletRequest): Map<String, String> {
+    fun checkAuthentication(): Map<String, String> {
         val account = authService.getAuthenticatedAccount()
         return mapOf("authenticated_user" to account.email)
     }

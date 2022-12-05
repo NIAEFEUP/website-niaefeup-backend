@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.bind.annotation.RestControllerAdvice
-import org.springframework.web.server.ResponseStatusException
-import javax.servlet.http.HttpServletResponse
 import javax.validation.ConstraintViolationException
 
 data class SimpleError(
@@ -108,12 +106,6 @@ class ErrorController : ErrorController {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     fun invalidAuthentication(e: AuthenticationException): CustomError {
         return wrapSimpleError(e.message ?: "invalid authentication")
-    }
-
-    @ExceptionHandler(ResponseStatusException::class)
-    fun expectedError(e: ResponseStatusException, response: HttpServletResponse): CustomError {
-        response.status = e.status.value()
-        return wrapSimpleError(e.reason ?: (e.message))
     }
 
     fun wrapSimpleError(msg: String, param: String? = null, value: Any? = null) = CustomError(
