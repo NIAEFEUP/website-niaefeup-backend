@@ -20,7 +20,6 @@ class ValidationConfig {
     fun messageSource(): MessageSource {
         val bean = ReloadableResourceBundleMessageSource()
         bean.addBasenames(
-            "classpath:pt.up.fe.ni.website.backend.model.validator.MessageValidator",
             "classpath:validation_errors"
         )
         bean.setDefaultEncoding("UTF-8")
