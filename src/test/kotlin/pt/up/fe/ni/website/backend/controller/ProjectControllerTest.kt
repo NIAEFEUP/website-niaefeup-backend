@@ -19,8 +19,12 @@ import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.put
+import pt.up.fe.ni.website.backend.model.Account
+import pt.up.fe.ni.website.backend.model.CustomWebsite
 import pt.up.fe.ni.website.backend.model.Project
 import pt.up.fe.ni.website.backend.repository.ProjectRepository
+import pt.up.fe.ni.website.backend.utils.TestUtils
+import java.util.*
 import pt.up.fe.ni.website.backend.model.constants.ActivityConstants as Constants
 
 @SpringBootTest
@@ -34,7 +38,21 @@ internal class ProjectControllerTest @Autowired constructor(
 ) {
     val testProject = Project(
         "Awesome project",
-        "this is a test project"
+        "this is a test project",
+        mutableListOf(
+            Account(
+                "Test Account",
+                "test_account@test.com",
+                "This is a test account",
+                TestUtils.createDate(2001, Calendar.JULY, 28),
+                "https://test-photo.com",
+                "https://linkedin.com",
+                "https://github.com",
+                listOf(
+                    CustomWebsite("https://test-website.com", "https://test-website.com/logo.png")
+                )
+            )
+        )
     )
 
     @Nested
@@ -45,7 +63,8 @@ internal class ProjectControllerTest @Autowired constructor(
             testProject,
             Project(
                 "NIJobs",
-                "Job platform for students"
+                "Job platform for students",
+                mutableListOf()
             )
         )
 
@@ -206,6 +225,7 @@ internal class ProjectControllerTest @Autowired constructor(
         fun `should update the project`() {
             val newTitle = "New Title"
             val newDescription = "New description of the project"
+            val newTeamMembers = mutableListOf<Account>()
             val newIsArchived = true
 
             mockMvc.put("/projects/${testProject.id}") {
@@ -214,6 +234,7 @@ internal class ProjectControllerTest @Autowired constructor(
                     mapOf(
                         "title" to newTitle,
                         "description" to newDescription,
+                        "teamMembers" to newTeamMembers,
                         "isArchived" to newIsArchived
                     )
                 )
@@ -223,12 +244,14 @@ internal class ProjectControllerTest @Autowired constructor(
                     content { contentType(MediaType.APPLICATION_JSON) }
                     jsonPath("$.title") { value(newTitle) }
                     jsonPath("$.description") { value(newDescription) }
+                    jsonPath("$.teamMembers") { value(newTeamMembers) }
                     jsonPath("$.isArchived") { value(newIsArchived) }
                 }
 
             val updatedProject = repository.findById(testProject.id!!).get()
             assertEquals(newTitle, updatedProject.title)
             assertEquals(newDescription, updatedProject.description)
+            assertEquals(newTeamMembers, updatedProject.teamMembers)
             assertEquals(newIsArchived, updatedProject.isArchived)
         }
 
@@ -337,6 +360,7 @@ internal class ProjectControllerTest @Autowired constructor(
         private val project = Project(
             "proj1",
             "very cool project",
+            mutableListOf(),
             true
         )
 
@@ -361,6 +385,76 @@ internal class ProjectControllerTest @Autowired constructor(
 
             val unarchivedProject = repository.findById(project.id!!).get()
             assertEquals(newIsArchived, unarchivedProject.isArchived)
+        }
+    }
+
+    @Nested
+    @DisplayName("PUT /projects/{projectId}/addTeamMember/{accountId}")
+    inner class AddTeamMember {
+        @BeforeEach
+        fun addProject() {
+            repository.save(testProject)
+        }
+
+        @Test
+        fun `should add a team member`() {
+            val testAccount = Account(
+                "Another test Account",
+                "test2_account@test.com",
+                "This is another test account",
+                TestUtils.createDate(2003, Calendar.APRIL, 4),
+                "https://test-photo.com",
+                "https://linkedin.com",
+                "https://github.com",
+                listOf(
+                    CustomWebsite("https://test-website.com", "https://test-website.com/logo.png")
+                )
+            )
+            val newTeamMembers = mutableListOf(testProject.teamMembers[0], testAccount)
+
+            mockMvc.put("/projects/${testProject.id}/addTeamMember/${testAccount.id}") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString("teamMembers" to newTeamMembers)
+            }
+                .andExpect {
+                    status { isOk() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$.teamMembers") { value(newTeamMembers) }
+                }
+
+            val alteredProject = repository.findById(testProject.id!!).get()
+            assertEquals(newTeamMembers, alteredProject.teamMembers)
+        }
+
+        @Test
+        fun `should remove a team member`() {
+            val newTeamMembers = mutableListOf<Account>()
+
+            mockMvc.put("/projects/${testProject.id}/removeTeamMember/${testProject.teamMembers[0].id}") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString("teamMembers" to newTeamMembers)
+            }
+                .andExpect {
+                    status { isOk() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$.teamMembers") { value(newTeamMembers) }
+                }
+
+            val alteredProject = repository.findById(testProject.id!!).get()
+            assertEquals(newTeamMembers, alteredProject.teamMembers)
+        }
+
+        @Test
+        fun `should fail if the team member does not exist`() {
+            mockMvc.put("/projects/${testProject.id}/removeTeamMember/1234") {
+                contentType = MediaType.APPLICATION_JSON
+            }
+                .andExpect {
+                    status { isNotFound() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$.errors.length()") { value(1) }
+                    jsonPath("$.errors[0].message") { value("account not found with id 1234") }
+                }
         }
     }
 }

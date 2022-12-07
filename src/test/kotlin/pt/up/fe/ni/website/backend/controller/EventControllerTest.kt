@@ -34,7 +34,8 @@ internal class EventControllerTest @Autowired constructor(
     val testEvent = Event(
         "Great event",
         "This was a nice and iconic event",
-        TestUtils.createDate(2022, Calendar.JULY, 28)
+        TestUtils.createDate(2022, Calendar.JULY, 28),
+        mutableListOf()
     )
 
     @Nested
@@ -46,7 +47,8 @@ internal class EventControllerTest @Autowired constructor(
             Event(
                 "Bad event",
                 "This event was a failure",
-                TestUtils.createDate(2021, Calendar.OCTOBER, 27)
+                TestUtils.createDate(2021, Calendar.OCTOBER, 27),
+                mutableListOf()
             )
         )
 
@@ -81,6 +83,7 @@ internal class EventControllerTest @Autowired constructor(
                     jsonPath("$.title") { value(testEvent.title) }
                     jsonPath("$.description") { value(testEvent.description) }
                     jsonPath("$.date") { value(containsString("28-07-2022")) }
+                    jsonPath("$.teamMembers") { value(testEvent.teamMembers) }
                 }
         }
 
