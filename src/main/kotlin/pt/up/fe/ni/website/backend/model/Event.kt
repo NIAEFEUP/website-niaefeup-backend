@@ -5,11 +5,13 @@ import jakarta.persistence.Entity
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.Size
 import org.hibernate.validator.constraints.URL
+import pt.up.fe.ni.website.backend.annotations.validation.DateInterval
 import pt.up.fe.ni.website.backend.annotations.validation.NullOrNotBlank
 import java.util.Date
 import pt.up.fe.ni.website.backend.model.constants.EventConstants as Constants
 
 @Entity
+@DateInterval(startDate = "startDate", endDate = "endDate")
 class Event(
     title: String,
     description: String,
