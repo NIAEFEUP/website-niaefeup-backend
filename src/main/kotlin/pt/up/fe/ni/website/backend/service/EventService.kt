@@ -1,7 +1,9 @@
 package pt.up.fe.ni.website.backend.service
 
 import org.springframework.stereotype.Service
+import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.Event
+import pt.up.fe.ni.website.backend.model.Project
 import pt.up.fe.ni.website.backend.model.dto.EventDto
 import pt.up.fe.ni.website.backend.repository.EventRepository
 
@@ -11,6 +13,12 @@ class EventService(private val repository: EventRepository) {
 
     fun createEvent(dto: EventDto): Event {
         val event = dto.create()
+        return repository.save(event)
+    }
+
+    fun addTeamMemberById(id: Long, account: Account): Event { //Importo AccountDto, Account?
+        val event = getEventById(id) //Criar getEventById?
+        event.teamMembers.add(account)
         return repository.save(event)
     }
 }
