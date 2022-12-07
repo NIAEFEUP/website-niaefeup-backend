@@ -3,8 +3,8 @@ package pt.up.fe.ni.website.backend.service
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import pt.up.fe.ni.website.backend.model.Project
-import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.dto.ProjectDto
+import pt.up.fe.ni.website.backend.model.dto.AccountDto
 import pt.up.fe.ni.website.backend.repository.ProjectRepository
 
 @Service
@@ -47,8 +47,9 @@ class ProjectService(private val repository: ProjectRepository) {
         return repository.save(project)
     }
 
-    fun addTeamMemberById(id: Long, account: Account): Project { //Importo AccountDto, Account?
+    fun addTeamMemberById(id: Long, account: AccountDto): Project { //Importo AccountDto, Account?
         val project = getProjectById(id)
+        val account = getAccountById(id)
         project.teamMembers.add(account)
         return repository.save(project)
     }
