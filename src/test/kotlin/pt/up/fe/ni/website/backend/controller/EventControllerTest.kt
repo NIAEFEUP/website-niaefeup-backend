@@ -1,7 +1,6 @@
 package pt.up.fe.ni.website.backend.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
@@ -140,6 +139,16 @@ internal class EventControllerTest @Autowired constructor(
                 null,
                 "Other category",
                 "https://example.com/exampleThumbnail2"
+            ),
+            Event(
+                "Cool event",
+                "This event was a awesome",
+                TestUtils.createDate(2022, Calendar.SEPTEMBER, 11),
+                null,
+                null,
+                null,
+                "Great Events",
+                "https://example.com/exampleThumbnail2"
             )
         )
 
@@ -154,15 +163,9 @@ internal class EventControllerTest @Autowired constructor(
                 .andExpect {
                     status { isOk() }
                     content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.length()") { value(1) }
-                    jsonPath("$[0].title") { value(testEvent.title) }
-                    jsonPath("$[0].description") { value(testEvent.description) }
-                    jsonPath("$[0].startDate") { value(testEvent.startDate.toJson()) }
-                    jsonPath("$[0].endDate") { value(testEvent.endDate.toJson()) }
-                    jsonPath("$[0].url") { value(testEvent.url) }
-                    jsonPath("$[0].location") { value(testEvent.location) }
+                    jsonPath("$.length()") { value(2) }
                     jsonPath("$[0].category") { value(testEvent.category) }
-                    jsonPath("$[0].thumbnailPath") { value(testEvent.thumbnailPath) }
+                    jsonPath("$[1].category") { value(testEvent.category) }
                 }
         }
     }
@@ -170,11 +173,6 @@ internal class EventControllerTest @Autowired constructor(
     @EndpointTest
     @DisplayName("POST /events/new")
     inner class CreateEvent {
-        @AfterEach
-        fun clearEvents() {
-            repository.deleteAll()
-        }
-
         @Test
         fun `should create a new event`() {
             mockMvc.post("/events/new") {
@@ -303,6 +301,9 @@ internal class EventControllerTest @Autowired constructor(
 
                 @Test
                 fun `should be a URL`() = validationTester.isUrl()
+
+                @Test
+                fun `should be null or not blank`() = validationTester.isNullOrNotBlank()
             }
 
             @NestedTest
@@ -346,6 +347,9 @@ internal class EventControllerTest @Autowired constructor(
 
                 @Test
                 fun `should be a URL`() = validationTester.isUrl()
+
+                @Test
+                fun `should not be empty`() = validationTester.isNotEmpty()
             }
         }
     }
