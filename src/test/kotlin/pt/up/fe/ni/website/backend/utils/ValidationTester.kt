@@ -126,6 +126,17 @@ class ValidationTester(
             }
     }
 
+    fun isAfter(otherDate: String) {
+        val params = requiredFields.toMutableMap()
+        params[param] = "01-01-2022"
+        params[otherDate] = "02-01-2022"
+        req(params)
+            .expectValidationError()
+            .andExpect {
+                jsonPath("$.errors[0].message") { value("$param must be after $otherDate") }
+            }
+    }
+
     fun isEmail() {
         val params = requiredFields.toMutableMap()
         params[param] = "not-an-email"

@@ -289,6 +289,9 @@ internal class EventControllerTest @Autowired constructor(
 
                 @Test
                 fun `should be a Date`() = validationTester.isDate()
+
+                @Test
+                fun `should be after startDate`() = validationTester.isAfter("startDate")
             }
 
             @NestedTest
