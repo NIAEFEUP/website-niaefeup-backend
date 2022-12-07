@@ -26,4 +26,11 @@ class EventService(private val repository: EventRepository, private val accountS
         event.teamMembers.add(account)
         return repository.save(event)
     }
+
+    fun removeTeamMemberById(idEvent: Long, idAccount: Long): Event {
+        val event = getEventById(idEvent)
+        val account = accountService.getAccountById(idAccount)
+        event.teamMembers.remove(account)
+        return repository.save(event)
+    }
 }
