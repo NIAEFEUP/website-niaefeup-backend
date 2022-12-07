@@ -1,11 +1,8 @@
 package pt.up.fe.ni.website.backend.model
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.Id
-import javax.persistence.Inheritance
-import javax.persistence.InheritanceType
+import javax.persistence.*
+import javax.validation.Valid
 import javax.validation.constraints.Size
 import pt.up.fe.ni.website.backend.model.constants.ActivityConstants as Constants
 
@@ -20,6 +17,10 @@ abstract class Activity(
     @JsonProperty(required = true)
     @field:Size(min = Constants.Description.minSize, max = Constants.Description.maxSize)
     open val description: String,
+
+    @JoinColumn
+    @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
+    open val teamMembers: List<@Valid Account>,
 
     @Id
     @GeneratedValue

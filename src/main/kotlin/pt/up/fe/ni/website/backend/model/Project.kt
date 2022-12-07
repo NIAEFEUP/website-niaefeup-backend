@@ -6,6 +6,9 @@ import javax.persistence.Entity
 class Project(
     title: String,
     description: String,
+
     var isArchived: Boolean = false,
+
+    teamMembers: MutableList<Account>,
     id: Long? = null
-) : Activity(title, description, id)
+) : Activity(title, description, teamMembers, id)
