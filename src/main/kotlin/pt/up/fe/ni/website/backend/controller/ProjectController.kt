@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import pt.up.fe.ni.website.backend.dto.entity.AccountDto
 import pt.up.fe.ni.website.backend.dto.entity.ProjectDto
 import pt.up.fe.ni.website.backend.service.ProjectService
 
@@ -38,4 +39,10 @@ class ProjectController(private val service: ProjectService) {
 
     @PutMapping("/{id}/unarchive")
     fun unarchiveProjectById(@PathVariable id: Long) = service.unarchiveProjectById(id)
+
+    @PutMapping("/{id}/addTeamMember")
+    fun addTeamMemberById(
+        @PathVariable id: Long,
+        @RequestBody account: AccountDto
+    ) = service.addTeamMemberById(id, account)
 }
