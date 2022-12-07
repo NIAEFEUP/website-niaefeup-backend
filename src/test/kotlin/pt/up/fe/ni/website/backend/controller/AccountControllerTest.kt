@@ -21,6 +21,7 @@ import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.CustomWebsite
 import pt.up.fe.ni.website.backend.repository.AccountRepository
 import pt.up.fe.ni.website.backend.utils.TestUtils
+import pt.up.fe.ni.website.backend.utils.ValidationTester
 import java.util.Calendar
 import java.util.Date
 import pt.up.fe.ni.website.backend.model.constants.AccountConstants as Constants
@@ -37,6 +38,7 @@ class AccountControllerTest @Autowired constructor(
     val testAccount = Account(
         "Test Account",
         "test_account@test.com",
+        "test_password",
         "This is a test account",
         TestUtils.createDate(2001, Calendar.JULY, 28),
         "https://test-photo.com",
@@ -56,6 +58,7 @@ class AccountControllerTest @Autowired constructor(
             Account(
                 "Test Account 2",
                 "test_account2@test.com",
+                "test_password",
                 null,
                 null,
                 null,
@@ -132,7 +135,7 @@ class AccountControllerTest @Autowired constructor(
         fun `should create the account`() {
             mockMvc.post("/accounts/new") {
                 contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(testAccount)
+                content = testAccount.toJson()
             }.andExpect {
                 status { isOk() }
                 content { contentType(MediaType.APPLICATION_JSON) }
@@ -162,6 +165,7 @@ class AccountControllerTest @Autowired constructor(
                 requiredFields = mapOf(
                     "name" to testAccount.name,
                     "email" to testAccount.email,
+                    "password" to testAccount.password,
                     "websites" to emptyList<CustomWebsite>()
                 )
             )
@@ -200,6 +204,23 @@ class AccountControllerTest @Autowired constructor(
 
                 @Test
                 fun `should be a valid email`() = validationTester.isEmail()
+            }
+
+            @Nested
+            @DisplayName("password")
+            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+            inner class PasswordValidation {
+                @BeforeAll
+                fun setParam() {
+                    validationTester.param = "password"
+                }
+
+                @Test
+                fun `should be required`() = validationTester.isRequired()
+
+                @Test
+                @DisplayName("size should be between ${Constants.Password.minSize} and ${Constants.Password.maxSize}()")
+                fun size() = validationTester.hasSizeBetween(Constants.Password.minSize, Constants.Password.maxSize)
             }
 
             @Nested
@@ -292,6 +313,7 @@ class AccountControllerTest @Autowired constructor(
                                 mapOf(
                                     "name" to testAccount.name,
                                     "email" to testAccount.email,
+                                    "password" to testAccount.password,
                                     "websites" to listOf<Any>(params)
                                 )
                             )
@@ -351,14 +373,15 @@ class AccountControllerTest @Autowired constructor(
 
         @Test
         fun `should fail to create account with existing email`() {
+            println("testAccount: ${objectMapper.writeValueAsString(testAccount)}")
             mockMvc.post("/accounts/new") {
                 contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(testAccount)
+                content = testAccount.toJson()
             }.andExpect { status { isOk() } }
 
             mockMvc.post("/accounts/new") {
                 contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(testAccount)
+                content = testAccount.toJson()
             }.andExpect {
                 status { isUnprocessableEntity() }
                 content { contentType(MediaType.APPLICATION_JSON) }
@@ -372,5 +395,17 @@ class AccountControllerTest @Autowired constructor(
         val quotedDate = objectMapper.writeValueAsString(this)
         // objectMapper adds quotes to the date, so remove them
         return quotedDate.substring(1, quotedDate.length - 1)
+    }
+
+    fun Account?.toJson(): String {
+        // password is ignored on serialization, so add it manually
+        // for account creation test cases
+        return objectMapper.writeValueAsString(
+            objectMapper.convertValue(this, Map::class.java).plus(
+                mapOf(
+                    "password" to this?.password
+                )
+            )
+        )
     }
 }

@@ -21,7 +21,6 @@ import pt.up.fe.ni.website.backend.model.constants.AccountConstants as Constants
 
 @Entity
 class Account(
-    @JsonProperty(required = true)
     @field:Size(min = Constants.Name.minSize, max = Constants.Name.maxSize)
     var name: String,
 
@@ -30,6 +29,10 @@ class Account(
     @field:NotEmpty
     @field:Email
     var email: String,
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY, required = true)
+    @field:Size(min = Constants.Password.minSize, max = Constants.Password.maxSize)
+    var password: String,
 
     @field:Size(min = Constants.Bio.minSize, max = Constants.Bio.maxSize)
     var bio: String?,
