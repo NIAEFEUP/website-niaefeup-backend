@@ -30,7 +30,8 @@ internal class EventControllerTest @Autowired constructor(
         "Great event",
         "This was a nice and iconic event",
         "https://docs.google.com/forms",
-        TestUtils.createDate(2022, Calendar.JULY, 28)
+        TestUtils.createDate(2022, Calendar.JULY, 28),
+        mutableListOf()
     )
 
     @EndpointTest
@@ -42,7 +43,8 @@ internal class EventControllerTest @Autowired constructor(
                 "Bad event",
                 "This event was a failure",
                 null,
-                TestUtils.createDate(2021, Calendar.OCTOBER, 27)
+                TestUtils.createDate(2021, Calendar.OCTOBER, 27),
+                mutableListOf()
             )
         )
 
@@ -78,6 +80,7 @@ internal class EventControllerTest @Autowired constructor(
                     jsonPath("$.description") { value(testEvent.description) }
                     jsonPath("$.registerUrl") { value(testEvent.registerUrl) }
                     jsonPath("$.date") { value(containsString("28-07-2022")) }
+                    jsonPath("$.teamMembers") { value(testEvent.teamMembers) }
                 }
         }
 
