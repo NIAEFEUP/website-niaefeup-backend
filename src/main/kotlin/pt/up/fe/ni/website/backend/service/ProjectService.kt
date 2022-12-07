@@ -4,6 +4,7 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import pt.up.fe.ni.website.backend.dto.entity.ProjectDto
 import pt.up.fe.ni.website.backend.model.Project
+import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.repository.ProjectRepository
 
 @Service
@@ -43,6 +44,12 @@ class ProjectService(private val repository: ProjectRepository) {
     fun unarchiveProjectById(id: Long): Project {
         val project = getProjectById(id)
         project.isArchived = false
+        return repository.save(project)
+    }
+
+    fun addTeamMemberById(id: Long, account: Account): Project { //Importo AccountDto, Account?
+        val project = getProjectById(id)
+        project.teamMembers.add(account)
         return repository.save(project)
     }
 }
