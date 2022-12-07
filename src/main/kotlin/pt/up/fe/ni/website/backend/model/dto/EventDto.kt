@@ -7,5 +7,5 @@ class EventDto(
     val title: String,
     val description: String,
     val date: Date,
-    val teamMembers: MutableList<AccountDto>
+    val teamMembers: MutableList<AccountDto>?
 ) : Dto<Event>()

@@ -1,7 +1,6 @@
 package pt.up.fe.ni.website.backend.controller
 
 import org.springframework.web.bind.annotation.*
-import pt.up.fe.ni.website.backend.model.dto.AccountDto
 import pt.up.fe.ni.website.backend.model.dto.EventDto
 import pt.up.fe.ni.website.backend.service.EventService
 
@@ -14,9 +13,9 @@ class EventController(private val service: EventService) {
     @PostMapping("/new")
     fun createEvent(@RequestBody dto: EventDto) = service.createEvent(dto)
 
-    @PutMapping("/{id}/addTeamMember")
+    @PutMapping("/{idEvent}/addTeamMember/{idAccount}")
     fun addTeamMemberById(
-        @PathVariable id: Long,
-        @RequestBody account: AccountDto
-    ) = service.addTeamMemberById(id, account)
+        @PathVariable idEvent: Long,
+        @PathVariable idAccount: Long
+    ) = service.addTeamMemberById(idEvent, idAccount)
 }

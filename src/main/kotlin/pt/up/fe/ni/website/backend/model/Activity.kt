@@ -20,7 +20,7 @@ abstract class Activity(
 
     @JoinColumn
     @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
-    open val teamMembers: List<@Valid Account>,
+    open val teamMembers: MutableList<@Valid Account>,
 
     @Id
     @GeneratedValue
