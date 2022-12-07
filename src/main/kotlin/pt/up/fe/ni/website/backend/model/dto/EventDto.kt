@@ -6,5 +6,6 @@ import java.util.Date
 class EventDto(
     val title: String,
     val description: String,
-    val date: Date
+    val date: Date,
+    val teamMembers: MutableList<AccountDto>
 ) : Dto<Event>()
