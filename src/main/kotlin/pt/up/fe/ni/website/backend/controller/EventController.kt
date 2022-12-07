@@ -25,4 +25,10 @@ class EventController(private val service: EventService) {
         @PathVariable idEvent: Long,
         @PathVariable idAccount: Long
     ) = service.addTeamMemberById(idEvent, idAccount)
+
+    @PutMapping("/{idEvent}/removeTeamMember/{idAccount}")
+    fun removeTeamMemberById(
+        @PathVariable idEvent: Long,
+        @PathVariable idAccount: Long
+    ) = service.removeTeamMemberById(idEvent, idAccount)
 }

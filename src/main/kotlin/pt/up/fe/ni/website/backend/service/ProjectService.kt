@@ -47,10 +47,17 @@ class ProjectService(private val repository: ProjectRepository, private val acco
         return repository.save(project)
     }
 
-    fun addTeamMemberById(idProject: Long, idAccount: Long): Project { //Importo AccountDto, Account?
+    fun addTeamMemberById(idProject: Long, idAccount: Long): Project {
         val project = getProjectById(idProject)
         val account = accountService.getAccountById(idAccount)
         project.teamMembers.add(account)
+        return repository.save(project)
+    }
+
+    fun removeTeamMemberById(idProject: Long, idAccount: Long): Project {
+        val project = getProjectById(idProject)
+        val account = accountService.getAccountById(idAccount)
+        project.teamMembers.remove(account)
         return repository.save(project)
     }
 
