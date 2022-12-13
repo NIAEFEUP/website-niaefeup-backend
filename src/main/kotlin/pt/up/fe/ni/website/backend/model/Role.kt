@@ -9,22 +9,26 @@ import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
 import javax.persistence.ManyToMany
+import javax.persistence.OneToMany
 
 @Entity
 class Role(
     @JsonProperty(required = true)
     @Column(unique = true)
-    val name: String,
+    var name: String,
 
     @JsonProperty(required = true)
     @field:Convert(converter = PermissionsConverter::class)
-    val permissions: Permissions,
+    var permissions: Permissions,
 
     @JsonProperty(required = true)
-    val isSection: Boolean,
+    var isSection: Boolean,
 
     @ManyToMany
-    val accounts: List<Account>,
+    var accounts: List<Account>,
+
+    @OneToMany
+    var perProjects: List<PerProjectRole>,
 
     @JsonProperty(required = true)
     @Id @GeneratedValue
