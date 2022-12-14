@@ -1,4 +1,5 @@
-# Website NIAEFEUP - BackEnd
+# Website NIAEFEUP - BackEnd  
+[![codecov](https://codecov.io/gh/NIAEFEUP/website-niaefeup-backend/branch/develop/graph/badge.svg?token=4OPGXYESGP)](https://codecov.io/gh/NIAEFEUP/website-niaefeup-backend)  
 The online platform for NIAEFEUP.
 
 ## Development setup
@@ -75,4 +76,6 @@ gradle test
     - `dto/` - Data Transfer Objects for creating and modifying entities
   - `repository/` - Data access layer methods (Spring Data repositories)
   - `service/` - Business logic for the controllers
+  - `annotations/` - Custom annotations used in the project
+    - `validation/` - Custom validations used across the different models
 - `src/test/` - Self explanatory: unit tests, functional (end-to-end) tests, etc.

@@ -1,22 +1,28 @@
-package pt.up.fe.ni.website.backend.controller
+package pt.up.fe.ni.website.backend.utils
 
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.ResultActionsDsl
 
 class ValidationTester(
-    private val req: (Map<String, Any>) -> ResultActionsDsl,
-    private val requiredFields: Map<String, Any> = mapOf()
+    private val req: (Map<String, Any?>) -> ResultActionsDsl,
+    private val requiredFields: Map<String, Any?> = mapOf()
 ) {
     lateinit var param: String
+    var parameterName: String? = null
+
+    private fun getParamName(): String {
+        return parameterName ?: param
+    }
 
     fun isRequired() {
         val params = requiredFields.toMutableMap()
         params.remove(param)
         req(params)
+            .andDo { print() }
             .expectValidationError()
             .andExpect {
                 jsonPath("$.errors[0].message") { value("required") }
-                jsonPath("$.errors[0].param") { value(param) }
+                jsonPath("$.errors[0].param") { value(getParamName()) }
             }
     }
 
@@ -27,8 +33,32 @@ class ValidationTester(
             .expectValidationError()
             .andExpect {
                 jsonPath("$.errors[0].message") { value("must not be empty") }
-                jsonPath("$.errors[0].param") { value(param) }
+                jsonPath("$.errors[0].param") { value(getParamName()) }
                 jsonPath("$.errors[0].value") { value("") }
+            }
+    }
+
+    fun isNullOrNotBlank() {
+        val params = requiredFields.toMutableMap()
+        params[param] = ""
+        req(params)
+            .expectValidationError()
+            .andExpect {
+                jsonPath("$.errors[0].message") { value("must be null or not blank") }
+                jsonPath("$.errors[0].param") { value(getParamName()) }
+                jsonPath("$.errors[0].value") { value("") }
+            }
+    }
+
+    fun isUrl() {
+        val params = requiredFields.toMutableMap()
+        params[param] = "invalid.com"
+        req(params)
+            .expectValidationError()
+            .andExpect {
+                jsonPath("$.errors[0].message") { value("must be a valid URL") }
+                jsonPath("$.errors[0].param") { value(getParamName()) }
+                jsonPath("$.errors[0].value") { value("invalid.com") }
             }
     }
 
@@ -42,7 +72,7 @@ class ValidationTester(
                 jsonPath("$.errors[0].message") {
                     value("size must be between $min and $max")
                 }
-                jsonPath("$.errors[0].param") { value(param) }
+                jsonPath("$.errors[0].param") { value(getParamName()) }
                 jsonPath("$.errors[0].value") { value(smallValue) }
             }
 
@@ -54,7 +84,7 @@ class ValidationTester(
                 jsonPath("$.errors[0].message") {
                     value("size must be between $min and $max")
                 }
-                jsonPath("$.errors[0].param") { value(param) }
+                jsonPath("$.errors[0].param") { value(getParamName()) }
                 jsonPath("$.errors[0].value") { value(bigValue) }
             }
     }
@@ -69,7 +99,7 @@ class ValidationTester(
                 jsonPath("$.errors[0].message") {
                     value("size must be greater or equal to $min")
                 }
-                jsonPath("$.errors[0].param") { value(param) }
+                jsonPath("$.errors[0].param") { value(getParamName()) }
                 jsonPath("$.errors[0].value") { value(smallValue) }
             }
     }
@@ -82,6 +112,29 @@ class ValidationTester(
             .andExpect {
                 jsonPath("$.errors[0].message") { value("must be date") }
                 jsonPath("$.errors[0].value") { value("invalid") }
+            }
+    }
+
+    fun isPastDate() {
+        val params = requiredFields.toMutableMap()
+        params[param] = "01-01-3000" // TODO: use a date in the future instead of hard coded
+        req(params)
+            .expectValidationError()
+            .andExpect {
+                jsonPath("$.errors[0].message") { value("must be a past date") }
+                jsonPath("$.errors[0].value") { value("01-01-3000") }
+            }
+    }
+
+    fun isEmail() {
+        val params = requiredFields.toMutableMap()
+        params[param] = "not-an-email"
+        req(params)
+            .expectValidationError()
+            .andExpect {
+                jsonPath("$.errors[0].message") { value("must be a well-formed email address") }
+                jsonPath("$.errors[0].value") { value("not-an-email") }
+                jsonPath("$.errors[0].param") { value(getParamName()) }
             }
     }
 

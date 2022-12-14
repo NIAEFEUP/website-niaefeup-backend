@@ -1,10 +1,13 @@
 package pt.up.fe.ni.website.backend.controller
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException
+import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
 import org.springframework.boot.web.servlet.error.ErrorController
 import org.springframework.http.HttpStatus
 import org.springframework.http.converter.HttpMessageNotReadableException
+import org.springframework.security.access.AccessDeniedException
+import org.springframework.security.core.AuthenticationException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
@@ -62,6 +65,13 @@ class ErrorController : ErrorController {
                     param = cause.parameter.name
                 )
             }
+
+            is MismatchedInputException -> {
+                return wrapSimpleError(
+                    "must be ${cause.targetType.simpleName.lowercase()}",
+                    param = cause.path.joinToString(".") { it.fieldName }
+                )
+            }
         }
 
         return wrapSimpleError(e.message ?: "invalid request body")
@@ -73,11 +83,29 @@ class ErrorController : ErrorController {
         return wrapSimpleError(e.message ?: "element not found")
     }
 
+    @ExceptionHandler(IllegalArgumentException::class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    fun illegalArgument(e: IllegalArgumentException): CustomError {
+        return wrapSimpleError(e.message ?: "invalid argument")
+    }
+
     @ExceptionHandler(Exception::class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     fun unexpectedError(e: Exception): CustomError {
         System.err.println(e)
-        return wrapSimpleError("unexpected error")
+        return wrapSimpleError("unexpected error: " + e.message)
+    }
+
+    @ExceptionHandler(AccessDeniedException::class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    fun forbidden(e: AccessDeniedException): CustomError {
+        return wrapSimpleError(e.message ?: "you don't have permission to access this resource")
+    }
+
+    @ExceptionHandler(AuthenticationException::class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    fun invalidAuthentication(e: AuthenticationException): CustomError {
+        return wrapSimpleError(e.message ?: "invalid authentication")
     }
 
     fun wrapSimpleError(msg: String, param: String? = null, value: Any? = null) = CustomError(

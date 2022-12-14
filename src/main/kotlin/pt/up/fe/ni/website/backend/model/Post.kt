@@ -1,6 +1,8 @@
 package pt.up.fe.ni.website.backend.model
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonProperty
+import org.hibernate.validator.constraints.URL
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
@@ -26,12 +28,14 @@ class Post(
 
     @JsonProperty(required = true)
     @field:NotEmpty
+    @field:URL
     var thumbnailPath: String,
 
     @CreatedDate
     var publishDate: Date? = null,
 
     @LastModifiedDate
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
     var lastUpdatedAt: Date? = null,
 
     @Id @GeneratedValue
