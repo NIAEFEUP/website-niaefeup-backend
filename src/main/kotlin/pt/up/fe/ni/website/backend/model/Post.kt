@@ -2,17 +2,17 @@ package pt.up.fe.ni.website.backend.model
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonProperty
+import jakarta.persistence.Entity
+import jakarta.persistence.EntityListeners
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.Id
+import jakarta.validation.constraints.NotEmpty
+import jakarta.validation.constraints.Size
 import org.hibernate.validator.constraints.URL
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import java.util.Date
-import javax.persistence.Entity
-import javax.persistence.EntityListeners
-import javax.persistence.GeneratedValue
-import javax.persistence.Id
-import javax.validation.constraints.NotEmpty
-import javax.validation.constraints.Size
 import pt.up.fe.ni.website.backend.model.constants.PostConstants as Constants
 
 @Entity
