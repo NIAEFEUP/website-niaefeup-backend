@@ -1,8 +1,8 @@
 package pt.up.fe.ni.website.backend.service
 
 import org.springframework.stereotype.Service
+import pt.up.fe.ni.website.backend.dto.entity.EventDto
 import pt.up.fe.ni.website.backend.model.Event
-import pt.up.fe.ni.website.backend.model.dto.EventDto
 import pt.up.fe.ni.website.backend.repository.EventRepository
 
 @Service

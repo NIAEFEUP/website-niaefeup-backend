@@ -1,4 +1,4 @@
-package pt.up.fe.ni.website.backend.model.dto
+package pt.up.fe.ni.website.backend.dto.entity
 
 import pt.up.fe.ni.website.backend.model.Account
 import java.util.Date
@@ -13,4 +13,4 @@ class AccountDto(
     val linkedin: String?,
     val github: String?,
     val websites: List<CustomWebsiteDto>?
-) : Dto<Account>()
+) : EntityDto<Account>()
