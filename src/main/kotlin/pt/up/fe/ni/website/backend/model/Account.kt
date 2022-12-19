@@ -41,7 +41,6 @@ class Account(
     var birthDate: Date?,
 
     @field:NullOrNotBlank
-    @field:URL
     var photo: String?,
 
     @field:NullOrNotBlank

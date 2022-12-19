@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
+import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.dto.AccountDto
 import pt.up.fe.ni.website.backend.service.AccountService
 
@@ -20,5 +21,8 @@ class AccountController(private val service: AccountService) {
     fun getAccountById(@PathVariable id: Long) = service.getAccountById(id)
 
     @PostMapping("/new")
-    fun createAccount(@RequestPart account: AccountDto, @RequestPart image: MultipartFile?) = service.createAccount(account)
+    fun createAccount(@RequestPart account: AccountDto, @RequestPart photo: MultipartFile?): Account {
+        account.photoFile = photo
+        return service.createAccount(account)
+    }
 }
