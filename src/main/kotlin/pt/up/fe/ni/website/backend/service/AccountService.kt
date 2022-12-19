@@ -20,6 +20,8 @@ class AccountService(private val repository: AccountRepository, private val enco
 
         val account = dto.create()
         account.password = encoder.encode(dto.password)
+        account.photo = "https://google.com"
+
         return repository.save(account)
     }
 

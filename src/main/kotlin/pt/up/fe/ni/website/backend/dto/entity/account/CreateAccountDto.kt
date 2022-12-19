@@ -1,5 +1,6 @@
 package pt.up.fe.ni.website.backend.dto.entity.account
 
+import org.springframework.web.multipart.MultipartFile
 import java.util.Date
 import pt.up.fe.ni.website.backend.dto.entity.CustomWebsiteDto
 import pt.up.fe.ni.website.backend.dto.entity.EntityDto
@@ -11,7 +12,7 @@ class CreateAccountDto(
     val name: String,
     val bio: String?,
     val birthDate: Date?,
-    val photoPath: String?,
+    val photo: MultipartFile?,
     val linkedin: String?,
     val github: String?,
     val websites: List<CustomWebsiteDto>?

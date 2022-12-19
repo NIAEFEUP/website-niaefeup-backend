@@ -130,7 +130,6 @@ class AccountControllerTest @Autowired constructor(
                     jsonPath("$.email").value(testAccount.email),
                     jsonPath("$.bio").value(testAccount.bio),
                     jsonPath("$.birthDate").value(testAccount.birthDate.toJson()),
-                    jsonPath("$.photoPath").value(testAccount.photoPath),
                     jsonPath("$.linkedin").value(testAccount.linkedin),
                     jsonPath("$.github").value(testAccount.github),
                     jsonPath("$.websites.length()").value(1),
@@ -183,13 +182,11 @@ class AccountControllerTest @Autowired constructor(
                     jsonPath("$.email").value(testAccount.email),
                     jsonPath("$.bio").value(testAccount.bio),
                     jsonPath("$.birthDate").value(testAccount.birthDate.toJson()),
-                    jsonPath("$.photoPath").value(testAccount.photoPath),
                     jsonPath("$.linkedin").value(testAccount.linkedin),
                     jsonPath("$.github").value(testAccount.github),
                     jsonPath("$.websites.length()").value(1),
                     jsonPath("$.websites[0].url").value(testAccount.websites[0].url),
                     jsonPath("$.websites[0].iconPath").value(testAccount.websites[0].iconPath)
-
                 )
                 .andDocument(
                     documentation,
@@ -223,7 +220,6 @@ class AccountControllerTest @Autowired constructor(
                                 "password" to noWebsite.password,
                                 "bio" to noWebsite.bio,
                                 "birthDate" to noWebsite.birthDate,
-                                "photoPath" to noWebsite.photoPath,
                                 "linkedin" to noWebsite.linkedin,
                                 "github" to noWebsite.github
                             )
@@ -237,7 +233,6 @@ class AccountControllerTest @Autowired constructor(
                     jsonPath("$.email").value(noWebsite.email),
                     jsonPath("$.bio").value(noWebsite.bio),
                     jsonPath("$.birthDate").value(noWebsite.birthDate.toJson()),
-                    jsonPath("$.photoPath").value(noWebsite.photoPath),
                     jsonPath("$.linkedin").value(noWebsite.linkedin),
                     jsonPath("$.github").value(noWebsite.github),
                     jsonPath("$.websites.length()").value(0)
@@ -703,7 +698,6 @@ class AccountControllerTest @Autowired constructor(
             Assertions.assertEquals(newEmail, updatedAccount.email)
             Assertions.assertEquals(newBio, updatedAccount.bio)
             Assertions.assertEquals(newBirthDate.toJson(), updatedAccount.birthDate.toJson())
-            Assertions.assertEquals(newPhotoPath, updatedAccount.photoPath)
             Assertions.assertEquals(newLinkedin, updatedAccount.linkedin)
             Assertions.assertEquals(newWebsites[0].url, updatedAccount.websites[0].url)
             Assertions.assertEquals(newWebsites[0].iconPath, updatedAccount.websites[0].iconPath)
