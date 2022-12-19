@@ -1,5 +1,6 @@
 package pt.up.fe.ni.website.backend.dto.entity.account
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import org.springframework.web.multipart.MultipartFile
 import java.util.Date
 import pt.up.fe.ni.website.backend.dto.entity.CustomWebsiteDto
@@ -12,7 +13,8 @@ class CreateAccountDto(
     val name: String,
     val bio: String?,
     val birthDate: Date?,
-    val photo: MultipartFile?,
+    @JsonIgnore
+    var photoFile: MultipartFile?,
     val linkedin: String?,
     val github: String?,
     val websites: List<CustomWebsiteDto>?

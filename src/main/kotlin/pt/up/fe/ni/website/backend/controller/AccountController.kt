@@ -13,6 +13,7 @@ import pt.up.fe.ni.website.backend.dto.auth.ChangePasswordDto
 import pt.up.fe.ni.website.backend.dto.entity.account.CreateAccountDto
 import pt.up.fe.ni.website.backend.dto.entity.account.UpdateAccountDto
 import org.springframework.web.multipart.MultipartFile
+import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.service.AccountService
 
 @RestController
@@ -23,7 +24,6 @@ class AccountController(private val service: AccountService) {
 
     @GetMapping("/{id}")
     fun getAccountById(@PathVariable id: Long) = service.getAccountById(id)
-
 
     @PostMapping("/changePassword/{id}")
     fun changePassword(@PathVariable id: Long, @RequestBody dto: ChangePasswordDto): Map<String, String> {
@@ -43,5 +43,8 @@ class AccountController(private val service: AccountService) {
         return emptyMap()
     }
     @PostMapping("/new")
-    fun createAccount(@RequestPart account: CreateAccountDto, @RequestPart image: MultipartFile?) = service.createAccount(account)
+    fun createAccount(@RequestPart account: CreateAccountDto, @RequestPart photo: MultipartFile?): Account {
+        account.photoFile = photo
+        return service.createAccount(account)
+    }
 }
