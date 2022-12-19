@@ -1,5 +1,6 @@
 package pt.up.fe.ni.website.backend.model.dto
 
+import org.springframework.web.multipart.MultipartFile
 import pt.up.fe.ni.website.backend.model.Account
 import java.util.Date
 
@@ -9,7 +10,7 @@ class AccountDto(
     val name: String,
     val bio: String?,
     val birthDate: Date?,
-    val photoPath: String?,
+    val photo: MultipartFile?,
     val linkedin: String?,
     val github: String?,
     val websites: List<CustomWebsiteDto>?

@@ -42,7 +42,7 @@ class Account(
 
     @field:NullOrNotBlank
     @field:URL
-    var photoPath: String?,
+    var photo: String?,
 
     @field:NullOrNotBlank
     @field:URL
