@@ -13,7 +13,7 @@ class AccountService(private val repository: AccountRepository, private val enco
 
     fun createAccount(dto: AccountDto): Account {
         repository.findByEmail(dto.email)?.let {
-            throw IllegalArgumentException("email already exists")
+            throw IllegalArgumentException(ErrorMessages.emailAlreadyExists())
         }
 
         val account = dto.create()
@@ -22,8 +22,8 @@ class AccountService(private val repository: AccountRepository, private val enco
     }
 
     fun getAccountById(id: Long): Account = repository.findByIdOrNull(id)
-        ?: throw NoSuchElementException("account not found with id $id")
+        ?: throw NoSuchElementException(ErrorMessages.accountNotFound(id))
 
     fun getAccountByEmail(email: String): Account = repository.findByEmail(email)
-        ?: throw NoSuchElementException("account not found with email $email")
+        ?: throw NoSuchElementException(ErrorMessages.emailNotFound(email))
 }
