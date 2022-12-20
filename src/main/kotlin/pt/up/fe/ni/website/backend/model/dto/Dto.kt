@@ -3,9 +3,9 @@ package pt.up.fe.ni.website.backend.model.dto
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.databind.ObjectMapper
 import pt.up.fe.ni.website.backend.config.ApplicationContextUtils
-import javax.persistence.Entity
-import javax.validation.ConstraintViolationException
-import javax.validation.Validator
+import jakarta.persistence.Entity
+import jakarta.validation.ConstraintViolationException
+import jakarta.validation.Validator
 import kotlin.reflect.KClass
 import kotlin.reflect.full.hasAnnotation
 import kotlin.reflect.jvm.jvmErasure
@@ -101,7 +101,10 @@ open class Dto<T : Any> {
          * determination but we still ensure it's an entity before putting it on the cache.
          */
         @Suppress("UNCHECKED_CAST")
-        fun <T : Any> getTypeConversionClassWithCache(clazz: KClass<out Dto<T>>, conversionClass: KClass<T>? = null): KClass<T> {
+        fun <T : Any> getTypeConversionClassWithCache(
+            clazz: KClass<out Dto<T>>,
+            conversionClass: KClass<T>? = null
+        ): KClass<T> {
             if (clazz == Dto::class) throw IllegalCallerException("DTO is not extended by any class")
             if (!typeArgumentCache.containsKey(clazz)) {
                 val typeArgumentErasure = conversionClass ?: getTypeConversionClass(clazz)
