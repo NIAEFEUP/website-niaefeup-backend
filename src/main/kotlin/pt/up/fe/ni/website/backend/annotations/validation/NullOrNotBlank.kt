@@ -11,7 +11,7 @@ import kotlin.reflect.KClass
 @Constraint(validatedBy = [NullOrNotBlankValidator::class])
 @MustBeDocumented
 annotation class NullOrNotBlank(
-    val message: String = "must be null or not blank",
+    val message: String = "{null_blank.error}",
     val groups: Array<KClass<*>> = [],
     val payload: Array<KClass<Payload>> = []
 )
