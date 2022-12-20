@@ -1,35 +1,19 @@
 package pt.up.fe.ni.website.backend.service
 
 object ErrorMessages {
-    fun postNotFound(postId: Long): String {
-        return "post not found with id $postId"
-    }
+    const val emailAlreadyExists = "email already exists"
 
-    fun projectNotFound(id: Long): String {
-        return "project not found with id $id"
-    }
+    const val invalidCredentials = "invalid credentials"
 
-    fun emailAlreadyExists(): String {
-        return "email already exists"
-    }
+    const val invalidRefreshToken = "invalid refresh token"
 
-    fun accountNotFound(id: Long): String {
-        return "account not found with id $id"
-    }
+    const val expiredRefreshToken = "refresh token has expired"
 
-    fun emailNotFound(email: String): String {
-        return "account not found with email $email";
-    }
+    fun postNotFound(postId: Long): String = "post not found with id $postId"
 
-    fun invalidCredentials(): String {
-        return "invalid credentials"
-    }
+    fun projectNotFound(id: Long): String = "project not found with id $id"
 
-    fun invalidRefreshToken(): String {
-        return "invalid refresh token"
-    }
+    fun accountNotFound(id: Long): String = "account not found with id $id"
 
-    fun expiredRefreshToken(): String {
-        return "refresh token has expired"
-    }
+    fun emailNotFound(email: String): String = "account not found with email $email"
 }

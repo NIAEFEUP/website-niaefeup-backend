@@ -13,7 +13,7 @@ class AccountService(private val repository: AccountRepository, private val enco
 
     fun createAccount(dto: AccountDto): Account {
         repository.findByEmail(dto.email)?.let {
-            throw IllegalArgumentException(ErrorMessages.emailAlreadyExists())
+            throw IllegalArgumentException(ErrorMessages.emailAlreadyExists)
         }
 
         val account = dto.create()
