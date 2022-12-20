@@ -2,10 +2,10 @@ package pt.up.fe.ni.website.backend.model.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.databind.ObjectMapper
-import pt.up.fe.ni.website.backend.config.ApplicationContextUtils
 import jakarta.persistence.Entity
 import jakarta.validation.ConstraintViolationException
 import jakarta.validation.Validator
+import pt.up.fe.ni.website.backend.config.ApplicationContextUtils
 import kotlin.reflect.KClass
 import kotlin.reflect.full.hasAnnotation
 import kotlin.reflect.jvm.jvmErasure
