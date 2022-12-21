@@ -28,7 +28,7 @@ class AuthService(
     fun authenticate(email: String, password: String): Account {
         val account = accountService.getAccountByEmail(email)
         if (!passwordEncoder.matches(password, account.password)) {
-            throw InvalidBearerTokenException("invalid credentials")
+            throw InvalidBearerTokenException(ErrorMessages.invalidCredentials)
         }
         val authentication = UsernamePasswordAuthenticationToken(email, password, getAuthorities())
         SecurityContextHolder.getContext().authentication = authentication
@@ -48,10 +48,10 @@ class AuthService(
             try {
                 jwtDecoder.decode(refreshToken)
             } catch (e: Exception) {
-                throw InvalidBearerTokenException("invalid refresh token")
+                throw InvalidBearerTokenException(ErrorMessages.invalidRefreshToken)
             }
         if (jwt.expiresAt?.isBefore(Instant.now()) != false) {
-            throw InvalidBearerTokenException("refresh token has expired")
+            throw InvalidBearerTokenException(ErrorMessages.expiredRefreshToken)
         }
         val account = accountService.getAccountByEmail(jwt.subject)
         return generateAccessToken(account)

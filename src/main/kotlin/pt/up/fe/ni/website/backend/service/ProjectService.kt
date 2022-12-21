@@ -17,7 +17,7 @@ class ProjectService(private val repository: ProjectRepository) {
     }
 
     fun getProjectById(id: Long): Project = repository.findByIdOrNull(id)
-        ?: throw NoSuchElementException("project not found with id $id")
+        ?: throw NoSuchElementException(ErrorMessages.projectNotFound(id))
 
     fun updateProjectById(id: Long, dto: ProjectDto): Project {
         val project = getProjectById(id)
@@ -27,7 +27,7 @@ class ProjectService(private val repository: ProjectRepository) {
 
     fun deleteProjectById(id: Long): Map<String, String> {
         if (!repository.existsById(id)) {
-            throw NoSuchElementException("project not found with id $id")
+            throw NoSuchElementException(ErrorMessages.projectNotFound(id))
         }
 
         repository.deleteById(id)

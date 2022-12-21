@@ -23,7 +23,7 @@ class Post(
     var title: String,
 
     @JsonProperty(required = true)
-    @field:Size(min = Constants.Body.minSize, message = "size must be greater or equal to ${Constants.Body.minSize}")
+    @field:Size(min = Constants.Body.minSize, message = "{size.min}")
     var body: String,
 
     @JsonProperty(required = true)
