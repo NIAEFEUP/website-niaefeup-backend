@@ -33,6 +33,19 @@ internal class ProjectControllerTest @Autowired constructor(
     val repository: ProjectRepository,
     val accountRepository: AccountRepository
 ) {
+    val testAccount = Account(
+        "Test Account",
+        "test_account@test.com",
+        "test_password",
+        "This is a test account",
+        TestUtils.createDate(2001, Calendar.JULY, 28),
+        "https://test-photo.com",
+        "https://linkedin.com",
+        "https://github.com",
+        listOf(
+            CustomWebsite("https://test-website.com", "https://test-website.com/logo.png")
+        )
+    )
     val testProject = Project(
         "Awesome project",
         "this is a test project",
@@ -393,7 +406,7 @@ internal class ProjectControllerTest @Autowired constructor(
     @DisplayName("PUT /projects/{projectId}/addTeamMember/{accountId}")
     inner class AddTeamMember {
 
-        val testAccount = Account(
+        val newAccount = Account(
             "Another test Account",
             "test2_account@test.com",
             "test_password",
@@ -407,9 +420,14 @@ internal class ProjectControllerTest @Autowired constructor(
             )
         )
 
-        @BeforeEach
-        fun addToRepositories() {
+        @BeforeAll
+        fun addAccounts() {
             accountRepository.save(testAccount)
+            accountRepository.save(newAccount)
+        }
+
+        @BeforeEach
+        fun addProject() {
             repository.save(testProject)
         }
 
@@ -429,9 +447,9 @@ internal class ProjectControllerTest @Autowired constructor(
                 )
             )
 
-            val newTeamMembers = mutableListOf(testProject.teamMembers[0], testAccount)
+            val newTeamMembers = mutableListOf(testAccount, newAccount)
 
-            mockMvc.put("/projects/${testProject.id}/addTeamMember/${testAccount.id}") {
+            mockMvc.put("/projects/${testProject.id}/addTeamMember/${newAccount.id}") {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString("teamMembers" to newTeamMembers)
             }
@@ -448,7 +466,7 @@ internal class ProjectControllerTest @Autowired constructor(
 
     @DisplayName("PUT /projects/{projectId}/addTeamMember/{accountId}")
     inner class RemoveTeamMember {
-        val testAccount = Account(
+        val removedAccount = Account(
             "Another test Account",
             "test3_account@test.com",
             "test_password",
@@ -465,6 +483,7 @@ internal class ProjectControllerTest @Autowired constructor(
         @BeforeEach
         fun addToRepositories() {
             accountRepository.save(testAccount)
+            accountRepository.save(removedAccount)
             repository.save(testProject)
         }
 
@@ -472,7 +491,7 @@ internal class ProjectControllerTest @Autowired constructor(
         fun `should remove a team member`() {
             val newTeamMembers = mutableListOf<Account>()
 
-            mockMvc.put("/projects/${testProject.id}/removeTeamMember/${testProject.teamMembers[0].id}") {
+            mockMvc.put("/projects/${testProject.id}/removeTeamMember/${testAccount.id}") {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString("teamMembers" to newTeamMembers)
             }
