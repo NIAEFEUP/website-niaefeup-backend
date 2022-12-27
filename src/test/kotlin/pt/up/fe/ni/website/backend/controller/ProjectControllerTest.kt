@@ -22,6 +22,7 @@ import org.springframework.test.web.servlet.put
 import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.CustomWebsite
 import pt.up.fe.ni.website.backend.model.Project
+import pt.up.fe.ni.website.backend.repository.AccountRepository
 import pt.up.fe.ni.website.backend.repository.ProjectRepository
 import pt.up.fe.ni.website.backend.utils.TestUtils
 import java.util.*
@@ -34,7 +35,8 @@ import pt.up.fe.ni.website.backend.model.constants.ActivityConstants as Constant
 internal class ProjectControllerTest @Autowired constructor(
     val mockMvc: MockMvc,
     val objectMapper: ObjectMapper,
-    val repository: ProjectRepository
+    val repository: ProjectRepository,
+    val accountRepository: AccountRepository
 ) {
     val testProject = Project(
         "Awesome project",
@@ -391,25 +393,29 @@ internal class ProjectControllerTest @Autowired constructor(
     @Nested
     @DisplayName("PUT /projects/{projectId}/addTeamMember/{accountId}")
     inner class AddTeamMember {
+
+        val testAccount = Account(
+            "Another test Account",
+            "test2_account@test.com",
+            "This is another test account",
+            TestUtils.createDate(2003, Calendar.APRIL, 4),
+            "https://test-photo.com",
+            "https://linkedin.com",
+            "https://github.com",
+            listOf(
+                CustomWebsite("https://test-website.com", "https://test-website.com/logo.png")
+            )
+        )
+
         @BeforeEach
-        fun addProject() {
+        fun addToRepositories() {
+            accountRepository.save(testAccount)
             repository.save(testProject)
         }
 
         @Test
         fun `should add a team member`() {
-            val testAccount = Account(
-                "Another test Account",
-                "test2_account@test.com",
-                "This is another test account",
-                TestUtils.createDate(2003, Calendar.APRIL, 4),
-                "https://test-photo.com",
-                "https://linkedin.com",
-                "https://github.com",
-                listOf(
-                    CustomWebsite("https://test-website.com", "https://test-website.com/logo.png")
-                )
-            )
+
             val newTeamMembers = mutableListOf(testProject.teamMembers[0], testAccount)
 
             mockMvc.put("/projects/${testProject.id}/addTeamMember/${testAccount.id}") {
@@ -424,6 +430,29 @@ internal class ProjectControllerTest @Autowired constructor(
 
             val alteredProject = repository.findById(testProject.id!!).get()
             assertEquals(newTeamMembers, alteredProject.teamMembers)
+        }
+    }
+
+    @Nested
+    @DisplayName("PUT /projects/{projectId}/addTeamMember/{accountId}")
+    inner class RemoveTeamMember {
+        val testAccount = Account(
+            "Another test Account",
+            "test3_account@test.com",
+            "This is another test account",
+            TestUtils.createDate(2003, Calendar.APRIL, 4),
+            "https://test-photo.com",
+            "https://linkedin.com",
+            "https://github.com",
+            listOf(
+                CustomWebsite("https://test-website.com", "https://test-website.com/logo.png")
+            )
+        )
+
+        @BeforeEach
+        fun addToRepositories() {
+            accountRepository.save(testAccount)
+            repository.save(testProject)
         }
 
         @Test
