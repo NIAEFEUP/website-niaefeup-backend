@@ -3,8 +3,8 @@ package pt.up.fe.ni.website.backend.service
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
+import pt.up.fe.ni.website.backend.dto.entity.AccountDto
 import pt.up.fe.ni.website.backend.model.Account
-import pt.up.fe.ni.website.backend.model.dto.AccountDto
 import pt.up.fe.ni.website.backend.repository.AccountRepository
 
 @Service

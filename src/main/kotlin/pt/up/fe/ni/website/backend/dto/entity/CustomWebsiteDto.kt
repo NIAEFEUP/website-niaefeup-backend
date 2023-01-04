@@ -1,8 +1,8 @@
-package pt.up.fe.ni.website.backend.model.dto
+package pt.up.fe.ni.website.backend.dto.entity
 
 import pt.up.fe.ni.website.backend.model.CustomWebsite
 
 class CustomWebsiteDto(
     val url: String,
     val iconPath: String?
-) : Dto<CustomWebsite>()
+) : EntityDto<CustomWebsite>()

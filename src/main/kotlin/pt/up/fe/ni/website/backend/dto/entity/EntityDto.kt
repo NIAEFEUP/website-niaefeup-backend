@@ -1,4 +1,4 @@
-package pt.up.fe.ni.website.backend.model.dto
+package pt.up.fe.ni.website.backend.dto.entity
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -10,7 +10,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.hasAnnotation
 import kotlin.reflect.jvm.jvmErasure
 
-open class Dto<T : Any> {
+abstract class EntityDto<T : Any> {
 
     @JsonIgnore
     private val entityClass: KClass<T>
@@ -47,7 +47,7 @@ open class Dto<T : Any> {
     }
 
     object DtoReflectionUtils {
-        private val typeArgumentCache = HashMap<KClass<out Dto<*>>, KClass<*>>()
+        private val typeArgumentCache = HashMap<KClass<out EntityDto<*>>, KClass<*>>()
 
         /*
          * @Suppress("UNCHECKED_CAST") is a hint to the compiler to suppress all warnings which are related to unchecked
@@ -77,8 +77,8 @@ open class Dto<T : Any> {
          * ```
          */
         @Suppress("UNCHECKED_CAST")
-        private fun <T : Any> getTypeConversionClass(clazz: KClass<out Dto<T>>): KClass<T>? {
-            val thisType = clazz.supertypes.first { it.classifier == Dto::class }
+        private fun <T : Any> getTypeConversionClass(clazz: KClass<out EntityDto<T>>): KClass<T>? {
+            val thisType = clazz.supertypes.first { it.classifier == EntityDto::class }
 
             /*
              * I don't really know *how* jvmErasure works...
@@ -102,10 +102,10 @@ open class Dto<T : Any> {
          */
         @Suppress("UNCHECKED_CAST")
         fun <T : Any> getTypeConversionClassWithCache(
-            clazz: KClass<out Dto<T>>,
+            clazz: KClass<out EntityDto<T>>,
             conversionClass: KClass<T>? = null
         ): KClass<T> {
-            if (clazz == Dto::class) throw IllegalCallerException("DTO is not extended by any class")
+            if (clazz == EntityDto::class) throw IllegalCallerException("DTO is not extended by any class")
             if (!typeArgumentCache.containsKey(clazz)) {
                 val typeArgumentErasure = conversionClass ?: getTypeConversionClass(clazz)
                 typeArgumentCache[clazz] = ensureEntity(typeArgumentErasure)

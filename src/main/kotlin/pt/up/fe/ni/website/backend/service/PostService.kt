@@ -2,8 +2,8 @@ package pt.up.fe.ni.website.backend.service
 
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import pt.up.fe.ni.website.backend.dto.entity.PostDto
 import pt.up.fe.ni.website.backend.model.Post
-import pt.up.fe.ni.website.backend.model.dto.PostDto
 import pt.up.fe.ni.website.backend.repository.PostRepository
 
 @Service
