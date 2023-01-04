@@ -1,0 +1,38 @@
+package pt.up.fe.ni.website.backend.annotations.validation
+
+import jakarta.validation.Constraint
+import jakarta.validation.ConstraintValidator
+import jakarta.validation.ConstraintValidatorContext
+import jakarta.validation.Payload
+import org.springframework.web.multipart.MultipartFile
+import kotlin.reflect.KClass
+
+@MustBeDocumented
+@Constraint(validatedBy = [ValidImageValidator::class])
+@Target(AnnotationTarget.VALUE_PARAMETER)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class ValidImage(
+    val message: String = "Invalid image format or size",
+    val groups: Array<KClass<*>> = [],
+    val payload: Array<KClass<Payload>> = []
+)
+
+class ValidImageValidator : ConstraintValidator<ValidImage, MultipartFile?> {
+    private val maxSize = 1024
+
+    override fun isValid(value: MultipartFile?, context: ConstraintValidatorContext?): Boolean {
+        println("asdasd")
+        if (value == null) {
+            return true
+        }
+        if (!isSupportedContentType(value.contentType)) {
+            return false
+        }
+
+        return value.size < maxSize
+    }
+
+    private fun isSupportedContentType(contentType: String?): Boolean {
+        return contentType == "image/png" || contentType == "image/jpg" || contentType == "image/jpeg"
+    }
+}

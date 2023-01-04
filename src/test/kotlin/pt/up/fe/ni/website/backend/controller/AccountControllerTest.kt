@@ -103,7 +103,7 @@ class AccountControllerTest @Autowired constructor(
                     jsonPath("$.email") { value(testAccount.email) }
                     jsonPath("$.bio") { value(testAccount.bio) }
                     jsonPath("$.birthDate") { value(testAccount.birthDate.toJson()) }
-                    jsonPath("$.photoPath") { value(testAccount.photoPath) }
+                    jsonPath("$.photoPath") { value(testAccount.photo) }
                     jsonPath("$.linkedin") { value(testAccount.linkedin) }
                     jsonPath("$.github") { value(testAccount.github) }
                     jsonPath("$.websites.length()") { value(1) }
@@ -143,7 +143,7 @@ class AccountControllerTest @Autowired constructor(
                 jsonPath("$.email") { value(testAccount.email) }
                 jsonPath("$.bio") { value(testAccount.bio) }
                 jsonPath("$.birthDate") { value(testAccount.birthDate.toJson()) }
-                jsonPath("$.photoPath") { value(testAccount.photoPath) }
+                jsonPath("$.photoPath") { value(testAccount.photo) }
                 jsonPath("$.linkedin") { value(testAccount.linkedin) }
                 jsonPath("$.github") { value(testAccount.github) }
                 jsonPath("$.websites.length()") { value(1) }
