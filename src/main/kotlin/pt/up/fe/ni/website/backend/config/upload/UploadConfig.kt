@@ -1,10 +1,10 @@
 package pt.up.fe.ni.website.backend.config.upload
 
 import com.cloudinary.Cloudinary
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.web.servlet.HandlerExceptionResolver
+import org.springframework.util.ResourceUtils
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 import pt.up.fe.ni.website.backend.util.CloudinaryFileUploader
 import pt.up.fe.ni.website.backend.util.FileUploader
 import pt.up.fe.ni.website.backend.util.StaticFileUploader
@@ -12,9 +12,8 @@ import pt.up.fe.ni.website.backend.util.StaticFileUploader
 @Configuration
 class UploadConfig(
     private val uploadConfigProperties: UploadConfigProperties,
-    @Qualifier("handlerExceptionResolver") val exceptionResolver: HandlerExceptionResolver
 
-) {
+) : WebMvcConfigurer {
     @Bean
     fun fileUploader(): FileUploader {
         return when (uploadConfigProperties.uploadType) {
@@ -24,7 +23,10 @@ class UploadConfig(
                         ?: kotlin.run { throw Error("Cloudinary URL not provided") }
                 )
             )
-            else -> StaticFileUploader(uploadConfigProperties.staticPath ?: "")
+            else -> StaticFileUploader(
+                uploadConfigProperties.staticPath?.let { ResourceUtils.getFile(it).absolutePath } ?: "",
+                uploadConfigProperties.staticServe ?: "localhost:8080"
+            )
         }
     }
 }
