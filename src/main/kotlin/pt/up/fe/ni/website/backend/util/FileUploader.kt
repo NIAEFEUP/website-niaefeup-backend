@@ -1,6 +1,7 @@
 package pt.up.fe.ni.website.backend.util
 
 import com.cloudinary.Cloudinary
+import java.io.File
 
 interface FileUploader {
     fun upload(folder: String, fileName: String, image: ByteArray): String
@@ -19,11 +20,13 @@ class CloudinaryFileUploader(val cloudinary: Cloudinary) : FileUploader {
     }
 }
 
-class StaticFileUploader(private val path: String) : FileUploader {
+class StaticFileUploader(private val storePath: String, private val servePath: String) : FileUploader {
     override fun upload(folder: String, fileName: String, image: ByteArray): String {
-        println("upload static")
+        val file = File("$storePath/$folder/$fileName")
+        file.createNewFile()
+        file.writeBytes(image)
 
-        return "$path/$folder/$fileName"
+        return "$servePath/$folder/$fileName"
     }
 
     override fun delete(filePath: String) {
