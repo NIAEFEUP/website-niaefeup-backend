@@ -64,7 +64,6 @@ class AuthConfig(
         // TODO: This is a temporary solution. We should use a proper CORS filter.
         val source = UrlBasedCorsConfigurationSource()
         val config = CorsConfiguration()
-        config.allowCredentials = true
         config.addAllowedOrigin("*")
         config.addAllowedHeader("*")
         config.addAllowedMethod("*")
