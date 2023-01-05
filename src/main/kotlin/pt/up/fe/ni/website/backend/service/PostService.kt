@@ -29,4 +29,7 @@ class PostService(private val repository: PostRepository) {
         repository.deleteById(postId)
         return mapOf()
     }
+
+    fun getPostBySlang(postSlang: String): Post =
+        repository.findBySlang(postSlang) ?: throw NoSuchElementException(ErrorMessages.postNotFound(postSlang))
 }
