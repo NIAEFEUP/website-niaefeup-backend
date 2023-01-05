@@ -5,5 +5,6 @@ import pt.up.fe.ni.website.backend.model.Post
 class PostDto(
     val title: String,
     val body: String,
-    val thumbnailPath: String
+    val thumbnailPath: String,
+    val slang: String?
 ) : EntityDto<Post>()

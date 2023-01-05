@@ -9,4 +9,9 @@ object PostConstants {
     object Body {
         const val minSize = 10
     }
+
+    object Slang {
+        const val minSize = 2
+        const val maxSize = 500
+    }
 }
