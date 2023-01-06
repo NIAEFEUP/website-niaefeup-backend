@@ -15,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.annotation.DirtiesContext
+import org.springframework.test.context.NestedTestConfiguration
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.get
@@ -39,7 +40,8 @@ internal class PostControllerTest @Autowired constructor(
     val testPost = Post(
         "New test released",
         "this is a test post",
-        "https://thumbnails/test.png"
+        "https://thumbnails/test.png",
+        slang = "new-test-released"
     )
 
     @Nested
@@ -73,7 +75,7 @@ internal class PostControllerTest @Autowired constructor(
     @Nested
     @DisplayName("GET /posts/{postId}")
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-    inner class GetPost {
+    inner class GetPostById {
         @BeforeAll
         fun addPost() {
             repository.save(testPost)
@@ -100,6 +102,40 @@ internal class PostControllerTest @Autowired constructor(
                 content { contentType(MediaType.APPLICATION_JSON) }
                 jsonPath("$.errors.length()") { value(1) }
                 jsonPath("$.errors[0].message") { value("post not found with id 1234") }
+            }
+        }
+    }
+
+    @Nested
+    @DisplayName("GET /posts/{postSlang}")
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    inner class GetPostBySlang {
+        @BeforeAll
+        fun addPost() {
+            repository.save(testPost)
+        }
+
+        @Test
+        fun `should return the post`() {
+            mockMvc.get("/posts/${testPost.slang}")
+                .andExpect {
+                    status { isOk() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$.title") { value(testPost.title) }
+                    jsonPath("$.body") { value(testPost.body) }
+                    jsonPath("$.thumbnailPath") { value(testPost.thumbnailPath) }
+                    jsonPath("$.publishDate") { value(testPost.publishDate.toJson()) }
+                    jsonPath("$.lastUpdatedAt") { value(testPost.lastUpdatedAt.toJson(true)) }
+                }
+        }
+
+        @Test
+        fun `should fail if the post does not exist`() {
+            mockMvc.get("/posts/fail-slang").andExpect {
+                status { isNotFound() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                jsonPath("$.errors.length()") { value(1) }
+                jsonPath("$.errors[0].message") { value("post not found with slang fail-slang") }
             }
         }
     }
@@ -142,6 +178,7 @@ internal class PostControllerTest @Autowired constructor(
             )
 
             @Nested
+            @NestedTestConfiguration(NestedTestConfiguration.EnclosingConfiguration.OVERRIDE)
             @DisplayName("title")
             @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class TitleValidation {
@@ -159,6 +196,7 @@ internal class PostControllerTest @Autowired constructor(
             }
 
             @Nested
+            @NestedTestConfiguration(NestedTestConfiguration.EnclosingConfiguration.OVERRIDE)
             @DisplayName("body")
             @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class BodyValidation {
@@ -176,6 +214,7 @@ internal class PostControllerTest @Autowired constructor(
             }
 
             @Nested
+            @NestedTestConfiguration(NestedTestConfiguration.EnclosingConfiguration.OVERRIDE)
             @DisplayName("thumbnailPath")
             @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class ThumbnailValidation {
@@ -225,8 +264,9 @@ internal class PostControllerTest @Autowired constructor(
 
     @Nested
     @DisplayName("PUT /posts/{postId}")
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class UpdatePost {
-        @BeforeEach
+        @BeforeAll
         fun addPost() {
             repository.save(testPost)
         }
@@ -303,6 +343,7 @@ internal class PostControllerTest @Autowired constructor(
             )
 
             @Nested
+            @NestedTestConfiguration(NestedTestConfiguration.EnclosingConfiguration.OVERRIDE)
             @DisplayName("title")
             @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class TitleValidation {
@@ -320,6 +361,7 @@ internal class PostControllerTest @Autowired constructor(
             }
 
             @Nested
+            @NestedTestConfiguration(NestedTestConfiguration.EnclosingConfiguration.OVERRIDE)
             @DisplayName("body")
             @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class BodyValidation {
@@ -337,6 +379,7 @@ internal class PostControllerTest @Autowired constructor(
             }
 
             @Nested
+            @NestedTestConfiguration(NestedTestConfiguration.EnclosingConfiguration.OVERRIDE)
             @DisplayName("thumbnailPath")
             @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class ThumbnailValidation {
