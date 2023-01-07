@@ -33,6 +33,6 @@ class PostController(private val service: PostService) {
     @DeleteMapping("/{postId:[0-9]+}")
     fun deletePost(@PathVariable postId: Long) = service.deletePostById(postId)
 
-    @GetMapping("/{postSlang:[a-z-]+}")
-    fun getPost(@PathVariable postSlang: String) = service.getPostBySlang(postSlang)
+    @GetMapping("/{postSlug:[a-z-]+}")
+    fun getPost(@PathVariable postSlug: String) = service.getPostBySlug(postSlug)
 }

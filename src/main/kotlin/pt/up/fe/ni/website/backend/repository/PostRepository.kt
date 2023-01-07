@@ -4,5 +4,5 @@ import org.springframework.data.jpa.repository.JpaRepository
 import pt.up.fe.ni.website.backend.model.Post
 
 interface PostRepository : JpaRepository<Post, Long> {
-    fun findBySlang(slang: String): Post?
+    fun findBySlug(slug: String): Post?
 }

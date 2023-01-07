@@ -6,5 +6,5 @@ class PostDto(
     val title: String,
     val body: String,
     val thumbnailPath: String,
-    val slang: String?
+    val slug: String?
 ) : EntityDto<Post>()

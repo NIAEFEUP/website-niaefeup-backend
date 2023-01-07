@@ -13,6 +13,7 @@ import org.hibernate.validator.constraints.URL
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
+import pt.up.fe.ni.website.backend.annotations.validation.NullOrNotBlank
 import java.util.Date
 import pt.up.fe.ni.website.backend.model.constants.PostConstants as Constants
 
@@ -43,7 +44,7 @@ class Post(
     val id: Long? = null,
 
     @Column(unique = true)
-    @JsonProperty(required = false)
-    @field:Size(min = Constants.Slang.minSize, max = Constants.Slang.maxSize)
-    val slang: String? = null
+    @field:Size(min = Constants.Slug.minSize, max = Constants.Slug.maxSize)
+    @NullOrNotBlank
+    val slug: String? = null
 )

@@ -41,7 +41,7 @@ internal class PostControllerTest @Autowired constructor(
         "New test released",
         "this is a test post",
         "https://thumbnails/test.png",
-        slang = "new-test-released"
+        slug = "new-test-released"
     )
 
     @Nested
@@ -107,7 +107,7 @@ internal class PostControllerTest @Autowired constructor(
     }
 
     @Nested
-    @DisplayName("GET /posts/{postSlang}")
+    @DisplayName("GET /posts/{postSlug}")
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class GetPostBySlang {
         @BeforeAll
@@ -117,7 +117,7 @@ internal class PostControllerTest @Autowired constructor(
 
         @Test
         fun `should return the post`() {
-            mockMvc.get("/posts/${testPost.slang}")
+            mockMvc.get("/posts/${testPost.slug}")
                 .andExpect {
                     status { isOk() }
                     content { contentType(MediaType.APPLICATION_JSON) }
@@ -135,7 +135,7 @@ internal class PostControllerTest @Autowired constructor(
                 status { isNotFound() }
                 content { contentType(MediaType.APPLICATION_JSON) }
                 jsonPath("$.errors.length()") { value(1) }
-                jsonPath("$.errors[0].message") { value("post not found with slang fail-slang") }
+                jsonPath("$.errors[0].message") { value("post not found with slug fail-slang") }
             }
         }
     }

@@ -30,6 +30,6 @@ class PostService(private val repository: PostRepository) {
         return mapOf()
     }
 
-    fun getPostBySlang(postSlang: String): Post =
-        repository.findBySlang(postSlang) ?: throw NoSuchElementException(ErrorMessages.postNotFound(postSlang))
+    fun getPostBySlug(postSlug: String): Post =
+        repository.findBySlug(postSlug) ?: throw NoSuchElementException(ErrorMessages.postNotFound(postSlug))
 }
