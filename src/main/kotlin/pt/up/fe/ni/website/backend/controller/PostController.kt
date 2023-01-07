@@ -18,21 +18,21 @@ class PostController(private val service: PostService) {
     @GetMapping
     fun getAllPosts() = service.getAllPosts()
 
-    @GetMapping("/{postId:[0-9]+}")
+    @GetMapping("/{postId:\\d+}")
     fun getPost(@PathVariable postId: Long) = service.getPostById(postId)
 
     @PostMapping("/new")
     fun createPost(@RequestBody dto: PostDto) = service.createPost(dto)
 
-    @PutMapping("/{postId:[0-9]+}")
+    @PutMapping("/{postId:\\d+}")
     fun updatePost(
         @PathVariable postId: Long,
         @RequestBody dto: PostDto
     ) = service.updatePostById(postId, dto)
 
-    @DeleteMapping("/{postId:[0-9]+}")
+    @DeleteMapping("/{postId:\\d+}")
     fun deletePost(@PathVariable postId: Long) = service.deletePostById(postId)
 
-    @GetMapping("/{postSlug:[a-z-]+}")
+    @GetMapping("/{postSlug}**")
     fun getPost(@PathVariable postSlug: String) = service.getPostBySlug(postSlug)
 }
