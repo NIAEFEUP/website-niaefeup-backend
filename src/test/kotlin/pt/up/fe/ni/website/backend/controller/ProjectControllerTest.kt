@@ -29,6 +29,7 @@ internal class ProjectControllerTest @Autowired constructor(
     val testProject = Project(
         "Awesome project",
         "this is a test project",
+        listOf(),
         false,
         listOf("Java", "Kotlin", "Spring")
     )
@@ -41,6 +42,7 @@ internal class ProjectControllerTest @Autowired constructor(
             Project(
                 "NIJobs",
                 "Job platform for students",
+                listOf(),
                 false,
                 listOf("ExpressJS", "React")
             )
@@ -333,6 +335,7 @@ internal class ProjectControllerTest @Autowired constructor(
         private val project = Project(
             "proj1",
             "very cool project",
+            listOf(),
             true,
             listOf("React", "TailwindCSS")
         )

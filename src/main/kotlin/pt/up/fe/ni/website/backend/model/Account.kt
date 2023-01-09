@@ -58,11 +58,12 @@ class Account(
     @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
     val websites: List<@Valid CustomWebsite> = emptyList(),
 
-    @field:ManyToMany
-    val roles: List<Role>,
+    @JoinColumn
+    @ManyToMany(cascade = [CascadeType.ALL])
+    val roles: List<@Valid Role>,
 
     @Id @GeneratedValue
-    val id: Long? = null,
+    val id: Long? = null
 ) {
     fun getEffectivePermissionsForActivity(activity: Activity) {
         val result = Permissions()

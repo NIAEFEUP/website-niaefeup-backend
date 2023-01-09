@@ -34,6 +34,7 @@ internal class EventControllerTest @Autowired constructor(
     val testEvent = Event(
         "Great event",
         "This was a nice and iconic event",
+        listOf(),
         "https://docs.google.com/forms",
         DateInterval(
             TestUtils.createDate(2022, Calendar.JULY, 28),
@@ -52,6 +53,7 @@ internal class EventControllerTest @Autowired constructor(
             Event(
                 "Bad event",
                 "This event was a failure",
+                listOf(),
                 null,
                 DateInterval(
                     TestUtils.createDate(2021, Calendar.OCTOBER, 27),

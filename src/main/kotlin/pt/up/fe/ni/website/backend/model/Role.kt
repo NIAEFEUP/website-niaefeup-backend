@@ -6,8 +6,10 @@ import jakarta.persistence.Convert
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToMany
 import jakarta.persistence.OneToMany
+import jakarta.validation.Valid
 import pt.up.fe.ni.website.backend.permissions.Permissions
 import pt.up.fe.ni.website.backend.permissions.PermissionsConverter
 
@@ -24,11 +26,13 @@ class Role(
     @JsonProperty(required = true)
     var isSection: Boolean,
 
+    @JoinColumn
     @ManyToMany
-    var accounts: List<Account>,
+    var accounts: List<@Valid Account>,
 
+    @JoinColumn
     @OneToMany
-    var perActivities: List<PerActivityRole>,
+    var perActivities: List<@Valid PerActivityRole>,
 
     @JsonProperty(required = true)
     @Id @GeneratedValue

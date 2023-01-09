@@ -3,7 +3,7 @@ package pt.up.fe.ni.website.backend.permissions
 import java.util.Collections
 import java.util.TreeSet
 
-class Permissions(private val permissions: MutableSet<Permission> = Collections.emptySet()) : MutableSet<Permission> by TreeSet(permissions) {
+class Permissions(private val permissions: Set<Permission> = Collections.emptySet()) : MutableSet<Permission> by TreeSet(permissions) {
 
     companion object {
         fun fromLong(encoded: Long): Permissions {
