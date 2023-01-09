@@ -1,7 +1,9 @@
 package pt.up.fe.ni.website.backend.model
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
 import jakarta.persistence.Inheritance
@@ -25,7 +27,7 @@ abstract class Activity(
     open val description: String,
 
     @JoinColumn
-    @OneToMany
+    @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
     open val perRoles: List<@Valid PerActivityRole>,
 
     @Id
