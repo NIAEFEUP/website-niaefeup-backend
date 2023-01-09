@@ -23,7 +23,7 @@ abstract class Activity(
     open val description: String,
 
     @OneToMany
-    val perRoles: List<PerActivityRole>,
+    open val perRoles: List<PerActivityRole>,
 
     @Id
     @GeneratedValue
