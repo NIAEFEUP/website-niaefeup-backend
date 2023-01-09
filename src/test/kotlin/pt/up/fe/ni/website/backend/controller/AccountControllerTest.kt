@@ -46,7 +46,8 @@ class AccountControllerTest @Autowired constructor(
         "https://github.com",
         listOf(
             CustomWebsite("https://test-website.com", "https://test-website.com/logo.png")
-        )
+        ),
+        emptyList()
     )
 
     @Nested
@@ -64,6 +65,7 @@ class AccountControllerTest @Autowired constructor(
                 null,
                 null,
                 null,
+                emptyList(),
                 emptyList()
             )
         )

@@ -6,7 +6,7 @@ class PermissionsTest {
 
     @Test
     fun permissionsShouldBeBuilt() {
-        val perms = Permissions(Permission.CREATE_ACTIVITY, Permission.CREATE_ACCOUNT)
-        println(perms.permissions)
+        val perms = Permissions(setOf(Permission.CREATE_ACTIVITY, Permission.CREATE_ACCOUNT))
+        println(perms.toLong())
     }
 }
