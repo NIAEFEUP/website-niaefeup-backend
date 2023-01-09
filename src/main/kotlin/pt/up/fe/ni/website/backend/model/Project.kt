@@ -6,7 +6,7 @@ import jakarta.persistence.Entity
 class Project(
     title: String,
     description: String,
-    perRoles: List<PerProjectRole>,
+    perRoles: List<PerActivityRole>,
     var isArchived: Boolean = false,
     val technologies: List<String> = emptyList(),
     id: Long? = null
