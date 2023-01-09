@@ -6,6 +6,6 @@ import java.util.Date
 class EventDto(
     val title: String,
     val description: String,
-    val registerUrl: String,
+    val registerUrl: String?,
     val date: Date
 ) : EntityDto<Event>()

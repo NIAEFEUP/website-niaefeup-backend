@@ -48,7 +48,7 @@ internal class EventControllerTest @Autowired constructor(
             Event(
                 "Bad event",
                 "This event was a failure",
-                "https://docs.google.com/forms",
+                null,
                 TestUtils.createDate(2021, Calendar.OCTOBER, 27)
             )
         )
@@ -101,7 +101,6 @@ internal class EventControllerTest @Autowired constructor(
                 requiredFields = mapOf(
                     "title" to testEvent.title,
                     "description" to testEvent.description,
-                    "registerUrl" to testEvent.registerUrl,
                     "date" to testEvent.date
                 )
             )
@@ -151,7 +150,7 @@ internal class EventControllerTest @Autowired constructor(
                 }
 
                 @Test
-                fun `should be required`() = validationTester.isRequired()
+                fun `should be null or not blank`() = validationTester.isNullOrNotBlank()
 
                 @Test
                 fun `should be a URL`() = validationTester.isUrl()
