@@ -126,14 +126,24 @@ class ValidationTester(
             }
     }
 
-    fun isAfter(otherDate: String) {
+    fun isDateInterval() {
         val params = requiredFields.toMutableMap()
-        params[param] = "01-01-2022"
-        params[otherDate] = "02-01-2022"
+        params[param] = "invalid"
         req(params)
             .expectValidationError()
             .andExpect {
-                jsonPath("$.errors[0].message") { value("$param must be after $otherDate") }
+                jsonPath("$.errors[0].message") { value("must be dateinterval") }
+            }
+
+        params[param] = mapOf(
+            "startDate" to "09-01-2023",
+            "endDate" to "08-01-2023"
+        )
+        req(params)
+            .expectValidationError()
+            .andExpect {
+                jsonPath("$.errors[0].message") { value("endDate must be after startDate") }
+                jsonPath("$.errors[0].value") { value(params[param]) }
             }
     }
 

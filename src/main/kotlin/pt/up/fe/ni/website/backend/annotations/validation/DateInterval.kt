@@ -13,7 +13,7 @@ import kotlin.reflect.full.memberProperties
 @Constraint(validatedBy = [DateIntervalValidator::class])
 @MustBeDocumented
 annotation class DateInterval(
-    val message: String = "endDate must be after startDate",
+    val message: String = "{date_interval.error}",
     val groups: Array<KClass<*>> = [],
     val payload: Array<KClass<Payload>> = [],
     val startDate: String,
