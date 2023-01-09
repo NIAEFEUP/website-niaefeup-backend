@@ -35,7 +35,8 @@ internal class ProjectControllerTest @Autowired constructor(
 ) {
     val testProject = Project(
         "Awesome project",
-        "this is a test project"
+        "this is a test project",
+        listOf(),
     )
 
     @Nested
@@ -46,7 +47,8 @@ internal class ProjectControllerTest @Autowired constructor(
             testProject,
             Project(
                 "NIJobs",
-                "Job platform for students"
+                "Job platform for students",
+                listOf(),
             )
         )
 
@@ -338,6 +340,7 @@ internal class ProjectControllerTest @Autowired constructor(
         private val project = Project(
             "proj1",
             "very cool project",
+            listOf(),
             true
         )
 

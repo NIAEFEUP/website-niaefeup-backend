@@ -8,9 +8,10 @@ import java.util.Date
 class Event(
     title: String,
     description: String,
+    perRoles: List<PerActivityRole> = emptyList(),
 
     @JsonProperty(required = true)
     val date: Date,
 
     id: Long? = null
-) : Activity(title, description, id)
+) : Activity(title, description, perRoles, id)
