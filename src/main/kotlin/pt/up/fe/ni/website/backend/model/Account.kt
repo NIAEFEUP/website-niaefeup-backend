@@ -59,8 +59,8 @@ class Account(
     val websites: List<@Valid CustomWebsite> = emptyList(),
 
     @JoinColumn
-    @ManyToMany(cascade = [CascadeType.ALL])
-    val roles: List<@Valid Role>,
+    @ManyToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
+    val roles: List<@Valid Role> = emptyList(),
 
     @Id @GeneratedValue
     val id: Long? = null

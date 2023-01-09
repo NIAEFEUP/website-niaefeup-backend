@@ -15,7 +15,7 @@ import pt.up.fe.ni.website.backend.model.constants.EventConstants as Constants
 class Event(
     title: String,
     description: String,
-    perRoles: List<PerActivityRole>,
+    perRoles: List<PerActivityRole> = emptyList(),
 
     @field:NullOrNotBlank
     @field:URL
