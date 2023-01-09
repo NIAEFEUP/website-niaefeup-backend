@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.put
 import pt.up.fe.ni.website.backend.model.Event
 import pt.up.fe.ni.website.backend.model.constants.ActivityConstants
+import pt.up.fe.ni.website.backend.model.embeddable.DateInterval
 import pt.up.fe.ni.website.backend.repository.EventRepository
 import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.ValidationTester
@@ -35,8 +36,10 @@ internal class EventControllerTest @Autowired constructor(
         "Great event",
         "This was a nice and iconic event",
         "https://docs.google.com/forms",
-        TestUtils.createDate(2022, Calendar.JULY, 28),
-        TestUtils.createDate(2022, Calendar.JULY, 30),
+        DateInterval(
+            TestUtils.createDate(2022, Calendar.JULY, 28),
+            TestUtils.createDate(2022, Calendar.JULY, 30)
+        ),
         "FEUP",
         "Great Events",
         "https://example.com/exampleThumbnail"
@@ -51,8 +54,10 @@ internal class EventControllerTest @Autowired constructor(
                 "Bad event",
                 "This event was a failure",
                 null,
-                TestUtils.createDate(2021, Calendar.OCTOBER, 27),
-                null,
+                DateInterval(
+                    TestUtils.createDate(2021, Calendar.OCTOBER, 27),
+                    null,
+                ),
                 null,
                 null,
                 "https://example.com/exampleThumbnail2"
@@ -92,8 +97,8 @@ internal class EventControllerTest @Autowired constructor(
                     jsonPath("$.title") { value(testEvent.title) }
                     jsonPath("$.description") { value(testEvent.description) }
                     jsonPath("$.registerUrl") { value(testEvent.registerUrl) }
-                    jsonPath("$.startDate") { value(testEvent.startDate.toJson()) }
-                    jsonPath("$.endDate") { value(testEvent.endDate.toJson()) }
+                    jsonPath("$.dateInterval.startDate") { value(testEvent.dateInterval.startDate.toJson()) }
+                    jsonPath("$.dateInterval.endDate") { value(testEvent.dateInterval.endDate.toJson()) }
                     jsonPath("$.location") { value(testEvent.location) }
                     jsonPath("$.category") { value(testEvent.category) }
                     jsonPath("$.thumbnailPath") { value(testEvent.thumbnailPath) }
@@ -120,8 +125,10 @@ internal class EventControllerTest @Autowired constructor(
                 "Bad event",
                 "This event was a failure",
                 null,
-                TestUtils.createDate(2021, Calendar.OCTOBER, 27),
-                null,
+                DateInterval(
+                    TestUtils.createDate(2021, Calendar.OCTOBER, 27),
+                    null,
+                ),
                 null,
                 null,
                 "https://example.com/exampleThumbnail2"
@@ -130,8 +137,10 @@ internal class EventControllerTest @Autowired constructor(
                 "Mid event",
                 "This event was ok",
                 null,
-                TestUtils.createDate(2022, Calendar.JANUARY, 15),
-                null,
+                DateInterval(
+                    TestUtils.createDate(2022, Calendar.JANUARY, 15),
+                    null,
+                ),
                 null,
                 "Other category",
                 "https://example.com/exampleThumbnail2"
@@ -140,8 +149,10 @@ internal class EventControllerTest @Autowired constructor(
                 "Cool event",
                 "This event was a awesome",
                 null,
-                TestUtils.createDate(2022, Calendar.SEPTEMBER, 11),
-                null,
+                DateInterval(
+                    TestUtils.createDate(2022, Calendar.SEPTEMBER, 11),
+                    null,
+                ),
                 null,
                 "Great Events",
                 "https://example.com/exampleThumbnail2"
@@ -181,8 +192,8 @@ internal class EventControllerTest @Autowired constructor(
                     jsonPath("$.title") { value(testEvent.title) }
                     jsonPath("$.description") { value(testEvent.description) }
                     jsonPath("$.registerUrl") { value(testEvent.registerUrl) }
-                    jsonPath("$.startDate") { value(testEvent.startDate.toJson()) }
-                    jsonPath("$.endDate") { value(testEvent.endDate.toJson()) }
+                    jsonPath("$.dateInterval.startDate") { value(testEvent.dateInterval.startDate.toJson()) }
+                    jsonPath("$.dateInterval.endDate") { value(testEvent.dateInterval.endDate.toJson()) }
                     jsonPath("$.location") { value(testEvent.location) }
                     jsonPath("$.category") { value(testEvent.category) }
                     jsonPath("$.thumbnailPath") { value(testEvent.thumbnailPath) }
@@ -202,7 +213,7 @@ internal class EventControllerTest @Autowired constructor(
                 requiredFields = mapOf(
                     "title" to testEvent.title,
                     "description" to testEvent.description,
-                    "startDate" to testEvent.startDate,
+                    "dateInterval" to testEvent.dateInterval,
                     "thumbnailPath" to testEvent.thumbnailPath
                 )
             )
@@ -256,33 +267,18 @@ internal class EventControllerTest @Autowired constructor(
             }
 
             @NestedTest
-            @DisplayName("startDate")
-            inner class StartDateValidation {
+            @DisplayName("dateInterval")
+            inner class DateIntervalValidation {
                 @BeforeAll
                 fun setParam() {
-                    validationTester.param = "startDate"
+                    validationTester.param = "dateInterval"
                 }
 
                 @Test
                 fun `should be required`() = validationTester.isRequired()
 
                 @Test
-                fun `should be a Date`() = validationTester.isDate()
-            }
-
-            @NestedTest
-            @DisplayName("endDate")
-            inner class EndDateValidation {
-                @BeforeAll
-                fun setParam() {
-                    validationTester.param = "endDate"
-                }
-
-                @Test
-                fun `should be a Date`() = validationTester.isDate()
-
-                @Test
-                fun `should be after startDate`() = validationTester.isAfter("startDate")
+                fun `should be a DateInterval`() = validationTester.isDateInterval()
             }
 
             @NestedTest
@@ -376,8 +372,10 @@ internal class EventControllerTest @Autowired constructor(
             val newTitle = "New event title"
             val newDescription = "New event description"
             val newRegisterUrl = "https://example.com/newUrl"
-            val newStartDate = TestUtils.createDate(2022, Calendar.DECEMBER, 1)
-            val newEndDate = TestUtils.createDate(2022, Calendar.DECEMBER, 2)
+            val newDateInterval = DateInterval(
+                TestUtils.createDate(2022, Calendar.DECEMBER, 1),
+                TestUtils.createDate(2022, Calendar.DECEMBER, 2)
+            )
             val newLocation = "FLUP"
             val newCategory = "Greatest Events"
             val newThumbnailPath = "https://thumbnails/new.png"
@@ -389,8 +387,7 @@ internal class EventControllerTest @Autowired constructor(
                         "title" to newTitle,
                         "description" to newDescription,
                         "registerUrl" to newRegisterUrl,
-                        "startDate" to newStartDate,
-                        "endDate" to newEndDate,
+                        "dateInterval" to newDateInterval,
                         "location" to newLocation,
                         "category" to newCategory,
                         "thumbnailPath" to newThumbnailPath
@@ -403,8 +400,8 @@ internal class EventControllerTest @Autowired constructor(
                     jsonPath("$.title") { value(newTitle) }
                     jsonPath("$.description") { value(newDescription) }
                     jsonPath("$.registerUrl") { value(newRegisterUrl) }
-                    jsonPath("$.startDate") { value(newStartDate.toJson()) }
-                    jsonPath("$.endDate") { value(newEndDate.toJson()) }
+                    jsonPath("$.dateInterval.startDate") { value(newDateInterval.startDate.toJson()) }
+                    jsonPath("$.dateInterval.endDate") { value(newDateInterval.endDate.toJson()) }
                     jsonPath("$.location") { value(newLocation) }
                     jsonPath("$.category") { value(newCategory) }
                     jsonPath("$.thumbnailPath") { value(newThumbnailPath) }
@@ -414,8 +411,8 @@ internal class EventControllerTest @Autowired constructor(
             assertEquals(newTitle, updatedEvent.title)
             assertEquals(newDescription, updatedEvent.description)
             assertEquals(newRegisterUrl, updatedEvent.registerUrl)
-            assertEquals(newStartDate.toJson(), updatedEvent.startDate.toJson())
-            assertEquals(newEndDate.toJson(), updatedEvent.endDate.toJson())
+            assertEquals(newDateInterval.startDate.toJson(), updatedEvent.dateInterval.startDate.toJson())
+            assertEquals(newDateInterval.endDate.toJson(), updatedEvent.dateInterval.endDate.toJson())
             assertEquals(newLocation, updatedEvent.location)
             assertEquals(newCategory, updatedEvent.category)
             assertEquals(newThumbnailPath, updatedEvent.thumbnailPath)
@@ -429,7 +426,7 @@ internal class EventControllerTest @Autowired constructor(
                     mapOf(
                         "title" to "New Title",
                         "description" to "New Description",
-                        "startDate" to TestUtils.createDate(2022, Calendar.DECEMBER, 1),
+                        "dateInterval" to DateInterval(TestUtils.createDate(2022, Calendar.DECEMBER, 1), null),
                         "thumbnailPath" to "http://test.com/thumbnail/1"
                     )
                 )
@@ -455,7 +452,7 @@ internal class EventControllerTest @Autowired constructor(
                 requiredFields = mapOf(
                     "title" to testEvent.title,
                     "description" to testEvent.description,
-                    "startDate" to testEvent.startDate,
+                    "dateInterval" to testEvent.dateInterval,
                     "thumbnailPath" to testEvent.thumbnailPath
                 )
             )
@@ -509,30 +506,18 @@ internal class EventControllerTest @Autowired constructor(
             }
 
             @NestedTest
-            @DisplayName("startDate")
-            inner class StartDateValidation {
+            @DisplayName("dateInterval")
+            inner class DateIntervalValidation {
                 @BeforeAll
                 fun setParam() {
-                    validationTester.param = "startDate"
+                    validationTester.param = "dateInterval"
                 }
 
                 @Test
                 fun `should be required`() = validationTester.isRequired()
 
                 @Test
-                fun `should be a Date`() = validationTester.isDate()
-            }
-
-            @NestedTest
-            @DisplayName("endDate")
-            inner class EndDateValidation {
-                @BeforeAll
-                fun setParam() {
-                    validationTester.param = "endDate"
-                }
-
-                @Test
-                fun `should be a Date`() = validationTester.isDate()
+                fun `should be a DateInterval`() = validationTester.isDateInterval()
             }
 
             @NestedTest
