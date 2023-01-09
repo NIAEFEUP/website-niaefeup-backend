@@ -8,6 +8,7 @@ import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToMany
 import jakarta.persistence.OneToMany
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Email
@@ -63,15 +64,15 @@ class Account(
     @Id @GeneratedValue
     val id: Long? = null,
 ) {
-    fun getEffectivePermissionsForProject(project: Project) {
+    fun getEffectivePermissionsForActivity(activity: Activity) {
         val result = Permissions()
 
         for (role in this.roles) {
             result.addAll(role.permissions)
 
-            for (perProject in role.perProjects) {
-                if (perProject.project == project) {
-                    result.addAll(perProject.permissions)
+            for (perActivity in role.perActivities) {
+                if (perActivity.activity == activity) {
+                    result.addAll(perActivity.permissions)
                 }
             }
         }

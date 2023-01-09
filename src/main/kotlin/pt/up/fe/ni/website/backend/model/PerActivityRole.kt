@@ -1,20 +1,20 @@
 package pt.up.fe.ni.website.backend.model
 
+import jakarta.persistence.Convert
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.Id
+import jakarta.persistence.ManyToOne
 import pt.up.fe.ni.website.backend.permissions.Permissions
 import pt.up.fe.ni.website.backend.permissions.PermissionsConverter
-import javax.persistence.Convert
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.Id
-import javax.persistence.ManyToOne
 
 @Entity
-class PerProjectRole(
+class PerActivityRole(
     @ManyToOne
     var role: Role,
 
     @ManyToOne
-    var project: Project,
+    var activity: Activity,
 
     @field:Convert(converter = PermissionsConverter::class)
     var permissions: Permissions,
