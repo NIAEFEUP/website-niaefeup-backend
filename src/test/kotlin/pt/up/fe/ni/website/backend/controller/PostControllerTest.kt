@@ -10,11 +10,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
-import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.NestedTestConfiguration
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.delete
@@ -24,14 +20,12 @@ import org.springframework.test.web.servlet.put
 import pt.up.fe.ni.website.backend.model.Post
 import pt.up.fe.ni.website.backend.repository.PostRepository
 import pt.up.fe.ni.website.backend.utils.ValidationTester
+import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
 import java.text.SimpleDateFormat
 import java.util.Date
 import pt.up.fe.ni.website.backend.model.constants.PostConstants as Constants
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@AutoConfigureTestDatabase
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@ControllerTest
 internal class PostControllerTest @Autowired constructor(
     val mockMvc: MockMvc,
     val objectMapper: ObjectMapper,
@@ -187,6 +181,7 @@ internal class PostControllerTest @Autowired constructor(
 
         @Nested
         @DisplayName("Input Validation")
+        @NestedTestConfiguration(NestedTestConfiguration.EnclosingConfiguration.OVERRIDE)
         inner class InputValidation {
             private val validationTester = ValidationTester(
                 req = { params: Map<String, Any?> ->
@@ -203,7 +198,6 @@ internal class PostControllerTest @Autowired constructor(
             )
 
             @Nested
-            @NestedTestConfiguration(NestedTestConfiguration.EnclosingConfiguration.OVERRIDE)
             @DisplayName("title")
             @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class TitleValidation {
@@ -221,7 +215,6 @@ internal class PostControllerTest @Autowired constructor(
             }
 
             @Nested
-            @NestedTestConfiguration(NestedTestConfiguration.EnclosingConfiguration.OVERRIDE)
             @DisplayName("body")
             @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class BodyValidation {
@@ -442,6 +435,7 @@ internal class PostControllerTest @Autowired constructor(
 
         @Nested
         @DisplayName("Input Validation")
+        @NestedTestConfiguration(NestedTestConfiguration.EnclosingConfiguration.OVERRIDE)
         inner class InputValidation {
             private val validationTester = ValidationTester(
                 req = { params: Map<String, Any?> ->
@@ -458,7 +452,6 @@ internal class PostControllerTest @Autowired constructor(
             )
 
             @Nested
-            @NestedTestConfiguration(NestedTestConfiguration.EnclosingConfiguration.OVERRIDE)
             @DisplayName("title")
             @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class TitleValidation {
@@ -476,7 +469,6 @@ internal class PostControllerTest @Autowired constructor(
             }
 
             @Nested
-            @NestedTestConfiguration(NestedTestConfiguration.EnclosingConfiguration.OVERRIDE)
             @DisplayName("body")
             @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class BodyValidation {
@@ -494,7 +486,6 @@ internal class PostControllerTest @Autowired constructor(
             }
 
             @Nested
-            @NestedTestConfiguration(NestedTestConfiguration.EnclosingConfiguration.OVERRIDE)
             @DisplayName("thumbnailPath")
             @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class ThumbnailValidation {

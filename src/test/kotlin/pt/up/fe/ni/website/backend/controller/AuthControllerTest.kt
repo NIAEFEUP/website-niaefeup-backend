@@ -8,12 +8,8 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.security.crypto.password.PasswordEncoder
-import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
@@ -23,12 +19,10 @@ import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.CustomWebsite
 import pt.up.fe.ni.website.backend.repository.AccountRepository
 import pt.up.fe.ni.website.backend.utils.TestUtils
+import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
 import java.util.Calendar
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@AutoConfigureTestDatabase
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@ControllerTest
 class AuthControllerTest @Autowired constructor(
     val repository: AccountRepository,
     val mockMvc: MockMvc,
