@@ -3,17 +3,10 @@ package pt.up.fe.ni.website.backend.controller
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
-import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
@@ -22,14 +15,14 @@ import pt.up.fe.ni.website.backend.model.CustomWebsite
 import pt.up.fe.ni.website.backend.repository.AccountRepository
 import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.ValidationTester
+import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
+import pt.up.fe.ni.website.backend.utils.annotations.EndpointTest
+import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
 import java.util.Calendar
 import java.util.Date
 import pt.up.fe.ni.website.backend.model.constants.AccountConstants as Constants
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@AutoConfigureTestDatabase
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@ControllerTest
 class AccountControllerTest @Autowired constructor(
     val mockMvc: MockMvc,
     val objectMapper: ObjectMapper,
@@ -49,9 +42,8 @@ class AccountControllerTest @Autowired constructor(
         )
     )
 
-    @Nested
+    @EndpointTest
     @DisplayName("GET /accounts")
-    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class GetAllAccounts {
         private val testAccounts = listOf(
             testAccount,
@@ -84,9 +76,8 @@ class AccountControllerTest @Autowired constructor(
         }
     }
 
-    @Nested
+    @EndpointTest
     @DisplayName("GET /accounts/{id}")
-    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class GetAccount {
         @BeforeAll
         fun addAccount() {
@@ -123,7 +114,7 @@ class AccountControllerTest @Autowired constructor(
         }
     }
 
-    @Nested
+    @EndpointTest
     @DisplayName("POST /accounts/new")
     inner class CreateAccount {
         @AfterEach
@@ -152,7 +143,7 @@ class AccountControllerTest @Autowired constructor(
             }
         }
 
-        @Nested
+        @NestedTest
         @DisplayName("Input Validation")
         inner class InputValidation {
             private val validationTester = ValidationTester(
@@ -170,9 +161,8 @@ class AccountControllerTest @Autowired constructor(
                 )
             )
 
-            @Nested
+            @NestedTest
             @DisplayName("name")
-            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class NameValidation {
                 @BeforeAll
                 fun setParam() {
@@ -187,9 +177,8 @@ class AccountControllerTest @Autowired constructor(
                 fun size() = validationTester.hasSizeBetween(Constants.Name.minSize, Constants.Name.maxSize)
             }
 
-            @Nested
+            @NestedTest
             @DisplayName("email")
-            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class EmailValidation {
                 @BeforeAll
                 fun setParam() {
@@ -206,9 +195,8 @@ class AccountControllerTest @Autowired constructor(
                 fun `should be a valid email`() = validationTester.isEmail()
             }
 
-            @Nested
+            @NestedTest
             @DisplayName("password")
-            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class PasswordValidation {
                 @BeforeAll
                 fun setParam() {
@@ -223,9 +211,8 @@ class AccountControllerTest @Autowired constructor(
                 fun size() = validationTester.hasSizeBetween(Constants.Password.minSize, Constants.Password.maxSize)
             }
 
-            @Nested
+            @NestedTest
             @DisplayName("bio")
-            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class BioValidation {
                 @BeforeAll
                 fun setParam() {
@@ -238,9 +225,8 @@ class AccountControllerTest @Autowired constructor(
                     validationTester.hasSizeBetween(Constants.Bio.minSize, Constants.Bio.maxSize)
             }
 
-            @Nested
+            @NestedTest
             @DisplayName("birthDate")
-            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class BirthDateValidation {
                 @BeforeAll
                 fun setParam() {
@@ -254,9 +240,8 @@ class AccountControllerTest @Autowired constructor(
                 fun `should be in the past`() = validationTester.isPastDate()
             }
 
-            @Nested
+            @NestedTest
             @DisplayName("photoPath")
-            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class PhotoPathValidation {
                 @BeforeAll
                 fun setParam() {
@@ -270,9 +255,8 @@ class AccountControllerTest @Autowired constructor(
                 fun `should be URL`() = validationTester.isUrl()
             }
 
-            @Nested
+            @NestedTest
             @DisplayName("linkedin")
-            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class LinkedinValidation {
                 @BeforeAll
                 fun setParam() {
@@ -286,9 +270,8 @@ class AccountControllerTest @Autowired constructor(
                 fun `should be URL`() = validationTester.isUrl()
             }
 
-            @Nested
+            @NestedTest
             @DisplayName("github")
-            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class GithubValidation {
                 @BeforeAll
                 fun setParam() {
@@ -302,7 +285,7 @@ class AccountControllerTest @Autowired constructor(
                 fun `should be URL`() = validationTester.isUrl()
             }
 
-            @Nested
+            @NestedTest
             @DisplayName("websites")
             inner class WebsitesValidation {
                 private val validationTester = ValidationTester(
@@ -324,16 +307,19 @@ class AccountControllerTest @Autowired constructor(
                     )
                 )
 
-                @Nested
+                @NestedTest
                 @DisplayName("url")
                 inner class UrlValidation {
-                    @BeforeEach
+                    @BeforeAll
                     fun setParam() {
                         validationTester.param = "url"
                     }
 
                     @Test
-                    fun `should be required`() = validationTester.isRequired()
+                    fun `should be required`() {
+                        validationTester.parameterName = "url"
+                        validationTester.isRequired()
+                    }
 
                     @Test
                     fun `should not be empty`() {
@@ -348,10 +334,10 @@ class AccountControllerTest @Autowired constructor(
                     }
                 }
 
-                @Nested
+                @NestedTest
                 @DisplayName("iconPath")
                 inner class IconPathValidation {
-                    @BeforeEach
+                    @BeforeAll
                     fun setParam() {
                         validationTester.param = "iconPath"
                     }

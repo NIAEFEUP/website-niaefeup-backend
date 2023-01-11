@@ -4,15 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.hamcrest.CoreMatchers.containsString
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
-import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
@@ -20,13 +14,13 @@ import pt.up.fe.ni.website.backend.model.Event
 import pt.up.fe.ni.website.backend.repository.EventRepository
 import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.ValidationTester
+import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
+import pt.up.fe.ni.website.backend.utils.annotations.EndpointTest
+import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
 import java.util.Calendar
 import pt.up.fe.ni.website.backend.model.constants.ActivityConstants as Constants
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@AutoConfigureTestDatabase
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@ControllerTest
 internal class EventControllerTest @Autowired constructor(
     val mockMvc: MockMvc,
     val objectMapper: ObjectMapper,
@@ -38,9 +32,8 @@ internal class EventControllerTest @Autowired constructor(
         TestUtils.createDate(2022, Calendar.JULY, 28)
     )
 
-    @Nested
+    @EndpointTest
     @DisplayName("GET /events")
-    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class GetAllEvents {
         private val testEvents = listOf(
             testEvent,
@@ -67,7 +60,7 @@ internal class EventControllerTest @Autowired constructor(
         }
     }
 
-    @Nested
+    @EndpointTest
     @DisplayName("POST /events/new")
     inner class CreateEvent {
         @Test
@@ -85,7 +78,7 @@ internal class EventControllerTest @Autowired constructor(
                 }
         }
 
-        @Nested
+        @NestedTest
         @DisplayName("Input Validation")
         inner class InputValidation {
             private val validationTester = ValidationTester(
@@ -102,9 +95,8 @@ internal class EventControllerTest @Autowired constructor(
                 )
             )
 
-            @Nested
+            @NestedTest
             @DisplayName("title")
-            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class TitleValidation {
                 @BeforeAll
                 fun setParam() {
@@ -119,9 +111,8 @@ internal class EventControllerTest @Autowired constructor(
                 fun size() = validationTester.hasSizeBetween(Constants.Title.minSize, Constants.Title.maxSize)
             }
 
-            @Nested
+            @NestedTest
             @DisplayName("description")
-            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class DescriptionValidation {
                 @BeforeAll
                 fun setParam() {
@@ -137,9 +128,8 @@ internal class EventControllerTest @Autowired constructor(
                     validationTester.hasSizeBetween(Constants.Description.minSize, Constants.Description.maxSize)
             }
 
-            @Nested
+            @NestedTest
             @DisplayName("date")
-            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class DateValidation {
                 @BeforeAll
                 fun setParam() {
