@@ -8,7 +8,7 @@ internal class DateIntervalTest {
     @Test
     fun `should succeed when startDate is null`() {
         val validator = DateIntervalValidator()
-        validator.initialize(DateInterval(startDate = "startDate", endDate = "endDate"))
+        validator.initialize(ValidDateInterval(startDate = "startDate", endDate = "endDate"))
         assert(
             validator.isValid(
                 TestObject(
@@ -23,7 +23,7 @@ internal class DateIntervalTest {
     @Test
     fun `should succeed when endDate is null`() {
         val validator = DateIntervalValidator()
-        validator.initialize(DateInterval(startDate = "startDate", endDate = "endDate"))
+        validator.initialize(ValidDateInterval(startDate = "startDate", endDate = "endDate"))
         assert(
             validator.isValid(
                 TestObject(
@@ -38,7 +38,7 @@ internal class DateIntervalTest {
     @Test
     fun `should succeed when endDate is after startDate`() {
         val validator = DateIntervalValidator()
-        validator.initialize(DateInterval(startDate = "startDate", endDate = "endDate"))
+        validator.initialize(ValidDateInterval(startDate = "startDate", endDate = "endDate"))
         assert(
             validator.isValid(
                 TestObject(
@@ -53,7 +53,7 @@ internal class DateIntervalTest {
     @Test
     fun `should fail when endDate is before startDate`() {
         val validator = DateIntervalValidator()
-        validator.initialize(DateInterval(startDate = "startDate", endDate = "endDate"))
+        validator.initialize(ValidDateInterval(startDate = "startDate", endDate = "endDate"))
         assert(
             !validator.isValid(
                 TestObject(
@@ -68,7 +68,7 @@ internal class DateIntervalTest {
     @Test
     fun `should fail when endDate is equal to startDate`() {
         val validator = DateIntervalValidator()
-        validator.initialize(DateInterval(startDate = "startDate", endDate = "endDate"))
+        validator.initialize(ValidDateInterval(startDate = "startDate", endDate = "endDate"))
         assert(
             !validator.isValid(
                 TestObject(

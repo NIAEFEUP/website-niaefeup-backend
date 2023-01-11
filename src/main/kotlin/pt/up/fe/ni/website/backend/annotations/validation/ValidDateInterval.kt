@@ -12,7 +12,7 @@ import kotlin.reflect.full.memberProperties
 @Retention(AnnotationRetention.RUNTIME)
 @Constraint(validatedBy = [DateIntervalValidator::class])
 @MustBeDocumented
-annotation class DateInterval(
+annotation class ValidDateInterval(
     val message: String = "{date_interval.error}",
     val groups: Array<KClass<*>> = [],
     val payload: Array<KClass<Payload>> = [],
@@ -20,11 +20,11 @@ annotation class DateInterval(
     val endDate: String
 )
 
-class DateIntervalValidator : ConstraintValidator<DateInterval, Any> {
+class DateIntervalValidator : ConstraintValidator<ValidDateInterval, Any> {
     private lateinit var startDateProp: String
     private lateinit var endDateProp: String
 
-    override fun initialize(interval: DateInterval) {
+    override fun initialize(interval: ValidDateInterval) {
         startDateProp = interval.startDate
         endDateProp = interval.endDate
     }
