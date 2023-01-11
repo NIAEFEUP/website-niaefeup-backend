@@ -4,9 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.hamcrest.Matchers.startsWith
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -20,6 +18,7 @@ import pt.up.fe.ni.website.backend.model.CustomWebsite
 import pt.up.fe.ni.website.backend.repository.AccountRepository
 import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
+import pt.up.fe.ni.website.backend.utils.annotations.EndpointTest
 import java.util.Calendar
 
 @ControllerTest
@@ -46,9 +45,8 @@ class AuthControllerTest @Autowired constructor(
         )
     )
 
-    @Nested
+    @EndpointTest
     @DisplayName("POST /auth/new")
-    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class GetNewToken {
         @BeforeAll
         fun setup() {
@@ -95,9 +93,8 @@ class AuthControllerTest @Autowired constructor(
         }
     }
 
-    @Nested
+    @EndpointTest
     @DisplayName("POST /auth/refresh")
-    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class RefreshToken {
         @BeforeAll
         fun setup() {
@@ -133,9 +130,8 @@ class AuthControllerTest @Autowired constructor(
         }
     }
 
-    @Nested
+    @EndpointTest
     @DisplayName("GET /auth/check")
-    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class CheckToken {
         @BeforeAll
         fun setup() {

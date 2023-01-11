@@ -5,9 +5,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
@@ -19,6 +17,8 @@ import pt.up.fe.ni.website.backend.model.Project
 import pt.up.fe.ni.website.backend.repository.ProjectRepository
 import pt.up.fe.ni.website.backend.utils.ValidationTester
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
+import pt.up.fe.ni.website.backend.utils.annotations.EndpointTest
+import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
 import pt.up.fe.ni.website.backend.model.constants.ActivityConstants as Constants
 
 @ControllerTest
@@ -34,9 +34,8 @@ internal class ProjectControllerTest @Autowired constructor(
         listOf("Java", "Kotlin", "Spring")
     )
 
-    @Nested
+    @EndpointTest
     @DisplayName("GET /projects")
-    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class GetAllProjects {
         private val testProjects = listOf(
             testProject,
@@ -63,9 +62,8 @@ internal class ProjectControllerTest @Autowired constructor(
         }
     }
 
-    @Nested
+    @EndpointTest
     @DisplayName("GET /projects/{projectId}")
-    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class GetProject {
         @BeforeAll
         fun addProject() {
@@ -95,7 +93,7 @@ internal class ProjectControllerTest @Autowired constructor(
         }
     }
 
-    @Nested
+    @EndpointTest
     @DisplayName("POST /projects/new")
     inner class CreateProject {
         @Test
@@ -114,7 +112,7 @@ internal class ProjectControllerTest @Autowired constructor(
                 }
         }
 
-        @Nested
+        @NestedTest
         @DisplayName("Input Validation")
         inner class InputValidation {
             private val validationTester = ValidationTester(
@@ -130,9 +128,8 @@ internal class ProjectControllerTest @Autowired constructor(
                 )
             )
 
-            @Nested
+            @NestedTest
             @DisplayName("title")
-            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class TitleValidation {
                 @BeforeAll
                 fun setParam() {
@@ -147,9 +144,8 @@ internal class ProjectControllerTest @Autowired constructor(
                 fun size() = validationTester.hasSizeBetween(Constants.Title.minSize, Constants.Title.maxSize)
             }
 
-            @Nested
+            @NestedTest
             @DisplayName("description")
-            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class DescriptionValidation {
                 @BeforeAll
                 fun setParam() {
@@ -167,7 +163,7 @@ internal class ProjectControllerTest @Autowired constructor(
         }
     }
 
-    @Nested
+    @NestedTest
     @DisplayName("DELETE /projects/{projectId}")
     inner class DeleteProject {
         @BeforeEach
@@ -197,7 +193,7 @@ internal class ProjectControllerTest @Autowired constructor(
         }
     }
 
-    @Nested
+    @NestedTest
     @DisplayName("PUT /projects/{projectId}")
     inner class UpdateProject {
         @BeforeEach
@@ -254,7 +250,7 @@ internal class ProjectControllerTest @Autowired constructor(
                 }
         }
 
-        @Nested
+        @NestedTest
         @DisplayName("Input Validation")
         inner class InputValidation {
             private val validationTester = ValidationTester(
@@ -270,9 +266,8 @@ internal class ProjectControllerTest @Autowired constructor(
                 )
             )
 
-            @Nested
+            @NestedTest
             @DisplayName("title")
-            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class TitleValidation {
                 @BeforeAll
                 fun setParam() {
@@ -287,9 +282,8 @@ internal class ProjectControllerTest @Autowired constructor(
                 fun size() = validationTester.hasSizeBetween(Constants.Title.minSize, Constants.Title.maxSize)
             }
 
-            @Nested
+            @NestedTest
             @DisplayName("description")
-            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class BodyValidation {
                 @BeforeAll
                 fun setParam() {
@@ -307,7 +301,7 @@ internal class ProjectControllerTest @Autowired constructor(
         }
     }
 
-    @Nested
+    @NestedTest
     @DisplayName("PUT /projects/{projectId}/archive")
     inner class ArchiveProject {
         @BeforeEach
@@ -334,7 +328,7 @@ internal class ProjectControllerTest @Autowired constructor(
         }
     }
 
-    @Nested
+    @NestedTest
     @DisplayName("PUT /projects/{projectId}/unarchive")
     inner class UnarchiveProject {
         private val project = Project(

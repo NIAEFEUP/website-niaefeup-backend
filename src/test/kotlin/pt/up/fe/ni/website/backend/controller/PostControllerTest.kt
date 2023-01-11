@@ -6,12 +6,9 @@ import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
-import org.springframework.test.context.NestedTestConfiguration
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.get
@@ -21,6 +18,8 @@ import pt.up.fe.ni.website.backend.model.Post
 import pt.up.fe.ni.website.backend.repository.PostRepository
 import pt.up.fe.ni.website.backend.utils.ValidationTester
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
+import pt.up.fe.ni.website.backend.utils.annotations.EndpointTest
+import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
 import java.text.SimpleDateFormat
 import java.util.Date
 import pt.up.fe.ni.website.backend.model.constants.PostConstants as Constants
@@ -38,9 +37,8 @@ internal class PostControllerTest @Autowired constructor(
         slug = "new-test-released"
     )
 
-    @Nested
+    @EndpointTest
     @DisplayName("GET /posts")
-    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class GetAllPosts {
         private val testPosts = listOf(
             testPost,
@@ -66,9 +64,8 @@ internal class PostControllerTest @Autowired constructor(
         }
     }
 
-    @Nested
+    @EndpointTest
     @DisplayName("GET /posts/{postId}")
-    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class GetPostById {
         @BeforeAll
         fun addPost() {
@@ -100,10 +97,9 @@ internal class PostControllerTest @Autowired constructor(
         }
     }
 
-    @Nested
+    @EndpointTest
     @DisplayName("GET /posts/{postSlug}")
-    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-    inner class GetPostBySlug {
+    inner class GetPostBySlang {
         @BeforeAll
         fun addPost() {
             repository.save(testPost)
@@ -135,7 +131,7 @@ internal class PostControllerTest @Autowired constructor(
         }
     }
 
-    @Nested
+    @EndpointTest
     @DisplayName("POST /posts/new")
     inner class CreatePost {
         @BeforeEach
@@ -179,9 +175,8 @@ internal class PostControllerTest @Autowired constructor(
             }
         }
 
-        @Nested
+        @NestedTest
         @DisplayName("Input Validation")
-        @NestedTestConfiguration(NestedTestConfiguration.EnclosingConfiguration.OVERRIDE)
         inner class InputValidation {
             private val validationTester = ValidationTester(
                 req = { params: Map<String, Any?> ->
@@ -197,9 +192,8 @@ internal class PostControllerTest @Autowired constructor(
                 )
             )
 
-            @Nested
+            @NestedTest
             @DisplayName("title")
-            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class TitleValidation {
                 @BeforeAll
                 fun setParam() {
@@ -214,9 +208,8 @@ internal class PostControllerTest @Autowired constructor(
                 fun size() = validationTester.hasSizeBetween(Constants.Title.minSize, Constants.Title.maxSize)
             }
 
-            @Nested
+            @NestedTest
             @DisplayName("body")
-            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class BodyValidation {
                 @BeforeAll
                 fun setParam() {
@@ -231,9 +224,8 @@ internal class PostControllerTest @Autowired constructor(
                 fun size() = validationTester.hasMinSize(Constants.Body.minSize)
             }
 
-            @Nested
+            @NestedTest
             @DisplayName("thumbnailPath")
-            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class ThumbnailValidation {
                 @BeforeAll
                 fun setParam() {
@@ -247,10 +239,8 @@ internal class PostControllerTest @Autowired constructor(
                 fun `should not be empty`() = validationTester.isNotEmpty()
             }
 
-            @Nested
-            @NestedTestConfiguration(NestedTestConfiguration.EnclosingConfiguration.OVERRIDE)
+            @NestedTest
             @DisplayName("slug")
-            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class SlugValidation {
                 @BeforeAll
                 fun setParam() {
@@ -264,7 +254,7 @@ internal class PostControllerTest @Autowired constructor(
         }
     }
 
-    @Nested
+    @EndpointTest
     @DisplayName("DELETE /posts/{postId}")
     inner class DeletePost {
         @BeforeEach
@@ -294,9 +284,8 @@ internal class PostControllerTest @Autowired constructor(
         }
     }
 
-    @Nested
+    @EndpointTest
     @DisplayName("PUT /posts/{postId}")
-    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class UpdatePost {
         @BeforeAll
         fun addPost() {
@@ -433,9 +422,8 @@ internal class PostControllerTest @Autowired constructor(
                 }
         }
 
-        @Nested
+        @NestedTest
         @DisplayName("Input Validation")
-        @NestedTestConfiguration(NestedTestConfiguration.EnclosingConfiguration.OVERRIDE)
         inner class InputValidation {
             private val validationTester = ValidationTester(
                 req = { params: Map<String, Any?> ->
@@ -451,9 +439,8 @@ internal class PostControllerTest @Autowired constructor(
                 )
             )
 
-            @Nested
+            @NestedTest
             @DisplayName("title")
-            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class TitleValidation {
                 @BeforeAll
                 fun setParam() {
@@ -468,9 +455,8 @@ internal class PostControllerTest @Autowired constructor(
                 fun size() = validationTester.hasSizeBetween(Constants.Title.minSize, Constants.Title.maxSize)
             }
 
-            @Nested
+            @NestedTest
             @DisplayName("body")
-            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class BodyValidation {
                 @BeforeAll
                 fun setParam() {
@@ -485,9 +471,8 @@ internal class PostControllerTest @Autowired constructor(
                 fun size() = validationTester.hasMinSize(Constants.Body.minSize)
             }
 
-            @Nested
+            @NestedTest
             @DisplayName("thumbnailPath")
-            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class ThumbnailValidation {
                 @BeforeAll
                 fun setParam() {
@@ -501,10 +486,8 @@ internal class PostControllerTest @Autowired constructor(
                 fun `should not be empty`() = validationTester.isNotEmpty()
             }
 
-            @Nested
-            @NestedTestConfiguration(NestedTestConfiguration.EnclosingConfiguration.OVERRIDE)
+            @NestedTest
             @DisplayName("slug")
-            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class SlugValidation {
                 @BeforeAll
                 fun setParam() {
