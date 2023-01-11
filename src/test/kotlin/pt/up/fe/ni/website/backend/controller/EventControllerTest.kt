@@ -278,7 +278,7 @@ internal class EventControllerTest @Autowired constructor(
                 fun `should be required`() = validationTester.isRequired()
 
                 @Test
-                fun `should be a DateInterval`() = validationTester.isDateInterval()
+                fun `should be a DateInterval`() = validationTester.isValidDateInterval()
             }
 
             @NestedTest
@@ -517,7 +517,7 @@ internal class EventControllerTest @Autowired constructor(
                 fun `should be required`() = validationTester.isRequired()
 
                 @Test
-                fun `should be a DateInterval`() = validationTester.isDateInterval()
+                fun `should be a DateInterval`() = validationTester.isValidDateInterval()
             }
 
             @NestedTest
