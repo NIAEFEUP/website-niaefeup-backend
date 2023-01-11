@@ -35,6 +35,7 @@ internal class EventControllerTest @Autowired constructor(
     val testEvent = Event(
         "Great event",
         "This was a nice and iconic event",
+        "https://docs.google.com/forms",
         TestUtils.createDate(2022, Calendar.JULY, 28)
     )
 
@@ -47,6 +48,7 @@ internal class EventControllerTest @Autowired constructor(
             Event(
                 "Bad event",
                 "This event was a failure",
+                null,
                 TestUtils.createDate(2021, Calendar.OCTOBER, 27)
             )
         )
@@ -81,6 +83,7 @@ internal class EventControllerTest @Autowired constructor(
                     content { contentType(MediaType.APPLICATION_JSON) }
                     jsonPath("$.title") { value(testEvent.title) }
                     jsonPath("$.description") { value(testEvent.description) }
+                    jsonPath("$.registerUrl") { value(testEvent.registerUrl) }
                     jsonPath("$.date") { value(containsString("28-07-2022")) }
                 }
         }
@@ -135,6 +138,22 @@ internal class EventControllerTest @Autowired constructor(
                 @DisplayName("size should be between ${Constants.Description.minSize} and ${Constants.Description.maxSize}()")
                 fun size() =
                     validationTester.hasSizeBetween(Constants.Description.minSize, Constants.Description.maxSize)
+            }
+
+            @Nested
+            @DisplayName("registerUrl")
+            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+            inner class RegisterUrlValidation {
+                @BeforeAll
+                fun setParam() {
+                    validationTester.param = "registerUrl"
+                }
+
+                @Test
+                fun `should be null or not blank`() = validationTester.isNullOrNotBlank()
+
+                @Test
+                fun `should be a URL`() = validationTester.isUrl()
             }
 
             @Nested
