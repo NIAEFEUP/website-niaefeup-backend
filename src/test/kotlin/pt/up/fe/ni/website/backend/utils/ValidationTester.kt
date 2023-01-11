@@ -126,7 +126,7 @@ class ValidationTester(
             }
     }
 
-    fun isDateInterval() {
+    fun isValidDateInterval() {
         val params = requiredFields.toMutableMap()
         params[param] = "invalid"
         req(params)
