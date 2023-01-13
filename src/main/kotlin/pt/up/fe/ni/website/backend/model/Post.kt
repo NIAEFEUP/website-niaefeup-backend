@@ -2,6 +2,7 @@ package pt.up.fe.ni.website.backend.model
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonProperty
+import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EntityListeners
 import jakarta.persistence.GeneratedValue
@@ -12,6 +13,7 @@ import org.hibernate.validator.constraints.URL
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
+import pt.up.fe.ni.website.backend.annotations.validation.NullOrNotBlank
 import java.util.Date
 import pt.up.fe.ni.website.backend.model.constants.PostConstants as Constants
 
@@ -39,5 +41,10 @@ class Post(
     var lastUpdatedAt: Date? = null,
 
     @Id @GeneratedValue
-    val id: Long? = null
+    val id: Long? = null,
+
+    @Column(unique = true)
+    @field:Size(min = Constants.Slug.minSize, max = Constants.Slug.maxSize)
+    @NullOrNotBlank
+    val slug: String? = null
 )

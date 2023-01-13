@@ -11,6 +11,8 @@ object ErrorMessages {
 
     fun postNotFound(postId: Long): String = "post not found with id $postId"
 
+    fun postNotFound(postSlug: String): String = "post not found with slug $postSlug"
+
     fun projectNotFound(id: Long): String = "project not found with id $id"
 
     fun accountNotFound(id: Long): String = "account not found with id $id"

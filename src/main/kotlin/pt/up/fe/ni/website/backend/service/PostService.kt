@@ -29,4 +29,7 @@ class PostService(private val repository: PostRepository) {
         repository.deleteById(postId)
         return mapOf()
     }
+
+    fun getPostBySlug(postSlug: String): Post =
+        repository.findBySlug(postSlug) ?: throw NoSuchElementException(ErrorMessages.postNotFound(postSlug))
 }
