@@ -9,5 +9,4 @@ class UploadConfigProperties(
     val cloudinaryBasePath: String?,
     val staticPath: String?,
     val staticServe: String?,
-    val maxSize: Int,
 )

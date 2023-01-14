@@ -18,7 +18,9 @@ annotation class ValidImage(
 )
 
 class ValidImageValidator : ConstraintValidator<ValidImage, MultipartFile?> {
+
     override fun isValid(value: MultipartFile?, context: ConstraintValidatorContext?): Boolean {
+
         if (value == null) {
             return true
         }
