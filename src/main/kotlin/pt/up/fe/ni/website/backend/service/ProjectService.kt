@@ -14,6 +14,12 @@ class ProjectService(private val repository: ProjectRepository, private val acco
 
     fun createProject(dto: ProjectDto): Project {
         val project = dto.create()
+
+        for (idAccount in dto.teamMembers!!) {
+            val account = accountService.getAccountById(idAccount)
+            project.teamMembers.add(account)
+        }
+
         return repository.save(project)
     }
 
@@ -23,6 +29,10 @@ class ProjectService(private val repository: ProjectRepository, private val acco
     fun updateProjectById(id: Long, dto: ProjectDto): Project {
         val project = getProjectById(id)
         val newProject = dto.update(project)
+        for (idAccount in dto.teamMembers!!) {
+            val account = accountService.getAccountById(idAccount)
+            project.teamMembers.add(account)
+        }
         return repository.save(newProject)
     }
 
@@ -44,6 +54,15 @@ class ProjectService(private val repository: ProjectRepository, private val acco
     fun unarchiveProjectById(id: Long): Project {
         val project = getProjectById(id)
         project.isArchived = false
+        return repository.save(project)
+    }
+
+    fun addTeamMembersById(idProject: Long, idAccounts: MutableList<Long>): Project {
+        val project = getProjectById(idProject)
+        for (idAccount in idAccounts) {
+            val account = accountService.getAccountById(idAccount)
+            project.teamMembers.add(account)
+        }
         return repository.save(project)
     }
 
