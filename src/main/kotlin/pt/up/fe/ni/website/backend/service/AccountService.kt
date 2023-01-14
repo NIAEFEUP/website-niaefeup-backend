@@ -24,8 +24,8 @@ class AccountService(private val repository: AccountRepository, private val enco
         account.password = encoder.encode(dto.password)
 
         val fileName: String = UUID.randomUUID().toString()
-        account.photo = dto.photoFile?.bytes?.let { fileUploader.upload("profile", "$fileName.png", it) }
-        return account
+        account.photo = dto.photoFile?.bytes?.let { fileUploader.upload("profile", fileName, it) }
+
         return repository.save(account)
     }
 

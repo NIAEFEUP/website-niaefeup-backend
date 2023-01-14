@@ -6,6 +6,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 class UploadConfigProperties(
     val uploadType: String?,
     val cloudinaryUrl: String?,
+    val cloudinaryBasePath: String?,
     val staticPath: String?,
     val staticServe: String?,
+    val maxSize: Int,
 )

@@ -14,22 +14,20 @@ import kotlin.reflect.KClass
 annotation class ValidImage(
     val message: String = "Invalid image format or size",
     val groups: Array<KClass<*>> = [],
-    val payload: Array<KClass<Payload>> = []
+    val payload: Array<KClass<Payload>> = [],
 )
 
 class ValidImageValidator : ConstraintValidator<ValidImage, MultipartFile?> {
-    private val maxSize = 1024
-
     override fun isValid(value: MultipartFile?, context: ConstraintValidatorContext?): Boolean {
-        println("asdasd")
         if (value == null) {
             return true
         }
+
         if (!isSupportedContentType(value.contentType)) {
             return false
         }
 
-        return value.size < maxSize
+        return true
     }
 
     private fun isSupportedContentType(contentType: String?): Boolean {

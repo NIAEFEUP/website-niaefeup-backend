@@ -18,9 +18,9 @@ import pt.up.fe.ni.website.backend.annotations.validation.ValidImage
 import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.service.AccountService
 
-@Validated
 @RestController
 @RequestMapping("/accounts")
+@Validated
 class AccountController(private val service: AccountService) {
     @GetMapping
     fun getAllAccounts() = service.getAllAccounts()

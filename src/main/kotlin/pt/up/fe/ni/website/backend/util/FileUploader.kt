@@ -1,6 +1,7 @@
 package pt.up.fe.ni.website.backend.util
 
 import com.cloudinary.Cloudinary
+import com.cloudinary.Transformation
 import java.io.File
 
 interface FileUploader {
@@ -8,11 +9,22 @@ interface FileUploader {
     fun delete(filePath: String)
 }
 
-class CloudinaryFileUploader(val cloudinary: Cloudinary) : FileUploader {
+class CloudinaryFileUploader(private val basePath: String, private val cloudinary: Cloudinary) : FileUploader {
     override fun upload(folder: String, fileName: String, image: ByteArray): String {
-        println("upload cloud")
+        val path = "$basePath/$folder/$fileName"
 
-        return "$folder/$fileName"
+        val imageTransformation = Transformation().width(250).height(250).crop("thumb").chain()
+
+        val result = cloudinary.uploader().upload(
+            image,
+            mapOf(
+                "public_id" to path,
+                "overwrite" to true,
+                "transformation" to imageTransformation,
+            )
+        )
+
+        return result["url"]?.toString() ?: ""
     }
 
     override fun delete(filePath: String) {
