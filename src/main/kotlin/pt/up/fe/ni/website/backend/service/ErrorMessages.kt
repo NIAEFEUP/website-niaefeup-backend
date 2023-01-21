@@ -1,6 +1,8 @@
 package pt.up.fe.ni.website.backend.service
 
 object ErrorMessages {
+    const val slugAlreadyExists = "slug already exists"
+
     const val emailAlreadyExists = "email already exists"
 
     const val invalidCredentials = "invalid credentials"

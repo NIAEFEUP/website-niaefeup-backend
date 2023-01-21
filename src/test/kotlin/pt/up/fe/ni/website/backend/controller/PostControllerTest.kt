@@ -109,7 +109,7 @@ internal class PostControllerTest @Autowired constructor(
     @Nested
     @DisplayName("GET /posts/{postSlug}")
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-    inner class GetPostBySlang {
+    inner class GetPostBySlug {
         @BeforeAll
         fun addPost() {
             repository.save(testPost)
@@ -131,11 +131,11 @@ internal class PostControllerTest @Autowired constructor(
 
         @Test
         fun `should fail if the post does not exist`() {
-            mockMvc.get("/posts/fail-slang").andExpect {
+            mockMvc.get("/posts/fail-slug").andExpect {
                 status { isNotFound() }
                 content { contentType(MediaType.APPLICATION_JSON) }
                 jsonPath("$.errors.length()") { value(1) }
-                jsonPath("$.errors[0].message") { value("post not found with slug fail-slang") }
+                jsonPath("$.errors[0].message") { value("post not found with slug fail-slug") }
             }
         }
     }
@@ -143,6 +143,11 @@ internal class PostControllerTest @Autowired constructor(
     @Nested
     @DisplayName("POST /posts/new")
     inner class CreatePost {
+        @BeforeEach
+        fun clearPosts() {
+            repository.deleteAll()
+        }
+
         @Test
         fun `should create a new post`() {
             mockMvc.post("/posts/new") {
@@ -228,6 +233,24 @@ internal class PostControllerTest @Autowired constructor(
 
                 @Test
                 fun `should not be empty`() = validationTester.isNotEmpty()
+            }
+        }
+
+        @Test
+        fun `should fail to create post with existing slug`() {
+            mockMvc.post("/posts/new") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(testPost)
+            }.andExpect { status { isOk() } }
+
+            mockMvc.post("/posts/new") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(testPost)
+            }.andExpect {
+                status { isUnprocessableEntity() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                jsonPath("$.errors.length()") { value(1) }
+                jsonPath("$.errors[0].message") { value("slug already exists") }
             }
         }
     }

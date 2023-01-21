@@ -14,6 +14,10 @@ class PostService(private val repository: PostRepository) {
         repository.findByIdOrNull(postId) ?: throw NoSuchElementException(ErrorMessages.postNotFound(postId))
 
     fun createPost(dto: PostDto): Post {
+        repository.findBySlug(dto.slug)?.let {
+            throw IllegalArgumentException(ErrorMessages.slugAlreadyExists)
+        }
+
         val post = dto.create()
         return repository.save(post)
     }
