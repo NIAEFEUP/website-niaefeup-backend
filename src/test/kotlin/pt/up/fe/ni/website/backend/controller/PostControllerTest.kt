@@ -162,7 +162,26 @@ internal class PostControllerTest @Autowired constructor(
                     jsonPath("$.thumbnailPath") { value(testPost.thumbnailPath) }
                     jsonPath("$.publishDate") { exists() }
                     jsonPath("$.lastUpdatedAt") { exists() }
+                    jsonPath("$.slug") { value(testPost.slug) }
                 }
+        }
+
+        @Test
+        fun `should fail to create post with existing slug`() {
+            mockMvc.post("/posts/new") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(testPost)
+            }.andExpect { status { isOk() } }
+
+            mockMvc.post("/posts/new") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(testPost)
+            }.andExpect {
+                status { isUnprocessableEntity() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                jsonPath("$.errors.length()") { value(1) }
+                jsonPath("$.errors[0].message") { value("slug already exists") }
+            }
         }
 
         @Nested
@@ -217,41 +236,6 @@ internal class PostControllerTest @Autowired constructor(
                 @DisplayName("size must be greater or equal to ${Constants.Body.minSize}()")
                 fun size() = validationTester.hasMinSize(Constants.Body.minSize)
             }
-
-            @Nested
-            @NestedTestConfiguration(NestedTestConfiguration.EnclosingConfiguration.OVERRIDE)
-            @DisplayName("thumbnailPath")
-            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-            inner class ThumbnailValidation {
-                @BeforeAll
-                fun setParam() {
-                    validationTester.param = "thumbnailPath"
-                }
-
-                @Test
-                fun `should be required`() = validationTester.isRequired()
-
-                @Test
-                fun `should not be empty`() = validationTester.isNotEmpty()
-            }
-        }
-
-        @Test
-        fun `should fail to create post with existing slug`() {
-            mockMvc.post("/posts/new") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(testPost)
-            }.andExpect { status { isOk() } }
-
-            mockMvc.post("/posts/new") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(testPost)
-            }.andExpect {
-                status { isUnprocessableEntity() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.errors.length()") { value(1) }
-                jsonPath("$.errors[0].message") { value("slug already exists") }
-            }
         }
     }
 
@@ -299,6 +283,7 @@ internal class PostControllerTest @Autowired constructor(
             val newTitle = "New Title"
             val newBody = "New Body of the post"
             val newThumbnailPath = "https://thumbnails/new.png"
+            val newSlug = "new-slug"
 
             mockMvc.put("/posts/${testPost.id}") {
                 contentType = MediaType.APPLICATION_JSON
@@ -306,7 +291,8 @@ internal class PostControllerTest @Autowired constructor(
                     mapOf(
                         "title" to newTitle,
                         "body" to newBody,
-                        "thumbnailPath" to newThumbnailPath
+                        "thumbnailPath" to newThumbnailPath,
+                        "slug" to newSlug
                     )
                 )
             }
@@ -318,6 +304,7 @@ internal class PostControllerTest @Autowired constructor(
                     jsonPath("$.thumbnailPath") { value(newThumbnailPath) }
                     jsonPath("$.publishDate") { value(testPost.publishDate.toJson()) }
                     jsonPath("$.lastUpdatedAt") { exists() }
+                    jsonPath("$.slug") { value(newSlug) }
                 }
 
             val updatedPost = repository.findById(testPost.id!!).get()
@@ -326,6 +313,7 @@ internal class PostControllerTest @Autowired constructor(
             assertEquals(newThumbnailPath, updatedPost.thumbnailPath)
             assertEquals(testPost.publishDate, updatedPost.publishDate)
             assertNotEquals(testPost.lastUpdatedAt, updatedPost.lastUpdatedAt)
+            assertEquals(newSlug, updatedPost.slug)
         }
 
         @Test
@@ -345,6 +333,31 @@ internal class PostControllerTest @Autowired constructor(
                     content { contentType(MediaType.APPLICATION_JSON) }
                     jsonPath("$.errors.length()") { value(1) }
                     jsonPath("$.errors[0].message") { value("post not found with id 1234") }
+                }
+        }
+
+        @Test
+        fun `should fail if the slug already exist`() {
+            val newTitle = "New Title"
+            val newBody = "New Body of the post"
+            val newThumbnailPath = "https://thumbnails/new.png"
+
+            mockMvc.put("/posts/${testPost.id}") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(
+                    mapOf(
+                        "title" to newTitle,
+                        "body" to newBody,
+                        "thumbnailPath" to newThumbnailPath,
+                        "slug" to testPost.slug
+                    )
+                )
+            }
+                .andExpect {
+                    status { isUnprocessableEntity() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$.errors.length()") { value(1) }
+                    jsonPath("$.errors[0].message") { value("slug already exists") }
                 }
         }
 
