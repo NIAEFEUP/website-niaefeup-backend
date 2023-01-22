@@ -121,6 +121,7 @@ internal class PostControllerTest @Autowired constructor(
                 .andExpect {
                     status { isOk() }
                     content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$.id") { value(testPost.id) }
                     jsonPath("$.title") { value(testPost.title) }
                     jsonPath("$.body") { value(testPost.body) }
                     jsonPath("$.thumbnailPath") { value(testPost.thumbnailPath) }
@@ -236,6 +237,22 @@ internal class PostControllerTest @Autowired constructor(
                 @DisplayName("size must be greater or equal to ${Constants.Body.minSize}()")
                 fun size() = validationTester.hasMinSize(Constants.Body.minSize)
             }
+
+            @Nested
+            @DisplayName("thumbnailPath")
+            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+            inner class ThumbnailValidation {
+                @BeforeAll
+                fun setParam() {
+                    validationTester.param = "thumbnailPath"
+                }
+
+                @Test
+                fun `should be required`() = validationTester.isRequired()
+
+                @Test
+                fun `should not be empty`() = validationTester.isNotEmpty()
+            }
         }
     }
 
@@ -276,14 +293,21 @@ internal class PostControllerTest @Autowired constructor(
         @BeforeAll
         fun addPost() {
             repository.save(testPost)
+            repository.save(Post(
+                "New test released",
+                "this is a test post",
+                "https://thumbnails/test.png",
+                slug = "duplicated-slug"
+            ))
         }
 
+        private var updatedSlug = testPost.slug
+
         @Test
-        fun `should update the post`() {
+        fun `should update the post without the slug`() {
             val newTitle = "New Title"
             val newBody = "New Body of the post"
             val newThumbnailPath = "https://thumbnails/new.png"
-            val newSlug = "new-slug"
 
             mockMvc.put("/posts/${testPost.id}") {
                 contentType = MediaType.APPLICATION_JSON
@@ -292,7 +316,6 @@ internal class PostControllerTest @Autowired constructor(
                         "title" to newTitle,
                         "body" to newBody,
                         "thumbnailPath" to newThumbnailPath,
-                        "slug" to newSlug
                     )
                 )
             }
@@ -304,7 +327,7 @@ internal class PostControllerTest @Autowired constructor(
                     jsonPath("$.thumbnailPath") { value(newThumbnailPath) }
                     jsonPath("$.publishDate") { value(testPost.publishDate.toJson()) }
                     jsonPath("$.lastUpdatedAt") { exists() }
-                    jsonPath("$.slug") { value(newSlug) }
+                    jsonPath("$.slug") { value(updatedSlug) }
                 }
 
             val updatedPost = repository.findById(testPost.id!!).get()
@@ -313,7 +336,45 @@ internal class PostControllerTest @Autowired constructor(
             assertEquals(newThumbnailPath, updatedPost.thumbnailPath)
             assertEquals(testPost.publishDate, updatedPost.publishDate)
             assertNotEquals(testPost.lastUpdatedAt, updatedPost.lastUpdatedAt)
-            assertEquals(newSlug, updatedPost.slug)
+            assertEquals(updatedSlug, updatedPost.slug)
+        }
+
+        @Test
+        fun `should update the post with the slug`() {
+            val newTitle = "New Title"
+            val newBody = "New Body of the post"
+            val newThumbnailPath = "https://thumbnails/new.png"
+            updatedSlug = "new-slug"
+
+            mockMvc.put("/posts/${testPost.id}") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(
+                    mapOf(
+                        "title" to newTitle,
+                        "body" to newBody,
+                        "thumbnailPath" to newThumbnailPath,
+                        "slug" to updatedSlug
+                    )
+                )
+            }
+                .andExpect {
+                    status { isOk() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$.title") { value(newTitle) }
+                    jsonPath("$.body") { value(newBody) }
+                    jsonPath("$.thumbnailPath") { value(newThumbnailPath) }
+                    jsonPath("$.publishDate") { value(testPost.publishDate.toJson()) }
+                    jsonPath("$.lastUpdatedAt") { exists() }
+                    jsonPath("$.slug") { value(updatedSlug) }
+                }
+
+            val updatedPost = repository.findById(testPost.id!!).get()
+            assertEquals(newTitle, updatedPost.title)
+            assertEquals(newBody, updatedPost.body)
+            assertEquals(newThumbnailPath, updatedPost.thumbnailPath)
+            assertEquals(testPost.publishDate, updatedPost.publishDate)
+            assertNotEquals(testPost.lastUpdatedAt, updatedPost.lastUpdatedAt)
+            assertEquals(updatedSlug, updatedPost.slug)
         }
 
         @Test
@@ -341,6 +402,7 @@ internal class PostControllerTest @Autowired constructor(
             val newTitle = "New Title"
             val newBody = "New Body of the post"
             val newThumbnailPath = "https://thumbnails/new.png"
+            val newSlug = "duplicated-slug"
 
             mockMvc.put("/posts/${testPost.id}") {
                 contentType = MediaType.APPLICATION_JSON
@@ -349,7 +411,7 @@ internal class PostControllerTest @Autowired constructor(
                         "title" to newTitle,
                         "body" to newBody,
                         "thumbnailPath" to newThumbnailPath,
-                        "slug" to testPost.slug
+                        "slug" to newSlug
                     )
                 )
             }

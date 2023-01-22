@@ -21,6 +21,9 @@ class PostController(private val service: PostService) {
     @GetMapping("/{postId:\\d+}")
     fun getPost(@PathVariable postId: Long) = service.getPostById(postId)
 
+    @GetMapping("/{postSlug}**")
+    fun getPost(@PathVariable postSlug: String) = service.getPostBySlug(postSlug)
+
     @PostMapping("/new")
     fun createPost(@RequestBody dto: PostDto) = service.createPost(dto)
 
@@ -32,7 +35,4 @@ class PostController(private val service: PostService) {
 
     @DeleteMapping("/{postId}")
     fun deletePost(@PathVariable postId: Long) = service.deletePostById(postId)
-
-    @GetMapping("/{postSlug}**")
-    fun getPost(@PathVariable postSlug: String) = service.getPostBySlug(postSlug)
 }
