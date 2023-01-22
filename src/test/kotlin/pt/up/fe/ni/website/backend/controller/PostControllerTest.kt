@@ -308,12 +308,14 @@ internal class PostControllerTest @Autowired constructor(
         @BeforeAll
         fun addPost() {
             repository.save(testPost)
-            repository.save(Post(
-                "New test released",
-                "this is a test post",
-                "https://thumbnails/test.png",
-                slug = "duplicated-slug"
-            ))
+            repository.save(
+                Post(
+                    "New test released",
+                    "this is a test post",
+                    "https://thumbnails/test.png",
+                    slug = "duplicated-slug"
+                )
+            )
         }
 
         private var updatedSlug = testPost.slug

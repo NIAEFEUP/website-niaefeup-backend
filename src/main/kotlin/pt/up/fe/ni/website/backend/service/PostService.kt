@@ -26,8 +26,7 @@ class PostService(private val repository: PostRepository) {
         val post = getPostById(postId)
 
         repository.findBySlug(dto.slug)?.let {
-            if(it.id != post.id) // TEST
-                throw IllegalArgumentException(ErrorMessages.slugAlreadyExists)
+            if (it.id != post.id) throw IllegalArgumentException(ErrorMessages.slugAlreadyExists)
         }
 
         val newPost = dto.update(post)
