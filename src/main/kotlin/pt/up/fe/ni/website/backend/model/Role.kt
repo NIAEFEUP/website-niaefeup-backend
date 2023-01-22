@@ -8,6 +8,7 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToMany
+import jakarta.persistence.ManyToOne
 import jakarta.persistence.OneToMany
 import jakarta.validation.Valid
 import pt.up.fe.ni.website.backend.model.permissions.Permissions
@@ -33,6 +34,10 @@ class Role(
     @JoinColumn
     @OneToMany
     var associatedActivities: List<@Valid PerActivityRole> = emptyList(),
+
+    @JoinColumn
+    @ManyToOne
+    val generation: Generation,
 
     @JsonProperty(required = true)
     @Id
