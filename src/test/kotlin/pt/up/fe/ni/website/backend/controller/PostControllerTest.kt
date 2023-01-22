@@ -253,6 +253,21 @@ internal class PostControllerTest @Autowired constructor(
                 @Test
                 fun `should not be empty`() = validationTester.isNotEmpty()
             }
+
+            @Nested
+            @NestedTestConfiguration(NestedTestConfiguration.EnclosingConfiguration.OVERRIDE)
+            @DisplayName("slug")
+            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+            inner class SlugValidation {
+                @BeforeAll
+                fun setParam() {
+                    validationTester.param = "slug"
+                }
+
+                @Test
+                @DisplayName("size should be between ${Constants.Slug.minSize} and ${Constants.Slug.maxSize}()")
+                fun size() = validationTester.hasSizeBetween(Constants.Slug.minSize, Constants.Slug.maxSize)
+            }
         }
     }
 
@@ -491,6 +506,21 @@ internal class PostControllerTest @Autowired constructor(
 
                 @Test
                 fun `should not be empty`() = validationTester.isNotEmpty()
+            }
+
+            @Nested
+            @NestedTestConfiguration(NestedTestConfiguration.EnclosingConfiguration.OVERRIDE)
+            @DisplayName("slug")
+            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+            inner class SlugValidation {
+                @BeforeAll
+                fun setParam() {
+                    validationTester.param = "slug"
+                }
+
+                @Test
+                @DisplayName("size should be between ${Constants.Slug.minSize} and ${Constants.Slug.maxSize}()")
+                fun size() = validationTester.hasSizeBetween(Constants.Slug.minSize, Constants.Slug.maxSize)
             }
         }
     }
