@@ -2,9 +2,9 @@ package pt.up.fe.ni.website.backend.service
 
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
-import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.Project
 import pt.up.fe.ni.website.backend.dto.entity.ProjectDto
+import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.repository.ProjectRepository
 
 @Service
@@ -15,7 +15,7 @@ class ProjectService(private val repository: ProjectRepository, private val acco
     fun createProject(dto: ProjectDto): Project {
         val project = dto.create()
 
-        for (idAccount in dto.teamMembers!!) {
+        for (idAccount in dto.teamMembers.orEmpty()) {
             val account = accountService.getAccountById(idAccount)
             project.teamMembers.add(account)
         }
@@ -29,9 +29,10 @@ class ProjectService(private val repository: ProjectRepository, private val acco
     fun updateProjectById(id: Long, dto: ProjectDto): Project {
         val project = getProjectById(id)
         val newProject = dto.update(project)
-        for (idAccount in dto.teamMembers!!) {
+        newProject.teamMembers.clear()
+        for (idAccount in dto.teamMembers.orEmpty()) {
             val account = accountService.getAccountById(idAccount)
-            project.teamMembers.add(account)
+            newProject.teamMembers.add(account)
         }
         return repository.save(newProject)
     }

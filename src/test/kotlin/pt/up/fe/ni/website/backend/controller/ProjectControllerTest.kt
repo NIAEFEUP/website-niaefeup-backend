@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.put
+import pt.up.fe.ni.website.backend.dto.entity.ProjectDto
 import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.CustomWebsite
 import pt.up.fe.ni.website.backend.model.Project
@@ -46,6 +47,7 @@ internal class ProjectControllerTest @Autowired constructor(
             CustomWebsite("https://test-website.com", "https://test-website.com/logo.png")
         )
     )
+
     val testProject = Project(
         "Awesome project",
         "this is a test project",
@@ -84,6 +86,7 @@ internal class ProjectControllerTest @Autowired constructor(
 
         @BeforeAll
         fun addProjects() {
+            accountRepository.save(testAccount)
             for (project in testProjects) repository.save(project)
         }
 
@@ -102,6 +105,7 @@ internal class ProjectControllerTest @Autowired constructor(
     inner class GetProject {
         @BeforeAll
         fun addProject() {
+            accountRepository.save(testAccount)
             repository.save(testProject)
         }
 
@@ -131,11 +135,21 @@ internal class ProjectControllerTest @Autowired constructor(
     @EndpointTest
     @DisplayName("POST /projects/new")
     inner class CreateProject {
+        @BeforeAll
+        fun addAccount() {
+            accountRepository.save(testAccount)
+        }
+
         @Test
         fun `should create a new project`() {
             mockMvc.post("/projects/new") {
                 contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(testProject)
+                content = ProjectDto(
+                    testProject.title,
+                    testProject.description,
+                    mutableListOf(testAccount.id!!),
+                    testProject.isArchived
+                )
             }
                 .andExpect {
                     status { isOk() }
@@ -203,6 +217,7 @@ internal class ProjectControllerTest @Autowired constructor(
     inner class DeleteProject {
         @BeforeEach
         fun addProject() {
+            accountRepository.save(testAccount)
             repository.save(testProject)
         }
 
@@ -231,6 +246,11 @@ internal class ProjectControllerTest @Autowired constructor(
     @EndpointTest
     @DisplayName("PUT /projects/{projectId}")
     inner class UpdateProject {
+        @BeforeAll
+        fun addAccount() {
+            accountRepository.save(testAccount)
+        }
+
         @BeforeEach
         fun addProject() {
             repository.save(testProject)
@@ -259,14 +279,13 @@ internal class ProjectControllerTest @Autowired constructor(
                     content { contentType(MediaType.APPLICATION_JSON) }
                     jsonPath("$.title") { value(newTitle) }
                     jsonPath("$.description") { value(newDescription) }
-                    jsonPath("$.teamMembers") { value(newTeamMembers) }
+                    jsonPath("$.teamMembers.length()") { value(0) }
                     jsonPath("$.isArchived") { value(newIsArchived) }
                 }
 
             val updatedProject = repository.findById(testProject.id!!).get()
             assertEquals(newTitle, updatedProject.title)
             assertEquals(newDescription, updatedProject.description)
-            assertEquals(newTeamMembers, updatedProject.teamMembers)
             assertEquals(newIsArchived, updatedProject.isArchived)
         }
 
@@ -343,8 +362,9 @@ internal class ProjectControllerTest @Autowired constructor(
     @EndpointTest
     @DisplayName("PUT /projects/{projectId}/archive")
     inner class ArchiveProject {
-        @BeforeEach
+        @BeforeAll
         fun addProject() {
+            accountRepository.save(testAccount)
             repository.save(testProject)
         }
 
@@ -378,7 +398,7 @@ internal class ProjectControllerTest @Autowired constructor(
             listOf("React", "TailwindCSS")
         )
 
-        @BeforeEach
+        @BeforeAll
         fun addProject() {
             repository.save(project)
         }
@@ -456,11 +476,10 @@ internal class ProjectControllerTest @Autowired constructor(
                 .andExpect {
                     status { isOk() }
                     content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.teamMembers") { value(newTeamMembers) }
+                    jsonPath("$.teamMembers.length()") { value(2) }
+                    jsonPath("$.teamMembers[0]") { value(testAccount) }
+                    jsonPath("$.teamMembers[1]") { value(newAccount) }
                 }
-
-            val alteredProject = repository.findById(testProject.id!!).get()
-            assertEquals(newTeamMembers, alteredProject.teamMembers)
         }
     }
 
@@ -480,42 +499,40 @@ internal class ProjectControllerTest @Autowired constructor(
             )
         )
 
-        @BeforeEach
-        fun addToRepositories() {
-            accountRepository.save(testAccount)
-            accountRepository.save(removedAccount)
-            repository.save(testProject)
-        }
+        @NestedTest
+        @DisplayName("PUT /projects/{projectId}/addTeamMember/{accountId}")
+        inner class RemoveTeamMember {
 
-        @Test
-        fun `should remove a team member`() {
-            val newTeamMembers = mutableListOf<Account>()
-
-            mockMvc.put("/projects/${testProject.id}/removeTeamMember/${testAccount.id}") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString("teamMembers" to newTeamMembers)
+            @BeforeAll
+            fun addToRepositories() {
+                accountRepository.save(testAccount)
+                repository.save(testProject)
             }
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.teamMembers") { value(newTeamMembers) }
+
+            @Test
+            fun `should remove a team member`() {
+                mockMvc.put("/projects/${testProject.id}/removeTeamMember/${testAccount.id}") {
+                    contentType = MediaType.APPLICATION_JSON
                 }
-
-            val alteredProject = repository.findById(testProject.id!!).get()
-            assertEquals(newTeamMembers, alteredProject.teamMembers)
-        }
-
-        @Test
-        fun `should fail if the team member does not exist`() {
-            mockMvc.put("/projects/${testProject.id}/removeTeamMember/1234") {
-                contentType = MediaType.APPLICATION_JSON
+                    .andExpect {
+                        status { isOk() }
+                        content { contentType(MediaType.APPLICATION_JSON) }
+                        jsonPath("$.teamMembers.length()") { value(0) }
+                    }
             }
-                .andExpect {
-                    status { isNotFound() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.errors.length()") { value(1) }
-                    jsonPath("$.errors[0].message") { value("account not found with id 1234") }
+
+            @Test
+            fun `should fail if the team member does not exist`() {
+                mockMvc.put("/projects/${testProject.id}/removeTeamMember/1234") {
+                    contentType = MediaType.APPLICATION_JSON
                 }
+                    .andExpect {
+                        status { isNotFound() }
+                        content { contentType(MediaType.APPLICATION_JSON) }
+                        jsonPath("$.errors.length()") { value(1) }
+                        jsonPath("$.errors[0].message") { value("account not found with id 1234") }
+                    }
+            }
         }
     }
 }

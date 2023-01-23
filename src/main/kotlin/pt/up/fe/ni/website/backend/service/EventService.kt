@@ -2,11 +2,11 @@ package pt.up.fe.ni.website.backend.service
 
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
-
 import pt.up.fe.ni.website.backend.dto.entity.EventDto
-import pt.up.fe.ni.website.backend.dto.entity.AccountDto
 import pt.up.fe.ni.website.backend.model.Event
 import pt.up.fe.ni.website.backend.repository.EventRepository
+
+
 
 @Service
 class EventService(private val repository: EventRepository, private val accountService: AccountService) {
