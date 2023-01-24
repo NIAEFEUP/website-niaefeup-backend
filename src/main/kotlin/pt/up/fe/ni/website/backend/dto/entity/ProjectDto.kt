@@ -6,5 +6,5 @@ class ProjectDto(
     val title: String,
     val description: String,
     val isArchived: Boolean = false,
-    val technologies: List<String>
+    val technologies: List<String> = emptyList()
 ) : EntityDto<Project>()

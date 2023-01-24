@@ -7,6 +7,6 @@ class Project(
     title: String,
     description: String,
     var isArchived: Boolean = false,
-    technologies: List<String>,
+    val technologies: List<String>,
     id: Long? = null
 ) : Activity(title, description, id)
