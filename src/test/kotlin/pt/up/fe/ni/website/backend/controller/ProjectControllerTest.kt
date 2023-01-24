@@ -85,6 +85,8 @@ internal class ProjectControllerTest @Autowired constructor(
                 content { contentType(MediaType.APPLICATION_JSON) }
                 jsonPath("$.title") { value(testProject.title) }
                 jsonPath("$.description") { value(testProject.description) }
+                jsonPath("$.technologies.length()") { value(testProject.technologies.size) }
+                jsonPath("$.technologies[0]") { value(testProject.technologies[0]) }
             }
         }
 
@@ -113,6 +115,8 @@ internal class ProjectControllerTest @Autowired constructor(
                     content { contentType(MediaType.APPLICATION_JSON) }
                     jsonPath("$.title") { value(testProject.title) }
                     jsonPath("$.description") { value(testProject.description) }
+                    jsonPath("$.technologies.length()") { value(testProject.technologies.size) }
+                    jsonPath("$.technologies[0]") { value(testProject.technologies[0]) }
                 }
         }
 
