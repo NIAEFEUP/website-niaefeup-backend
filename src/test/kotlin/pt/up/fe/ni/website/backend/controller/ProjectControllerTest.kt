@@ -422,7 +422,7 @@ internal class ProjectControllerTest @Autowired constructor(
         }
     }
 
-    @NestedTest
+    @EndpointTest
     @DisplayName("PUT /projects/{projectId}/addTeamMember/{accountId}")
     inner class AddTeamMember {
 
@@ -471,7 +471,7 @@ internal class ProjectControllerTest @Autowired constructor(
 
             mockMvc.put("/projects/${testProject.id}/addTeamMember/${newAccount.id}") {
                 contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString("teamMembers" to newTeamMembers)
+                content = objectMapper.writeValueAsString(newAccount.id)
             }
                 .andExpect {
                     status { isOk() }
@@ -483,6 +483,7 @@ internal class ProjectControllerTest @Autowired constructor(
         }
     }
 
+    @EndpointTest
     @DisplayName("PUT /projects/{projectId}/addTeamMember/{accountId}")
     inner class RemoveTeamMember {
         val removedAccount = Account(
@@ -507,31 +508,38 @@ internal class ProjectControllerTest @Autowired constructor(
             fun addToRepositories() {
                 accountRepository.save(testAccount)
                 repository.save(testProject)
-            }
-
-            @Test
-            fun `should remove a team member`() {
-                mockMvc.put("/projects/${testProject.id}/removeTeamMember/${testAccount.id}") {
-                    contentType = MediaType.APPLICATION_JSON
-                }
-                    .andExpect {
-                        status { isOk() }
-                        content { contentType(MediaType.APPLICATION_JSON) }
-                        jsonPath("$.teamMembers.length()") { value(0) }
+                @Test
+                fun `should remove a team member`() {
+                    mockMvc.put("/projects/${testProject.id}/removeTeamMember/${testAccount.id}") {
+                        contentType = MediaType.APPLICATION_JSON
+                        content = objectMapper.writeValueAsString(testAccount.id)
                     }
-            }
 
-            @Test
-            fun `should fail if the team member does not exist`() {
-                mockMvc.put("/projects/${testProject.id}/removeTeamMember/1234") {
-                    contentType = MediaType.APPLICATION_JSON
-                }
-                    .andExpect {
-                        status { isNotFound() }
-                        content { contentType(MediaType.APPLICATION_JSON) }
-                        jsonPath("$.errors.length()") { value(1) }
-                        jsonPath("$.errors[0].message") { value("account not found with id 1234") }
+                    @Test
+                    fun `should remove a team member`() {
+                        mockMvc.put("/projects/${testProject.id}/removeTeamMember/${testAccount.id}") {
+                            contentType = MediaType.APPLICATION_JSON
+                        }
+                            .andExpect {
+                                status { isOk() }
+                                content { contentType(MediaType.APPLICATION_JSON) }
+                                jsonPath("$.teamMembers.length()") { value(0) }
+                            }
                     }
+
+                    @Test
+                    fun `should fail if the team member does not exist`() {
+                        mockMvc.put("/projects/${testProject.id}/removeTeamMember/1234") {
+                            contentType = MediaType.APPLICATION_JSON
+                        }
+                            .andExpect {
+                                status { isNotFound() }
+                                content { contentType(MediaType.APPLICATION_JSON) }
+                                jsonPath("$.errors.length()") { value(1) }
+                                jsonPath("$.errors[0].message") { value("account not found with id 1234") }
+                            }
+                    }
+                }
             }
         }
     }

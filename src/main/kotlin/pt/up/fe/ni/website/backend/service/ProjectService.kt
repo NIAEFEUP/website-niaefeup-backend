@@ -15,7 +15,7 @@ class ProjectService(private val repository: ProjectRepository, private val acco
     fun createProject(dto: ProjectDto): Project {
         val project = dto.create()
 
-        for (idAccount in dto.teamMembers.orEmpty()) {
+        for (idAccount in dto.teamMembersIds.orEmpty()) {
             val account = accountService.getAccountById(idAccount)
             project.teamMembers.add(account)
         }
@@ -30,7 +30,7 @@ class ProjectService(private val repository: ProjectRepository, private val acco
         val project = getProjectById(id)
         val newProject = dto.update(project)
         newProject.teamMembers.clear()
-        for (idAccount in dto.teamMembers.orEmpty()) {
+        for (idAccount in dto.teamMembersIds.orEmpty()) {
             val account = accountService.getAccountById(idAccount)
             newProject.teamMembers.add(account)
         }

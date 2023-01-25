@@ -7,8 +7,7 @@ import java.util.Date
 class EventDto(
     val title: String,
     val description: String,
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    val teamMembers: MutableList<AccountDto>,
+    val teamMembersIds: MutableList<Long>?,
     val registerUrl: String?,
     val date: Date
 ) : EntityDto<Event>()
