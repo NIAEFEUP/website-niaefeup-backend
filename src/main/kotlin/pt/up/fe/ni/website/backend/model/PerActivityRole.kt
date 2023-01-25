@@ -6,8 +6,8 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
-import pt.up.fe.ni.website.backend.permissions.Permissions
-import pt.up.fe.ni.website.backend.permissions.PermissionsConverter
+import pt.up.fe.ni.website.backend.model.permissions.Permissions
+import pt.up.fe.ni.website.backend.model.permissions.PermissionsConverter
 
 @Entity
 class PerActivityRole(

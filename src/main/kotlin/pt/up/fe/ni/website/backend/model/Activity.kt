@@ -28,7 +28,7 @@ abstract class Activity(
 
     @JoinColumn
     @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
-    open val perRoles: List<@Valid PerActivityRole>,
+    open val associatedRoles: List<@Valid PerActivityRole>,
 
     @Id
     @GeneratedValue

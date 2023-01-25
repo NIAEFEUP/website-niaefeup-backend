@@ -1,4 +1,4 @@
-package pt.up.fe.ni.website.backend.permissions
+package pt.up.fe.ni.website.backend.model.permissions
 
 enum class Permission(val bit: Int) {
     CREATE_ACCOUNT(0), VIEW_ACCOUNT(1), EDIT_ACCOUNT(2), DELETE_ACCOUNT(3),

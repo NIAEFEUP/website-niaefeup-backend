@@ -1,7 +1,8 @@
-package pt.up.fe.ni.website.backend.permissions
+package pt.up.fe.ni.website.backend.model.permissions
 
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import pt.up.fe.ni.website.backend.model.permissions.Permission
 
 internal class PermissionTest {
 

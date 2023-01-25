@@ -17,7 +17,7 @@ import jakarta.validation.constraints.Past
 import jakarta.validation.constraints.Size
 import org.hibernate.validator.constraints.URL
 import pt.up.fe.ni.website.backend.annotations.validation.NullOrNotBlank
-import pt.up.fe.ni.website.backend.permissions.Permissions
+import pt.up.fe.ni.website.backend.model.permissions.Permissions
 import java.util.Date
 import pt.up.fe.ni.website.backend.model.constants.AccountConstants as Constants
 
@@ -65,17 +65,17 @@ class Account(
     @Id @GeneratedValue
     val id: Long? = null
 ) {
-    fun getEffectivePermissionsForActivity(activity: Activity) {
-        val result = Permissions()
+    fun getEffectivePermissionsForActivity(activity: Activity): Permissions {
+        val effectivePermissions = Permissions()
 
-        for (role in this.roles) {
-            result.addAll(role.permissions)
+        roles.forEach { role ->
+            effectivePermissions.addAll(role.permissions)
 
-            for (perActivity in role.perActivities) {
-                if (perActivity.activity == activity) {
-                    result.addAll(perActivity.permissions)
-                }
-            }
+            role.perActivities
+                .find { it.activity == activity }
+                ?.let { effectivePermissions.addAll(it.permissions) }
         }
+
+        return effectivePermissions
     }
 }

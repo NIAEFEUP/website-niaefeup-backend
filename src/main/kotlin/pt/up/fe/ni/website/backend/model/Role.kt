@@ -10,8 +10,8 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToMany
 import jakarta.persistence.OneToMany
 import jakarta.validation.Valid
-import pt.up.fe.ni.website.backend.permissions.Permissions
-import pt.up.fe.ni.website.backend.permissions.PermissionsConverter
+import pt.up.fe.ni.website.backend.model.permissions.Permissions
+import pt.up.fe.ni.website.backend.model.permissions.PermissionsConverter
 
 @Entity
 class Role(

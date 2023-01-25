@@ -4,13 +4,16 @@ import org.springframework.stereotype.Service
 import pt.up.fe.ni.website.backend.model.Activity
 import pt.up.fe.ni.website.backend.model.PerActivityRole
 import pt.up.fe.ni.website.backend.model.Role
-import pt.up.fe.ni.website.backend.permissions.Permission
-import pt.up.fe.ni.website.backend.permissions.Permissions
+import pt.up.fe.ni.website.backend.model.permissions.Permission
+import pt.up.fe.ni.website.backend.model.permissions.Permissions
 import pt.up.fe.ni.website.backend.repository.PerActivityRoleRepository
 import pt.up.fe.ni.website.backend.repository.RoleRepository
 
 @Service
-class RoleService(private val roleRepository: RoleRepository, private val perActivityRoleRepository: PerActivityRoleRepository) {
+class RoleService(
+    private val roleRepository: RoleRepository,
+    private val perActivityRoleRepository: PerActivityRoleRepository
+) {
 
     fun grantPermissionToRole(role: Role, permission: Permission) {
         role.permissions.add(permission)
@@ -23,36 +26,18 @@ class RoleService(private val roleRepository: RoleRepository, private val perAct
     }
 
     fun grantPermissionToRoleOnActivity(role: Role, activity: Activity, permission: Permission) {
-        var foundActivity: PerActivityRole? = null
-
-        for (perActivity in activity.perRoles) {
-            if (perActivity.activity == activity) {
-                foundActivity = perActivity
-                break
-            }
-        }
-
-        if (foundActivity == null) {
-            foundActivity = PerActivityRole(role, activity, Permissions())
-        }
+        val foundActivity = activity.associatedRoles
+            .find { it.activity == activity } ?: PerActivityRole(role, activity, Permissions())
 
         foundActivity.permissions.add(permission)
         perActivityRoleRepository.save(foundActivity)
     }
 
     fun revokePermissionToRoleOnActivity(role: Role, activity: Activity, permission: Permission) {
-        var foundActivity: PerActivityRole? = null
+        val foundActivity = activity.associatedRoles
+            .find { it.activity == activity } ?: return
 
-        for (perActivity in activity.perRoles) {
-            if (perActivity.activity == activity) {
-                foundActivity = perActivity
-                break
-            }
-        }
-
-        if (foundActivity != null) {
-            foundActivity.permissions.remove(permission)
-            perActivityRoleRepository.save(foundActivity)
-        }
+        foundActivity.permissions.remove(permission)
+        perActivityRoleRepository.save(foundActivity)
     }
 }

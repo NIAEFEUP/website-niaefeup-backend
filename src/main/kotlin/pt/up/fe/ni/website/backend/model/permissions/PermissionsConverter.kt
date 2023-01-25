@@ -1,4 +1,4 @@
-package pt.up.fe.ni.website.backend.permissions
+package pt.up.fe.ni.website.backend.model.permissions
 
 import jakarta.persistence.AttributeConverter
 import jakarta.persistence.Converter
