@@ -163,7 +163,7 @@ internal class ProjectControllerTest @Autowired constructor(
         }
     }
 
-    @NestedTest
+    @EndpointTest
     @DisplayName("DELETE /projects/{projectId}")
     inner class DeleteProject {
         @BeforeEach
@@ -193,7 +193,7 @@ internal class ProjectControllerTest @Autowired constructor(
         }
     }
 
-    @NestedTest
+    @EndpointTest
     @DisplayName("PUT /projects/{projectId}")
     inner class UpdateProject {
         @BeforeEach
@@ -301,7 +301,7 @@ internal class ProjectControllerTest @Autowired constructor(
         }
     }
 
-    @NestedTest
+    @EndpointTest
     @DisplayName("PUT /projects/{projectId}/archive")
     inner class ArchiveProject {
         @BeforeEach
@@ -328,7 +328,7 @@ internal class ProjectControllerTest @Autowired constructor(
         }
     }
 
-    @NestedTest
+    @EndpointTest
     @DisplayName("PUT /projects/{projectId}/unarchive")
     inner class UnarchiveProject {
         private val project = Project(
