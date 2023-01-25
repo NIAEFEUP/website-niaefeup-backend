@@ -12,7 +12,7 @@ import kotlin.reflect.KClass
 @Target(AnnotationTarget.VALUE_PARAMETER)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class ValidImage(
-    val message: String = "Invalid image format or size",
+    val message: String = "{files.invalid_image}",
     val groups: Array<KClass<*>> = [],
     val payload: Array<KClass<Payload>> = [],
 )

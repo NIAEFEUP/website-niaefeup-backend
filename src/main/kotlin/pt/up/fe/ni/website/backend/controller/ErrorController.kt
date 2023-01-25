@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import pt.up.fe.ni.website.backend.config.Logging
+import org.springframework.web.multipart.MaxUploadSizeExceededException
+import pt.up.fe.ni.website.backend.util.isSerializable
 
 data class SimpleError(
     val message: String,
@@ -43,23 +45,9 @@ class ErrorController(private val objectMapper: ObjectMapper) : ErrorController,
                 SimpleError(
                     violation.message,
                     violation.propertyPath.toString(),
-                    violation.invalidValue.takeIf { it.isSerializable() }
-                )
-            )
-        }
-        return CustomError(errors)
-    }
-
-    @ExceptionHandler(MethodArgumentNotValidException::class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    fun invalidArguments(e: MethodArgumentNotValidException): CustomError {
-        val errors = mutableListOf<SimpleError>()
-        e.bindingResult.fieldErrors.forEach { error ->
-            errors.add(
-                SimpleError(
-                    error.defaultMessage ?: "invalid",
-                    error.field,
-                    error.rejectedValue?.takeIf { it.isSerializable() }
+                    violation.invalidValue?.let {
+                        if (isSerializable(it)) it else null
+                    }
                 )
             )
         }
@@ -106,6 +94,12 @@ class ErrorController(private val objectMapper: ObjectMapper) : ErrorController,
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     fun illegalArgument(e: IllegalArgumentException): CustomError {
         return wrapSimpleError(e.message ?: "invalid argument")
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException::class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    fun invalidFileSize(e: MaxUploadSizeExceededException): CustomError {
+        return wrapSimpleError(e.message ?: "maximum upload size exceeded")
     }
 
     @ExceptionHandler(Exception::class)

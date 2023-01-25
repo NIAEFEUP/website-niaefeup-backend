@@ -45,7 +45,7 @@ class AccountController(private val service: AccountService) {
         service.deleteAccountById(id)
         return emptyMap()
     }
-    @PostMapping("/new")
+    @PostMapping("/new", consumes = ["multipart/form-data"])
     fun createAccount(@RequestPart account: CreateAccountDto, @RequestPart @ValidImage photo: MultipartFile?): Account {
         account.photoFile = photo
         return service.createAccount(account)
