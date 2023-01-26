@@ -21,7 +21,7 @@ class Generation(
 
     @JoinColumn
     @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
-    val roles: List<@Valid Role>,
+    val roles: MutableList<@Valid Role>,
 
     @Id @GeneratedValue
     val id: Long? = null

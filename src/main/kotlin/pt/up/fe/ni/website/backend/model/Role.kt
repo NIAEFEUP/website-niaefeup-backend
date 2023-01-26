@@ -29,11 +29,11 @@ class Role(
 
     @JoinColumn
     @ManyToMany
-    var accounts: List<@Valid Account> = emptyList(),
+    var accounts: MutableList<@Valid Account> = mutableListOf(),
 
     @JoinColumn
     @OneToMany
-    var associatedActivities: List<@Valid PerActivityRole> = emptyList(),
+    var associatedActivities: MutableList<@Valid PerActivityRole> = mutableListOf(),
 
     @JoinColumn
     @ManyToOne

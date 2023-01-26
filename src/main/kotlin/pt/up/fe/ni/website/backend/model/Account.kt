@@ -59,8 +59,8 @@ class Account(
     val websites: List<@Valid CustomWebsite> = emptyList(),
 
     @JoinColumn
-    @ManyToMany(fetch = FetchType.EAGER)
-    var roles: List<@Valid Role> = emptyList(),
+    @ManyToMany
+    val roles: MutableList<@Valid Role> = mutableListOf(),
 
     @Id @GeneratedValue
     val id: Long? = null
