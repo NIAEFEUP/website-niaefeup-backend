@@ -5,6 +5,7 @@ import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
 import jakarta.validation.Payload
 import org.springframework.web.multipart.MultipartFile
+import pt.up.fe.ni.website.backend.util.filenameExtension
 import kotlin.reflect.KClass
 
 @MustBeDocumented
@@ -29,10 +30,18 @@ class ValidImageValidator : ConstraintValidator<ValidImage, MultipartFile?> {
             return false
         }
 
+        if (!isSupportedFileExtension(value.filenameExtension())) {
+            return false
+        }
+
         return true
     }
 
     private fun isSupportedContentType(contentType: String?): Boolean {
         return contentType == "image/png" || contentType == "image/jpg" || contentType == "image/jpeg"
+    }
+
+    private fun isSupportedFileExtension(extension: String?): Boolean {
+        return extension == "png" || extension == "jpg" || extension == "jpeg"
     }
 }

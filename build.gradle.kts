@@ -43,6 +43,10 @@ dependencies {
     testImplementation("ch.qos.logback:logback-classic:1.4.5")
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc:3.0.0")
     testImplementation("com.epages:restdocs-api-spec-mockmvc:0.17.1")
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
+        exclude(group = "org.mockito2", module = "mockito-core")
+    }
+    testImplementation("org.mockito:mockito-inline:5.0.0")
 }
 
 tasks.withType<KotlinCompile> {

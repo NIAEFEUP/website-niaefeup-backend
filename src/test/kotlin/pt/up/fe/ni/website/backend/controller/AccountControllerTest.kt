@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete
@@ -18,19 +19,19 @@ import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.pos
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.mock.web.MockMultipartFile
+import org.springframework.mock.web.MockPart
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import org.springframework.mock.web.MockPart
 import org.springframework.test.web.servlet.multipart
+import pt.up.fe.ni.website.backend.config.upload.UploadConfigProperties
 import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.CustomWebsite
 import pt.up.fe.ni.website.backend.model.constants.AccountConstants as Constants
-import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.multipart
-import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder
 import pt.up.fe.ni.website.backend.repository.AccountRepository
 import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.ValidationTester
@@ -45,13 +46,15 @@ import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Co
 import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentErrorResponse
 import pt.up.fe.ni.website.backend.utils.documentation.utils.ModelDocumentation
 import pt.up.fe.ni.website.backend.utils.documentation.utils.PayloadSchema
+import java.util.UUID
 
 @ControllerTest
 class AccountControllerTest @Autowired constructor(
     val mockMvc: MockMvc,
     val objectMapper: ObjectMapper,
     val repository: AccountRepository,
-    val encoder: PasswordEncoder
+    val encoder: PasswordEncoder,
+    val uploadConfigProperties: UploadConfigProperties,
 ) {
     val documentation: ModelDocumentation = PayloadAccount()
 
@@ -61,7 +64,7 @@ class AccountControllerTest @Autowired constructor(
         "test_password",
         "This is a test account",
         TestUtils.createDate(2001, Calendar.JULY, 28),
-        "https://test-photo.com",
+        null,
         "https://linkedin.com",
         "https://github.com",
         listOf(
@@ -192,6 +195,48 @@ class AccountControllerTest @Autowired constructor(
                 jsonPath("$.websites.length()").value(1),
                 jsonPath("$.websites[0].url").value(testAccount.websites[0].url),
                 jsonPath("$.websites[0].iconPath").value(testAccount.websites[0].iconPath)
+            )
+        }
+
+        @Test
+        fun `should create the account with valid image`() {
+            val accountPart = MockPart("account", testAccount.toJson().toByteArray())
+            accountPart.headers.contentType = MediaType.APPLICATION_JSON
+
+            val file = MockMultipartFile(
+                "photo",
+                "photo.jpeg",
+                MediaType.IMAGE_JPEG_VALUE,
+                "content".toByteArray()
+            )
+
+            val uuid: UUID = UUID.randomUUID()
+            Mockito.mockStatic(UUID::class.java)
+            Mockito.`when`(UUID.randomUUID()).thenReturn(uuid)
+
+            val expectedPhotoPath = "${uploadConfigProperties.staticServe}/profile/$uuid.jpeg"
+
+            mockMvc.perform(
+                multipart("/accounts/new")
+                    .part(accountPart)
+                    .file(file)
+            ).andExpectAll(
+                status().isOk,
+                content().contentType(MediaType.APPLICATION_JSON),
+                jsonPath("$.name").value(testAccount.name),
+                jsonPath("$.email").value(testAccount.email),
+                jsonPath("$.bio").value(testAccount.bio),
+                jsonPath("$.birthDate").value(testAccount.birthDate.toJson()),
+                jsonPath("$.linkedin").value(testAccount.linkedin),
+                jsonPath("$.github").value(testAccount.github),
+                jsonPath("$.photo").value(expectedPhotoPath),
+                jsonPath("$.websites.length()").value(1),
+                jsonPath("$.websites[0].url").value(testAccount.websites[0].url),
+                jsonPath("$.websites[0].iconPath").value(testAccount.websites[0].iconPath),
+            ).andDocument(
+                documentation,
+                "Create account",
+                "Creates a new account",
             )
         }
 
@@ -498,6 +543,62 @@ class AccountControllerTest @Autowired constructor(
                     urlParameters = parameters,
                     hasRequestPayload = true
                 )
+        }
+
+        @Test
+        fun `should fail to create account with invalid filename extension`() {
+            val accountPart = MockPart("account", testAccount.toJson().toByteArray())
+            accountPart.headers.contentType = MediaType.APPLICATION_JSON
+
+            val file = MockMultipartFile(
+                "photo",
+                "photo.pdf",
+                MediaType.IMAGE_JPEG_VALUE,
+                "content".toByteArray()
+            )
+
+            val uuid: UUID = UUID.randomUUID()
+            Mockito.mockStatic(UUID::class.java)
+            Mockito.`when`(UUID.randomUUID()).thenReturn(uuid)
+
+            mockMvc.multipart("/accounts/new") {
+                part(accountPart)
+                file(file)
+            }.andExpect {
+                status { isBadRequest() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                jsonPath("$.errors.length()") { value(1) }
+                jsonPath("$.errors[0].message") { value("invalid image format") }
+                jsonPath("$.errors[0].param") { value("createAccount.photo") }
+            }
+        }
+
+        @Test
+        fun `should fail to create account with invalid filename media type`() {
+            val accountPart = MockPart("account", testAccount.toJson().toByteArray())
+            accountPart.headers.contentType = MediaType.APPLICATION_JSON
+
+            val file = MockMultipartFile(
+                "photo",
+                "photo.jpeg",
+                MediaType.APPLICATION_PDF_VALUE,
+                "content".toByteArray()
+            )
+
+            val uuid: UUID = UUID.randomUUID()
+            Mockito.mockStatic(UUID::class.java)
+            Mockito.`when`(UUID.randomUUID()).thenReturn(uuid)
+
+            mockMvc.multipart("/accounts/new") {
+                part(accountPart)
+                file(file)
+            }.andExpect {
+                status { isBadRequest() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                jsonPath("$.errors.length()") { value(1) }
+                jsonPath("$.errors[0].message") { value("invalid image format") }
+                jsonPath("$.errors[0].param") { value("createAccount.photo") }
+            }
         }
     }
 

@@ -9,6 +9,7 @@ import pt.up.fe.ni.website.backend.dto.entity.account.UpdateAccountDto
 import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.repository.AccountRepository
 import pt.up.fe.ni.website.backend.util.FileUploader
+import pt.up.fe.ni.website.backend.util.filenameExtension
 import java.util.UUID
 
 @Service
@@ -23,7 +24,7 @@ class AccountService(private val repository: AccountRepository, private val enco
         val account = dto.create()
         account.password = encoder.encode(dto.password)
 
-        val fileName: String = UUID.randomUUID().toString()
+        val fileName = "${UUID.randomUUID()}.${dto.photoFile?.filenameExtension() ?: ""}"
         account.photo = dto.photoFile?.bytes?.let { fileUploader.upload("profile", fileName, it) }
 
         return repository.save(account)
