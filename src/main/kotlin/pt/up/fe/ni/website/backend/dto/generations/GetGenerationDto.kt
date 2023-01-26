@@ -16,7 +16,7 @@ data class GenerationSectionDto(
 
 fun buildGetGenerationDto(generation: Generation): GetGenerationDto {
     val sections = generation.roles
-        .filter { it.isSection }
+        .filter { it.isSection && it.accounts.isNotEmpty() }
         .map { role ->
             GenerationSectionDto(
                 section = role.name,
