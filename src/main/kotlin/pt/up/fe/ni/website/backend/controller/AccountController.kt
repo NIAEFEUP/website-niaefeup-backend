@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.RestController
 import pt.up.fe.ni.website.backend.dto.auth.ChangePasswordDto
@@ -46,7 +47,7 @@ class AccountController(private val service: AccountService) {
         return emptyMap()
     }
     @PostMapping("/new", consumes = ["multipart/form-data"])
-    fun createAccount(@RequestPart account: CreateAccountDto, @RequestPart @ValidImage photo: MultipartFile?): Account {
+    fun createAccount(@RequestPart account: CreateAccountDto, @RequestParam @ValidImage photo: MultipartFile?): Account {
         account.photoFile = photo
         return service.createAccount(account)
     }
