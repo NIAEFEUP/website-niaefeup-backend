@@ -9,11 +9,12 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import pt.up.fe.ni.website.backend.dto.entity.ProjectDto
+import pt.up.fe.ni.website.backend.service.ActivityService
 import pt.up.fe.ni.website.backend.service.ProjectService
 
 @RestController
 @RequestMapping("/projects")
-class ProjectController(private val service: ProjectService) {
+class ProjectController(private val service: ProjectService, private val activityService: ActivityService) {
 
     @GetMapping
     fun getAllProjects() = service.getAllProjects()
@@ -43,11 +44,11 @@ class ProjectController(private val service: ProjectService) {
     fun addTeamMemberById(
         @PathVariable idProject: Long,
         @PathVariable idAccount: Long
-    ) = service.addTeamMemberById(idProject, idAccount)
+    ) = activityService.addTeamMemberById(idProject, idAccount)
 
     @PutMapping("/{idProject}/removeTeamMember/{idAccount}")
     fun removeTeamMemberById(
         @PathVariable idProject: Long,
         @PathVariable idAccount: Long
-    ) = service.removeTeamMemberById(idProject, idAccount)
+    ) = activityService.removeTeamMemberById(idProject, idAccount)
 }

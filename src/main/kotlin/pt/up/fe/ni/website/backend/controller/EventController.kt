@@ -9,11 +9,12 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.bind.annotation.PathVariable
 import pt.up.fe.ni.website.backend.dto.entity.EventDto
+import pt.up.fe.ni.website.backend.service.ActivityService
 import pt.up.fe.ni.website.backend.service.EventService
 
 @RestController
 @RequestMapping("/events")
-class EventController(private val service: EventService) {
+class EventController(private val service: EventService, private val activityService: ActivityService) {
     @GetMapping
     fun getAllEvents() = service.getAllEvents()
 
@@ -24,11 +25,11 @@ class EventController(private val service: EventService) {
     fun addTeamMemberById(
         @PathVariable idEvent: Long,
         @PathVariable idAccount: Long
-    ) = service.addTeamMemberById(idEvent, idAccount)
+    ) = activityService.addTeamMemberById(idEvent, idAccount)
 
     @PutMapping("/{idEvent}/removeTeamMember/{idAccount}")
     fun removeTeamMemberById(
         @PathVariable idEvent: Long,
         @PathVariable idAccount: Long
-    ) = service.removeTeamMemberById(idEvent, idAccount)
+    ) = activityService.removeTeamMemberById(idEvent, idAccount)
 }

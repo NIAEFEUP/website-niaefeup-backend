@@ -13,28 +13,10 @@ class EventService(private val repository: EventRepository, private val accountS
     fun getAllEvents(): List<Event> = repository.findAll().toList()
 
     fun getEventById(id: Long): Event = repository.findByIdOrNull(id)
-        ?: throw NoSuchElementException("event not found with id $id")
+        ?: throw throw NoSuchElementException(ErrorMessages.eventNotFound(id))
 
     fun createEvent(dto: EventDto): Event {
         val event = dto.create()
-        return repository.save(event)
-    }
-
-    fun addTeamMemberById(idEvent: Long, idAccount: Long): Event {
-        val event = getEventById(idEvent)
-        val account = accountService.getAccountById(idAccount)
-        event.teamMembers.add(account)
-        return repository.save(event)
-    }
-
-    fun removeTeamMemberById(idEvent: Long, idAccount: Long): Event {
-        val event = getEventById(idEvent)
-        if (!accountService.checkAccountId(idAccount)) throw NoSuchElementException(
-            ErrorMessages.accountNotFound(
-                idAccount
-            )
-        )
-        event.teamMembers.removeIf { it.id == idAccount }
         return repository.save(event)
     }
 }

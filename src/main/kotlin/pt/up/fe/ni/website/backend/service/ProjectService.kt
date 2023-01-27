@@ -57,32 +57,4 @@ class ProjectService(private val repository: ProjectRepository, private val acco
         project.isArchived = false
         return repository.save(project)
     }
-
-    fun addTeamMembersById(idProject: Long, idAccounts: MutableList<Long>): Project {
-        val project = getProjectById(idProject)
-        for (idAccount in idAccounts) {
-            val account = accountService.getAccountById(idAccount)
-            project.teamMembers.add(account)
-        }
-        return repository.save(project)
-    }
-
-    fun addTeamMemberById(idProject: Long, idAccount: Long): Project {
-        val project = getProjectById(idProject)
-        val account = accountService.getAccountById(idAccount)
-        project.teamMembers.add(account)
-        return repository.save(project)
-    }
-
-    fun removeTeamMemberById(idProject: Long, idAccount: Long): Project {
-        val project = getProjectById(idProject)
-        if (!accountService.checkAccountId(idAccount)) throw NoSuchElementException(
-            ErrorMessages.accountNotFound(
-                idAccount
-            )
-        )
-        project.teamMembers.removeIf { it.id == idAccount }
-        return repository.save(project)
-    }
-
 }
