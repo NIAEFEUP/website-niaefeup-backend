@@ -27,7 +27,7 @@ abstract class Activity(
 
     @JoinColumn
     @OneToMany(fetch = FetchType.EAGER)
-    open val teamMembers: MutableList<@Valid Account>,
+    open val teamMembers: MutableList<Account>,
 
     @Id
     @GeneratedValue
