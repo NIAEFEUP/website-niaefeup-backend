@@ -1,3 +1,5 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -58,6 +60,57 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    addTestListener(object : TestListener {
+        val startItem = "|  "
+        val endItem = "  |"
+
+        override fun beforeSuite(suite: TestDescriptor) {}
+        override fun beforeTest(testDescriptor: TestDescriptor) {}
+        override fun afterTest(testDescriptor: TestDescriptor, result: TestResult) {}
+        override fun afterSuite(suite: TestDescriptor, result: TestResult) {
+            if (suite.parent != null) { // will match the outermost suite
+                val suiteName = suite.name
+                val output =
+                    "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} passed, ${result.failedTestCount} failed, ${result.skippedTestCount} skipped)"
+
+                val maxLength = if (output.length > suiteName.length) output.length else suiteName.length
+                var repeatLength = startItem.length + maxLength + endItem.length
+
+                var suiteSpaceLength = maxLength - suiteName.length
+                var statusSpaceLength = maxLength - output.length
+
+                println(
+                    "\n" + ("-".repeat(repeatLength)) + "\n" +
+                        startItem + suiteName + " ".repeat(suiteSpaceLength) + endItem + "\n" +
+                        startItem + output + " ".repeat(statusSpaceLength) + endItem + "\n" + ("-".repeat(repeatLength))
+                )
+            }
+        }
+    })
+    testLogging {
+        events = mutableSetOf(
+            TestLogEvent.FAILED,
+            TestLogEvent.SKIPPED,
+        )
+        exceptionFormat = TestExceptionFormat.FULL
+        showExceptions = true
+        showCauses = true
+        showStackTraces = true
+
+        debug {
+            events = mutableSetOf(
+                TestLogEvent.FAILED,
+                TestLogEvent.PASSED,
+                TestLogEvent.SKIPPED,
+                TestLogEvent.STANDARD_OUT,
+                TestLogEvent.STANDARD_ERROR,
+                TestLogEvent.STANDARD_OUT
+            )
+            exceptionFormat = TestExceptionFormat.FULL
+        }
+        info.events = debug.events
+        info.exceptionFormat = debug.exceptionFormat
+    }
 }
 
 tasks.test {

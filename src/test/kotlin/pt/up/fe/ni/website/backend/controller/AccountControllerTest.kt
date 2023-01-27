@@ -558,7 +558,7 @@ class AccountControllerTest @Autowired constructor(
             )
 
             val uuid: UUID = UUID.randomUUID()
-            Mockito.mockStatic(UUID::class.java)
+            val mockedSettings = Mockito.mockStatic(UUID::class.java)
             Mockito.`when`(UUID.randomUUID()).thenReturn(uuid)
 
             mockMvc.multipart("/accounts/new") {
@@ -571,6 +571,8 @@ class AccountControllerTest @Autowired constructor(
                 jsonPath("$.errors[0].message") { value("invalid image format") }
                 jsonPath("$.errors[0].param") { value("createAccount.photo") }
             }
+
+            mockedSettings.close()
         }
 
         @Test
@@ -586,7 +588,7 @@ class AccountControllerTest @Autowired constructor(
             )
 
             val uuid: UUID = UUID.randomUUID()
-            Mockito.mockStatic(UUID::class.java)
+            val mockedSettings = Mockito.mockStatic(UUID::class.java)
             Mockito.`when`(UUID.randomUUID()).thenReturn(uuid)
 
             mockMvc.multipart("/accounts/new") {
@@ -599,6 +601,8 @@ class AccountControllerTest @Autowired constructor(
                 jsonPath("$.errors[0].message") { value("invalid image format") }
                 jsonPath("$.errors[0].param") { value("createAccount.photo") }
             }
+
+            mockedSettings.close()
         }
     }
 
