@@ -11,6 +11,8 @@ object ErrorMessages {
 
     const val expiredRefreshToken = "refresh token has expired"
 
+    const val incorrectPassword = "incorrect password"
+
     fun postNotFound(postId: Long): String = "post not found with id $postId"
 
     fun postNotFound(postSlug: String): String = "post not found with slug $postSlug"
