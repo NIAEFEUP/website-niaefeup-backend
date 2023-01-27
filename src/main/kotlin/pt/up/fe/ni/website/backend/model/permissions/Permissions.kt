@@ -1,10 +1,9 @@
 package pt.up.fe.ni.website.backend.model.permissions
 
-import java.util.Collections
 import java.util.TreeSet
 
 class Permissions(
-    private val permissions: Set<Permission> = Collections.emptySet()
+    permissions: Collection<Permission> = emptyList()
 ) : MutableSet<Permission> by TreeSet(permissions) {
 
     companion object {
@@ -16,7 +15,7 @@ class Permissions(
                     // `encoded ushr n and 1L` returns the value of the `n`-th bit of `encoded`
                     val encodedBit = encoded ushr perm.bit and 1L
                     return@filter encodedBit == 1L
-                }.toSet()
+                }
 
             return Permissions(decodedPermissions)
         }
@@ -26,7 +25,22 @@ class Permissions(
     // corresponding bit to 1, if the permission is present
     // `1L shl n` returns a number whose binary representation has
     // a single 1 in the `n`-th position
-    fun toLong() = permissions.fold(0L) { acc, perm ->
-        return acc or (1L shl perm.bit)
+    fun toLong() = fold(0L) { acc, perm ->
+        return@fold acc or (1L shl perm.bit)
+    }
+
+    override fun toString(): String {
+        return "Permissions(${toTypedArray().contentDeepToString()})"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Permissions) return false
+
+        return toTypedArray().contentDeepEquals(other.toTypedArray())
+    }
+
+    override fun hashCode(): Int {
+        return toTypedArray().contentDeepHashCode()
     }
 }

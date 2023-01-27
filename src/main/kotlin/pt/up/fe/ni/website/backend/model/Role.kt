@@ -28,11 +28,11 @@ class Role(
 
     @JoinColumn
     @ManyToMany
-    var accounts: List<@Valid Account>,
+    var accounts: List<@Valid Account> = emptyList(),
 
     @JoinColumn
     @OneToMany
-    var perActivities: List<@Valid PerActivityRole>,
+    var associatedActivities: List<@Valid PerActivityRole> = emptyList(),
 
     @JsonProperty(required = true)
     @Id @GeneratedValue

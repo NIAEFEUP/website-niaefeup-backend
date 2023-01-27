@@ -60,7 +60,7 @@ class Account(
 
     @JoinColumn
     @ManyToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
-    val roles: List<@Valid Role> = emptyList(),
+    var roles: List<@Valid Role> = emptyList(),
 
     @Id @GeneratedValue
     val id: Long? = null
@@ -71,7 +71,7 @@ class Account(
         roles.forEach { role ->
             effectivePermissions.addAll(role.permissions)
 
-            role.perActivities
+            role.associatedActivities
                 .find { it.activity == activity }
                 ?.let { effectivePermissions.addAll(it.permissions) }
         }

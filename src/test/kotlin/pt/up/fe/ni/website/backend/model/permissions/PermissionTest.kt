@@ -2,7 +2,6 @@ package pt.up.fe.ni.website.backend.model.permissions
 
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
-import pt.up.fe.ni.website.backend.model.permissions.Permission
 
 internal class PermissionTest {
 
@@ -18,7 +17,10 @@ internal class PermissionTest {
     @Test
     fun `permission bits should not exceed Long size`() {
         for (perm in Permission.values()) {
-            Assertions.assertTrue(perm.bit < Long.SIZE_BITS, "Bit ${perm.bit} (permission ${perm.name}) exceeds exceed size of Long (${Long.SIZE_BITS})")
+            Assertions.assertTrue(
+                perm.bit < Long.SIZE_BITS,
+                "Bit ${perm.bit} (permission ${perm.name}) exceeds exceed size of Long (${Long.SIZE_BITS})"
+            )
         }
     }
 }
