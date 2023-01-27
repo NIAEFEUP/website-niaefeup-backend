@@ -18,6 +18,6 @@ class Event(
     @JsonProperty(required = true)
     val date: Date,
 
-    teamMembers: MutableList<Account>,
+    teamMembers: MutableList<Account> = mutableListOf(),
     id: Long? = null
 ) : Activity(title, description, teamMembers, id)

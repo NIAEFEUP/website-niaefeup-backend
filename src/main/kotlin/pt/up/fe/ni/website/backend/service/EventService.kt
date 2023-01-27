@@ -29,8 +29,12 @@ class EventService(private val repository: EventRepository, private val accountS
 
     fun removeTeamMemberById(idEvent: Long, idAccount: Long): Event {
         val event = getEventById(idEvent)
-        val account = accountService.getAccountById(idAccount)
-        event.teamMembers.remove(account)
+        if (!accountService.checkAccountId(idAccount)) throw NoSuchElementException(
+            ErrorMessages.accountNotFound(
+                idAccount
+            )
+        )
+        event.teamMembers.removeIf { it.id == idAccount }
         return repository.save(event)
     }
 }

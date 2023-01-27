@@ -43,11 +43,11 @@ class ProjectController(private val service: ProjectService) {
     fun addTeamMemberById(
         @PathVariable idProject: Long,
         @PathVariable idAccount: Long
-    ) = service.addTeamMemberById(idProject, idProject)
+    ) = service.addTeamMemberById(idProject, idAccount)
 
     @PutMapping("/{idProject}/removeTeamMember/{idAccount}")
     fun removeTeamMemberById(
         @PathVariable idProject: Long,
         @PathVariable idAccount: Long
-    ) = service.removeTeamMemberById(idProject, idProject)
+    ) = service.removeTeamMemberById(idProject, idAccount)
 }

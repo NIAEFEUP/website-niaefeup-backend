@@ -76,8 +76,12 @@ class ProjectService(private val repository: ProjectRepository, private val acco
 
     fun removeTeamMemberById(idProject: Long, idAccount: Long): Project {
         val project = getProjectById(idProject)
-        val account = accountService.getAccountById(idAccount)
-        project.teamMembers.remove(account)
+        if (!accountService.checkAccountId(idAccount)) throw NoSuchElementException(
+            ErrorMessages.accountNotFound(
+                idAccount
+            )
+        )
+        project.teamMembers.removeIf { it.id == idAccount }
         return repository.save(project)
     }
 

@@ -13,7 +13,6 @@ import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.put
-import pt.up.fe.ni.website.backend.dto.entity.ProjectDto
 import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.CustomWebsite
 import pt.up.fe.ni.website.backend.model.Project
@@ -144,11 +143,13 @@ internal class ProjectControllerTest @Autowired constructor(
         fun `should create a new project`() {
             mockMvc.post("/projects/new") {
                 contentType = MediaType.APPLICATION_JSON
-                content = ProjectDto(
-                    testProject.title,
-                    testProject.description,
-                    mutableListOf(testAccount.id!!),
-                    testProject.isArchived
+                content = objectMapper.writeValueAsString(
+                    mapOf(
+                        "title" to testProject.title,
+                        "description" to testProject.description,
+                        "teamMembersIds" to mutableListOf(testAccount.id!!),
+                        "isArchived" to testProject.isArchived
+                    )
                 )
             }
                 .andExpect {
@@ -260,7 +261,7 @@ internal class ProjectControllerTest @Autowired constructor(
         fun `should update the project`() {
             val newTitle = "New Title"
             val newDescription = "New description of the project"
-            val newTeamMembers = mutableListOf<Account>()
+            val newTeamMembers = mutableListOf<Long>()
             val newIsArchived = true
 
             mockMvc.put("/projects/${testProject.id}") {
@@ -269,7 +270,7 @@ internal class ProjectControllerTest @Autowired constructor(
                     mapOf(
                         "title" to newTitle,
                         "description" to newDescription,
-                        "teamMembers" to newTeamMembers,
+                        "teamMembersIds" to newTeamMembers,
                         "isArchived" to newIsArchived
                     )
                 )
@@ -444,10 +445,6 @@ internal class ProjectControllerTest @Autowired constructor(
         fun addAccounts() {
             accountRepository.save(testAccount)
             accountRepository.save(newAccount)
-        }
-
-        @BeforeEach
-        fun addProject() {
             repository.save(testProject)
         }
 
@@ -473,18 +470,48 @@ internal class ProjectControllerTest @Autowired constructor(
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(newAccount.id)
             }
+
+            mockMvc.put("/projects/${testProject.id}/addTeamMember/${newAccount.id}")
                 .andExpect {
                     status { isOk() }
                     content { contentType(MediaType.APPLICATION_JSON) }
                     jsonPath("$.teamMembers.length()") { value(2) }
-                    jsonPath("$.teamMembers[0]") { value(testAccount) }
-                    jsonPath("$.teamMembers[1]") { value(newAccount) }
+                    jsonPath("$.teamMembers[0].name") { value(testAccount.name) }
+                    jsonPath("$.teamMembers[0].email") { value(testAccount.email) }
+                    jsonPath("$.teamMembers[0].bio") { value(testAccount.bio) }
+                    jsonPath("$.teamMembers[0].birthDate") { value(testAccount.birthDate.toJson()) }
+                    jsonPath("$.teamMembers[0].photoPath") { value(testAccount.photoPath) }
+                    jsonPath("$.teamMembers[0].linkedin") { value(testAccount.linkedin) }
+                    jsonPath("$.teamMembers[0].github") { value(testAccount.github) }
+                    jsonPath("$.teamMembers[0].websites.length()") { value(1) }
+                    jsonPath("$.teamMembers[0].websites[0].url") { value(testAccount.websites[0].url) }
+                    jsonPath("$.teamMembers[0].websites[0].iconPath") { value(testAccount.websites[0].iconPath) }
+                    jsonPath("$.teamMembers[1].name") { value(newAccount.name) }
+                    jsonPath("$.teamMembers[1].email") { value(newAccount.email) }
+                    jsonPath("$.teamMembers[1].bio") { value(newAccount.bio) }
+                    jsonPath("$.teamMembers[1].birthDate") { value(newAccount.birthDate.toJson()) }
+                    jsonPath("$.teamMembers[1].photoPath") { value(newAccount.photoPath) }
+                    jsonPath("$.teamMembers[1].linkedin") { value(newAccount.linkedin) }
+                    jsonPath("$.teamMembers[1].github") { value(newAccount.github) }
+                    jsonPath("$.teamMembers[1].websites.length()") { value(1) }
+                    jsonPath("$.teamMembers[1].websites[0].url") { value(newAccount.websites[0].url) }
+                    jsonPath("$.teamMembers[1].websites[0].iconPath") { value(newAccount.websites[0].iconPath) }
                 }
+        }
+
+        @Test
+        fun `should fail if the team member does not exist`() {
+            mockMvc.put("/projects/${testProject.id}/addTeamMember/1234").andExpect {
+                status { isNotFound() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                jsonPath("$.errors.length()") { value(1) }
+                jsonPath("$.errors[0].message") { value("account not found with id 1234") }
+            }
         }
     }
 
     @EndpointTest
-    @DisplayName("PUT /projects/{projectId}/addTeamMember/{accountId}")
+    @DisplayName("PUT /projects/{projectId}/removeTeamMember/{accountId}")
     inner class RemoveTeamMember {
         val removedAccount = Account(
             "Another test Account",
@@ -510,37 +537,43 @@ internal class ProjectControllerTest @Autowired constructor(
                 repository.save(testProject)
                 @Test
                 fun `should remove a team member`() {
-                    mockMvc.put("/projects/${testProject.id}/removeTeamMember/${testAccount.id}") {
+                    mockMvc.put("/projects/${testProject.id}/removeTeamMember/${testAccount.id}")
+                        .andExpect {
+                            status { isOk() }
+                            content { contentType(MediaType.APPLICATION_JSON) }
+                            jsonPath("$.teamMembers.length()") { value(0) }
+                        }
+                }
+
+                @Test
+                fun `should fail if the team member does not exist`() {
+                    mockMvc.put("/projects/${testProject.id}/removeTeamMember/1234") {
                         contentType = MediaType.APPLICATION_JSON
-                        content = objectMapper.writeValueAsString(testAccount.id)
                     }
-
-                    @Test
-                    fun `should remove a team member`() {
-                        mockMvc.put("/projects/${testProject.id}/removeTeamMember/${testAccount.id}") {
-                            contentType = MediaType.APPLICATION_JSON
+                        .andExpect {
+                            status { isNotFound() }
+                            content { contentType(MediaType.APPLICATION_JSON) }
+                            jsonPath("$.errors.length()") { value(1) }
+                            jsonPath("$.errors[0].message") { value("account not found with id 1234") }
                         }
-                            .andExpect {
-                                status { isOk() }
-                                content { contentType(MediaType.APPLICATION_JSON) }
-                                jsonPath("$.teamMembers.length()") { value(0) }
-                            }
-                    }
+                }
+            }
 
-                    @Test
-                    fun `should fail if the team member does not exist`() {
-                        mockMvc.put("/projects/${testProject.id}/removeTeamMember/1234") {
-                            contentType = MediaType.APPLICATION_JSON
-                        }
-                            .andExpect {
-                                status { isNotFound() }
-                                content { contentType(MediaType.APPLICATION_JSON) }
-                                jsonPath("$.errors.length()") { value(1) }
-                                jsonPath("$.errors[0].message") { value("account not found with id 1234") }
-                            }
-                    }
+            @Test
+            fun `should fail if the team member does not exist`() {
+                mockMvc.put("/projects/${testProject.id}/removeTeamMember/1234").andExpect {
+                    status { isNotFound() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$.errors.length()") { value(1) }
+                    jsonPath("$.errors[0].message") { value("account not found with id 1234") }
                 }
             }
         }
+    }
+
+    fun Date?.toJson(): String {
+        val quotedDate = objectMapper.writeValueAsString(this)
+        // objectMapper adds quotes to the date, so remove them
+        return quotedDate.substring(1, quotedDate.length - 1)
     }
 }

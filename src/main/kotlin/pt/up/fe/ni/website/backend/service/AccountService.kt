@@ -24,6 +24,8 @@ class AccountService(private val repository: AccountRepository, private val enco
     fun getAccountById(id: Long): Account = repository.findByIdOrNull(id)
         ?: throw NoSuchElementException(ErrorMessages.accountNotFound(id))
 
+    fun checkAccountId(id: Long): Boolean = repository.findByIdOrNull(id) != null
+
     fun getAccountByEmail(email: String): Account = repository.findByEmail(email)
         ?: throw NoSuchElementException(ErrorMessages.emailNotFound(email))
 }
