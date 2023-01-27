@@ -154,7 +154,7 @@ class AccountTest {
             Permissions(
                 listOf(
                     Permission.VIEW_ACCOUNT,
-                    Permission.VIEW_ACTIVITY,
+                    Permission.VIEW_ACTIVITY
                 )
             ),
             memberAccount.getEffectivePermissionsForActivity(websiteProject)
