@@ -26,7 +26,7 @@ class Permissions(
     // `1L shl n` returns a number whose binary representation has
     // a single 1 in the `n`-th position
     fun toLong() = fold(0L) { acc, perm ->
-        return@fold acc or (1L shl perm.bit)
+        acc or (1L shl perm.bit)
     }
 
     override fun toString(): String {
