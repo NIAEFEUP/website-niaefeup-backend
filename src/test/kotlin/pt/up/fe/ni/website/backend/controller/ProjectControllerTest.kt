@@ -8,11 +8,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
-import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.delete
-import org.springframework.test.web.servlet.get
-import org.springframework.test.web.servlet.post
-import org.springframework.test.web.servlet.put
+import org.springframework.test.web.servlet.*
 import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.CustomWebsite
 import pt.up.fe.ni.website.backend.model.Project
@@ -33,7 +29,7 @@ internal class ProjectControllerTest @Autowired constructor(
     val repository: ProjectRepository,
     val accountRepository: AccountRepository
 ) {
-    val testAccount = Account(
+    final val testAccount = Account(
         "Test Account",
         "test_account@test.com",
         "test_password",
@@ -159,6 +155,9 @@ internal class ProjectControllerTest @Autowired constructor(
                     jsonPath("$.description") { value(testProject.description) }
                     jsonPath("$.technologies.length()") { value(testProject.technologies.size) }
                     jsonPath("$.technologies[0]") { value(testProject.technologies[0]) }
+                    jsonPath("$.teamMembers.length()") { value(1) }
+                    jsonPath("$.teamMembers[0].email") { value(testAccount.email) }
+                    jsonPath("$.teamMembers[0].name") { value(testAccount.name) }
                 }
         }
 
@@ -427,7 +426,7 @@ internal class ProjectControllerTest @Autowired constructor(
     @DisplayName("PUT /projects/{projectId}/addTeamMember/{accountId}")
     inner class AddTeamMember {
 
-        val newAccount = Account(
+        private val newAccount = Account(
             "Another test Account",
             "test2_account@test.com",
             "test_password",

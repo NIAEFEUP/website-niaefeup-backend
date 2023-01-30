@@ -1,7 +1,5 @@
 package pt.up.fe.ni.website.backend.service
 
-import jakarta.persistence.Inheritance
-import jakarta.persistence.InheritanceType
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import pt.up.fe.ni.website.backend.model.Activity
@@ -9,18 +7,9 @@ import pt.up.fe.ni.website.backend.repository.ActivityRepository
 
 
 @Service
-@Inheritance(strategy = InheritanceType.JOINED)
 class ActivityService(private val repository: ActivityRepository, private val accountService: AccountService) {
     fun getActivityById(id: Long): Activity = repository.findByIdOrNull(id)
         ?: throw NoSuchElementException(ErrorMessages.activityNotFound(id))
-    fun addTeamMembersById(idActivity: Long, idAccounts: MutableList<Long>): Activity {
-        val activity = getActivityById(idActivity)
-        for (idAccount in idAccounts) {
-            val account = accountService.getAccountById(idAccount)
-            activity.teamMembers.add(account)
-        }
-        return repository.save(activity)
-    }
 
     fun addTeamMemberById(idActivity: Long, idAccount: Long): Activity {
         val activity = getActivityById(idActivity)
@@ -31,11 +20,7 @@ class ActivityService(private val repository: ActivityRepository, private val ac
 
     fun removeTeamMemberById(idActivity: Long, idAccount: Long): Activity {
         val activity = getActivityById(idActivity)
-        if (!accountService.checkAccountId(idAccount)) throw NoSuchElementException(
-            ErrorMessages.accountNotFound(
-                idAccount
-            )
-        )
+        if (!accountService.doesAccountExist(idAccount)) throw NoSuchElementException(ErrorMessages.accountNotFound(idAccount))
         activity.teamMembers.removeIf { it.id == idAccount }
         return repository.save(activity)
     }

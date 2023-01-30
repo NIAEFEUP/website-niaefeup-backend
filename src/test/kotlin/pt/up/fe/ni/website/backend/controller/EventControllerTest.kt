@@ -3,7 +3,6 @@ package pt.up.fe.ni.website.backend.controller
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.hamcrest.CoreMatchers.containsString
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -32,7 +31,7 @@ internal class EventControllerTest @Autowired constructor(
     val repository: EventRepository,
     val accountRepository: AccountRepository
 ) {
-    val testAccount = Account(
+    final val testAccount = Account(
         "Test Account",
         "test_account@test.com",
         "test_password",
@@ -102,7 +101,7 @@ internal class EventControllerTest @Autowired constructor(
                         "title" to testEvent.title,
                         "description" to testEvent.description,
                         "date" to testEvent.date,
-                        "teamMembersIds" to mutableListOf(testAccount.id!!),
+                        "teamMembersIds" to mutableListOf(testAccount.id!!)
                     )
                 )
             }
@@ -113,8 +112,9 @@ internal class EventControllerTest @Autowired constructor(
                     jsonPath("$.description") { value(testEvent.description) }
                     jsonPath("$.registerUrl") { value(testEvent.registerUrl) }
                     jsonPath("$.date") { value(containsString("28-07-2022")) }
-                    jsonPath("$.teamMembers") { value(testEvent.teamMembers) }
-
+                    jsonPath("$.teamMembers.length()") { value(1) }
+                    jsonPath("$.teamMembers[0].email") { value(testAccount.email) }
+                    jsonPath("$.teamMembers[0].name") { value(testAccount.name) }
                 }
         }
 
@@ -204,7 +204,7 @@ internal class EventControllerTest @Autowired constructor(
     @DisplayName("PUT /events/{eventId}/addTeamMember/{accountId}")
     inner class AddTeamMember {
 
-        val newAccount = Account(
+        private val newAccount = Account(
             "Another test Account",
             "test2_account@test.com",
             "test_password",

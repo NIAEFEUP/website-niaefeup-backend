@@ -7,7 +7,6 @@ import pt.up.fe.ni.website.backend.model.Event
 import pt.up.fe.ni.website.backend.repository.EventRepository
 
 
-
 @Service
 class EventService(private val repository: EventRepository, private val accountService: AccountService) {
     fun getAllEvents(): List<Event> = repository.findAll().toList()
@@ -17,6 +16,12 @@ class EventService(private val repository: EventRepository, private val accountS
 
     fun createEvent(dto: EventDto): Event {
         val event = dto.create()
+
+        dto.teamMembersIds?.forEach {
+            val account = accountService.getAccountById(it)
+            event.teamMembers.add(account)
+        }
+
         return repository.save(event)
     }
 }
