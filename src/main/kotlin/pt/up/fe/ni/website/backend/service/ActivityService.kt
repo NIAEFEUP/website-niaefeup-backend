@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service
 import pt.up.fe.ni.website.backend.model.Activity
 import pt.up.fe.ni.website.backend.repository.ActivityRepository
 
-
 @Service
 class ActivityService(private val repository: ActivityRepository, private val accountService: AccountService) {
     fun getActivityById(id: Long): Activity = repository.findByIdOrNull(id)

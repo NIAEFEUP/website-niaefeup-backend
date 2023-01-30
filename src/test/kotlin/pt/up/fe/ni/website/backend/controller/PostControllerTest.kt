@@ -9,11 +9,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
-import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.delete
-import org.springframework.test.web.servlet.get
-import org.springframework.test.web.servlet.post
-import org.springframework.test.web.servlet.put
+import org.springframework.test.web.servlet.*
 import pt.up.fe.ni.website.backend.model.Post
 import pt.up.fe.ni.website.backend.repository.PostRepository
 import pt.up.fe.ni.website.backend.utils.ValidationTester
@@ -21,7 +17,7 @@ import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
 import pt.up.fe.ni.website.backend.utils.annotations.EndpointTest
 import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
 import java.text.SimpleDateFormat
-import java.util.Date
+import java.util.*
 import pt.up.fe.ni.website.backend.model.constants.PostConstants as Constants
 
 @ControllerTest
@@ -314,7 +310,7 @@ internal class PostControllerTest @Autowired constructor(
                     mapOf(
                         "title" to newTitle,
                         "body" to newBody,
-                        "thumbnailPath" to newThumbnailPath,
+                        "thumbnailPath" to newThumbnailPath
                     )
                 )
             }

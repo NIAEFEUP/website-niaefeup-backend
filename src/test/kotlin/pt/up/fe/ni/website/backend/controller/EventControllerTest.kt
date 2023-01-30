@@ -21,7 +21,8 @@ import pt.up.fe.ni.website.backend.utils.ValidationTester
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
 import pt.up.fe.ni.website.backend.utils.annotations.EndpointTest
 import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
-import java.util.*
+import java.util.Calendar
+import java.util.Date
 import pt.up.fe.ni.website.backend.model.constants.ActivityConstants as Constants
 
 @ControllerTest

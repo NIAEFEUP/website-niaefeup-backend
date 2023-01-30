@@ -38,7 +38,6 @@ class ProjectService(private val repository: ProjectRepository, private val acco
         return repository.save(newProject)
     }
 
-
     fun deleteProjectById(id: Long): Map<String, String> {
         if (!repository.existsById(id)) {
             throw NoSuchElementException(ErrorMessages.projectNotFound(id))
