@@ -30,14 +30,15 @@ abstract class Activity(
     @OneToMany(fetch = FetchType.EAGER)
     open val teamMembers: MutableList<Account>,
 
+    @JoinColumn // TODO: Handle relationship
     @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
     open val associatedRoles: MutableList<@Valid PerActivityRole>,
 
-    @Id
-    @GeneratedValue
-    open val id: Long? = null,
-
     @Column(unique = true)
     @field:Size(min = Constants.Slug.minSize, max = Constants.Slug.maxSize)
-    open val slug: String? = null
+    open val slug: String? = null,
+
+    @Id
+    @GeneratedValue
+    open val id: Long? = null
 )

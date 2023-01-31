@@ -12,7 +12,8 @@ class GetGenerationDtoTest {
 
     @BeforeEach
     fun setup() {
-        testGeneration = Generation("22/23", mutableListOf())
+        testGeneration = Generation("22/23")
+        testGeneration.roles = mutableListOf()
     }
 
     @Test
@@ -210,8 +211,16 @@ class GetGenerationDtoTest {
         assert(actual == expected)
     }
 
-    private fun buildTestRole(name: String, isSection: Boolean, accounts: MutableList<Account> = mutableListOf()) =
-        Role(name, Permissions(emptySet()), isSection, accounts, mutableListOf(), testGeneration)
+    private fun buildTestRole(
+        name: String,
+        isSection: Boolean,
+        accounts: MutableList<Account> = mutableListOf()
+    ): Role {
+        val role = Role(name, Permissions(emptySet()), isSection, accounts)
+        role.perActivities = mutableListOf()
+        role.generation = testGeneration
+        return role
+    }
 
     private fun buildTestAccount(name: String, roles: MutableList<Role>) = Account(
         name, "email", "password", null, null,

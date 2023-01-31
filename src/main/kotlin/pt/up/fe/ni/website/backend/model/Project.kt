@@ -14,4 +14,4 @@ class Project(
     val technologies: List<String> = emptyList(),
 
     id: Long? = null
-) : Activity(title, description, teamMembers, associatedRoles, id, slug)
+) : Activity(title, description, teamMembers, associatedRoles, slug, id)

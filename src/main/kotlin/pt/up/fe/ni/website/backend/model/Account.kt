@@ -1,5 +1,6 @@
 package pt.up.fe.ni.website.backend.model
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
@@ -60,6 +61,7 @@ class Account(
 
     @JoinColumn
     @ManyToMany
+    @JsonIgnore // TODO: Handle relationship with IDs
     val roles: MutableList<@Valid Role> = mutableListOf(),
 
     @Id @GeneratedValue

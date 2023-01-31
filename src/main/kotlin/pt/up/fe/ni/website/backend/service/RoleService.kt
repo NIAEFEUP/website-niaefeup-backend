@@ -12,7 +12,7 @@ import pt.up.fe.ni.website.backend.repository.RoleRepository
 @Service
 class RoleService(
     private val roleRepository: RoleRepository,
-    private val perActivityRoleRepository: PerActivityRoleRepository
+    private val perActivityRoleRepository: PerActivityRoleRepository,
 ) {
 
     fun grantPermissionToRole(role: Role, permission: Permission) {
@@ -27,8 +27,9 @@ class RoleService(
 
     fun grantPermissionToRoleOnActivity(role: Role, activity: Activity, permission: Permission) {
         val foundActivity = activity.associatedRoles
-            .find { it.role == role } ?: PerActivityRole(role, activity, Permissions())
+            .find { it.activity == activity } ?: PerActivityRole(activity, Permissions())
 
+        foundActivity.role = role
         foundActivity.permissions.add(permission)
         perActivityRoleRepository.save(foundActivity)
     }

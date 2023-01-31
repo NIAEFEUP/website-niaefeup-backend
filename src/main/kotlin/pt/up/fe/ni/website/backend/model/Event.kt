@@ -39,4 +39,4 @@ class Event(
     val thumbnailPath: String,
 
     id: Long? = null
-) : Activity(title, description, teamMembers, associatedRoles, id, slug)
+) : Activity(title, description, teamMembers, associatedRoles, slug, id)

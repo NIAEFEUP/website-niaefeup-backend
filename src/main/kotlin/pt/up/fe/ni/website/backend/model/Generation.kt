@@ -1,5 +1,6 @@
 package pt.up.fe.ni.website.backend.model
 
+import com.fasterxml.jackson.annotation.JsonManagedReference
 import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
@@ -17,12 +18,13 @@ class Generation(
     @JsonProperty(required = true)
     @Column(unique = true)
     @field:SchoolYear
-    val schoolYear: String,
-
-    @JoinColumn
-    @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
-    val roles: MutableList<@Valid Role>,
+    var schoolYear: String,
 
     @Id @GeneratedValue
     val id: Long? = null
-)
+) {
+    @JoinColumn
+    @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
+    @JsonManagedReference
+    var roles: MutableList<@Valid Role> = mutableListOf()
+}

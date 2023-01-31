@@ -1,9 +1,12 @@
 package pt.up.fe.ni.website.backend.model
 
+import com.fasterxml.jackson.annotation.JsonBackReference
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonManagedReference
 import com.fasterxml.jackson.annotation.JsonProperty
-import jakarta.persistence.Column
 import jakarta.persistence.Convert
 import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
@@ -17,7 +20,6 @@ import pt.up.fe.ni.website.backend.model.permissions.PermissionsConverter
 @Entity
 class Role(
     @JsonProperty(required = true)
-    @Column(unique = true)
     var name: String,
 
     @JsonProperty(required = true)
@@ -29,18 +31,21 @@ class Role(
 
     @JoinColumn
     @ManyToMany
-    var accounts: MutableList<@Valid Account> = mutableListOf(),
-
-    @JoinColumn
-    @OneToMany
-    var associatedActivities: MutableList<@Valid PerActivityRole> = mutableListOf(),
-
-    @JoinColumn
-    @ManyToOne
-    val generation: Generation,
+    @JsonIgnore // TODO: Handle relationship with IDs
+    val accounts: MutableList<@Valid Account> = mutableListOf(),
 
     @JsonProperty(required = true)
     @Id
     @GeneratedValue
     val id: Long? = null
-)
+) {
+    @JoinColumn
+    @OneToMany(fetch = FetchType.EAGER)
+    @JsonManagedReference
+    var associatedActivities: MutableList<@Valid PerActivityRole> = mutableListOf()
+
+    @JoinColumn
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonBackReference
+    lateinit var generation: Generation
+}
