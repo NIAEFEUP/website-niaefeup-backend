@@ -5,7 +5,7 @@ import jakarta.persistence.Embeddable
 import pt.up.fe.ni.website.backend.annotations.validation.ValidDateInterval
 import java.util.Date
 
-@ValidDateInterval(startDate = "startDate", endDate = "endDate")
+@ValidDateInterval
 @Embeddable
 class DateInterval(
     @JsonProperty(required = true)
