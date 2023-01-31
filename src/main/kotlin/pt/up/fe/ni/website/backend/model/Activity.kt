@@ -1,5 +1,6 @@
 package pt.up.fe.ni.website.backend.model
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
@@ -30,9 +31,9 @@ abstract class Activity(
     @OneToMany(fetch = FetchType.EAGER)
     open val teamMembers: MutableList<Account>,
 
-    @JoinColumn // TODO: Handle relationship
-    @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
-    open val associatedRoles: MutableList<@Valid PerActivityRole>,
+    @OneToMany(cascade = [CascadeType.ALL])
+    @JsonIgnore // TODO: Decide if we want to return perRoles (or IDs) by default
+    open val associatedRoles: MutableList<@Valid PerActivityRole> = mutableListOf(),
 
     @Column(unique = true)
     @field:Size(min = Constants.Slug.minSize, max = Constants.Slug.maxSize)

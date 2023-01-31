@@ -26,5 +26,5 @@ class Generation(
     @JoinColumn
     @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
     @JsonManagedReference
-    var roles: MutableList<@Valid Role> = mutableListOf()
+    val roles: MutableList<@Valid Role> = mutableListOf()
 }

@@ -1,7 +1,6 @@
 package pt.up.fe.ni.website.backend.model
 
 import com.fasterxml.jackson.annotation.JsonBackReference
-import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.Convert
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -14,8 +13,7 @@ import pt.up.fe.ni.website.backend.model.permissions.PermissionsConverter
 @Entity
 class PerActivityRole(
     @JoinColumn
-    @ManyToOne
-    @JsonIgnore // TODO: Handle relationship
+    @ManyToOne // TODO: Perhaps change to sending only ID
     var activity: Activity,
 
     @field:Convert(converter = PermissionsConverter::class)

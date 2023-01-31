@@ -61,7 +61,7 @@ class Account(
 
     @JoinColumn
     @ManyToMany
-    @JsonIgnore // TODO: Handle relationship with IDs
+    @JsonIgnore // TODO: Decide if we want to return roles (or IDs) by default
     val roles: MutableList<@Valid Role> = mutableListOf(),
 
     @Id @GeneratedValue

@@ -13,7 +13,6 @@ class GetGenerationDtoTest {
     @BeforeEach
     fun setup() {
         testGeneration = Generation("22/23")
-        testGeneration.roles = mutableListOf()
     }
 
     @Test
@@ -217,7 +216,6 @@ class GetGenerationDtoTest {
         accounts: MutableList<Account> = mutableListOf()
     ): Role {
         val role = Role(name, Permissions(emptySet()), isSection, accounts)
-        role.perActivities = mutableListOf()
         role.generation = testGeneration
         return role
     }
