@@ -11,6 +11,7 @@ import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.OneToMany
 import jakarta.validation.Valid
+import pt.up.fe.ni.website.backend.annotations.validation.NoDuplicateRoles
 import pt.up.fe.ni.website.backend.annotations.validation.SchoolYear
 
 @Entity
@@ -26,5 +27,6 @@ class Generation(
     @JoinColumn
     @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
     @JsonManagedReference
+    @field:NoDuplicateRoles
     val roles: MutableList<@Valid Role> = mutableListOf()
 }
