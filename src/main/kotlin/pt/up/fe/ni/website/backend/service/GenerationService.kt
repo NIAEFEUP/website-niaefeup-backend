@@ -11,6 +11,7 @@ import pt.up.fe.ni.website.backend.model.Generation
 import pt.up.fe.ni.website.backend.repository.GenerationRepository
 
 @Service
+@Transactional
 class GenerationService(
     private val repository: GenerationRepository,
     private val accountService: AccountService,
@@ -37,7 +38,6 @@ class GenerationService(
         return buildGetGenerationDto(generation)
     }
 
-    @Transactional
     fun createNewGeneration(dto: GenerationDto): Generation {
         repository.findBySchoolYear(dto.schoolYear)?.let {
             throw IllegalArgumentException(ErrorMessages.generationAlreadyExists)
