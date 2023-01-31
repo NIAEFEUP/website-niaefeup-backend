@@ -1,5 +1,6 @@
 package pt.up.fe.ni.website.backend.service
 
+import jakarta.transaction.Transactional
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import pt.up.fe.ni.website.backend.dto.entity.GenerationDto
@@ -10,7 +11,11 @@ import pt.up.fe.ni.website.backend.model.Generation
 import pt.up.fe.ni.website.backend.repository.GenerationRepository
 
 @Service
-class GenerationService(private val repository: GenerationRepository) {
+class GenerationService(
+    private val repository: GenerationRepository,
+    private val accountService: AccountService,
+    private val projectService: ProjectService
+) {
 
     fun getAllGenerations(): List<String> = repository.findAllSchoolYear()
 
@@ -32,12 +37,33 @@ class GenerationService(private val repository: GenerationRepository) {
         return buildGetGenerationDto(generation)
     }
 
+    @Transactional
     fun createNewGeneration(dto: GenerationDto): Generation {
         repository.findBySchoolYear(dto.schoolYear)?.let {
             throw IllegalArgumentException(ErrorMessages.generationAlreadyExists)
         }
 
         val generation = dto.create()
+
+        generation.roles.forEachIndexed { roleIdx, role ->
+            val roleDto = dto.roles[roleIdx]
+
+            roleDto.accountIds.forEach {
+                val account = accountService.getAccountById(it)
+
+                role.accounts.add(account)
+                account.roles.add(role)
+            }
+
+            role.perActivities.forEachIndexed { perActivityRoleIdx, perActivityRole ->
+                val activityId = roleDto.perActivities[perActivityRoleIdx].activityId
+                val activity = projectService.getProjectById(activityId) // TODO: Use activity service once PR is merged
+
+                perActivityRole.activity = activity
+                activity.perRoles.add(perActivityRole)
+            }
+        }
+
         return repository.save(generation)
     }
 

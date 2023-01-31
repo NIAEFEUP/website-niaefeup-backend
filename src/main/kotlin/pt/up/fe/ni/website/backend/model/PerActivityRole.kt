@@ -12,16 +12,16 @@ import pt.up.fe.ni.website.backend.model.permissions.PermissionsConverter
 
 @Entity
 class PerActivityRole(
-    @JoinColumn
-    @ManyToOne // TODO: Perhaps change to sending only ID
-    var activity: Activity,
-
     @field:Convert(converter = PermissionsConverter::class)
     var permissions: Permissions,
 
     @Id @GeneratedValue
     var id: Long? = null
 ) {
+    @JoinColumn
+    @ManyToOne // TODO: Perhaps change to sending only ID
+    lateinit var activity: Activity
+
     @JoinColumn
     @ManyToOne
     @JsonBackReference

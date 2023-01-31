@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonManagedReference
 import com.fasterxml.jackson.annotation.JsonProperty
+import jakarta.persistence.CascadeType
 import jakarta.persistence.Convert
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
@@ -40,7 +41,7 @@ class Role(
     val id: Long? = null
 ) {
     @JoinColumn
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
     @JsonManagedReference
     var associatedActivities: MutableList<@Valid PerActivityRole> = mutableListOf()
 
