@@ -15,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.annotation.DirtiesContext
+import org.springframework.test.context.NestedTestConfiguration
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.get
@@ -39,7 +40,8 @@ internal class PostControllerTest @Autowired constructor(
     val testPost = Post(
         "New test released",
         "this is a test post",
-        "https://thumbnails/test.png"
+        "https://thumbnails/test.png",
+        slug = "new-test-released"
     )
 
     @Nested
@@ -73,7 +75,7 @@ internal class PostControllerTest @Autowired constructor(
     @Nested
     @DisplayName("GET /posts/{postId}")
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-    inner class GetPost {
+    inner class GetPostById {
         @BeforeAll
         fun addPost() {
             repository.save(testPost)
@@ -105,8 +107,48 @@ internal class PostControllerTest @Autowired constructor(
     }
 
     @Nested
+    @DisplayName("GET /posts/{postSlug}")
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    inner class GetPostBySlug {
+        @BeforeAll
+        fun addPost() {
+            repository.save(testPost)
+        }
+
+        @Test
+        fun `should return the post`() {
+            mockMvc.get("/posts/${testPost.slug}")
+                .andExpect {
+                    status { isOk() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$.id") { value(testPost.id) }
+                    jsonPath("$.title") { value(testPost.title) }
+                    jsonPath("$.body") { value(testPost.body) }
+                    jsonPath("$.thumbnailPath") { value(testPost.thumbnailPath) }
+                    jsonPath("$.publishDate") { value(testPost.publishDate.toJson()) }
+                    jsonPath("$.lastUpdatedAt") { value(testPost.lastUpdatedAt.toJson(true)) }
+                }
+        }
+
+        @Test
+        fun `should fail if the post does not exist`() {
+            mockMvc.get("/posts/fail-slug").andExpect {
+                status { isNotFound() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                jsonPath("$.errors.length()") { value(1) }
+                jsonPath("$.errors[0].message") { value("post not found with slug fail-slug") }
+            }
+        }
+    }
+
+    @Nested
     @DisplayName("POST /posts/new")
     inner class CreatePost {
+        @BeforeEach
+        fun clearPosts() {
+            repository.deleteAll()
+        }
+
         @Test
         fun `should create a new post`() {
             mockMvc.post("/posts/new") {
@@ -121,7 +163,26 @@ internal class PostControllerTest @Autowired constructor(
                     jsonPath("$.thumbnailPath") { value(testPost.thumbnailPath) }
                     jsonPath("$.publishDate") { exists() }
                     jsonPath("$.lastUpdatedAt") { exists() }
+                    jsonPath("$.slug") { value(testPost.slug) }
                 }
+        }
+
+        @Test
+        fun `should fail to create post with existing slug`() {
+            mockMvc.post("/posts/new") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(testPost)
+            }.andExpect { status { isOk() } }
+
+            mockMvc.post("/posts/new") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(testPost)
+            }.andExpect {
+                status { isUnprocessableEntity() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                jsonPath("$.errors.length()") { value(1) }
+                jsonPath("$.errors[0].message") { value("slug already exists") }
+            }
         }
 
         @Nested
@@ -142,6 +203,7 @@ internal class PostControllerTest @Autowired constructor(
             )
 
             @Nested
+            @NestedTestConfiguration(NestedTestConfiguration.EnclosingConfiguration.OVERRIDE)
             @DisplayName("title")
             @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class TitleValidation {
@@ -159,6 +221,7 @@ internal class PostControllerTest @Autowired constructor(
             }
 
             @Nested
+            @NestedTestConfiguration(NestedTestConfiguration.EnclosingConfiguration.OVERRIDE)
             @DisplayName("body")
             @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class BodyValidation {
@@ -189,6 +252,21 @@ internal class PostControllerTest @Autowired constructor(
 
                 @Test
                 fun `should not be empty`() = validationTester.isNotEmpty()
+            }
+
+            @Nested
+            @NestedTestConfiguration(NestedTestConfiguration.EnclosingConfiguration.OVERRIDE)
+            @DisplayName("slug")
+            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+            inner class SlugValidation {
+                @BeforeAll
+                fun setParam() {
+                    validationTester.param = "slug"
+                }
+
+                @Test
+                @DisplayName("size should be between ${Constants.Slug.minSize} and ${Constants.Slug.maxSize}()")
+                fun size() = validationTester.hasSizeBetween(Constants.Slug.minSize, Constants.Slug.maxSize)
             }
         }
     }
@@ -225,14 +303,25 @@ internal class PostControllerTest @Autowired constructor(
 
     @Nested
     @DisplayName("PUT /posts/{postId}")
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class UpdatePost {
-        @BeforeEach
+        @BeforeAll
         fun addPost() {
             repository.save(testPost)
+            repository.save(
+                Post(
+                    "New test released",
+                    "this is a test post",
+                    "https://thumbnails/test.png",
+                    slug = "duplicated-slug"
+                )
+            )
         }
 
+        private var updatedSlug = testPost.slug
+
         @Test
-        fun `should update the post`() {
+        fun `should update the post without the slug`() {
             val newTitle = "New Title"
             val newBody = "New Body of the post"
             val newThumbnailPath = "https://thumbnails/new.png"
@@ -243,7 +332,7 @@ internal class PostControllerTest @Autowired constructor(
                     mapOf(
                         "title" to newTitle,
                         "body" to newBody,
-                        "thumbnailPath" to newThumbnailPath
+                        "thumbnailPath" to newThumbnailPath,
                     )
                 )
             }
@@ -255,6 +344,7 @@ internal class PostControllerTest @Autowired constructor(
                     jsonPath("$.thumbnailPath") { value(newThumbnailPath) }
                     jsonPath("$.publishDate") { value(testPost.publishDate.toJson()) }
                     jsonPath("$.lastUpdatedAt") { exists() }
+                    jsonPath("$.slug") { value(updatedSlug) }
                 }
 
             val updatedPost = repository.findById(testPost.id!!).get()
@@ -263,6 +353,45 @@ internal class PostControllerTest @Autowired constructor(
             assertEquals(newThumbnailPath, updatedPost.thumbnailPath)
             assertEquals(testPost.publishDate, updatedPost.publishDate)
             assertNotEquals(testPost.lastUpdatedAt, updatedPost.lastUpdatedAt)
+            assertEquals(updatedSlug, updatedPost.slug)
+        }
+
+        @Test
+        fun `should update the post with the slug`() {
+            val newTitle = "New Title"
+            val newBody = "New Body of the post"
+            val newThumbnailPath = "https://thumbnails/new.png"
+            updatedSlug = "new-slug"
+
+            mockMvc.put("/posts/${testPost.id}") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(
+                    mapOf(
+                        "title" to newTitle,
+                        "body" to newBody,
+                        "thumbnailPath" to newThumbnailPath,
+                        "slug" to updatedSlug
+                    )
+                )
+            }
+                .andExpect {
+                    status { isOk() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$.title") { value(newTitle) }
+                    jsonPath("$.body") { value(newBody) }
+                    jsonPath("$.thumbnailPath") { value(newThumbnailPath) }
+                    jsonPath("$.publishDate") { value(testPost.publishDate.toJson()) }
+                    jsonPath("$.lastUpdatedAt") { exists() }
+                    jsonPath("$.slug") { value(updatedSlug) }
+                }
+
+            val updatedPost = repository.findById(testPost.id!!).get()
+            assertEquals(newTitle, updatedPost.title)
+            assertEquals(newBody, updatedPost.body)
+            assertEquals(newThumbnailPath, updatedPost.thumbnailPath)
+            assertEquals(testPost.publishDate, updatedPost.publishDate)
+            assertNotEquals(testPost.lastUpdatedAt, updatedPost.lastUpdatedAt)
+            assertEquals(updatedSlug, updatedPost.slug)
         }
 
         @Test
@@ -285,6 +414,32 @@ internal class PostControllerTest @Autowired constructor(
                 }
         }
 
+        @Test
+        fun `should fail if the slug already exist`() {
+            val newTitle = "New Title"
+            val newBody = "New Body of the post"
+            val newThumbnailPath = "https://thumbnails/new.png"
+            val newSlug = "duplicated-slug"
+
+            mockMvc.put("/posts/${testPost.id}") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(
+                    mapOf(
+                        "title" to newTitle,
+                        "body" to newBody,
+                        "thumbnailPath" to newThumbnailPath,
+                        "slug" to newSlug
+                    )
+                )
+            }
+                .andExpect {
+                    status { isUnprocessableEntity() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$.errors.length()") { value(1) }
+                    jsonPath("$.errors[0].message") { value("slug already exists") }
+                }
+        }
+
         @Nested
         @DisplayName("Input Validation")
         inner class InputValidation {
@@ -303,6 +458,7 @@ internal class PostControllerTest @Autowired constructor(
             )
 
             @Nested
+            @NestedTestConfiguration(NestedTestConfiguration.EnclosingConfiguration.OVERRIDE)
             @DisplayName("title")
             @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class TitleValidation {
@@ -320,6 +476,7 @@ internal class PostControllerTest @Autowired constructor(
             }
 
             @Nested
+            @NestedTestConfiguration(NestedTestConfiguration.EnclosingConfiguration.OVERRIDE)
             @DisplayName("body")
             @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class BodyValidation {
@@ -337,6 +494,7 @@ internal class PostControllerTest @Autowired constructor(
             }
 
             @Nested
+            @NestedTestConfiguration(NestedTestConfiguration.EnclosingConfiguration.OVERRIDE)
             @DisplayName("thumbnailPath")
             @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class ThumbnailValidation {
@@ -350,6 +508,21 @@ internal class PostControllerTest @Autowired constructor(
 
                 @Test
                 fun `should not be empty`() = validationTester.isNotEmpty()
+            }
+
+            @Nested
+            @NestedTestConfiguration(NestedTestConfiguration.EnclosingConfiguration.OVERRIDE)
+            @DisplayName("slug")
+            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+            inner class SlugValidation {
+                @BeforeAll
+                fun setParam() {
+                    validationTester.param = "slug"
+                }
+
+                @Test
+                @DisplayName("size should be between ${Constants.Slug.minSize} and ${Constants.Slug.maxSize}()")
+                fun size() = validationTester.hasSizeBetween(Constants.Slug.minSize, Constants.Slug.maxSize)
             }
         }
     }
