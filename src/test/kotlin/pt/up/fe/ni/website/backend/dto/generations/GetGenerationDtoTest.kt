@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test
 import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.Generation
 import pt.up.fe.ni.website.backend.model.Role
-import pt.up.fe.ni.website.backend.permissions.Permissions
+import pt.up.fe.ni.website.backend.model.permissions.Permissions
 
 class GetGenerationDtoTest {
     private lateinit var testGeneration: Generation

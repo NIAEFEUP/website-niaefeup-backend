@@ -11,5 +11,5 @@ class RoleDto(
     val isSection: Boolean,
 
     val accountIds: List<Long> = emptyList(),
-    val perActivities: List<PerActivityRoleDto>
+    val associatedActivities: List<PerActivityRoleDto>
 ) : EntityDto<Role>()

@@ -55,12 +55,12 @@ class GenerationService(
                 account.roles.add(role)
             }
 
-            role.perActivities.forEachIndexed { perActivityRoleIdx, perActivityRole ->
-                val activityId = roleDto.perActivities[perActivityRoleIdx].activityId
+            role.associatedActivities.forEachIndexed { activityRoleIdx, activityRole ->
+                val activityId = roleDto.associatedActivities[activityRoleIdx].activityId
                 val activity = projectService.getProjectById(activityId) // TODO: Use activity service once PR is merged
 
-                perActivityRole.activity = activity
-                activity.perRoles.add(perActivityRole)
+                activityRole.activity = activity
+                activity.associatedRoles.add(activityRole)
             }
         }
 

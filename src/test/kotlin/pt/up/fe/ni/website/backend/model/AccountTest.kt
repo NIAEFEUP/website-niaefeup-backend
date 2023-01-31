@@ -12,26 +12,26 @@ class AccountTest {
         val memberRole = Role(
             "Membro",
             Permissions(
-                listOf(Permission.VIEW_ACCOUNT, Permission.VIEW_ACTIVITY)
+                listOf(Permission.VIEW_ACCOUNT, Permission.VIEW_ACTIVITY),
             ),
-            true
+            true,
         )
 
         val websiteManagerRole = Role(
             "Website Manager",
             Permissions(),
-            false
+            false,
         )
 
         val websiteDeveloperRole = Role(
             "Website Developer",
             Permissions(),
-            true
+            true,
         )
 
         val websiteProject = Project(
             "NI Website",
-            "NI's website is where everything about NI is shown to the public"
+            "NI's website is where everything about NI is shown to the public",
         )
 
         val managerAccount = Account(
@@ -44,11 +44,11 @@ class AccountTest {
             null,
             null,
             emptyList(),
-            listOf(
+            mutableListOf(
                 memberRole,
                 websiteManagerRole,
-                websiteDeveloperRole
-            )
+                websiteDeveloperRole,
+            ),
         )
 
         val developerAccount = Account(
@@ -61,10 +61,10 @@ class AccountTest {
             null,
             null,
             emptyList(),
-            listOf(
+            mutableListOf(
                 memberRole,
-                websiteDeveloperRole
-            )
+                websiteDeveloperRole,
+            ),
         )
 
         val memberAccount = Account(
@@ -77,53 +77,64 @@ class AccountTest {
             null,
             null,
             emptyList(),
+            mutableListOf(
+                memberRole,
+            ),
+        )
+
+        memberRole.accounts.addAll(
             listOf(
-                memberRole
-            )
+                managerAccount,
+                developerAccount,
+                memberAccount,
+            ),
         )
 
-        memberRole.accounts = listOf(
-            managerAccount,
-            developerAccount,
-            memberAccount
+        websiteManagerRole.accounts.addAll(
+            listOf(
+                managerAccount,
+            ),
         )
-
-        websiteManagerRole.accounts = listOf(
-            managerAccount
-        )
-
-        websiteDeveloperRole.accounts = listOf(
-            managerAccount,
-            developerAccount
+        websiteDeveloperRole.accounts.addAll(
+            listOf(
+                managerAccount,
+                developerAccount,
+            ),
         )
 
         val websiteManagerToProject = PerActivityRole(
-            websiteManagerRole,
-            websiteProject,
             Permissions(
-                listOf(Permission.EDIT_SETTINGS, Permission.DELETE_ACTIVITY)
-            )
+                listOf(Permission.EDIT_SETTINGS, Permission.DELETE_ACTIVITY),
+            ),
         )
+        websiteManagerToProject.role = websiteManagerRole
+        websiteManagerToProject.activity = websiteProject
 
         val websiteDeveloperToProject = PerActivityRole(
-            websiteDeveloperRole,
-            websiteProject,
             Permissions(
-                listOf(Permission.VIEW_ACTIVITY, Permission.EDIT_ACTIVITY)
-            )
+                listOf(Permission.VIEW_ACTIVITY, Permission.EDIT_ACTIVITY),
+            ),
+        )
+        websiteDeveloperToProject.role = websiteDeveloperRole
+        websiteDeveloperToProject.activity = websiteProject
+
+        websiteProject.associatedRoles.addAll(
+            listOf(
+                websiteManagerToProject,
+                websiteDeveloperToProject,
+            ),
         )
 
-        websiteProject.associatedRoles = listOf(
-            websiteManagerToProject,
-            websiteDeveloperToProject
+        websiteManagerRole.associatedActivities.addAll(
+            listOf(
+                websiteManagerToProject,
+            ),
         )
 
-        websiteManagerRole.associatedActivities = listOf(
-            websiteManagerToProject
-        )
-
-        websiteDeveloperRole.associatedActivities = listOf(
-            websiteDeveloperToProject
+        websiteDeveloperRole.associatedActivities.addAll(
+            listOf(
+                websiteDeveloperToProject,
+            ),
         )
 
         Assertions.assertEquals(
@@ -133,10 +144,10 @@ class AccountTest {
                     Permission.VIEW_ACTIVITY,
                     Permission.EDIT_SETTINGS,
                     Permission.DELETE_ACTIVITY,
-                    Permission.EDIT_ACTIVITY
-                )
+                    Permission.EDIT_ACTIVITY,
+                ),
             ),
-            managerAccount.getEffectivePermissionsForActivity(websiteProject)
+            managerAccount.getEffectivePermissionsForActivity(websiteProject),
         )
 
         Assertions.assertEquals(
@@ -144,20 +155,20 @@ class AccountTest {
                 listOf(
                     Permission.VIEW_ACCOUNT,
                     Permission.VIEW_ACTIVITY,
-                    Permission.EDIT_ACTIVITY
-                )
+                    Permission.EDIT_ACTIVITY,
+                ),
             ),
-            developerAccount.getEffectivePermissionsForActivity(websiteProject)
+            developerAccount.getEffectivePermissionsForActivity(websiteProject),
         )
 
         Assertions.assertEquals(
             Permissions(
                 listOf(
                     Permission.VIEW_ACCOUNT,
-                    Permission.VIEW_ACTIVITY
-                )
+                    Permission.VIEW_ACTIVITY,
+                ),
             ),
-            memberAccount.getEffectivePermissionsForActivity(websiteProject)
+            memberAccount.getEffectivePermissionsForActivity(websiteProject),
         )
     }
 }
