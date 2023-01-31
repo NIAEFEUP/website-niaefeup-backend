@@ -2,7 +2,6 @@ package pt.up.fe.ni.website.backend.model
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.persistence.Embedded
-import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotEmpty
@@ -40,8 +39,5 @@ class Event(
     associatedRoles: List<PerActivityRole> = emptyList(),
     id: Long? = null,
 
-    @Column(unique = true)
-    @field:NullOrNotBlank
-    val slug: String? = null
-
-) : Activity(title, description, teamMembers, associatedRoles, id)
+    slug: String? = null
+) : Activity(title, description, teamMembers, associatedRoles, id, slug)
