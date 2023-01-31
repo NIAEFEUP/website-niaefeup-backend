@@ -1,5 +1,6 @@
 package pt.up.fe.ni.website.backend.controller
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.exc.InvalidFormatException
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
@@ -26,7 +27,7 @@ data class CustomError(val errors: List<SimpleError>)
 
 @RestController
 @RestControllerAdvice
-class ErrorController : ErrorController, Logging {
+class ErrorController(private val objectMapper: ObjectMapper) : ErrorController, Logging {
 
     @RequestMapping("/**")
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -41,7 +42,7 @@ class ErrorController : ErrorController, Logging {
                 SimpleError(
                     violation.message,
                     violation.propertyPath.toString(),
-                    violation.invalidValue
+                    violation.invalidValue.takeIf { it.isSerializable() }
                 )
             )
         }
@@ -112,4 +113,11 @@ class ErrorController : ErrorController, Logging {
     fun wrapSimpleError(msg: String, param: String? = null, value: Any? = null) = CustomError(
         mutableListOf(SimpleError(msg, param, value))
     )
+
+    fun Any.isSerializable() = try {
+        objectMapper.writeValueAsString(this)
+        true
+    } catch (err: Exception) {
+        false
+    }
 }
