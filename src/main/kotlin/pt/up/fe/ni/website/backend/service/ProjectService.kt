@@ -39,7 +39,7 @@ class ProjectService(
         val project = getProjectById(id)
 
         repository.findBySlug(dto.slug)?.let {
-            if(it.id != project.id) throw IllegalArgumentException(ErrorMessages.slugAlreadyExists)
+            if (it.id != project.id) throw IllegalArgumentException(ErrorMessages.slugAlreadyExists)
         }
 
         val newProject = dto.update(project)
