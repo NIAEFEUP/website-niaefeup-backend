@@ -43,7 +43,7 @@ class Role(
     @JoinColumn
     @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
     @JsonManagedReference
-    var associatedActivities: MutableList<@Valid PerActivityRole> = mutableListOf()
+    val associatedActivities: MutableList<@Valid PerActivityRole> = mutableListOf()
 
     @JoinColumn
     @ManyToOne(fetch = FetchType.LAZY)

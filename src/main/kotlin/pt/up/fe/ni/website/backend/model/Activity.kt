@@ -21,11 +21,11 @@ import pt.up.fe.ni.website.backend.model.constants.ActivityConstants as Constant
 abstract class Activity(
     @JsonProperty(required = true)
     @field:Size(min = Constants.Title.minSize, max = Constants.Title.maxSize)
-    open val title: String,
+    open var title: String,
 
     @JsonProperty(required = true)
     @field:Size(min = Constants.Description.minSize, max = Constants.Description.maxSize)
-    open val description: String,
+    open var description: String,
 
     @JoinColumn
     @OneToMany(fetch = FetchType.EAGER)

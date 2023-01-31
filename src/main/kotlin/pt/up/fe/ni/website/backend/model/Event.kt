@@ -25,7 +25,7 @@ class Event(
 
     @Embedded
     @field:Valid
-    val dateInterval: DateInterval,
+    var dateInterval: DateInterval,
 
     @field:Size(min = Constants.Location.minSize, max = Constants.Location.maxSize)
     val location: String?,

@@ -16,7 +16,7 @@ class PerActivityRole(
     var permissions: Permissions,
 
     @Id @GeneratedValue
-    var id: Long? = null
+    val id: Long? = null
 ) {
     @JoinColumn
     @ManyToOne // TODO: Perhaps change to sending only ID
