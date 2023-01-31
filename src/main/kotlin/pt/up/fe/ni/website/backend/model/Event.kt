@@ -41,6 +41,7 @@ class Event(
     id: Long? = null,
 
     @Column(unique = true)
+    @field:NullOrNotBlank
     val slug: String? = null
 
 ) : Activity(title, description, teamMembers, associatedRoles, id)

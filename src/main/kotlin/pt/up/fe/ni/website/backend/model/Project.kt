@@ -2,6 +2,7 @@ package pt.up.fe.ni.website.backend.model
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import pt.up.fe.ni.website.backend.annotations.validation.NullOrNotBlank
 
 @Entity
 class Project(
@@ -14,5 +15,6 @@ class Project(
     id: Long? = null,
 
     @Column(unique = true)
+    @field:NullOrNotBlank
     val slug: String? = null
 ) : Activity(title, description, teamMembers, associatedRoles, id)

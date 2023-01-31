@@ -15,6 +15,10 @@ class ProjectService(
     fun getAllProjects(): List<Project> = repository.findAll().toList()
 
     fun createProject(dto: ProjectDto): Project {
+        repository.findBySlug(dto.slug)?.let {
+            throw IllegalArgumentException(ErrorMessages.slugAlreadyExists)
+        }
+
         val project = dto.create()
 
         dto.teamMembersIds?.forEach {
@@ -28,8 +32,16 @@ class ProjectService(
     fun getProjectById(id: Long): Project = repository.findByIdOrNull(id)
         ?: throw NoSuchElementException(ErrorMessages.projectNotFound(id))
 
+    fun getProjectBySlug(projectSlug: String): Project = repository.findBySlug(projectSlug)
+        ?: throw NoSuchElementException(ErrorMessages.projectNotFound(projectSlug))
+
     fun updateProjectById(id: Long, dto: ProjectDto): Project {
         val project = getProjectById(id)
+
+        repository.findBySlug(dto.slug)?.let {
+            if(it.id != project.id) throw IllegalArgumentException(ErrorMessages.slugAlreadyExists)
+        }
+
         val newProject = dto.update(project)
         newProject.apply {
             teamMembers.clear()

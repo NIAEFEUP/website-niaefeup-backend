@@ -14,6 +14,10 @@ class EventService(
     fun getAllEvents(): List<Event> = repository.findAll().toList()
 
     fun createEvent(dto: EventDto): Event {
+        repository.findBySlug(dto.slug)?.let {
+            throw IllegalArgumentException(ErrorMessages.slugAlreadyExists)
+        }
+
         val event = dto.create()
 
         dto.teamMembersIds?.forEach {
