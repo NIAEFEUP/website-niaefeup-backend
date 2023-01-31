@@ -30,13 +30,13 @@ class AccountService(private val repository: AccountRepository, private val enco
     fun getAccountByEmail(email: String): Account = repository.findByEmail(email)
         ?: throw NoSuchElementException(ErrorMessages.emailNotFound(email))
 
-    fun changePassword(id: Long, dto: ChangePassDto): Any {
+    fun changePassword(id: Long, dto: ChangePassDto): Map<String, String> {
         val account = getAccountById(id)
         if (encoder.matches(dto.oldPassword, account.password)) {
             account.password = encoder.encode(dto.newPassword)
             repository.save(account)
         } else
             throw IllegalArgumentException(ErrorMessages.incorrectPassword)
-        return Any()
+        return emptyMap()
     }
 }
