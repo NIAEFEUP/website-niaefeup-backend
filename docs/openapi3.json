@@ -1,0 +1,162 @@
+{
+  "openapi" : "3.0.1",
+  "info" : {
+    "title" : "Your title",
+    "description" : "Your description",
+    "version" : "0.1.0"
+  },
+  "servers" : [ {
+    "url" : "http://localhost:8080"
+  } ],
+  "tags" : [ {
+    "name" : "Events",
+    "description" : "Event related operations"
+  } ],
+  "paths" : {
+    "/events" : {
+      "get" : {
+        "tags" : [ "Events" ],
+        "summary" : "Gets all the events.",
+        "description" : "Visiting the events page on the frontend requires all events to be loaded.",
+        "operationId" : "events/GetAllEvents",
+        "responses" : {
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/event-array-response"
+                },
+                "examples" : {
+                  "events/GetAllEvents" : {
+                    "value" : "[{\"title\":\"Great event\",\"description\":\"This was a nice and iconic event\",\"registerUrl\":\"https://docs.google.com/forms\",\"date\":\"28-07-2022\",\"id\":1},{\"title\":\"Bad event\",\"description\":\"This event was a failure\",\"date\":\"27-10-2021\",\"id\":2}]"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/events/new" : {
+      "post" : {
+        "tags" : [ "Events" ],
+        "summary" : "Creates a new event.",
+        "description" : "It is necessary to create new events, as the nucleus is very active",
+        "operationId" : "events/CreateEvent",
+        "requestBody" : {
+          "content" : {
+            "application/json;charset=UTF-8" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/event-request"
+              },
+              "examples" : {
+                "events/CreateEvent" : {
+                  "value" : "{\"title\":\"Great event\",\"description\":\"This was a nice and iconic event\",\"registerUrl\":\"https://docs.google.com/forms\",\"date\":\"28-07-2022\"}"
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/event-response"
+                },
+                "examples" : {
+                  "events/CreateEvent" : {
+                    "value" : "{\"title\":\"Great event\",\"description\":\"This was a nice and iconic event\",\"registerUrl\":\"https://docs.google.com/forms\",\"date\":\"28-07-2022\",\"id\":1}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "event-array-response" : {
+        "title" : "event-array-response",
+        "type" : "array",
+        "items" : {
+          "type" : "object",
+          "properties" : {
+            "date" : {
+              "type" : "string",
+              "description" : "Event date"
+            },
+            "registerUrl" : {
+              "type" : "string",
+              "description" : "Link to the event registration"
+            },
+            "description" : {
+              "type" : "string",
+              "description" : "Event description"
+            },
+            "id" : {
+              "type" : "number",
+              "description" : "Event ID"
+            },
+            "title" : {
+              "type" : "string",
+              "description" : "Event title"
+            }
+          }
+        }
+      },
+      "event-response" : {
+        "title" : "event-response",
+        "type" : "object",
+        "properties" : {
+          "date" : {
+            "type" : "string",
+            "description" : "Event date"
+          },
+          "registerUrl" : {
+            "type" : "string",
+            "description" : "Link to the event registration"
+          },
+          "description" : {
+            "type" : "string",
+            "description" : "Event description"
+          },
+          "id" : {
+            "type" : "number",
+            "description" : "Event ID"
+          },
+          "title" : {
+            "type" : "string",
+            "description" : "Event title"
+          }
+        }
+      },
+      "event-request" : {
+        "title" : "event-request",
+        "type" : "object",
+        "properties" : {
+          "date" : {
+            "type" : "string",
+            "description" : "Event date"
+          },
+          "registerUrl" : {
+            "type" : "string",
+            "description" : "Link to the event registration"
+          },
+          "description" : {
+            "type" : "string",
+            "description" : "Event description"
+          },
+          "title" : {
+            "type" : "string",
+            "description" : "Event title"
+          }
+        }
+      }
+    }
+  }
+}

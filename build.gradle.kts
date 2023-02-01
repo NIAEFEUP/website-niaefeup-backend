@@ -7,6 +7,7 @@ plugins {
     kotlin("plugin.spring") version "1.7.21"
     kotlin("plugin.jpa") version "1.7.21"
     id("org.jlleitschuh.gradle.ktlint") version "11.0.0"
+    id("com.epages.restdocs-api-spec") version "0.17.1"
     jacoco
 }
 
@@ -34,6 +35,8 @@ dependencies {
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("com.h2database:h2")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc:3.0.0")
+    testImplementation("com.epages:restdocs-api-spec-mockmvc:0.17.1")
 }
 
 tasks.withType<KotlinCompile> {
@@ -58,4 +61,36 @@ tasks.jacocoTestReport {
         csv.required.set(false)
         html.required.set(false)
     }
+}
+
+configure<com.epages.restdocs.apispec.gradle.OpenApiExtension> { // 2.3
+    host = "localhost:8080"
+    basePath = "/api"
+    title = "My API"
+    description = "My API description"
+    tagDescriptionsPropertiesFile = "src/docs/tag-descriptions.yaml"
+    version = "1.0.0"
+    format = "json"
+}
+
+configure<com.epages.restdocs.apispec.gradle.OpenApi3Extension> {
+    setServer("http://localhost:8080")
+    title = "Your title"
+    description = "Your description"
+    version = "0.1.0"
+    format = "json"
+    tagDescriptionsPropertiesFile = "src/docs/tag-descriptions.yaml"
+}
+
+configure<com.epages.restdocs.apispec.gradle.PostmanExtension> {
+    title = "My API"
+    version = "0.1.0"
+    baseUrl = "https://localhost:8080"
+}
+
+tasks.register<Copy>("copyToDocs") {
+    dependsOn(tasks.named("openapi3"))
+
+    from("${project.buildDir}/api-spec/openapi3.json")
+    destinationDir = File("docs")
 }
