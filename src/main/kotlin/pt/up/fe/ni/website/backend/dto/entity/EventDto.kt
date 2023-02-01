@@ -1,7 +1,7 @@
 package pt.up.fe.ni.website.backend.dto.entity
 
 import pt.up.fe.ni.website.backend.model.Event
-import java.util.*
+import java.util.Date
 
 class EventDto(
     val title: String,
