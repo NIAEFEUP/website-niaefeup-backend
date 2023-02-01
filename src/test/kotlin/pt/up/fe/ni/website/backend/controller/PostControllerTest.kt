@@ -17,7 +17,7 @@ import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
 import pt.up.fe.ni.website.backend.utils.annotations.EndpointTest
 import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
 import pt.up.fe.ni.website.backend.model.constants.PostConstants as Constants
 
 @ControllerTest
