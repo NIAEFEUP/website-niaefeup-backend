@@ -17,7 +17,6 @@ import pt.up.fe.ni.website.backend.model.Project
 import pt.up.fe.ni.website.backend.repository.ProjectRepository
 import pt.up.fe.ni.website.backend.utils.ValidationTester
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
-import pt.up.fe.ni.website.backend.utils.annotations.EndpointTest
 import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
 import pt.up.fe.ni.website.backend.model.constants.ActivityConstants as Constants
 
@@ -34,7 +33,7 @@ internal class ProjectControllerTest @Autowired constructor(
         listOf("Java", "Kotlin", "Spring")
     )
 
-    @EndpointTest
+    @NestedTest
     @DisplayName("GET /projects")
     inner class GetAllProjects {
         private val testProjects = listOf(
@@ -44,10 +43,10 @@ internal class ProjectControllerTest @Autowired constructor(
                 "Job platform for students",
                 false,
                 listOf("ExpressJS", "React")
-            ),
+            )
         )
 
-        @BeforeAll
+        @BeforeEach
         fun addProjects() {
             for (project in testProjects) repository.save(project)
         }
@@ -62,10 +61,10 @@ internal class ProjectControllerTest @Autowired constructor(
         }
     }
 
-    @EndpointTest
+    @NestedTest
     @DisplayName("GET /projects/{projectId}")
     inner class GetProject {
-        @BeforeAll
+        @BeforeEach
         fun addProject() {
             repository.save(testProject)
         }
@@ -93,7 +92,7 @@ internal class ProjectControllerTest @Autowired constructor(
         }
     }
 
-    @EndpointTest
+    @NestedTest
     @DisplayName("POST /projects/new")
     inner class CreateProject {
         @Test
@@ -163,7 +162,7 @@ internal class ProjectControllerTest @Autowired constructor(
         }
     }
 
-    @EndpointTest
+    @NestedTest
     @DisplayName("DELETE /projects/{projectId}")
     inner class DeleteProject {
         @BeforeEach
@@ -193,7 +192,7 @@ internal class ProjectControllerTest @Autowired constructor(
         }
     }
 
-    @EndpointTest
+    @NestedTest
     @DisplayName("PUT /projects/{projectId}")
     inner class UpdateProject {
         @BeforeEach
@@ -301,7 +300,7 @@ internal class ProjectControllerTest @Autowired constructor(
         }
     }
 
-    @EndpointTest
+    @NestedTest
     @DisplayName("PUT /projects/{projectId}/archive")
     inner class ArchiveProject {
         @BeforeEach
@@ -328,7 +327,7 @@ internal class ProjectControllerTest @Autowired constructor(
         }
     }
 
-    @EndpointTest
+    @NestedTest
     @DisplayName("PUT /projects/{projectId}/unarchive")
     inner class UnarchiveProject {
         private val project = Project(
