@@ -20,7 +20,6 @@ import pt.up.fe.ni.website.backend.repository.EventRepository
 import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.ValidationTester
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
-import pt.up.fe.ni.website.backend.utils.annotations.EndpointTest
 import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
 import java.util.Calendar
 import java.util.Date
@@ -46,7 +45,7 @@ internal class EventControllerTest @Autowired constructor(
         "https://example.com/exampleThumbnail"
     )
 
-    @EndpointTest
+    @NestedTest
     @DisplayName("GET /events")
     inner class GetAllEvents {
         private val testEvents = listOf(
@@ -57,7 +56,7 @@ internal class EventControllerTest @Autowired constructor(
                 null,
                 DateInterval(
                     TestUtils.createDate(2021, Calendar.OCTOBER, 27),
-                    null,
+                    null
                 ),
                 null,
                 null,
@@ -66,7 +65,7 @@ internal class EventControllerTest @Autowired constructor(
             )
         )
 
-        @BeforeAll
+        @BeforeEach
         fun addEvents() {
             for (event in testEvents) repository.save(event)
         }
@@ -82,10 +81,10 @@ internal class EventControllerTest @Autowired constructor(
         }
     }
 
-    @EndpointTest
+    @NestedTest
     @DisplayName("GET /events/{id}")
     inner class GetEvent {
-        @BeforeAll
+        @BeforeEach
         fun addEvent() {
             repository.save(testEvent)
         }
@@ -118,7 +117,7 @@ internal class EventControllerTest @Autowired constructor(
         }
     }
 
-    @EndpointTest
+    @NestedTest
     @DisplayName("GET events/category/{category}")
     inner class GetEventsByCategory {
         private val testEvents = listOf(
@@ -129,7 +128,7 @@ internal class EventControllerTest @Autowired constructor(
                 null,
                 DateInterval(
                     TestUtils.createDate(2021, Calendar.OCTOBER, 27),
-                    null,
+                    null
                 ),
                 null,
                 null,
@@ -142,7 +141,7 @@ internal class EventControllerTest @Autowired constructor(
                 null,
                 DateInterval(
                     TestUtils.createDate(2022, Calendar.JANUARY, 15),
-                    null,
+                    null
                 ),
                 null,
                 null,
@@ -155,7 +154,7 @@ internal class EventControllerTest @Autowired constructor(
                 null,
                 DateInterval(
                     TestUtils.createDate(2022, Calendar.SEPTEMBER, 11),
-                    null,
+                    null
                 ),
                 null,
                 null,
@@ -164,7 +163,7 @@ internal class EventControllerTest @Autowired constructor(
             )
         )
 
-        @BeforeAll
+        @BeforeEach
         fun addEvents() {
             for (event in testEvents) repository.save(event)
         }
@@ -182,7 +181,7 @@ internal class EventControllerTest @Autowired constructor(
         }
     }
 
-    @EndpointTest
+    @NestedTest
     @DisplayName("POST /events/new")
     inner class CreateEvent {
         @Test
@@ -240,7 +239,8 @@ internal class EventControllerTest @Autowired constructor(
 
                 @Test
                 @DisplayName("size should be between ${ActivityConstants.Title.minSize} and ${ActivityConstants.Title.maxSize}()")
-                fun size() = validationTester.hasSizeBetween(ActivityConstants.Title.minSize, ActivityConstants.Title.maxSize)
+                fun size() =
+                    validationTester.hasSizeBetween(ActivityConstants.Title.minSize, ActivityConstants.Title.maxSize)
             }
 
             @NestedTest
@@ -257,7 +257,10 @@ internal class EventControllerTest @Autowired constructor(
                 @Test
                 @DisplayName("size should be between ${ActivityConstants.Description.minSize} and ${ActivityConstants.Description.maxSize}()")
                 fun size() =
-                    validationTester.hasSizeBetween(ActivityConstants.Description.minSize, ActivityConstants.Description.maxSize)
+                    validationTester.hasSizeBetween(
+                        ActivityConstants.Description.minSize,
+                        ActivityConstants.Description.maxSize
+                    )
             }
 
             @NestedTest
@@ -353,7 +356,7 @@ internal class EventControllerTest @Autowired constructor(
         }
     }
 
-    @EndpointTest
+    @NestedTest
     @DisplayName("DELETE /events/{eventId}")
     inner class DeleteEvent {
         @BeforeEach
@@ -383,7 +386,7 @@ internal class EventControllerTest @Autowired constructor(
         }
     }
 
-    @EndpointTest
+    @NestedTest
     @DisplayName("PUT /events/{eventId}")
     inner class UpdateEvent {
         @BeforeEach
@@ -497,7 +500,8 @@ internal class EventControllerTest @Autowired constructor(
 
                 @Test
                 @DisplayName("size should be between ${ActivityConstants.Title.minSize} and ${ActivityConstants.Title.maxSize}()")
-                fun size() = validationTester.hasSizeBetween(ActivityConstants.Title.minSize, ActivityConstants.Title.maxSize)
+                fun size() =
+                    validationTester.hasSizeBetween(ActivityConstants.Title.minSize, ActivityConstants.Title.maxSize)
             }
 
             @NestedTest
@@ -514,7 +518,10 @@ internal class EventControllerTest @Autowired constructor(
                 @Test
                 @DisplayName("size should be between ${ActivityConstants.Description.minSize} and ${ActivityConstants.Description.maxSize}()")
                 fun size() =
-                    validationTester.hasSizeBetween(ActivityConstants.Description.minSize, ActivityConstants.Description.maxSize)
+                    validationTester.hasSizeBetween(
+                        ActivityConstants.Description.minSize,
+                        ActivityConstants.Description.maxSize
+                    )
             }
 
             @NestedTest

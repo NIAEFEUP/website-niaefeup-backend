@@ -2,7 +2,7 @@ package pt.up.fe.ni.website.backend.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.hamcrest.Matchers.startsWith
-import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -18,7 +18,7 @@ import pt.up.fe.ni.website.backend.model.CustomWebsite
 import pt.up.fe.ni.website.backend.repository.AccountRepository
 import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
-import pt.up.fe.ni.website.backend.utils.annotations.EndpointTest
+import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
 import java.util.Calendar
 
 @ControllerTest
@@ -45,10 +45,10 @@ class AuthControllerTest @Autowired constructor(
         )
     )
 
-    @EndpointTest
+    @NestedTest
     @DisplayName("POST /auth/new")
     inner class GetNewToken {
-        @BeforeAll
+        @BeforeEach
         fun setup() {
             repository.save(testAccount)
         }
@@ -93,10 +93,10 @@ class AuthControllerTest @Autowired constructor(
         }
     }
 
-    @EndpointTest
+    @NestedTest
     @DisplayName("POST /auth/refresh")
     inner class RefreshToken {
-        @BeforeAll
+        @BeforeEach
         fun setup() {
             repository.save(testAccount)
         }
@@ -130,10 +130,10 @@ class AuthControllerTest @Autowired constructor(
         }
     }
 
-    @EndpointTest
+    @NestedTest
     @DisplayName("GET /auth/check")
     inner class CheckToken {
-        @BeforeAll
+        @BeforeEach
         fun setup() {
             repository.save(testAccount)
         }
