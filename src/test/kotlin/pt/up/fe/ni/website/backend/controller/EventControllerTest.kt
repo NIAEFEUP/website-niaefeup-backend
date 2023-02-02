@@ -104,7 +104,7 @@ internal class EventControllerTest @Autowired constructor(
 
     @NestedTest
     @DisplayName("GET /events/{id}")
-    inner class GetEvent {
+    inner class GetEventById {
         @BeforeEach
         fun addToRepositories() {
             accountRepository.save(testAccount)
@@ -138,6 +138,46 @@ internal class EventControllerTest @Autowired constructor(
                 content { contentType(MediaType.APPLICATION_JSON) }
                 jsonPath("$.errors.length()") { value(1) }
                 jsonPath("$.errors[0].message") { value("event not found with id 1234") }
+            }
+        }
+    }
+
+    @NestedTest
+    @DisplayName("GET /events/{eventSlug}")
+    inner class GetEventBySlug {
+        @BeforeEach
+        fun addToRepositories() {
+            accountRepository.save(testAccount)
+            repository.save(testEvent)
+        }
+
+        @Test
+        fun `should return the event`() {
+            mockMvc.get("/events/${testEvent.slug}")
+                .andExpect {
+                    status { isOk() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$.title") { value(testEvent.title) }
+                    jsonPath("$.description") { value(testEvent.description) }
+                    jsonPath("$.teamMembers.length()") { value(1) }
+                    jsonPath("$.teamMembers[0].email") { value(testAccount.email) }
+                    jsonPath("$.teamMembers[0].name") { value(testAccount.name) }
+                    jsonPath("$.registerUrl") { value(testEvent.registerUrl) }
+                    jsonPath("$.dateInterval.startDate") { value(testEvent.dateInterval.startDate.toJson()) }
+                    jsonPath("$.dateInterval.endDate") { value(testEvent.dateInterval.endDate.toJson()) }
+                    jsonPath("$.location") { value(testEvent.location) }
+                    jsonPath("$.category") { value(testEvent.category) }
+                    jsonPath("$.thumbnailPath") { value(testEvent.thumbnailPath) }
+                }
+        }
+
+        @Test
+        fun `should fail if the event does not exist`() {
+            mockMvc.get("/events/fail-slug").andExpect {
+                status { isNotFound() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                jsonPath("$.errors.length()") { value(1) }
+                jsonPath("$.errors[0].message") { value("event not found with slug fail-slug") }
             }
         }
     }

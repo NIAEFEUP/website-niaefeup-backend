@@ -17,11 +17,14 @@ class EventController(private val service: EventService) {
     @GetMapping
     fun getAllEvents() = service.getAllEvents()
 
-    @GetMapping("/{id}")
+    @GetMapping("/{id:\\d+}")
     fun getEventById(@PathVariable id: Long) = service.getEventById(id)
 
     @GetMapping("/category/{category}")
     fun getEventsByCategory(@PathVariable category: String) = service.getEventsByCategory(category)
+
+    @GetMapping("/{eventSlug}**")
+    fun getEvent(@PathVariable eventSlug: String) = service.getEventBySlug(eventSlug)
 
     @PostMapping("/new")
     fun createEvent(@RequestBody dto: EventDto) = service.createEvent(dto)
