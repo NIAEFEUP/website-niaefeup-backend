@@ -16,6 +16,8 @@ class AccountService(private val repository: AccountRepository, private val enco
             throw IllegalArgumentException(ErrorMessages.emailAlreadyExists)
         }
 
+        requireNotNull(dto.websites) { "'websites' is missing" }
+
         val account = dto.create()
         account.password = encoder.encode(dto.password)
         return repository.save(account)
