@@ -49,9 +49,9 @@ internal class EventControllerTest @Autowired constructor(
     val testEvent = Event(
         "Great event",
         "This was a nice and iconic event",
+        mutableListOf(testAccount),
         "https://docs.google.com/forms",
-        TestUtils.createDate(2022, Calendar.JULY, 28),
-        mutableListOf(testAccount)
+        TestUtils.createDate(2022, Calendar.JULY, 28)
     )
 
     @EndpointTest
@@ -62,9 +62,9 @@ internal class EventControllerTest @Autowired constructor(
             Event(
                 "Bad event",
                 "This event was a failure",
+                mutableListOf(),
                 null,
-                TestUtils.createDate(2021, Calendar.OCTOBER, 27),
-                mutableListOf()
+                TestUtils.createDate(2021, Calendar.OCTOBER, 27)
             )
         )
 
@@ -102,7 +102,8 @@ internal class EventControllerTest @Autowired constructor(
                         "title" to testEvent.title,
                         "description" to testEvent.description,
                         "date" to testEvent.date,
-                        "teamMembersIds" to mutableListOf(testAccount.id!!)
+                        "teamMembersIds" to mutableListOf(testAccount.id!!),
+                        "registerUrl" to testEvent.registerUrl
                     )
                 )
             }

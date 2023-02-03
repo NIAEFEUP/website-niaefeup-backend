@@ -10,6 +10,7 @@ import java.util.Date
 class Event(
     title: String,
     description: String,
+    teamMembers: MutableList<Account> = mutableListOf(),
 
     @field:NullOrNotBlank
     @field:URL
@@ -18,6 +19,5 @@ class Event(
     @JsonProperty(required = true)
     val date: Date,
 
-    teamMembers: MutableList<Account> = mutableListOf(),
     id: Long? = null
 ) : Activity(title, description, teamMembers, id)
