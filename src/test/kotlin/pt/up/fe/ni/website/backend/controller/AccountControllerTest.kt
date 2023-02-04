@@ -142,6 +142,35 @@ class AccountControllerTest @Autowired constructor(
                 jsonPath("$.websites[0].iconPath") { value(testAccount.websites[0].iconPath) }
             }
         }
+        @Test
+        fun `should create an account with a empty website list`() {
+            val noWebsite = Account(
+                "Test Account",
+                "no_website@email.com",
+                "test_password",
+                "This is a test account",
+                TestUtils.createDate(2001, Calendar.JULY, 28),
+                "https://test-photo.com",
+                "https://linkedin.com",
+                "https://github.com"
+            )
+
+            mockMvc.post("/accounts/new") {
+                contentType = MediaType.APPLICATION_JSON
+                content = noWebsite.toJson()
+            }.andExpect {
+                status { isOk() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                jsonPath("$.name") { value(noWebsite.name) }
+                jsonPath("$.email") { value(noWebsite.email) }
+                jsonPath("$.bio") { value(noWebsite.bio) }
+                jsonPath("$.birthDate") { value(noWebsite.birthDate.toJson()) }
+                jsonPath("$.photoPath") { value(noWebsite.photoPath) }
+                jsonPath("$.linkedin") { value(noWebsite.linkedin) }
+                jsonPath("$.github") { value(noWebsite.github) }
+                jsonPath("$.websites.length()") { value(0) }
+            }
+        }
 
         @NestedTest
         @DisplayName("Input Validation")
