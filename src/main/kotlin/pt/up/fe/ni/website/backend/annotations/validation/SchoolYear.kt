@@ -20,6 +20,13 @@ class SchoolYearValidator : ConstraintValidator<SchoolYear, String> {
     private val regex = Regex("\\d{2}-\\d{2}")
 
     override fun isValid(value: String, context: ConstraintValidatorContext?): Boolean {
-        return value.matches(regex)
+        if (!value.matches(regex)) return false
+
+        val years = value.split("-")
+        if (years.size != 2) return false
+
+        val firstYear = years[0].toIntOrNull() ?: return false
+        val secondYear = years[1].toIntOrNull() ?: return false
+        return secondYear == firstYear + 1
     }
 }

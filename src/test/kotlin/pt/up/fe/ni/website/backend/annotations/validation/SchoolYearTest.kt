@@ -37,4 +37,39 @@ internal class SchoolYearTest {
         validator.initialize(SchoolYear())
         assert(!validator.isValid("      ", null))
     }
+
+    @Test
+    fun `should fail when first year is not 2 digits`() {
+        val validator = SchoolYearValidator()
+        validator.initialize(SchoolYear())
+        assert(!validator.isValid("2-23", null))
+    }
+
+    @Test
+    fun `should fail when second year is not 2 digits`() {
+        val validator = SchoolYearValidator()
+        validator.initialize(SchoolYear())
+        assert(!validator.isValid("22-3", null))
+    }
+
+    @Test
+    fun `should fail when not subsequent years`() {
+        val validator = SchoolYearValidator()
+        validator.initialize(SchoolYear())
+        assert(!validator.isValid("22-24", null))
+    }
+
+    @Test
+    fun `should fail when first year after second year`() {
+        val validator = SchoolYearValidator()
+        validator.initialize(SchoolYear())
+        assert(!validator.isValid("23-22", null))
+    }
+
+    @Test
+    fun `should fail when years are the same`() {
+        val validator = SchoolYearValidator()
+        validator.initialize(SchoolYear())
+        assert(!validator.isValid("22-22", null))
+    }
 }
