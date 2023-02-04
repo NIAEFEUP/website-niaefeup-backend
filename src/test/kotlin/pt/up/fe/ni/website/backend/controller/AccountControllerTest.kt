@@ -143,7 +143,7 @@ class AccountControllerTest @Autowired constructor(
             }
         }
         @Test
-        fun `should create an account with a empty website list`() {
+        fun `should create an account with an empty website list`() {
             val noWebsite = Account(
                 "Test Account",
                 "no_website@email.com",
@@ -157,7 +157,18 @@ class AccountControllerTest @Autowired constructor(
 
             mockMvc.post("/accounts/new") {
                 contentType = MediaType.APPLICATION_JSON
-                content = noWebsite.toJson()
+                content = objectMapper.writeValueAsString(
+                    mapOf(
+                        "name" to noWebsite.name,
+                        "email" to noWebsite.email,
+                        "password" to noWebsite.password,
+                        "bio" to noWebsite.bio,
+                        "birthDate" to noWebsite.birthDate,
+                        "photoPath" to noWebsite.photoPath,
+                        "linkedin" to noWebsite.linkedin,
+                        "github" to noWebsite.github
+                    )
+                )
             }.andExpect {
                 status { isOk() }
                 content { contentType(MediaType.APPLICATION_JSON) }
