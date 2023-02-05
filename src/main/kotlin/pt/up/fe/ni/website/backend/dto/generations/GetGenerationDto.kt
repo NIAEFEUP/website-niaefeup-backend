@@ -1,12 +1,14 @@
 package pt.up.fe.ni.website.backend.dto.generations
 
+import com.fasterxml.jackson.annotation.JsonUnwrapped
 import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.Generation
 
 typealias GetGenerationDto = List<GenerationSectionDto>
 
 data class GenerationUserDto(
-    val name: String,
+    @JsonUnwrapped
+    val account: Account,
     val roles: List<String>
 )
 
@@ -27,7 +29,7 @@ fun buildGetGenerationDto(generation: Generation): GetGenerationDto {
                     .map { account ->
                         usedAccounts.add(account)
                         GenerationUserDto(
-                            name = account.name,
+                            account,
                             roles = account.roles
                                 .filter { it.generation == generation && !it.isSection }
                                 .map { it.name }
