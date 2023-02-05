@@ -8,7 +8,7 @@ class RoleDto(
     val permissions: List<Int>,
 
     @JsonProperty(required = true)
-    val isSection: Boolean,
+    val isSection: Boolean?,
 
     val accountIds: List<Long> = emptyList(),
     val associatedActivities: List<PerActivityRoleDto>

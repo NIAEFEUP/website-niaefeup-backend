@@ -55,9 +55,10 @@ class GenerationService(
                 account.roles.add(role)
             }
 
-            role.associatedActivities.forEachIndexed { activityRoleIdx, activityRole ->
-                val activityId = roleDto.associatedActivities[activityRoleIdx].activityId
-                val activity = projectService.getProjectById(activityId) // TODO: Use activity service once PR is merged
+            role.associatedActivities.forEachIndexed associatedLoop@{ activityRoleIdx, activityRole ->
+                val activityId = roleDto.associatedActivities[activityRoleIdx].activityId ?: return@associatedLoop
+                val activity =
+                    projectService.getProjectById(activityId) // TODO: Use activity service once PR is merged
 
                 activityRole.activity = activity
                 activity.associatedRoles.add(activityRole)
