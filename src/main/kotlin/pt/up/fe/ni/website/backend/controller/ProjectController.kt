@@ -28,7 +28,10 @@ class ProjectController(private val service: ProjectService) {
     fun createNewProject(@RequestBody dto: ProjectDto) = service.createProject(dto)
 
     @DeleteMapping("/{id}")
-    fun deleteProjectById(@PathVariable id: Long) = service.deleteProjectById(id)
+    fun deleteProjectById(@PathVariable id: Long): Map<String, String> {
+        service.deleteProjectById(id)
+        return emptyMap()
+    }
 
     @PutMapping("/{id}")
     fun updatePostById(

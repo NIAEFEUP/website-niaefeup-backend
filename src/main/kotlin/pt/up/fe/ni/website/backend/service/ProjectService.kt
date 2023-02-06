@@ -53,13 +53,12 @@ class ProjectService(
         return repository.save(newProject)
     }
 
-    fun deleteProjectById(id: Long): Map<String, String> {
+    fun deleteProjectById(id: Long) {
         if (!repository.existsById(id)) {
             throw NoSuchElementException(ErrorMessages.projectNotFound(id))
         }
 
         repository.deleteById(id)
-        return emptyMap()
     }
 
     fun archiveProjectById(id: Long): Project {
