@@ -49,7 +49,7 @@ class GenerationService(
 
             roleDto.accountIds.forEach {
                 val account = accountService.getAccountById(it)
-                role.accounts.add(account)
+                account.roles.add(role) // account owns the relationship
             }
 
             roleDto.associatedActivities.forEachIndexed associatedLoop@{ activityRoleIdx, activityRoleDto ->
