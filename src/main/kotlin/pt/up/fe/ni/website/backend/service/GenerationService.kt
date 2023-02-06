@@ -50,9 +50,7 @@ class GenerationService(
 
             roleDto.accountIds.forEach {
                 val account = accountService.getAccountById(it)
-
                 role.accounts.add(account)
-                account.roles.add(role)
             }
 
             role.associatedActivities.forEachIndexed associatedLoop@{ activityRoleIdx, activityRole ->
@@ -84,5 +82,16 @@ class GenerationService(
 
         generation.schoolYear = dto.schoolYear
         return repository.save(generation)
+    }
+
+    fun deleteGenerationByYear(year: String) {
+        val generation =
+            repository.findBySchoolYear(year) ?: throw NoSuchElementException(ErrorMessages.generationNotFound(year))
+        repository.delete(generation)
+    }
+
+    fun deleteGenerationById(id: Long) {
+        repository.findByIdOrNull(id) ?: throw NoSuchElementException(ErrorMessages.generationNotFound(id))
+        repository.deleteById(id)
     }
 }

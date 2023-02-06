@@ -1,5 +1,6 @@
 package pt.up.fe.ni.website.backend.controller
 
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -44,4 +45,16 @@ class GenerationController(private val service: GenerationService) {
         @PathVariable year: String,
         @RequestBody dto: UpdateGenerationDto
     ) = service.updateGenerationByYear(year, dto)
+
+    @DeleteMapping("/{id:\\d+}")
+    fun deleteGenerationById(@PathVariable id: Long): Map<String, String> {
+        service.deleteGenerationById(id)
+        return emptyMap()
+    }
+
+    @DeleteMapping("/{year:\\d{2}-\\d{2}}")
+    fun deleteGenerationByYear(@PathVariable year: String): Map<String, String> {
+        service.deleteGenerationByYear(year)
+        return emptyMap()
+    }
 }
