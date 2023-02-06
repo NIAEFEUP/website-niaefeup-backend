@@ -8,7 +8,6 @@ import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
-import jakarta.persistence.JoinColumn
 import jakarta.persistence.OneToMany
 import jakarta.validation.Valid
 import pt.up.fe.ni.website.backend.annotations.validation.NoDuplicateRoles
@@ -24,8 +23,7 @@ class Generation(
     @Id @GeneratedValue
     val id: Long? = null
 ) {
-    @JoinColumn
-    @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
+    @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER, mappedBy = "generation")
     @JsonManagedReference
     @field:NoDuplicateRoles
     val roles: MutableList<@Valid Role> = mutableListOf()

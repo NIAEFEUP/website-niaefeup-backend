@@ -11,6 +11,7 @@ import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
+import jakarta.persistence.JoinTable
 import jakarta.persistence.ManyToMany
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.OneToMany
@@ -30,8 +31,8 @@ class Role(
     @JsonProperty(required = true)
     var isSection: Boolean,
 
-    @JoinColumn
     @ManyToMany
+    @JoinTable
     @JsonIgnore // TODO: Decide if we want to return accounts (or IDs) by default
     val accounts: MutableList<@Valid Account> = mutableListOf(),
 
@@ -40,8 +41,7 @@ class Role(
     @GeneratedValue
     val id: Long? = null
 ) {
-    @JoinColumn
-    @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
+    @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER, mappedBy = "role")
     @JsonManagedReference
     val associatedActivities: MutableList<@Valid PerActivityRole> = mutableListOf()
 

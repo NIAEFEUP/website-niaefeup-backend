@@ -44,7 +44,6 @@ class GenerationService(
         }
 
         val generation = dto.create()
-
         generation.roles.forEachIndexed { roleIdx, role ->
             val roleDto = dto.roles[roleIdx]
 
@@ -53,13 +52,11 @@ class GenerationService(
                 role.accounts.add(account)
             }
 
-            role.associatedActivities.forEachIndexed associatedLoop@{ activityRoleIdx, activityRole ->
-                val activityId = roleDto.associatedActivities[activityRoleIdx].activityId ?: return@associatedLoop
-                val activity =
-                    projectService.getProjectById(activityId) // TODO: Use activity service once PR is merged
-
-                activityRole.activity = activity
-                activity.associatedRoles.add(activityRole)
+            roleDto.associatedActivities.forEachIndexed associatedLoop@{ activityRoleIdx, activityRoleDto ->
+                val activityRole = role.associatedActivities[activityRoleIdx]
+                val activityId = activityRoleDto.activityId ?: return@associatedLoop
+                // TODO: Use activity service once PR is merged
+                activityRole.activity = projectService.getProjectById(activityId)
             }
         }
 

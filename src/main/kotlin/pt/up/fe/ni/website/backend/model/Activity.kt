@@ -31,7 +31,7 @@ abstract class Activity(
     @OneToMany(fetch = FetchType.EAGER)
     open val teamMembers: MutableList<Account>,
 
-    @OneToMany(cascade = [CascadeType.ALL])
+    @OneToMany(cascade = [CascadeType.ALL], mappedBy = "activity")
     @JsonIgnore // TODO: Decide if we want to return perRoles (or IDs) by default
     open val associatedRoles: MutableList<@Valid PerActivityRole> = mutableListOf(),
 
