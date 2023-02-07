@@ -4,10 +4,15 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import pt.up.fe.ni.website.backend.dto.entity.ProjectDto
 import pt.up.fe.ni.website.backend.model.Project
+import pt.up.fe.ni.website.backend.repository.ActivityRepository
 import pt.up.fe.ni.website.backend.repository.ProjectRepository
 
 @Service
-class ProjectService(private val repository: ProjectRepository, private val accountService: AccountService) {
+class ProjectService(
+    private val repository: ProjectRepository,
+    private val accountService: AccountService,
+    activityRepository: ActivityRepository
+) : ActivityService(activityRepository, accountService) {
 
     fun getAllProjects(): List<Project> = repository.findAll().toList()
 
