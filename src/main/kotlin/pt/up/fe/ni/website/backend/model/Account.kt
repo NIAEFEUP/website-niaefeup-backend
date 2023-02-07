@@ -54,7 +54,7 @@ class Account(
 
     @JoinColumn
     @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
-    val websites: List<@Valid CustomWebsite>,
+    val websites: List<@Valid CustomWebsite> = emptyList(),
 
     @Id @GeneratedValue
     val id: Long? = null
