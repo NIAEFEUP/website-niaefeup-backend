@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import pt.up.fe.ni.website.backend.dto.entity.ProjectDto
-import pt.up.fe.ni.website.backend.service.ActivityService
 import pt.up.fe.ni.website.backend.service.ProjectService
 
 @RestController
