@@ -142,7 +142,7 @@ class AuthControllerTest @Autowired constructor(
         fun `should fail when no access token is provided`() {
             mockMvc.get("/auth").andExpect {
                 status { isForbidden() }
-                jsonPath("$.errors[0].message") { value("Access is denied") }
+                jsonPath("$.errors[0].message") { value("Access Denied") }
             }
         }
 
