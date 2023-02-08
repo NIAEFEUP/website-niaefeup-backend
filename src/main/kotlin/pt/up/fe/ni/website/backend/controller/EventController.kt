@@ -13,7 +13,7 @@ import pt.up.fe.ni.website.backend.service.EventService
 
 @RestController
 @RequestMapping("/events")
-class EventController(private val service: EventService, private val activityService: ActivityService) {
+class EventController(private val service: EventService) {
     @GetMapping
     fun getAllEvents() = service.getAllEvents()
 
@@ -24,11 +24,11 @@ class EventController(private val service: EventService, private val activitySer
     fun addTeamMemberById(
         @PathVariable idEvent: Long,
         @PathVariable idAccount: Long
-    ) = activityService.addTeamMemberById(idEvent, idAccount)
+    ) = service.addTeamMemberById(idEvent, idAccount)
 
     @PutMapping("/{idEvent}/removeTeamMember/{idAccount}")
     fun removeTeamMemberById(
         @PathVariable idEvent: Long,
         @PathVariable idAccount: Long
-    ) = activityService.removeTeamMemberById(idEvent, idAccount)
+    ) = service.removeTeamMemberById(idEvent, idAccount)
 }

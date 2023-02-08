@@ -5,4 +5,4 @@ import org.springframework.stereotype.Repository
 import pt.up.fe.ni.website.backend.model.Activity
 
 @Repository
-interface ActivityRepository : CrudRepository<Activity, Long>
+interface ActivityRepository<T : Activity> : CrudRepository<T, Long>

@@ -14,7 +14,7 @@ import pt.up.fe.ni.website.backend.service.ProjectService
 
 @RestController
 @RequestMapping("/projects")
-class ProjectController(private val service: ProjectService, private val activityService: ActivityService) {
+class ProjectController(private val service: ProjectService) {
 
     @GetMapping
     fun getAllProjects() = service.getAllProjects()
@@ -44,11 +44,11 @@ class ProjectController(private val service: ProjectService, private val activit
     fun addTeamMemberById(
         @PathVariable idProject: Long,
         @PathVariable idAccount: Long
-    ) = activityService.addTeamMemberById(idProject, idAccount)
+    ) = service.addTeamMemberById(idProject, idAccount)
 
     @PutMapping("/{idProject}/removeTeamMember/{idAccount}")
     fun removeTeamMemberById(
         @PathVariable idProject: Long,
         @PathVariable idAccount: Long
-    ) = activityService.removeTeamMemberById(idProject, idAccount)
+    ) = service.removeTeamMemberById(idProject, idAccount)
 }
