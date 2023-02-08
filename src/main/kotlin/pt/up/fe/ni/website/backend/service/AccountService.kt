@@ -1,6 +1,5 @@
 package pt.up.fe.ni.website.backend.service
 
-import java.util.Collections.emptyMap
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -46,12 +45,11 @@ class AccountService(private val repository: AccountRepository, private val enco
         repository.save(account)
     }
 
-    fun deleteAccountById(id: Long): Map<String, String> {
+    fun deleteAccountById(id: Long) {
         if (!repository.existsById(id)) {
             throw NoSuchElementException(ErrorMessages.accountNotFound(id))
         }
 
         repository.deleteById(id)
-        return emptyMap()
     }
 }
