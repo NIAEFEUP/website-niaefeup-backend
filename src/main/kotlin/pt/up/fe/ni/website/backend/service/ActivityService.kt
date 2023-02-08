@@ -10,7 +10,7 @@ abstract class ActivityService<T : Activity>(
     private val repository: ActivityRepository<T>,
     private val accountService: AccountService
 ) {
-    fun getActivityById(id: Long): T = repository.findByIdOrNull(id)
+    private fun getActivityById(id: Long): T = repository.findByIdOrNull(id)
         ?: throw NoSuchElementException(ErrorMessages.activityNotFound(id))
 
     fun addTeamMemberById(idActivity: Long, idAccount: Long): T {
