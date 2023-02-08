@@ -34,7 +34,7 @@ class ProjectController(private val service: ProjectService) {
     }
 
     @PutMapping("/{id}")
-    fun updatePostById(
+    fun updateProjectById(
         @PathVariable id: Long,
         @RequestBody dto: ProjectDto
     ) = service.updateProjectById(id, dto)

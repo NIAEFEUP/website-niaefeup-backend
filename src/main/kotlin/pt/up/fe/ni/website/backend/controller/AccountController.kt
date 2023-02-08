@@ -1,8 +1,10 @@
 package pt.up.fe.ni.website.backend.controller
 
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -27,4 +29,13 @@ class AccountController(private val service: AccountService) {
         service.changePassword(id, dto)
         return emptyMap()
     }
+
+    @PutMapping("/{id}")
+    fun updateAccountById(
+        @PathVariable id: Long,
+        @RequestBody dto: AccountDto
+    ) = service.updateAccountById(id, dto)
+
+    @DeleteMapping("/{id}")
+    fun deleteAccount(@PathVariable id: Long) = service.deleteAccountById(id)
 }

@@ -1,5 +1,6 @@
 package pt.up.fe.ni.website.backend.service
 
+import java.util.Collections.emptyMap
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -27,6 +28,12 @@ class AccountService(private val repository: AccountRepository, private val enco
 
     fun doesAccountExist(id: Long): Boolean = repository.findByIdOrNull(id) != null
 
+    fun updateAccountById(id: Long, dto: AccountDto): Account {
+        val account = getAccountById(id)
+        val newAccount = dto.update(account)
+        return repository.save(newAccount)
+    }
+
     fun getAccountByEmail(email: String): Account = repository.findByEmail(email)
         ?: throw NoSuchElementException(ErrorMessages.emailNotFound(email))
 
@@ -37,5 +44,14 @@ class AccountService(private val repository: AccountRepository, private val enco
         }
         account.password = encoder.encode(dto.newPassword)
         repository.save(account)
+    }
+
+    fun deleteAccountById(id: Long): Map<String, String> {
+        if (!repository.existsById(id)) {
+            throw NoSuchElementException(ErrorMessages.accountNotFound(id))
+        }
+
+        repository.deleteById(id)
+        return emptyMap()
     }
 }
