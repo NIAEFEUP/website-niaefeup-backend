@@ -16,6 +16,7 @@ import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.pos
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
@@ -570,6 +571,36 @@ class AccountControllerTest @Autowired constructor(
                     urlParameters = parameters,
                     hasRequestPayload = true
                 )
+        }
+    }
+
+    @NestedTest
+    @DisplayName("DELETE /accounts/{accountId}")
+    inner class DeleteAccount {
+        @BeforeEach
+        fun addAccount() {
+            repository.save(testAccount)
+        }
+
+        @Test
+        fun `should delete the account`() {
+            mockMvc.delete("/accounts/${testAccount.id}").andExpect {
+                status { isOk() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                jsonPath("$") { isEmpty() }
+            }
+
+            assert(repository.findById(testAccount.id!!).isEmpty)
+        }
+
+        @Test
+        fun `should fail if the account does not exist`() {
+            mockMvc.delete("/accounts/1234").andExpect {
+                status { isNotFound() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                jsonPath("$.errors.length()") { value(1) }
+                jsonPath("$.errors[0].message") { value("account not found with id 1234") }
+            }
         }
     }
 
