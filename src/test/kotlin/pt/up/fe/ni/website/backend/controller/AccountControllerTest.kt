@@ -2,8 +2,6 @@ package pt.up.fe.ni.website.backend.controller
 
 import com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName
 import com.fasterxml.jackson.databind.ObjectMapper
-import java.util.Calendar
-import java.util.Date
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeAll
@@ -46,6 +44,8 @@ import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Co
 import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentErrorResponse
 import pt.up.fe.ni.website.backend.utils.documentation.utils.ModelDocumentation
 import pt.up.fe.ni.website.backend.utils.documentation.utils.PayloadSchema
+import java.util.Calendar
+import java.util.Date
 import java.util.UUID
 
 @ControllerTest
