@@ -35,5 +35,6 @@ class Event(
     @field:URL
     val thumbnailPath: String,
 
+    associatedRoles: List<PerActivityRole> = emptyList(),
     id: Long? = null
-) : Activity(title, description, id)
+) : Activity(title, description, associatedRoles, id)
