@@ -37,6 +37,12 @@ jobs:
       - name: Run linter
         run: ./gradlew ktlintCheck
 
+      - name: Upload ktlint report
+        uses: actions/upload-artifact@v3
+        with:
+          name: lint-reports
+          path: build/reports/ktlint
+
   test:
     name: 'Test'
     needs: lint
@@ -61,3 +67,9 @@ jobs:
 
       - name: Upload code coverage to Codecov
         uses: codecov/codecov-action@v3
+
+      - name: Upload test reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-reports
+          path: build/reports/tests
