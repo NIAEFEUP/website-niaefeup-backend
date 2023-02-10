@@ -33,7 +33,7 @@ class RoleService(
         perActivityRoleRepository.save(foundActivity)
     }
 
-    fun revokePermissionToRoleOnActivity(role: Role, activity: Activity, permission: Permission) {
+    fun revokePermissionFromRoleOnActivity(role: Role, activity: Activity, permission: Permission) {
         val foundActivity = activity.associatedRoles
             .find { it.role == role } ?: return
 
