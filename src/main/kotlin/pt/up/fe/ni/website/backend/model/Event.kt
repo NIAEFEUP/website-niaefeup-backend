@@ -15,7 +15,6 @@ import pt.up.fe.ni.website.backend.model.constants.EventConstants as Constants
 class Event(
     title: String,
     description: String,
-    associatedRoles: List<PerActivityRole> = emptyList(),
 
     @field:NullOrNotBlank
     @field:URL
@@ -36,5 +35,6 @@ class Event(
     @field:URL
     val thumbnailPath: String,
 
+    associatedRoles: List<PerActivityRole> = emptyList(),
     id: Long? = null
 ) : Activity(title, description, associatedRoles, id)
