@@ -27,7 +27,7 @@ class RoleService(
 
     fun grantPermissionToRoleOnActivity(role: Role, activity: Activity, permission: Permission) {
         val foundActivity = activity.associatedRoles
-            .find { it.activity == activity } ?: PerActivityRole(role, activity, Permissions())
+            .find { it.role == role } ?: PerActivityRole(role, activity, Permissions())
 
         foundActivity.permissions.add(permission)
         perActivityRoleRepository.save(foundActivity)
@@ -35,7 +35,7 @@ class RoleService(
 
     fun revokePermissionToRoleOnActivity(role: Role, activity: Activity, permission: Permission) {
         val foundActivity = activity.associatedRoles
-            .find { it.activity == activity } ?: return
+            .find { it.role == role } ?: return
 
         foundActivity.permissions.remove(permission)
         perActivityRoleRepository.save(foundActivity)
