@@ -34,7 +34,8 @@ import pt.up.fe.ni.website.backend.utils.ValidationTester
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
 import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
 import pt.up.fe.ni.website.backend.utils.documentation.PayloadSchema
-import java.util.*
+import java.util.Calendar
+import java.util.Date
 import pt.up.fe.ni.website.backend.model.constants.EventConstants as Constants
 
 @ControllerTest
@@ -67,12 +68,12 @@ internal class EventControllerTest @Autowired constructor(
         fieldWithPath("category").type(JsonFieldType.STRING).description("Event category").optional(),
         fieldWithPath("thumbnailPath").type(JsonFieldType.STRING).description("Path for the event thumbnail image"),
         fieldWithPath("associatedRoles[]").description("Array of Roles/Activity associations"),
-        fieldWithPath("associatedRoles[].role").type(JsonFieldType.OBJECT).description("Roles associated with the activity").optional(),
-        fieldWithPath("associatedRoles[].activity").type(JsonFieldType.OBJECT).description("An activity that aggregates members with different roles").optional(),
-        fieldWithPath("associatedRoles[].permissions").type(JsonFieldType.OBJECT).description("Permissions of someone with a given role for this activity").optional(),
-        fieldWithPath("associatedRoles[].id").type(JsonFieldType.NUMBER).description("Id of the role/activity association").optional(),
+        fieldWithPath("associatedRoles[].*.role").type(JsonFieldType.OBJECT).description("Roles associated with the activity").optional(),
+        fieldWithPath("associatedRoles[].*.activity").type(JsonFieldType.OBJECT).description("An activity that aggregates members with different roles").optional(),
+        fieldWithPath("associatedRoles[].*.permissions").type(JsonFieldType.OBJECT).description("Permissions of someone with a given role for this activity").optional(),
+        fieldWithPath("associatedRoles[].*.id").type(JsonFieldType.NUMBER).description("Id of the role/activity association").optional(),
     )
-    private val eventSchema = PayloadSchema("event", eventFields, "Event Id")
+    private val eventPayloadSchema = PayloadSchema("event", eventFields, "Event Id")
 
     @NestedTest
     @DisplayName("GET /events")
@@ -116,9 +117,9 @@ internal class EventControllerTest @Autowired constructor(
                                         Visiting the events page on the frontend requires all events to be loaded.
                                         """.trimIndent(),
                                     )
-                                    .responseSchema(eventSchema.Response().arraySchema())
+                                    .responseSchema(eventPayloadSchema.Response().arraySchema())
                                     .tag("Events")
-                                    .responseFields(eventSchema.Response().arrayDocumentedFields())
+                                    .responseFields(eventPayloadSchema.Response().arrayDocumentedFields())
                                     .build(),
                             ),
                         ),
@@ -260,10 +261,10 @@ internal class EventControllerTest @Autowired constructor(
                                         It is necessary to create new events, as the nucleus is very active
                                         """.trimIndent(),
                                     )
-                                    .requestFields(eventSchema.Request().documentedFields())
-                                    .requestSchema(eventSchema.Request().schema())
-                                    .responseFields(eventSchema.Response().documentedFields())
-                                    .responseSchema(eventSchema.Response().schema())
+                                    .requestFields(eventPayloadSchema.Request().documentedFields())
+                                    .requestSchema(eventPayloadSchema.Request().schema())
+                                    .responseFields(eventPayloadSchema.Response().documentedFields())
+                                    .responseSchema(eventPayloadSchema.Response().schema())
                                     .build(),
                             ),
                         ),

@@ -63,28 +63,25 @@ tasks.jacocoTestReport {
     }
 }
 
-configure<com.epages.restdocs.apispec.gradle.OpenApiExtension> { // 2.3
-    host = "localhost:8080"
-    basePath = "/api"
-    title = "My API"
-    description = "My API description"
-    tagDescriptionsPropertiesFile = "src/docs/tag-descriptions.yaml"
-    version = "1.0.0"
-    format = "json"
-}
+// Rest Docs API Spec tasks configuration
+val apiSpecTitle = "NIAEFEUP Website - Backend API specification"
+val apiSpecDescription =
+    """This specification documents the available endpoints and possible operations on the website's backend.
+        |For each of the operations, its purpose, security, requests and possible responses are documented.
+    """.trimMargin()
 
 configure<com.epages.restdocs.apispec.gradle.OpenApi3Extension> {
     setServer("http://localhost:8080")
-    title = "Your title"
-    description = "Your description"
-    version = "0.1.0"
+    title = apiSpecTitle
+    description = apiSpecDescription
+    version = "${project.version}"
     format = "json"
     tagDescriptionsPropertiesFile = "src/docs/tag-descriptions.yaml"
 }
 
 configure<com.epages.restdocs.apispec.gradle.PostmanExtension> {
-    title = "My API"
-    version = "0.1.0"
+    title = apiSpecTitle
+    version = "${project.version}"
     baseUrl = "https://localhost:8080"
 }
 
@@ -92,5 +89,5 @@ tasks.register<Copy>("copyToDocs") {
     dependsOn(tasks.named("openapi3"))
 
     from("${project.buildDir}/api-spec/openapi3.json")
-    destinationDir = File("docs")
+    into(File("docs"))
 }
