@@ -5,15 +5,9 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
-import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
@@ -22,14 +16,13 @@ import pt.up.fe.ni.website.backend.model.CustomWebsite
 import pt.up.fe.ni.website.backend.repository.AccountRepository
 import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.ValidationTester
+import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
+import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
 import java.util.Calendar
 import java.util.Date
 import pt.up.fe.ni.website.backend.model.constants.AccountConstants as Constants
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@AutoConfigureTestDatabase
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@ControllerTest
 class AccountControllerTest @Autowired constructor(
     val mockMvc: MockMvc,
     val objectMapper: ObjectMapper,
@@ -46,12 +39,12 @@ class AccountControllerTest @Autowired constructor(
         "https://github.com",
         listOf(
             CustomWebsite("https://test-website.com", "https://test-website.com/logo.png")
-        )
+        ),
+        emptyList()
     )
 
-    @Nested
+    @NestedTest
     @DisplayName("GET /accounts")
-    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class GetAllAccounts {
         private val testAccounts = listOf(
             testAccount,
@@ -64,11 +57,12 @@ class AccountControllerTest @Autowired constructor(
                 null,
                 null,
                 null,
+                emptyList(),
                 emptyList()
             )
         )
 
-        @BeforeAll
+        @BeforeEach
         fun addAccounts() {
             for (account in testAccounts) repository.save(account)
         }
@@ -84,11 +78,10 @@ class AccountControllerTest @Autowired constructor(
         }
     }
 
-    @Nested
+    @NestedTest
     @DisplayName("GET /accounts/{id}")
-    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class GetAccount {
-        @BeforeAll
+        @BeforeEach
         fun addAccount() {
             repository.save(testAccount)
         }
@@ -123,7 +116,7 @@ class AccountControllerTest @Autowired constructor(
         }
     }
 
-    @Nested
+    @NestedTest
     @DisplayName("POST /accounts/new")
     inner class CreateAccount {
         @AfterEach
@@ -151,8 +144,48 @@ class AccountControllerTest @Autowired constructor(
                 jsonPath("$.websites[0].iconPath") { value(testAccount.websites[0].iconPath) }
             }
         }
+        @Test
+        fun `should create an account with an empty website list`() {
+            val noWebsite = Account(
+                "Test Account",
+                "no_website@email.com",
+                "test_password",
+                "This is a test account",
+                TestUtils.createDate(2001, Calendar.JULY, 28),
+                "https://test-photo.com",
+                "https://linkedin.com",
+                "https://github.com"
+            )
 
-        @Nested
+            mockMvc.post("/accounts/new") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(
+                    mapOf(
+                        "name" to noWebsite.name,
+                        "email" to noWebsite.email,
+                        "password" to noWebsite.password,
+                        "bio" to noWebsite.bio,
+                        "birthDate" to noWebsite.birthDate,
+                        "photoPath" to noWebsite.photoPath,
+                        "linkedin" to noWebsite.linkedin,
+                        "github" to noWebsite.github
+                    )
+                )
+            }.andExpect {
+                status { isOk() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                jsonPath("$.name") { value(noWebsite.name) }
+                jsonPath("$.email") { value(noWebsite.email) }
+                jsonPath("$.bio") { value(noWebsite.bio) }
+                jsonPath("$.birthDate") { value(noWebsite.birthDate.toJson()) }
+                jsonPath("$.photoPath") { value(noWebsite.photoPath) }
+                jsonPath("$.linkedin") { value(noWebsite.linkedin) }
+                jsonPath("$.github") { value(noWebsite.github) }
+                jsonPath("$.websites.length()") { value(0) }
+            }
+        }
+
+        @NestedTest
         @DisplayName("Input Validation")
         inner class InputValidation {
             private val validationTester = ValidationTester(
@@ -170,9 +203,8 @@ class AccountControllerTest @Autowired constructor(
                 )
             )
 
-            @Nested
+            @NestedTest
             @DisplayName("name")
-            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class NameValidation {
                 @BeforeAll
                 fun setParam() {
@@ -187,9 +219,8 @@ class AccountControllerTest @Autowired constructor(
                 fun size() = validationTester.hasSizeBetween(Constants.Name.minSize, Constants.Name.maxSize)
             }
 
-            @Nested
+            @NestedTest
             @DisplayName("email")
-            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class EmailValidation {
                 @BeforeAll
                 fun setParam() {
@@ -206,9 +237,8 @@ class AccountControllerTest @Autowired constructor(
                 fun `should be a valid email`() = validationTester.isEmail()
             }
 
-            @Nested
+            @NestedTest
             @DisplayName("password")
-            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class PasswordValidation {
                 @BeforeAll
                 fun setParam() {
@@ -223,9 +253,8 @@ class AccountControllerTest @Autowired constructor(
                 fun size() = validationTester.hasSizeBetween(Constants.Password.minSize, Constants.Password.maxSize)
             }
 
-            @Nested
+            @NestedTest
             @DisplayName("bio")
-            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class BioValidation {
                 @BeforeAll
                 fun setParam() {
@@ -238,9 +267,8 @@ class AccountControllerTest @Autowired constructor(
                     validationTester.hasSizeBetween(Constants.Bio.minSize, Constants.Bio.maxSize)
             }
 
-            @Nested
+            @NestedTest
             @DisplayName("birthDate")
-            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class BirthDateValidation {
                 @BeforeAll
                 fun setParam() {
@@ -254,9 +282,8 @@ class AccountControllerTest @Autowired constructor(
                 fun `should be in the past`() = validationTester.isPastDate()
             }
 
-            @Nested
+            @NestedTest
             @DisplayName("photoPath")
-            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class PhotoPathValidation {
                 @BeforeAll
                 fun setParam() {
@@ -270,9 +297,8 @@ class AccountControllerTest @Autowired constructor(
                 fun `should be URL`() = validationTester.isUrl()
             }
 
-            @Nested
+            @NestedTest
             @DisplayName("linkedin")
-            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class LinkedinValidation {
                 @BeforeAll
                 fun setParam() {
@@ -286,9 +312,8 @@ class AccountControllerTest @Autowired constructor(
                 fun `should be URL`() = validationTester.isUrl()
             }
 
-            @Nested
+            @NestedTest
             @DisplayName("github")
-            @TestInstance(TestInstance.Lifecycle.PER_CLASS)
             inner class GithubValidation {
                 @BeforeAll
                 fun setParam() {
@@ -302,7 +327,7 @@ class AccountControllerTest @Autowired constructor(
                 fun `should be URL`() = validationTester.isUrl()
             }
 
-            @Nested
+            @NestedTest
             @DisplayName("websites")
             inner class WebsitesValidation {
                 private val validationTester = ValidationTester(
@@ -324,16 +349,19 @@ class AccountControllerTest @Autowired constructor(
                     )
                 )
 
-                @Nested
+                @NestedTest
                 @DisplayName("url")
                 inner class UrlValidation {
-                    @BeforeEach
+                    @BeforeAll
                     fun setParam() {
                         validationTester.param = "url"
                     }
 
                     @Test
-                    fun `should be required`() = validationTester.isRequired()
+                    fun `should be required`() {
+                        validationTester.parameterName = "url"
+                        validationTester.isRequired()
+                    }
 
                     @Test
                     fun `should not be empty`() {
@@ -348,10 +376,10 @@ class AccountControllerTest @Autowired constructor(
                     }
                 }
 
-                @Nested
+                @NestedTest
                 @DisplayName("iconPath")
                 inner class IconPathValidation {
-                    @BeforeEach
+                    @BeforeAll
                     fun setParam() {
                         validationTester.param = "iconPath"
                     }

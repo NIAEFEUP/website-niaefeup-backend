@@ -1,17 +1,13 @@
 package pt.up.fe.ni.website.backend.model.constants
 
-object PostConstants {
-    object Title {
+object EventConstants {
+    object Location {
         const val minSize = 2
         const val maxSize = 500
     }
 
-    object Body {
-        const val minSize = 10
-    }
-
-    object Slug {
+    object Category {
         const val minSize = 2
-        const val maxSize = 500
+        const val maxSize = 50
     }
 }

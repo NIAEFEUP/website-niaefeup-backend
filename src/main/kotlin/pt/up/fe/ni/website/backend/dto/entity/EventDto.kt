@@ -1,11 +1,14 @@
 package pt.up.fe.ni.website.backend.dto.entity
 
 import pt.up.fe.ni.website.backend.model.Event
-import java.util.Date
+import pt.up.fe.ni.website.backend.model.embeddable.DateInterval
 
 class EventDto(
     val title: String,
     val description: String,
     val registerUrl: String?,
-    val date: Date
+    val dateInterval: DateInterval,
+    val location: String?,
+    val category: String?,
+    val thumbnailPath: String
 ) : EntityDto<Event>()

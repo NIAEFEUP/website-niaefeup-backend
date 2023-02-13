@@ -14,14 +14,23 @@ class PostService(private val repository: PostRepository) {
         repository.findByIdOrNull(postId) ?: throw NoSuchElementException(ErrorMessages.postNotFound(postId))
 
     fun createPost(dto: PostDto): Post {
+        repository.findBySlug(dto.slug)?.let {
+            throw IllegalArgumentException(ErrorMessages.slugAlreadyExists)
+        }
+
         val post = dto.create()
         return repository.save(post)
     }
 
     fun updatePostById(postId: Long, dto: PostDto): Post {
-        val project = getPostById(postId)
-        val newProject = dto.update(project)
-        return repository.save(newProject)
+        val post = getPostById(postId)
+
+        repository.findBySlug(dto.slug)?.let {
+            if (it.id != post.id) throw IllegalArgumentException(ErrorMessages.slugAlreadyExists)
+        }
+
+        val newPost = dto.update(post)
+        return repository.save(newPost)
     }
 
     fun deletePostById(postId: Long): Map<String, String> {
@@ -29,4 +38,7 @@ class PostService(private val repository: PostRepository) {
         repository.deleteById(postId)
         return mapOf()
     }
+
+    fun getPostBySlug(postSlug: String): Post =
+        repository.findBySlug(postSlug) ?: throw NoSuchElementException(ErrorMessages.postNotFound(postSlug))
 }

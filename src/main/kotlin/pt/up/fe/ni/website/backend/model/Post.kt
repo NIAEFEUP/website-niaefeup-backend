@@ -2,6 +2,7 @@ package pt.up.fe.ni.website.backend.model
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonProperty
+import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EntityListeners
 import jakarta.persistence.GeneratedValue
@@ -39,5 +40,9 @@ class Post(
     var lastUpdatedAt: Date? = null,
 
     @Id @GeneratedValue
-    val id: Long? = null
+    val id: Long? = null,
+
+    @Column(unique = true)
+    @field:Size(min = Constants.Slug.minSize, max = Constants.Slug.maxSize)
+    val slug: String? = null
 )
