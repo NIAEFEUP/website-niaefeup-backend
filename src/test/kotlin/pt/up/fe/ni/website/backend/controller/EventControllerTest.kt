@@ -3,7 +3,6 @@ package pt.up.fe.ni.website.backend.controller
 import com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document
 import com.epages.restdocs.apispec.ResourceDocumentation.resource
 import com.epages.restdocs.apispec.ResourceSnippetParameters
-import com.epages.restdocs.apispec.Schema
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
@@ -34,8 +33,8 @@ import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.ValidationTester
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
 import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
-import java.util.Calendar
-import java.util.Date
+import pt.up.fe.ni.website.backend.utils.documentation.PayloadSchema
+import java.util.*
 import pt.up.fe.ni.website.backend.model.constants.EventConstants as Constants
 
 @ControllerTest
@@ -58,27 +57,7 @@ internal class EventControllerTest @Autowired constructor(
         "https://example.com/exampleThumbnail",
     )
 
-    private val eventArrayResponseSchema = Schema("event-array-response")
-    private val eventResponseArray = mutableListOf<FieldDescriptor>(
-        fieldWithPath("[].id").type(JsonFieldType.NUMBER).description("Event ID"),
-        fieldWithPath("[].title").type(JsonFieldType.STRING).description("Event title"),
-        fieldWithPath("[].description").type(JsonFieldType.STRING).description("Event description"),
-        fieldWithPath("[].registerUrl").type(JsonFieldType.STRING).description("Link to the event registration").optional(),
-        fieldWithPath("[].dateInterval.startDate").type(JsonFieldType.STRING).description("Event beginning date"),
-        fieldWithPath("[].dateInterval.endDate").type(JsonFieldType.STRING).description("Event finishing date").optional(),
-        fieldWithPath("[].location").type(JsonFieldType.STRING).description("Location for the event").optional(),
-        fieldWithPath("[].category").type(JsonFieldType.STRING).description("Event category").optional(),
-        fieldWithPath("[].thumbnailPath").type(JsonFieldType.STRING).description("Path for the event thumbnail image"),
-        fieldWithPath("[].associatedRoles[]").description("Array of Roles/Activity associations"),
-        fieldWithPath("[].associatedRoles[].role").type(JsonFieldType.OBJECT).description("Roles associated with the activity").optional(),
-        fieldWithPath("[].associatedRoles[].activity").type(JsonFieldType.OBJECT).description("An activity that aggregates members with different roles").optional(),
-        fieldWithPath("[].associatedRoles[].permissions").type(JsonFieldType.OBJECT).description("Permissions of someone with a given role for this activity").optional(),
-        fieldWithPath("[].associatedRoles[].id").type(JsonFieldType.NUMBER).description("Id of the role/activity association").optional(),
-    )
-
-    private val eventResponseSchema = Schema("event-response")
-    private val eventResponse = mutableListOf<FieldDescriptor>(
-        fieldWithPath("id").type(JsonFieldType.NUMBER).description("Event ID"),
+    private val eventFields = listOf<FieldDescriptor>(
         fieldWithPath("title").type(JsonFieldType.STRING).description("Event title"),
         fieldWithPath("description").type(JsonFieldType.STRING).description("Event description"),
         fieldWithPath("registerUrl").type(JsonFieldType.STRING).description("Link to the event registration").optional(),
@@ -93,23 +72,7 @@ internal class EventControllerTest @Autowired constructor(
         fieldWithPath("associatedRoles[].permissions").type(JsonFieldType.OBJECT).description("Permissions of someone with a given role for this activity").optional(),
         fieldWithPath("associatedRoles[].id").type(JsonFieldType.NUMBER).description("Id of the role/activity association").optional(),
     )
-
-    private val eventRequestSchema = Schema("event-request")
-    private val eventRequest = mutableListOf<FieldDescriptor>(
-        fieldWithPath("title").type(JsonFieldType.STRING).description("Event title"),
-        fieldWithPath("description").type(JsonFieldType.STRING).description("Event description"),
-        fieldWithPath("registerUrl").type(JsonFieldType.STRING).description("Link to the event registration").optional(),
-        fieldWithPath("dateInterval.startDate").type(JsonFieldType.STRING).description("Event beginning date"),
-        fieldWithPath("dateInterval.endDate").type(JsonFieldType.STRING).description("Event finishing date").optional(),
-        fieldWithPath("location").type(JsonFieldType.STRING).description("Location for the event").optional(),
-        fieldWithPath("category").type(JsonFieldType.STRING).description("Event category").optional(),
-        fieldWithPath("thumbnailPath").type(JsonFieldType.STRING).description("Path for the event thumbnail image"),
-        fieldWithPath("associatedRoles[]").description("Array of Roles/Activity associations"),
-        fieldWithPath("associatedRoles[].role").type(JsonFieldType.OBJECT).description("Roles associated with the activity").optional(),
-        fieldWithPath("associatedRoles[].activity").type(JsonFieldType.OBJECT).description("An activity that aggregates members with different roles").optional(),
-        fieldWithPath("associatedRoles[].permissions").type(JsonFieldType.OBJECT).description("Permissions of someone with a given role for this activity").optional(),
-        fieldWithPath("associatedRoles[].id").type(JsonFieldType.NUMBER).description("Id of the role/activity association").optional(),
-    )
+    private val eventSchema = PayloadSchema("event", eventFields, "Event Id")
 
     @NestedTest
     @DisplayName("GET /events")
@@ -153,9 +116,9 @@ internal class EventControllerTest @Autowired constructor(
                                         Visiting the events page on the frontend requires all events to be loaded.
                                         """.trimIndent(),
                                     )
-                                    .responseSchema(eventArrayResponseSchema)
+                                    .responseSchema(eventSchema.Response().arraySchema())
                                     .tag("Events")
-                                    .responseFields(eventResponseArray)
+                                    .responseFields(eventSchema.Response().arrayDocumentedFields())
                                     .build(),
                             ),
                         ),
@@ -297,10 +260,10 @@ internal class EventControllerTest @Autowired constructor(
                                         It is necessary to create new events, as the nucleus is very active
                                         """.trimIndent(),
                                     )
-                                    .requestFields(eventRequest)
-                                    .requestSchema(eventRequestSchema)
-                                    .responseFields(eventResponse)
-                                    .responseSchema(eventResponseSchema)
+                                    .requestFields(eventSchema.Request().documentedFields())
+                                    .requestSchema(eventSchema.Request().schema())
+                                    .responseFields(eventSchema.Response().documentedFields())
+                                    .responseSchema(eventSchema.Response().schema())
                                     .build(),
                             ),
                         ),
