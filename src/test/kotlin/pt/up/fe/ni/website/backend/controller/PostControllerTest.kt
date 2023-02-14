@@ -9,6 +9,8 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.get
@@ -27,13 +29,13 @@ import pt.up.fe.ni.website.backend.model.constants.PostConstants as Constants
 internal class PostControllerTest @Autowired constructor(
     val mockMvc: MockMvc,
     val objectMapper: ObjectMapper,
-    val repository: PostRepository
+    val repository: PostRepository,
 ) {
     val testPost = Post(
         "New test released",
         "this is a test post",
         "https://thumbnails/test.png",
-        slug = "new-test-released"
+        slug = "new-test-released",
     )
 
     @NestedTest
@@ -44,8 +46,8 @@ internal class PostControllerTest @Autowired constructor(
             Post(
                 "NIAEFEUP gets a new president",
                 "New president promised to buy new chairs",
-                "https://thumbnails/pres.png"
-            )
+                "https://thumbnails/pres.png",
+            ),
         )
 
         @BeforeEach
@@ -179,16 +181,17 @@ internal class PostControllerTest @Autowired constructor(
         inner class InputValidation {
             private val validationTester = ValidationTester(
                 req = { params: Map<String, Any?> ->
-                    mockMvc.post("/posts/new") {
-                        contentType = MediaType.APPLICATION_JSON
-                        content = objectMapper.writeValueAsString(params)
-                    }
+                    mockMvc.perform(
+                        post("/posts/new")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(params)),
+                    )
                 },
                 requiredFields = mapOf(
                     "title" to testPost.title,
                     "body" to testPost.body,
-                    "thumbnailPath" to testPost.thumbnailPath
-                )
+                    "thumbnailPath" to testPost.thumbnailPath,
+                ),
             )
 
             @NestedTest
@@ -294,8 +297,8 @@ internal class PostControllerTest @Autowired constructor(
                     "New test released",
                     "this is a test post",
                     "https://thumbnails/test.png",
-                    slug = "duplicated-slug"
-                )
+                    slug = "duplicated-slug",
+                ),
             )
         }
 
@@ -311,8 +314,8 @@ internal class PostControllerTest @Autowired constructor(
                     mapOf(
                         "title" to newTitle,
                         "body" to newBody,
-                        "thumbnailPath" to newThumbnailPath
-                    )
+                        "thumbnailPath" to newThumbnailPath,
+                    ),
                 )
             }
                 .andExpect {
@@ -347,8 +350,8 @@ internal class PostControllerTest @Autowired constructor(
                         "title" to newTitle,
                         "body" to newBody,
                         "thumbnailPath" to newThumbnailPath,
-                        "slug" to newSlug
-                    )
+                        "slug" to newSlug,
+                    ),
                 )
             }
                 .andExpect {
@@ -379,8 +382,8 @@ internal class PostControllerTest @Autowired constructor(
                     mapOf(
                         "title" to "New Title",
                         "body" to "New Body of the post",
-                        "thumbnailPath" to "thumbnails/new.png"
-                    )
+                        "thumbnailPath" to "thumbnails/new.png",
+                    ),
                 )
             }
                 .andExpect {
@@ -405,8 +408,8 @@ internal class PostControllerTest @Autowired constructor(
                         "title" to newTitle,
                         "body" to newBody,
                         "thumbnailPath" to newThumbnailPath,
-                        "slug" to newSlug
-                    )
+                        "slug" to newSlug,
+                    ),
                 )
             }
                 .andExpect {
@@ -422,16 +425,17 @@ internal class PostControllerTest @Autowired constructor(
         inner class InputValidation {
             private val validationTester = ValidationTester(
                 req = { params: Map<String, Any?> ->
-                    mockMvc.put("/posts/${testPost.id}") {
-                        contentType = MediaType.APPLICATION_JSON
-                        content = objectMapper.writeValueAsString(params)
-                    }
+                    mockMvc.perform(
+                        put("/posts/{id}", testPost.id)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(params)),
+                    )
                 },
                 requiredFields = mapOf(
                     "title" to testPost.title,
                     "body" to testPost.body,
-                    "thumbnailPath" to testPost.thumbnailPath
-                )
+                    "thumbnailPath" to testPost.thumbnailPath,
+                ),
             )
 
             @NestedTest

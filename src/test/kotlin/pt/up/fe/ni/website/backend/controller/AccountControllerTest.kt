@@ -8,6 +8,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
@@ -26,7 +27,7 @@ import pt.up.fe.ni.website.backend.model.constants.AccountConstants as Constants
 class AccountControllerTest @Autowired constructor(
     val mockMvc: MockMvc,
     val objectMapper: ObjectMapper,
-    val repository: AccountRepository
+    val repository: AccountRepository,
 ) {
     val testAccount = Account(
         "Test Account",
@@ -38,9 +39,9 @@ class AccountControllerTest @Autowired constructor(
         "https://linkedin.com",
         "https://github.com",
         listOf(
-            CustomWebsite("https://test-website.com", "https://test-website.com/logo.png")
+            CustomWebsite("https://test-website.com", "https://test-website.com/logo.png"),
         ),
-        emptyList()
+        emptyList(),
     )
 
     @NestedTest
@@ -58,8 +59,8 @@ class AccountControllerTest @Autowired constructor(
                 null,
                 null,
                 emptyList(),
-                emptyList()
-            )
+                emptyList(),
+            ),
         )
 
         @BeforeEach
@@ -144,6 +145,7 @@ class AccountControllerTest @Autowired constructor(
                 jsonPath("$.websites[0].iconPath") { value(testAccount.websites[0].iconPath) }
             }
         }
+
         @Test
         fun `should create an account with an empty website list`() {
             val noWebsite = Account(
@@ -154,7 +156,7 @@ class AccountControllerTest @Autowired constructor(
                 TestUtils.createDate(2001, Calendar.JULY, 28),
                 "https://test-photo.com",
                 "https://linkedin.com",
-                "https://github.com"
+                "https://github.com",
             )
 
             mockMvc.post("/accounts/new") {
@@ -168,8 +170,8 @@ class AccountControllerTest @Autowired constructor(
                         "birthDate" to noWebsite.birthDate,
                         "photoPath" to noWebsite.photoPath,
                         "linkedin" to noWebsite.linkedin,
-                        "github" to noWebsite.github
-                    )
+                        "github" to noWebsite.github,
+                    ),
                 )
             }.andExpect {
                 status { isOk() }
@@ -190,17 +192,18 @@ class AccountControllerTest @Autowired constructor(
         inner class InputValidation {
             private val validationTester = ValidationTester(
                 req = { params: Map<String, Any?> ->
-                    mockMvc.post("/accounts/new") {
-                        contentType = MediaType.APPLICATION_JSON
-                        content = objectMapper.writeValueAsString(params)
-                    }
+                    mockMvc.perform(
+                        post("/accounts/new")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(params)),
+                    )
                 },
                 requiredFields = mapOf(
                     "name" to testAccount.name,
                     "email" to testAccount.email,
                     "password" to testAccount.password,
-                    "websites" to emptyList<CustomWebsite>()
-                )
+                    "websites" to emptyList<CustomWebsite>(),
+                ),
             )
 
             @NestedTest
@@ -332,21 +335,24 @@ class AccountControllerTest @Autowired constructor(
             inner class WebsitesValidation {
                 private val validationTester = ValidationTester(
                     req = { params: Map<String, Any?> ->
-                        mockMvc.post("/accounts/new") {
-                            contentType = MediaType.APPLICATION_JSON
-                            content = objectMapper.writeValueAsString(
-                                mapOf(
-                                    "name" to testAccount.name,
-                                    "email" to testAccount.email,
-                                    "password" to testAccount.password,
-                                    "websites" to listOf<Any>(params)
-                                )
-                            )
-                        }
+                        mockMvc.perform(
+                            post("/accounts/new")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                    objectMapper.writeValueAsString(
+                                        mapOf(
+                                            "name" to testAccount.name,
+                                            "email" to testAccount.email,
+                                            "password" to testAccount.password,
+                                            "websites" to listOf<Any>(params),
+                                        ),
+                                    ),
+                                ),
+                        )
                     },
                     requiredFields = mapOf(
-                        "url" to "https://www.google.com"
-                    )
+                        "url" to "https://www.google.com",
+                    ),
                 )
 
                 @NestedTest
@@ -431,9 +437,9 @@ class AccountControllerTest @Autowired constructor(
         return objectMapper.writeValueAsString(
             objectMapper.convertValue(this, Map::class.java).plus(
                 mapOf(
-                    "password" to this?.password
-                )
-            )
+                    "password" to this?.password,
+                ),
+            ),
         )
     }
 }

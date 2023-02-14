@@ -16,12 +16,11 @@ import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.post
-import org.springframework.test.web.servlet.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -116,7 +115,7 @@ internal class EventControllerTest @Autowired constructor(
                                     .summary("Get all the events")
                                     .description(
                                         """
-                                        The array of events allows to easily retrieve all the created events.
+                                        The operation returns an array of events, allowing to easily retrieve all the created events.
                                         This is useful for example in the frontend's event page, where events are displayed.
                                         """.trimIndent(),
                                     )
@@ -316,16 +315,16 @@ internal class EventControllerTest @Autowired constructor(
                         snippets = arrayOf(
                             resource(
                                 ResourceSnippetParameters.builder()
-                                    .summary("Create a new event")
+                                    .summary("Create new events")
                                     .description(
                                         """
-                                        This is the way of adding new events.
+                                        This endpoint operation creates new events. 
                                         """.trimIndent(),
                                     )
-                                    .requestFields(eventPayloadSchema.Request().documentedFields())
                                     .requestSchema(eventPayloadSchema.Request().schema())
-                                    .responseFields(eventPayloadSchema.Response().documentedFields("Event ID"))
+                                    .requestFields(eventPayloadSchema.Request().documentedFields())
                                     .responseSchema(eventPayloadSchema.Response().schema())
+                                    .responseFields(eventPayloadSchema.Response().documentedFields("Event ID"))
                                     .tag("Events")
                                     .build(),
                             ),
@@ -339,10 +338,24 @@ internal class EventControllerTest @Autowired constructor(
         inner class InputValidation {
             private val validationTester = ValidationTester(
                 req = { params: Map<String, Any?> ->
-                    mockMvc.post("/events/new") {
-                        contentType = MediaType.APPLICATION_JSON
-                        content = objectMapper.writeValueAsString(params)
-                    }
+                    mockMvc.perform(
+                        post("/events/new")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(params)),
+                    ).andDo(
+                        document(
+                            "events/{ClassName}/{methodName}",
+                            snippets = arrayOf(
+                                resource(
+                                    ResourceSnippetParameters.builder()
+                                        .responseSchema(ErrorSchema().Response().schema())
+                                        .responseFields(ErrorSchema().Response().documentedFields())
+                                        .tag("Events")
+                                        .build(),
+                                ),
+                            ),
+                        ),
+                    )
                 },
                 requiredFields = mapOf(
                     "title" to testEvent.title,
@@ -516,10 +529,10 @@ internal class EventControllerTest @Autowired constructor(
                         snippets = arrayOf(
                             resource(
                                 ResourceSnippetParameters.builder()
-                                    .summary("Delete an event")
+                                    .summary("Delete events")
                                     .description(
                                         """
-                                        This is the way of removing events.
+                                        This operation deletes an event using its ID.
                                         """.trimIndent(),
                                     )
                                     .pathParameters(parameterWithName("id").description("ID of the event to delete"))
@@ -555,32 +568,57 @@ internal class EventControllerTest @Autowired constructor(
             val newCategory = "Greatest Events"
             val newThumbnailPath = "https://thumbnails/new.png"
 
-            mockMvc.put("/events/${testEvent.id}") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(
-                    mapOf(
-                        "title" to newTitle,
-                        "description" to newDescription,
-                        "registerUrl" to newRegisterUrl,
-                        "dateInterval" to newDateInterval,
-                        "location" to newLocation,
-                        "category" to newCategory,
-                        "thumbnailPath" to newThumbnailPath,
+            mockMvc.perform(
+                put("/events/{id}", testEvent.id)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf(
+                                "title" to newTitle,
+                                "description" to newDescription,
+                                "registerUrl" to newRegisterUrl,
+                                "dateInterval" to newDateInterval,
+                                "location" to newLocation,
+                                "category" to newCategory,
+                                "thumbnailPath" to newThumbnailPath,
+                                "associatedRoles" to testEvent.associatedRoles,
+                            ),
+                        ),
+                    ),
+            )
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.title").value(newTitle),
+                    jsonPath("$.description").value(newDescription),
+                    jsonPath("$.registerUrl").value(newRegisterUrl),
+                    jsonPath("$.dateInterval.startDate").value(newDateInterval.startDate.toJson()),
+                    jsonPath("$.dateInterval.endDate").value(newDateInterval.endDate.toJson()),
+                    jsonPath("$.location").value(newLocation),
+                    jsonPath("$.category").value(newCategory),
+                    jsonPath("$.thumbnailPath").value(newThumbnailPath),
+                )
+                .andDo(
+                    document(
+                        "events/{ClassName}/{methodName}",
+                        snippets = arrayOf(
+                            resource(
+                                ResourceSnippetParameters.builder()
+                                    .summary("Update events")
+                                    .description(
+                                        """Update previously created events, using their ID.""",
+                                    )
+                                    .pathParameters(parameterWithName("id").description("ID of the event to update"))
+                                    .requestSchema(eventPayloadSchema.Request().schema())
+                                    .requestFields(eventPayloadSchema.Request().documentedFields())
+                                    .responseSchema(eventPayloadSchema.Response().schema())
+                                    .responseFields(eventPayloadSchema.Response().documentedFields("Event ID"))
+                                    .tag("Events")
+                                    .build(),
+                            ),
+                        ),
                     ),
                 )
-            }
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.title") { value(newTitle) }
-                    jsonPath("$.description") { value(newDescription) }
-                    jsonPath("$.registerUrl") { value(newRegisterUrl) }
-                    jsonPath("$.dateInterval.startDate") { value(newDateInterval.startDate.toJson()) }
-                    jsonPath("$.dateInterval.endDate") { value(newDateInterval.endDate.toJson()) }
-                    jsonPath("$.location") { value(newLocation) }
-                    jsonPath("$.category") { value(newCategory) }
-                    jsonPath("$.thumbnailPath") { value(newThumbnailPath) }
-                }
 
             val updatedEvent = repository.findById(testEvent.id!!).get()
             assertEquals(newTitle, updatedEvent.title)
@@ -595,23 +633,42 @@ internal class EventControllerTest @Autowired constructor(
 
         @Test
         fun `should fail if the event does not exist`() {
-            mockMvc.put("/events/1234") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(
-                    mapOf(
-                        "title" to "New Title",
-                        "description" to "New Description",
-                        "dateInterval" to DateInterval(TestUtils.createDate(2022, Calendar.DECEMBER, 1), null),
-                        "thumbnailPath" to "http://test.com/thumbnail/1",
+            mockMvc.perform(
+                put("/events/{id}", 1234)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf(
+                                "title" to "New Title",
+                                "description" to "New Description",
+                                "dateInterval" to DateInterval(TestUtils.createDate(2022, Calendar.DECEMBER, 1), null),
+                                "thumbnailPath" to "http://test.com/thumbnail/1",
+                                "associatedRoles" to testEvent.associatedRoles,
+                            ),
+                        ),
+                    ),
+            )
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("event not found with id 1234"),
+                )
+                .andDo(
+                    document(
+                        "events/{ClassName}/{methodName}",
+                        snippets = arrayOf(
+                            resource(
+                                ResourceSnippetParameters.builder()
+                                    .pathParameters(parameterWithName("id").description("ID of the event to update"))
+                                    .responseSchema(ErrorSchema().Response().schema())
+                                    .responseFields(ErrorSchema().Response().documentedFields())
+                                    .tag("Events")
+                                    .build(),
+                            ),
+                        ),
                     ),
                 )
-            }
-                .andExpect {
-                    status { isNotFound() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.errors.length()") { value(1) }
-                    jsonPath("$.errors[0].message") { value("event not found with id 1234") }
-                }
         }
 
         @NestedTest
@@ -619,10 +676,11 @@ internal class EventControllerTest @Autowired constructor(
         inner class InputValidation {
             private val validationTester = ValidationTester(
                 req = { params: Map<String, Any?> ->
-                    mockMvc.put("/events/${testEvent.id}") {
-                        contentType = MediaType.APPLICATION_JSON
-                        content = objectMapper.writeValueAsString(params)
-                    }
+                    mockMvc.perform(
+                        put("/events/{id}", testEvent.id)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(params)),
+                    )
                 },
                 requiredFields = mapOf(
                     "title" to testEvent.title,

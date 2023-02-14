@@ -8,6 +8,8 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.get
@@ -24,13 +26,13 @@ import pt.up.fe.ni.website.backend.model.constants.ActivityConstants as Constant
 internal class ProjectControllerTest @Autowired constructor(
     val mockMvc: MockMvc,
     val objectMapper: ObjectMapper,
-    val repository: ProjectRepository
+    val repository: ProjectRepository,
 ) {
     val testProject = Project(
         "Awesome project",
         "this is a test project",
         false,
-        listOf("Java", "Kotlin", "Spring")
+        listOf("Java", "Kotlin", "Spring"),
     )
 
     @NestedTest
@@ -42,8 +44,8 @@ internal class ProjectControllerTest @Autowired constructor(
                 "NIJobs",
                 "Job platform for students",
                 false,
-                listOf("ExpressJS", "React")
-            )
+                listOf("ExpressJS", "React"),
+            ),
         )
 
         @BeforeEach
@@ -116,15 +118,16 @@ internal class ProjectControllerTest @Autowired constructor(
         inner class InputValidation {
             private val validationTester = ValidationTester(
                 req = { params: Map<String, Any?> ->
-                    mockMvc.post("/projects/new") {
-                        contentType = MediaType.APPLICATION_JSON
-                        content = objectMapper.writeValueAsString(params)
-                    }
+                    mockMvc.perform(
+                        post("/projects/new")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(params)),
+                    )
                 },
                 requiredFields = mapOf(
                     "title" to testProject.title,
-                    "description" to testProject.description
-                )
+                    "description" to testProject.description,
+                ),
             )
 
             @NestedTest
@@ -212,8 +215,8 @@ internal class ProjectControllerTest @Autowired constructor(
                     mapOf(
                         "title" to newTitle,
                         "description" to newDescription,
-                        "isArchived" to newIsArchived
-                    )
+                        "isArchived" to newIsArchived,
+                    ),
                 )
             }
                 .andExpect {
@@ -237,8 +240,8 @@ internal class ProjectControllerTest @Autowired constructor(
                 content = objectMapper.writeValueAsString(
                     mapOf(
                         "title" to "New Title",
-                        "description" to "New description of the project"
-                    )
+                        "description" to "New description of the project",
+                    ),
                 )
             }
                 .andExpect {
@@ -254,15 +257,16 @@ internal class ProjectControllerTest @Autowired constructor(
         inner class InputValidation {
             private val validationTester = ValidationTester(
                 req = { params: Map<String, Any?> ->
-                    mockMvc.put("/projects/${testProject.id}") {
-                        contentType = MediaType.APPLICATION_JSON
-                        content = objectMapper.writeValueAsString(params)
-                    }
+                    mockMvc.perform(
+                        put("/projects/{id}", testProject.id)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(params)),
+                    )
                 },
                 requiredFields = mapOf(
                     "title" to testProject.title,
-                    "description" to testProject.description
-                )
+                    "description" to testProject.description,
+                ),
             )
 
             @NestedTest
@@ -334,7 +338,7 @@ internal class ProjectControllerTest @Autowired constructor(
             "proj1",
             "very cool project",
             true,
-            listOf("React", "TailwindCSS")
+            listOf("React", "TailwindCSS"),
         )
 
         @BeforeEach
