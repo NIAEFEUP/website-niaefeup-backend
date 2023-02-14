@@ -1,6 +1,7 @@
 package pt.up.fe.ni.website.backend.controller
 
 import com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document
+import com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName
 import com.epages.restdocs.apispec.ResourceDocumentation.resource
 import com.epages.restdocs.apispec.ResourceSnippetParameters
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -19,7 +20,6 @@ import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.delete
-import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
@@ -33,6 +33,7 @@ import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.ValidationTester
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
 import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
+import pt.up.fe.ni.website.backend.utils.documentation.ErrorSchema
 import pt.up.fe.ni.website.backend.utils.documentation.PayloadSchema
 import java.util.Calendar
 import java.util.Date
@@ -73,7 +74,7 @@ internal class EventControllerTest @Autowired constructor(
         fieldWithPath("associatedRoles[].*.permissions").type(JsonFieldType.OBJECT).description("Permissions of someone with a given role for this activity").optional(),
         fieldWithPath("associatedRoles[].*.id").type(JsonFieldType.NUMBER).description("Id of the role/activity association").optional(),
     )
-    private val eventPayloadSchema = PayloadSchema("event", eventFields, "Event Id")
+    private val eventPayloadSchema = PayloadSchema("event", eventFields)
 
     @NestedTest
     @DisplayName("GET /events")
@@ -114,12 +115,13 @@ internal class EventControllerTest @Autowired constructor(
                                     .summary("Get all the events")
                                     .description(
                                         """
-                                        Visiting the events page on the frontend requires all events to be loaded.
+                                        The array of events allows to easily retrieve all the created events.
+                                        This is useful for example in the frontend's event page, where events are displayed.
                                         """.trimIndent(),
                                     )
                                     .responseSchema(eventPayloadSchema.Response().arraySchema())
+                                    .responseFields(eventPayloadSchema.Response().arrayDocumentedFields("Event ID"))
                                     .tag("Events")
-                                    .responseFields(eventPayloadSchema.Response().arrayDocumentedFields())
                                     .build(),
                             ),
                         ),
@@ -138,29 +140,66 @@ internal class EventControllerTest @Autowired constructor(
 
         @Test
         fun `should return the event`() {
-            mockMvc.get("/events/${testEvent.id}")
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.title") { value(testEvent.title) }
-                    jsonPath("$.description") { value(testEvent.description) }
-                    jsonPath("$.registerUrl") { value(testEvent.registerUrl) }
-                    jsonPath("$.dateInterval.startDate") { value(testEvent.dateInterval.startDate.toJson()) }
-                    jsonPath("$.dateInterval.endDate") { value(testEvent.dateInterval.endDate.toJson()) }
-                    jsonPath("$.location") { value(testEvent.location) }
-                    jsonPath("$.category") { value(testEvent.category) }
-                    jsonPath("$.thumbnailPath") { value(testEvent.thumbnailPath) }
-                }
+            mockMvc.perform(get("/events/{id}", testEvent.id))
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.title").value(testEvent.title),
+                    jsonPath("$.description").value(testEvent.description),
+                    jsonPath("$.registerUrl").value(testEvent.registerUrl),
+                    jsonPath("$.dateInterval.startDate").value(testEvent.dateInterval.startDate.toJson()),
+                    jsonPath("$.dateInterval.endDate").value(testEvent.dateInterval.endDate.toJson()),
+                    jsonPath("$.location").value(testEvent.location),
+                    jsonPath("$.category").value(testEvent.category),
+                    jsonPath("$.thumbnailPath").value(testEvent.thumbnailPath),
+                )
+                .andDo(
+                    document(
+                        "events/{ClassName}/{methodName}",
+                        snippets = arrayOf(
+                            resource(
+                                ResourceSnippetParameters.builder()
+                                    .responseSchema(eventPayloadSchema.Response().schema())
+                                    .responseFields(eventPayloadSchema.Response().documentedFields("Event ID"))
+                                    .tag("Events")
+                                    .build(),
+                            ),
+                        ),
+                    ),
+                )
         }
 
         @Test
         fun `should fail if the event does not exist`() {
-            mockMvc.get("/events/1234").andExpect {
-                status { isNotFound() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.errors.length()") { value(1) }
-                jsonPath("$.errors[0].message") { value("event not found with id 1234") }
-            }
+            mockMvc.perform(get("/events/{id}", 1234))
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("event not found with id 1234"),
+                )
+                .andDo(
+                    document(
+                        "events/{ClassName}/{methodName}",
+                        snippets = arrayOf(
+                            resource(
+                                ResourceSnippetParameters.builder()
+                                    .summary("Get events by ID")
+                                    .description(
+                                        """
+                                        This endpoint allows the retrieval of a single event using its ID.
+                                        It might be used to generate the specific event page.
+                                        """.trimIndent(),
+                                    )
+                                    .pathParameters(parameterWithName("id").description("ID of the event to retrieve"))
+                                    .responseSchema(ErrorSchema().Response().schema())
+                                    .responseFields(ErrorSchema().Response().documentedFields())
+                                    .tag("Events")
+                                    .build(),
+                            ),
+                        ),
+                    ),
+                )
         }
     }
 
@@ -214,14 +253,36 @@ internal class EventControllerTest @Autowired constructor(
 
         @Test
         fun `should return all events of the category`() {
-            mockMvc.get("/events/category/${testEvent.category}")
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.length()") { value(2) }
-                    jsonPath("$[0].category") { value(testEvent.category) }
-                    jsonPath("$[1].category") { value(testEvent.category) }
-                }
+            mockMvc.perform(get("/events/category/{category}", testEvent.category))
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.length()").value(2),
+                    jsonPath("$[0].category").value(testEvent.category),
+                    jsonPath("$[1].category").value(testEvent.category),
+                )
+                .andDo(
+                    document(
+                        "events/{ClassName}/{methodName}",
+                        snippets = arrayOf(
+                            resource(
+                                ResourceSnippetParameters.builder()
+                                    .summary("Get events by category")
+                                    .description(
+                                        """
+                                        This endpoint allows the retrieval of events labeled with a given category.
+                                        It might be used to filter events in the event page.
+                                        """.trimIndent(),
+                                    )
+                                    .pathParameters(parameterWithName("category").description("Category of the events to retrieve"))
+                                    .responseSchema(eventPayloadSchema.Response().arraySchema())
+                                    .responseFields(eventPayloadSchema.Response().arrayDocumentedFields("Event ID"))
+                                    .tag("Events")
+                                    .build(),
+                            ),
+                        ),
+                    ),
+                )
         }
     }
 
@@ -236,9 +297,9 @@ internal class EventControllerTest @Autowired constructor(
                     .content(objectMapper.writeValueAsString(testEvent))
                     .accept(MediaType.APPLICATION_JSON),
             )
-                .andExpect(status().isOk)
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.title").value(testEvent.title),
                     jsonPath("$.description").value(testEvent.description),
                     jsonPath("$.registerUrl").value(testEvent.registerUrl),
@@ -250,21 +311,21 @@ internal class EventControllerTest @Autowired constructor(
                 )
                 .andDo(
                     document(
-                        "events/{ClassName}",
+                        "events/{ClassName}/{methodName}",
                         snippets = arrayOf(
                             resource(
                                 ResourceSnippetParameters.builder()
-                                    .tag("Events")
-                                    .summary("Creates a new event.")
+                                    .summary("Create a new event")
                                     .description(
                                         """
-                                        It is necessary to create new events, as the nucleus is very active
+                                        This is the way of adding new events.
                                         """.trimIndent(),
                                     )
                                     .requestFields(eventPayloadSchema.Request().documentedFields())
                                     .requestSchema(eventPayloadSchema.Request().schema())
-                                    .responseFields(eventPayloadSchema.Response().documentedFields())
+                                    .responseFields(eventPayloadSchema.Response().documentedFields("Event ID"))
                                     .responseSchema(eventPayloadSchema.Response().schema())
+                                    .tag("Events")
                                     .build(),
                             ),
                         ),

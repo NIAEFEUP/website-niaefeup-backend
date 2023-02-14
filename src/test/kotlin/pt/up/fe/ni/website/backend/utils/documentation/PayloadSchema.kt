@@ -5,10 +5,9 @@ import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.restdocs.payload.PayloadDocumentation
 
-class PayloadSchema(
+open class PayloadSchema(
     private val schemaName: String,
-    private val documentedJsonFields: List<FieldDescriptor>,
-    private val idDescription: String?,
+    val documentedJsonFields: List<FieldDescriptor>,
 ) {
     inner class Request {
         fun schema(): Schema {
@@ -25,7 +24,7 @@ class PayloadSchema(
             return Schema("$schemaName-response")
         }
 
-        fun documentedFields(): MutableList<FieldDescriptor> {
+        fun documentedFields(idDescription: String? = null): MutableList<FieldDescriptor> {
             val fieldsList = documentedJsonFields.toMutableList()
             idDescription?.let {
                 fieldsList.add(
@@ -39,7 +38,7 @@ class PayloadSchema(
             return Schema("$schemaName-response-array")
         }
 
-        fun arrayDocumentedFields(): MutableList<FieldDescriptor> {
+        fun arrayDocumentedFields(idDescription: String? = null): MutableList<FieldDescriptor> {
             val fieldsList = documentedJsonFields.toMutableList()
             idDescription?.let {
                 fieldsList.add(
