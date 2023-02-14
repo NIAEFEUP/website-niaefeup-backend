@@ -13,13 +13,13 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs
 import org.springframework.http.MediaType
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
@@ -33,6 +33,7 @@ import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.ValidationTester
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
 import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
+import pt.up.fe.ni.website.backend.utils.documentation.EmptyObjectSchema
 import pt.up.fe.ni.website.backend.utils.documentation.ErrorSchema
 import pt.up.fe.ni.website.backend.utils.documentation.PayloadSchema
 import java.util.Calendar
@@ -476,23 +477,60 @@ internal class EventControllerTest @Autowired constructor(
 
         @Test
         fun `should delete the event`() {
-            mockMvc.delete("/events/${testEvent.id}").andExpect {
-                status { isOk() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$") { isEmpty() }
-            }
+            mockMvc.perform(delete("/events/{id}", testEvent.id))
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$").isEmpty,
+                )
+                .andDo(
+                    document(
+                        "events/{ClassName}/{methodName}",
+                        snippets = arrayOf(
+                            resource(
+                                ResourceSnippetParameters.builder()
+                                    .pathParameters(parameterWithName("id").description("ID of the event to delete"))
+                                    .responseSchema(EmptyObjectSchema().Response().schema())
+                                    .tag("Events")
+                                    .build(),
+                            ),
+                        ),
+                    ),
+                )
 
             assert(repository.findById(testEvent.id!!).isEmpty)
         }
 
         @Test
         fun `should fail if the event does not exist`() {
-            mockMvc.delete("/events/1234").andExpect {
-                status { isNotFound() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.errors.length()") { value(1) }
-                jsonPath("$.errors[0].message") { value("event not found with id 1234") }
-            }
+            mockMvc.perform(delete("/events/{id}", 1234))
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("event not found with id 1234"),
+                )
+                .andDo(
+                    document(
+                        "events/{ClassName}/{methodName}",
+                        snippets = arrayOf(
+                            resource(
+                                ResourceSnippetParameters.builder()
+                                    .summary("Delete an event")
+                                    .description(
+                                        """
+                                        This is the way of removing events.
+                                        """.trimIndent(),
+                                    )
+                                    .pathParameters(parameterWithName("id").description("ID of the event to delete"))
+                                    .responseSchema(ErrorSchema().Response().schema())
+                                    .responseFields(ErrorSchema().Response().documentedFields())
+                                    .tag("Events")
+                                    .build(),
+                            ),
+                        ),
+                    ),
+                )
         }
     }
 
