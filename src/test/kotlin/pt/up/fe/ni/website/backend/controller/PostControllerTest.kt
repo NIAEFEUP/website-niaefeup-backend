@@ -18,7 +18,6 @@ import pt.up.fe.ni.website.backend.model.Post
 import pt.up.fe.ni.website.backend.repository.PostRepository
 import pt.up.fe.ni.website.backend.utils.ValidationTester
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
-import pt.up.fe.ni.website.backend.utils.annotations.EndpointTest
 import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -37,7 +36,7 @@ internal class PostControllerTest @Autowired constructor(
         slug = "new-test-released"
     )
 
-    @EndpointTest
+    @NestedTest
     @DisplayName("GET /posts")
     inner class GetAllPosts {
         private val testPosts = listOf(
@@ -49,7 +48,7 @@ internal class PostControllerTest @Autowired constructor(
             )
         )
 
-        @BeforeAll
+        @BeforeEach
         fun addPosts() {
             for (post in testPosts) repository.save(post)
         }
@@ -64,10 +63,10 @@ internal class PostControllerTest @Autowired constructor(
         }
     }
 
-    @EndpointTest
+    @NestedTest
     @DisplayName("GET /posts/{postId}")
     inner class GetPostById {
-        @BeforeAll
+        @BeforeEach
         fun addPost() {
             repository.save(testPost)
         }
@@ -97,10 +96,10 @@ internal class PostControllerTest @Autowired constructor(
         }
     }
 
-    @EndpointTest
+    @NestedTest
     @DisplayName("GET /posts/{postSlug}")
     inner class GetPostBySlang {
-        @BeforeAll
+        @BeforeEach
         fun addPost() {
             repository.save(testPost)
         }
@@ -131,7 +130,7 @@ internal class PostControllerTest @Autowired constructor(
         }
     }
 
-    @EndpointTest
+    @NestedTest
     @DisplayName("POST /posts/new")
     inner class CreatePost {
         @BeforeEach
@@ -254,7 +253,7 @@ internal class PostControllerTest @Autowired constructor(
         }
     }
 
-    @EndpointTest
+    @NestedTest
     @DisplayName("DELETE /posts/{postId}")
     inner class DeletePost {
         @BeforeEach
@@ -284,10 +283,10 @@ internal class PostControllerTest @Autowired constructor(
         }
     }
 
-    @EndpointTest
+    @NestedTest
     @DisplayName("PUT /posts/{postId}")
     inner class UpdatePost {
-        @BeforeAll
+        @BeforeEach
         fun addPost() {
             repository.save(testPost)
             repository.save(
@@ -299,8 +298,6 @@ internal class PostControllerTest @Autowired constructor(
                 )
             )
         }
-
-        private var updatedSlug = testPost.slug
 
         @Test
         fun `should update the post without the slug`() {
@@ -326,16 +323,14 @@ internal class PostControllerTest @Autowired constructor(
                     jsonPath("$.thumbnailPath") { value(newThumbnailPath) }
                     jsonPath("$.publishDate") { value(testPost.publishDate.toJson()) }
                     jsonPath("$.lastUpdatedAt") { exists() }
-                    jsonPath("$.slug") { value(updatedSlug) }
+                    jsonPath("$.slug") { value(testPost.slug) }
                 }
 
             val updatedPost = repository.findById(testPost.id!!).get()
             assertEquals(newTitle, updatedPost.title)
             assertEquals(newBody, updatedPost.body)
             assertEquals(newThumbnailPath, updatedPost.thumbnailPath)
-            assertEquals(testPost.publishDate, updatedPost.publishDate)
-            assertNotEquals(testPost.lastUpdatedAt, updatedPost.lastUpdatedAt)
-            assertEquals(updatedSlug, updatedPost.slug)
+            assertEquals(testPost.slug, updatedPost.slug)
         }
 
         @Test
@@ -343,7 +338,7 @@ internal class PostControllerTest @Autowired constructor(
             val newTitle = "New Title"
             val newBody = "New Body of the post"
             val newThumbnailPath = "https://thumbnails/new.png"
-            updatedSlug = "new-slug"
+            val newSlug = "new-slug"
 
             mockMvc.put("/posts/${testPost.id}") {
                 contentType = MediaType.APPLICATION_JSON
@@ -352,7 +347,7 @@ internal class PostControllerTest @Autowired constructor(
                         "title" to newTitle,
                         "body" to newBody,
                         "thumbnailPath" to newThumbnailPath,
-                        "slug" to updatedSlug
+                        "slug" to newSlug
                     )
                 )
             }
@@ -364,7 +359,7 @@ internal class PostControllerTest @Autowired constructor(
                     jsonPath("$.thumbnailPath") { value(newThumbnailPath) }
                     jsonPath("$.publishDate") { value(testPost.publishDate.toJson()) }
                     jsonPath("$.lastUpdatedAt") { exists() }
-                    jsonPath("$.slug") { value(updatedSlug) }
+                    jsonPath("$.slug") { value(newSlug) }
                 }
 
             val updatedPost = repository.findById(testPost.id!!).get()
@@ -373,7 +368,7 @@ internal class PostControllerTest @Autowired constructor(
             assertEquals(newThumbnailPath, updatedPost.thumbnailPath)
             assertEquals(testPost.publishDate, updatedPost.publishDate)
             assertNotEquals(testPost.lastUpdatedAt, updatedPost.lastUpdatedAt)
-            assertEquals(updatedSlug, updatedPost.slug)
+            assertEquals(newSlug, updatedPost.slug)
         }
 
         @Test

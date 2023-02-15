@@ -21,7 +21,6 @@ import pt.up.fe.ni.website.backend.repository.ProjectRepository
 import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.ValidationTester
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
-import pt.up.fe.ni.website.backend.utils.annotations.EndpointTest
 import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
 import java.util.Calendar
 import java.util.Date
@@ -57,7 +56,7 @@ internal class ProjectControllerTest @Autowired constructor(
         listOf("Java", "Kotlin", "Spring")
     )
 
-    @EndpointTest
+    @NestedTest
     @DisplayName("GET /projects")
     inner class GetAllProjects {
         private val testProjects = listOf(
@@ -71,8 +70,8 @@ internal class ProjectControllerTest @Autowired constructor(
             )
         )
 
-        @BeforeAll
-        fun addProjects() {
+        @BeforeEach
+        fun addToRepositories() {
             accountRepository.save(testAccount)
             for (project in testProjects) repository.save(project)
         }
@@ -87,11 +86,11 @@ internal class ProjectControllerTest @Autowired constructor(
         }
     }
 
-    @EndpointTest
+    @NestedTest
     @DisplayName("GET /projects/{projectId}")
     inner class GetProject {
-        @BeforeAll
-        fun addProject() {
+        @BeforeEach
+        fun addToRepositories() {
             accountRepository.save(testAccount)
             repository.save(testProject)
         }
@@ -119,12 +118,13 @@ internal class ProjectControllerTest @Autowired constructor(
         }
     }
 
-    @EndpointTest
+    @NestedTest
     @DisplayName("POST /projects/new")
     inner class CreateProject {
-        @BeforeAll
-        fun addAccount() {
+        @BeforeEach
+        fun addToRepositories() {
             accountRepository.save(testAccount)
+            repository.save(testProject)
         }
 
         @Test
@@ -205,11 +205,11 @@ internal class ProjectControllerTest @Autowired constructor(
         }
     }
 
-    @EndpointTest
+    @NestedTest
     @DisplayName("DELETE /projects/{projectId}")
     inner class DeleteProject {
         @BeforeEach
-        fun addProject() {
+        fun addToRepositories() {
             accountRepository.save(testAccount)
             repository.save(testProject)
         }
@@ -236,16 +236,13 @@ internal class ProjectControllerTest @Autowired constructor(
         }
     }
 
-    @EndpointTest
+    @NestedTest
     @DisplayName("PUT /projects/{projectId}")
     inner class UpdateProject {
-        @BeforeAll
-        fun addAccount() {
-            accountRepository.save(testAccount)
-        }
 
         @BeforeEach
-        fun addProject() {
+        fun addToRepositories() {
+            accountRepository.save(testAccount)
             repository.save(testProject)
         }
 
@@ -352,11 +349,11 @@ internal class ProjectControllerTest @Autowired constructor(
         }
     }
 
-    @EndpointTest
+    @NestedTest
     @DisplayName("PUT /projects/{projectId}/archive")
     inner class ArchiveProject {
-        @BeforeAll
-        fun addProject() {
+        @BeforeEach
+        fun addToRepositories() {
             accountRepository.save(testAccount)
             repository.save(testProject)
         }
@@ -380,7 +377,7 @@ internal class ProjectControllerTest @Autowired constructor(
         }
     }
 
-    @EndpointTest
+    @NestedTest
     @DisplayName("PUT /projects/{projectId}/unarchive")
     inner class UnarchiveProject {
         private val project = Project(
@@ -391,8 +388,9 @@ internal class ProjectControllerTest @Autowired constructor(
             listOf("React", "TailwindCSS")
         )
 
-        @BeforeAll
-        fun addProject() {
+        @BeforeEach
+        fun addToRepositories() {
+            accountRepository.save(testAccount)
             repository.save(project)
         }
 
@@ -415,7 +413,7 @@ internal class ProjectControllerTest @Autowired constructor(
         }
     }
 
-    @EndpointTest
+    @NestedTest
     @DisplayName("PUT /projects/{projectId}/addTeamMember/{accountId}")
     inner class AddTeamMember {
 
@@ -433,8 +431,8 @@ internal class ProjectControllerTest @Autowired constructor(
             )
         )
 
-        @BeforeAll
-        fun addAccounts() {
+        @BeforeEach
+        fun addToRepositories() {
             accountRepository.save(testAccount)
             accountRepository.save(newAccount)
             repository.save(testProject)
@@ -481,11 +479,11 @@ internal class ProjectControllerTest @Autowired constructor(
         }
     }
 
-    @EndpointTest
+    @NestedTest
     @DisplayName("PUT /projects/{projectId}/removeTeamMember/{accountId}")
     inner class RemoveTeamMember {
 
-        @BeforeAll
+        @BeforeEach
         fun addToRepositories() {
             accountRepository.save(testAccount)
             repository.save(testProject)

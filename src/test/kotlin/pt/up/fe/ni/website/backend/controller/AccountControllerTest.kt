@@ -3,6 +3,7 @@ package pt.up.fe.ni.website.backend.controller
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -16,7 +17,6 @@ import pt.up.fe.ni.website.backend.repository.AccountRepository
 import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.ValidationTester
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
-import pt.up.fe.ni.website.backend.utils.annotations.EndpointTest
 import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
 import java.util.Calendar
 import java.util.Date
@@ -39,10 +39,11 @@ class AccountControllerTest @Autowired constructor(
         "https://github.com",
         listOf(
             CustomWebsite("https://test-website.com", "https://test-website.com/logo.png")
-        )
+        ),
+        emptyList()
     )
 
-    @EndpointTest
+    @NestedTest
     @DisplayName("GET /accounts")
     inner class GetAllAccounts {
         private val testAccounts = listOf(
@@ -56,11 +57,12 @@ class AccountControllerTest @Autowired constructor(
                 null,
                 null,
                 null,
+                emptyList(),
                 emptyList()
             )
         )
 
-        @BeforeAll
+        @BeforeEach
         fun addAccounts() {
             for (account in testAccounts) repository.save(account)
         }
@@ -76,10 +78,10 @@ class AccountControllerTest @Autowired constructor(
         }
     }
 
-    @EndpointTest
+    @NestedTest
     @DisplayName("GET /accounts/{id}")
     inner class GetAccount {
-        @BeforeAll
+        @BeforeEach
         fun addAccount() {
             repository.save(testAccount)
         }
@@ -114,7 +116,7 @@ class AccountControllerTest @Autowired constructor(
         }
     }
 
-    @EndpointTest
+    @NestedTest
     @DisplayName("POST /accounts/new")
     inner class CreateAccount {
         @AfterEach
@@ -140,6 +142,46 @@ class AccountControllerTest @Autowired constructor(
                 jsonPath("$.websites.length()") { value(1) }
                 jsonPath("$.websites[0].url") { value(testAccount.websites[0].url) }
                 jsonPath("$.websites[0].iconPath") { value(testAccount.websites[0].iconPath) }
+            }
+        }
+        @Test
+        fun `should create an account with an empty website list`() {
+            val noWebsite = Account(
+                "Test Account",
+                "no_website@email.com",
+                "test_password",
+                "This is a test account",
+                TestUtils.createDate(2001, Calendar.JULY, 28),
+                "https://test-photo.com",
+                "https://linkedin.com",
+                "https://github.com"
+            )
+
+            mockMvc.post("/accounts/new") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(
+                    mapOf(
+                        "name" to noWebsite.name,
+                        "email" to noWebsite.email,
+                        "password" to noWebsite.password,
+                        "bio" to noWebsite.bio,
+                        "birthDate" to noWebsite.birthDate,
+                        "photoPath" to noWebsite.photoPath,
+                        "linkedin" to noWebsite.linkedin,
+                        "github" to noWebsite.github
+                    )
+                )
+            }.andExpect {
+                status { isOk() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                jsonPath("$.name") { value(noWebsite.name) }
+                jsonPath("$.email") { value(noWebsite.email) }
+                jsonPath("$.bio") { value(noWebsite.bio) }
+                jsonPath("$.birthDate") { value(noWebsite.birthDate.toJson()) }
+                jsonPath("$.photoPath") { value(noWebsite.photoPath) }
+                jsonPath("$.linkedin") { value(noWebsite.linkedin) }
+                jsonPath("$.github") { value(noWebsite.github) }
+                jsonPath("$.websites.length()") { value(0) }
             }
         }
 

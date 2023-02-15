@@ -1,6 +1,7 @@
 package pt.up.fe.ni.website.backend.model
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
@@ -9,6 +10,7 @@ import jakarta.persistence.Inheritance
 import jakarta.persistence.InheritanceType
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.OneToMany
+import jakarta.validation.Valid
 import jakarta.validation.constraints.Size
 import pt.up.fe.ni.website.backend.model.constants.ActivityConstants as Constants
 
@@ -27,6 +29,9 @@ abstract class Activity(
     @JoinColumn
     @OneToMany(fetch = FetchType.EAGER)
     open val teamMembers: MutableList<Account>,
+
+    @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
+    open var associatedRoles: List<@Valid PerActivityRole>,
 
     @Id
     @GeneratedValue
