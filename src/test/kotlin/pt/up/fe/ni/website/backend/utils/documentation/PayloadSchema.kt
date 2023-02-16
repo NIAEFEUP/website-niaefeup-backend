@@ -2,7 +2,6 @@ package pt.up.fe.ni.website.backend.utils.documentation
 
 import com.epages.restdocs.apispec.Schema
 import org.springframework.restdocs.payload.FieldDescriptor
-import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.restdocs.payload.PayloadDocumentation
 
 open class PayloadSchema(
@@ -14,7 +13,12 @@ open class PayloadSchema(
             return Schema("$schemaName-request")
         }
 
-        fun documentedFields(): MutableList<FieldDescriptor> {
+        fun documentedFields(requestOnlyFields: List<FieldDescriptor>? = null): MutableList<FieldDescriptor> {
+            requestOnlyFields?.let {
+                val requestFields = documentedJsonFields.toMutableList()
+                requestFields.addAll(it)
+                return requestFields
+            }
             return documentedJsonFields.toMutableList()
         }
     }
@@ -24,12 +28,10 @@ open class PayloadSchema(
             return Schema("$schemaName-response")
         }
 
-        fun documentedFields(idDescription: String? = null): MutableList<FieldDescriptor> {
+        fun documentedFields(responseOnlyFields: List<FieldDescriptor>? = null): MutableList<FieldDescriptor> {
             val fieldsList = documentedJsonFields.toMutableList()
-            idDescription?.let {
-                fieldsList.add(
-                    PayloadDocumentation.fieldWithPath("id").type(JsonFieldType.NUMBER).description(it),
-                )
+            responseOnlyFields?.let {
+                fieldsList.addAll(it)
             }
             return fieldsList
         }
@@ -38,13 +40,9 @@ open class PayloadSchema(
             return Schema("$schemaName-response-array")
         }
 
-        fun arrayDocumentedFields(idDescription: String? = null): MutableList<FieldDescriptor> {
+        fun arrayDocumentedFields(responseOnlyFields: List<FieldDescriptor>? = null): MutableList<FieldDescriptor> {
             val fieldsList = documentedJsonFields.toMutableList()
-            idDescription?.let {
-                fieldsList.add(
-                    PayloadDocumentation.fieldWithPath("id").type(JsonFieldType.NUMBER).description(it),
-                )
-            }
+            responseOnlyFields?.let { fieldsList.addAll(it) }
 
             val arrayFieldsList = mutableListOf<FieldDescriptor>()
             for (field in fieldsList) {

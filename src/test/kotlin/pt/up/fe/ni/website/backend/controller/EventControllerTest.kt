@@ -4,6 +4,7 @@ import com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document
 import com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName
 import com.epages.restdocs.apispec.ResourceDocumentation.resource
 import com.epages.restdocs.apispec.ResourceSnippetParameters
+import com.epages.restdocs.apispec.ResourceSnippetParameters.Companion.builder
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
@@ -75,6 +76,7 @@ internal class EventControllerTest @Autowired constructor(
         fieldWithPath("associatedRoles[].*.id").type(JsonFieldType.NUMBER).description("Id of the role/activity association").optional(),
     )
     private val eventPayloadSchema = PayloadSchema("event", eventFields)
+    private val responseOnlyEventFields = listOf<FieldDescriptor>(fieldWithPath("id").type(JsonFieldType.NUMBER).description("Event ID"))
 
     @NestedTest
     @DisplayName("GET /events")
@@ -120,7 +122,7 @@ internal class EventControllerTest @Autowired constructor(
                                         """.trimIndent(),
                                     )
                                     .responseSchema(eventPayloadSchema.Response().arraySchema())
-                                    .responseFields(eventPayloadSchema.Response().arrayDocumentedFields("Event ID"))
+                                    .responseFields(eventPayloadSchema.Response().arrayDocumentedFields(responseOnlyEventFields))
                                     .tag("Events")
                                     .build(),
                             ),
@@ -160,7 +162,7 @@ internal class EventControllerTest @Autowired constructor(
                             resource(
                                 ResourceSnippetParameters.builder()
                                     .responseSchema(eventPayloadSchema.Response().schema())
-                                    .responseFields(eventPayloadSchema.Response().documentedFields("Event ID"))
+                                    .responseFields(eventPayloadSchema.Response().documentedFields(responseOnlyEventFields))
                                     .tag("Events")
                                     .build(),
                             ),
@@ -183,7 +185,7 @@ internal class EventControllerTest @Autowired constructor(
                         "events/{ClassName}/{methodName}",
                         snippets = arrayOf(
                             resource(
-                                ResourceSnippetParameters.builder()
+                                builder()
                                     .summary("Get events by ID")
                                     .description(
                                         """
@@ -276,7 +278,7 @@ internal class EventControllerTest @Autowired constructor(
                                     )
                                     .pathParameters(parameterWithName("category").description("Category of the events to retrieve"))
                                     .responseSchema(eventPayloadSchema.Response().arraySchema())
-                                    .responseFields(eventPayloadSchema.Response().arrayDocumentedFields("Event ID"))
+                                    .responseFields(eventPayloadSchema.Response().arrayDocumentedFields(responseOnlyEventFields))
                                     .tag("Events")
                                     .build(),
                             ),
@@ -324,7 +326,7 @@ internal class EventControllerTest @Autowired constructor(
                                     .requestSchema(eventPayloadSchema.Request().schema())
                                     .requestFields(eventPayloadSchema.Request().documentedFields())
                                     .responseSchema(eventPayloadSchema.Response().schema())
-                                    .responseFields(eventPayloadSchema.Response().documentedFields("Event ID"))
+                                    .responseFields(eventPayloadSchema.Response().documentedFields(responseOnlyEventFields))
                                     .tag("Events")
                                     .build(),
                             ),
@@ -347,7 +349,7 @@ internal class EventControllerTest @Autowired constructor(
                             "events/{ClassName}/{methodName}",
                             snippets = arrayOf(
                                 resource(
-                                    ResourceSnippetParameters.builder()
+                                    builder()
                                         .responseSchema(ErrorSchema().Response().schema())
                                         .responseFields(ErrorSchema().Response().documentedFields())
                                         .tag("Events")
@@ -502,6 +504,12 @@ internal class EventControllerTest @Autowired constructor(
                         snippets = arrayOf(
                             resource(
                                 ResourceSnippetParameters.builder()
+                                    .summary("Delete events")
+                                    .description(
+                                        """
+                                        This operation deletes an event using its ID.
+                                        """.trimIndent(),
+                                    )
                                     .pathParameters(parameterWithName("id").description("ID of the event to delete"))
                                     .responseSchema(EmptyObjectSchema().Response().schema())
                                     .tag("Events")
@@ -529,12 +537,6 @@ internal class EventControllerTest @Autowired constructor(
                         snippets = arrayOf(
                             resource(
                                 ResourceSnippetParameters.builder()
-                                    .summary("Delete events")
-                                    .description(
-                                        """
-                                        This operation deletes an event using its ID.
-                                        """.trimIndent(),
-                                    )
                                     .pathParameters(parameterWithName("id").description("ID of the event to delete"))
                                     .responseSchema(ErrorSchema().Response().schema())
                                     .responseFields(ErrorSchema().Response().documentedFields())
@@ -612,7 +614,7 @@ internal class EventControllerTest @Autowired constructor(
                                     .requestSchema(eventPayloadSchema.Request().schema())
                                     .requestFields(eventPayloadSchema.Request().documentedFields())
                                     .responseSchema(eventPayloadSchema.Response().schema())
-                                    .responseFields(eventPayloadSchema.Response().documentedFields("Event ID"))
+                                    .responseFields(eventPayloadSchema.Response().documentedFields(responseOnlyEventFields))
                                     .tag("Events")
                                     .build(),
                             ),
@@ -681,6 +683,21 @@ internal class EventControllerTest @Autowired constructor(
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(params)),
                     )
+                        .andDo(
+                            document(
+                                "events/{ClassName}/{methodName}",
+                                snippets = arrayOf(
+                                    resource(
+                                        ResourceSnippetParameters.builder()
+                                            .pathParameters(parameterWithName("id").description("ID of the events to update"))
+                                            .responseSchema(ErrorSchema().Response().schema())
+                                            .responseFields(ErrorSchema().Response().documentedFields())
+                                            .tag("Events")
+                                            .build(),
+                                    ),
+                                ),
+                            ),
+                        )
                 },
                 requiredFields = mapOf(
                     "title" to testEvent.title,

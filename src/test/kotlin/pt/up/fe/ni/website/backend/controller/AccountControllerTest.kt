@@ -1,5 +1,9 @@
 package pt.up.fe.ni.website.backend.controller
 
+import com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document
+import com.epages.restdocs.apispec.ResourceDocumentation
+import com.epages.restdocs.apispec.ResourceDocumentation.resource
+import com.epages.restdocs.apispec.ResourceSnippetParameters.Companion.builder
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
@@ -7,11 +11,18 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs
 import org.springframework.http.MediaType
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
+import org.springframework.restdocs.payload.FieldDescriptor
+import org.springframework.restdocs.payload.JsonFieldType
+import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.CustomWebsite
 import pt.up.fe.ni.website.backend.repository.AccountRepository
@@ -19,11 +30,14 @@ import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.ValidationTester
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
 import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
+import pt.up.fe.ni.website.backend.utils.documentation.ErrorSchema
+import pt.up.fe.ni.website.backend.utils.documentation.PayloadSchema
 import java.util.Calendar
 import java.util.Date
 import pt.up.fe.ni.website.backend.model.constants.AccountConstants as Constants
 
 @ControllerTest
+@AutoConfigureRestDocs
 class AccountControllerTest @Autowired constructor(
     val mockMvc: MockMvc,
     val objectMapper: ObjectMapper,
@@ -42,6 +56,28 @@ class AccountControllerTest @Autowired constructor(
             CustomWebsite("https://test-website.com", "https://test-website.com/logo.png"),
         ),
         emptyList(),
+    )
+
+    private val accountFields = listOf<FieldDescriptor>(
+        fieldWithPath("name").type(JsonFieldType.STRING).description("Name of the account owner"),
+        fieldWithPath("email").type(JsonFieldType.STRING).description("Email associated to the account"),
+        fieldWithPath("bio").type(JsonFieldType.STRING).description("Short profile description").optional(),
+        fieldWithPath("birthDate").type(JsonFieldType.STRING).description("Birth date of the owner").optional(),
+        fieldWithPath("photoPath").type(JsonFieldType.STRING).description("Path to the photo resource on the backend server").optional(),
+        fieldWithPath("linkedin").type(JsonFieldType.STRING).description("Handle/link to the owner's LinkedIn profile").optional(),
+        fieldWithPath("github").type(JsonFieldType.STRING).description("Handle/link to the owner's LinkedIn profile").optional(),
+        fieldWithPath("websites[]").type(JsonFieldType.ARRAY).description("Array with relevant websites about the owner").optional(),
+        fieldWithPath("websites[].url").type(JsonFieldType.STRING).description("URL to the website").optional(),
+        fieldWithPath("websites[].iconPath").type(JsonFieldType.STRING).description("URL to the website's icon").optional(),
+        fieldWithPath("roles[]").type(JsonFieldType.ARRAY).description("Array with the roles of the account").optional(),
+    )
+    private val accountPayloadSchema = PayloadSchema("account", accountFields)
+    private val requestOnlyAccountFields = listOf<FieldDescriptor>(
+        fieldWithPath("password").type(JsonFieldType.STRING).description("Account password"),
+    )
+    private val responseOnlyAccountFields = listOf<FieldDescriptor>(
+        fieldWithPath("id").type(JsonFieldType.NUMBER).description("Account ID"),
+        fieldWithPath("websites[].id").type(JsonFieldType.NUMBER).description("Related website ID").optional(),
     )
 
     @NestedTest
@@ -70,12 +106,32 @@ class AccountControllerTest @Autowired constructor(
 
         @Test
         fun `should return all accounts`() {
-            mockMvc.get("/accounts")
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    content { json(objectMapper.writeValueAsString(testAccounts)) }
-                }
+            mockMvc.perform(get("/accounts"))
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    content().json(objectMapper.writeValueAsString(testAccounts)),
+                )
+                .andDo(
+                    document(
+                        "account/{ClassName}/{methodName}",
+                        snippets = arrayOf(
+                            resource(
+                                builder()
+                                    .summary("Get all the accounts")
+                                    .description(
+                                        """
+                                        The operation returns an array of accounts, allowing to easily retrieve all the created accounts.
+                                        """.trimIndent(),
+                                    )
+                                    .responseSchema(accountPayloadSchema.Response().arraySchema())
+                                    .responseFields(accountPayloadSchema.Response().arrayDocumentedFields(responseOnlyAccountFields))
+                                    .tag("Accounts")
+                                    .build(),
+                            ),
+                        ),
+                    ),
+                )
         }
     }
 
@@ -89,31 +145,68 @@ class AccountControllerTest @Autowired constructor(
 
         @Test
         fun `should return the account`() {
-            mockMvc.get("/accounts/${testAccount.id}")
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.name") { value(testAccount.name) }
-                    jsonPath("$.email") { value(testAccount.email) }
-                    jsonPath("$.bio") { value(testAccount.bio) }
-                    jsonPath("$.birthDate") { value(testAccount.birthDate.toJson()) }
-                    jsonPath("$.photoPath") { value(testAccount.photoPath) }
-                    jsonPath("$.linkedin") { value(testAccount.linkedin) }
-                    jsonPath("$.github") { value(testAccount.github) }
-                    jsonPath("$.websites.length()") { value(1) }
-                    jsonPath("$.websites[0].url") { value(testAccount.websites[0].url) }
-                    jsonPath("$.websites[0].iconPath") { value(testAccount.websites[0].iconPath) }
-                }
+            mockMvc.perform(get("/accounts/{id}", testAccount.id))
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.name").value(testAccount.name),
+                    jsonPath("$.email").value(testAccount.email),
+                    jsonPath("$.bio").value(testAccount.bio),
+                    jsonPath("$.birthDate").value(testAccount.birthDate.toJson()),
+                    jsonPath("$.photoPath").value(testAccount.photoPath),
+                    jsonPath("$.linkedin").value(testAccount.linkedin),
+                    jsonPath("$.github").value(testAccount.github),
+                    jsonPath("$.websites.length()").value(1),
+                    jsonPath("$.websites[0].url").value(testAccount.websites[0].url),
+                    jsonPath("$.websites[0].iconPath").value(testAccount.websites[0].iconPath),
+                )
+                .andDo(
+                    document(
+                        "accounts/{ClassName}/{methodName}",
+                        snippets = arrayOf(
+                            resource(
+                                builder()
+                                    .summary("Get accounts by ID")
+                                    .description(
+                                        """
+                                        This endpoint allows the retrieval of a single account using its ID.
+                                        """.trimIndent(),
+                                    )
+                                    .pathParameters(ResourceDocumentation.parameterWithName("id").description("ID of the account to retrieve"))
+                                    .responseSchema(accountPayloadSchema.Response().schema())
+                                    .responseFields(accountPayloadSchema.Response().documentedFields(responseOnlyAccountFields))
+                                    .tag("Accounts")
+                                    .build(),
+                            ),
+                        ),
+                    ),
+                )
         }
 
         @Test
         fun `should fail if the account does not exist`() {
-            mockMvc.get("/accounts/1234").andExpect {
-                status { isNotFound() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.errors.length()") { value(1) }
-                jsonPath("$.errors[0].message") { value("account not found with id 1234") }
-            }
+            mockMvc.perform(get("/accounts/{id}", 1234))
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("account not found with id 1234"),
+                )
+                .andDo(
+                    document(
+                        "accounts/{ClassName}/{methodName}",
+                        snippets = arrayOf(
+                            resource(
+                                builder()
+                                    .pathParameters(ResourceDocumentation.parameterWithName("id").description("ID of the account to retrieve"))
+                                    .responseSchema(ErrorSchema().Response().schema())
+                                    .responseFields(ErrorSchema().Response().documentedFields())
+                                    .tag("Accounts")
+                                    .build(),
+                            ),
+                        ),
+                    ),
+                )
         }
     }
 
@@ -127,23 +220,48 @@ class AccountControllerTest @Autowired constructor(
 
         @Test
         fun `should create the account`() {
-            mockMvc.post("/accounts/new") {
-                contentType = MediaType.APPLICATION_JSON
-                content = testAccount.toJson()
-            }.andExpect {
-                status { isOk() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.name") { value(testAccount.name) }
-                jsonPath("$.email") { value(testAccount.email) }
-                jsonPath("$.bio") { value(testAccount.bio) }
-                jsonPath("$.birthDate") { value(testAccount.birthDate.toJson()) }
-                jsonPath("$.photoPath") { value(testAccount.photoPath) }
-                jsonPath("$.linkedin") { value(testAccount.linkedin) }
-                jsonPath("$.github") { value(testAccount.github) }
-                jsonPath("$.websites.length()") { value(1) }
-                jsonPath("$.websites[0].url") { value(testAccount.websites[0].url) }
-                jsonPath("$.websites[0].iconPath") { value(testAccount.websites[0].iconPath) }
-            }
+            mockMvc.perform(
+                post("/accounts/new")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(testAccount.toJson()),
+            )
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.name").value(testAccount.name),
+                    jsonPath("$.email").value(testAccount.email),
+                    jsonPath("$.bio").value(testAccount.bio),
+                    jsonPath("$.birthDate").value(testAccount.birthDate.toJson()),
+                    jsonPath("$.photoPath").value(testAccount.photoPath),
+                    jsonPath("$.linkedin").value(testAccount.linkedin),
+                    jsonPath("$.github").value(testAccount.github),
+                    jsonPath("$.websites.length()").value(1),
+                    jsonPath("$.websites[0].url").value(testAccount.websites[0].url),
+                    jsonPath("$.websites[0].iconPath").value(testAccount.websites[0].iconPath),
+
+                )
+                .andDo(
+                    document(
+                        "accounts/{ClassName}/{methodName}",
+                        snippets = arrayOf(
+                            resource(
+                                builder()
+                                    .summary("Create new accounts")
+                                    .description(
+                                        """
+                                        This endpoint operation creates new accounts. 
+                                        """.trimIndent(),
+                                    )
+                                    .requestSchema(accountPayloadSchema.Request().schema())
+                                    .requestFields(accountPayloadSchema.Request().documentedFields(requestOnlyAccountFields))
+                                    .responseSchema(accountPayloadSchema.Response().schema())
+                                    .responseFields(accountPayloadSchema.Response().documentedFields(responseOnlyAccountFields))
+                                    .tag("Accounts")
+                                    .build(),
+                            ),
+                        ),
+                    ),
+                )
         }
 
         @Test
@@ -159,32 +277,52 @@ class AccountControllerTest @Autowired constructor(
                 "https://github.com",
             )
 
-            mockMvc.post("/accounts/new") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(
-                    mapOf(
-                        "name" to noWebsite.name,
-                        "email" to noWebsite.email,
-                        "password" to noWebsite.password,
-                        "bio" to noWebsite.bio,
-                        "birthDate" to noWebsite.birthDate,
-                        "photoPath" to noWebsite.photoPath,
-                        "linkedin" to noWebsite.linkedin,
-                        "github" to noWebsite.github,
+            mockMvc.perform(
+                post("/accounts/new")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf(
+                                "name" to noWebsite.name,
+                                "email" to noWebsite.email,
+                                "password" to noWebsite.password,
+                                "bio" to noWebsite.bio,
+                                "birthDate" to noWebsite.birthDate,
+                                "photoPath" to noWebsite.photoPath,
+                                "linkedin" to noWebsite.linkedin,
+                                "github" to noWebsite.github,
+                            ),
+                        ),
+                    ),
+            )
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.name").value(noWebsite.name),
+                    jsonPath("$.email").value(noWebsite.email),
+                    jsonPath("$.bio").value(noWebsite.bio),
+                    jsonPath("$.birthDate").value(noWebsite.birthDate.toJson()),
+                    jsonPath("$.photoPath").value(noWebsite.photoPath),
+                    jsonPath("$.linkedin").value(noWebsite.linkedin),
+                    jsonPath("$.github").value(noWebsite.github),
+                    jsonPath("$.websites.length()").value(0),
+                )
+                .andDo(
+                    document(
+                        "accounts/{ClassName}/{methodName}",
+                        snippets = arrayOf(
+                            resource(
+                                builder()
+                                    .requestSchema(accountPayloadSchema.Request().schema())
+                                    .requestFields(accountPayloadSchema.Request().documentedFields(requestOnlyAccountFields))
+                                    .responseSchema(accountPayloadSchema.Response().schema())
+                                    .responseFields(accountPayloadSchema.Response().documentedFields(responseOnlyAccountFields))
+                                    .tag("Accounts")
+                                    .build(),
+                            ),
+                        ),
                     ),
                 )
-            }.andExpect {
-                status { isOk() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.name") { value(noWebsite.name) }
-                jsonPath("$.email") { value(noWebsite.email) }
-                jsonPath("$.bio") { value(noWebsite.bio) }
-                jsonPath("$.birthDate") { value(noWebsite.birthDate.toJson()) }
-                jsonPath("$.photoPath") { value(noWebsite.photoPath) }
-                jsonPath("$.linkedin") { value(noWebsite.linkedin) }
-                jsonPath("$.github") { value(noWebsite.github) }
-                jsonPath("$.websites.length()") { value(0) }
-            }
         }
 
         @NestedTest
@@ -197,6 +335,20 @@ class AccountControllerTest @Autowired constructor(
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(params)),
                     )
+                        .andDo(
+                            document(
+                                "accounts/{ClassName}/{methodName}",
+                                snippets = arrayOf(
+                                    resource(
+                                        builder()
+                                            .responseSchema(ErrorSchema().Response().schema())
+                                            .responseFields(ErrorSchema().Response().documentedFields())
+                                            .tag("Accounts")
+                                            .build(),
+                                    ),
+                                ),
+                            ),
+                        )
                 },
                 requiredFields = mapOf(
                     "name" to testAccount.name,
@@ -349,6 +501,20 @@ class AccountControllerTest @Autowired constructor(
                                     ),
                                 ),
                         )
+                            .andDo(
+                                document(
+                                    "accounts/{ClassName}/{methodName}",
+                                    snippets = arrayOf(
+                                        resource(
+                                            builder()
+                                                .responseSchema(ErrorSchema().Response().schema())
+                                                .responseFields(ErrorSchema().Response().documentedFields())
+                                                .tag("Accounts")
+                                                .build(),
+                                        ),
+                                    ),
+                                ),
+                            )
                     },
                     requiredFields = mapOf(
                         "url" to "https://www.google.com",
@@ -413,15 +579,31 @@ class AccountControllerTest @Autowired constructor(
                 content = testAccount.toJson()
             }.andExpect { status { isOk() } }
 
-            mockMvc.post("/accounts/new") {
-                contentType = MediaType.APPLICATION_JSON
-                content = testAccount.toJson()
-            }.andExpect {
-                status { isUnprocessableEntity() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.errors.length()") { value(1) }
-                jsonPath("$.errors[0].message") { value("email already exists") }
-            }
+            mockMvc.perform(
+                post("/accounts/new")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(testAccount.toJson()),
+            )
+                .andExpectAll(
+                    status().isUnprocessableEntity,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("email already exists"),
+                )
+                .andDo(
+                    document(
+                        "accounts/{ClassName}/{methodName}",
+                        snippets = arrayOf(
+                            resource(
+                                builder()
+                                    .responseSchema(ErrorSchema().Response().schema())
+                                    .responseFields(ErrorSchema().Response().documentedFields())
+                                    .tag("Accounts")
+                                    .build(),
+                            ),
+                        ),
+                    ),
+                )
         }
     }
 

@@ -1,5 +1,10 @@
 package pt.up.fe.ni.website.backend.controller
 
+import com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper
+import com.epages.restdocs.apispec.ResourceDocumentation
+import com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName
+import com.epages.restdocs.apispec.ResourceSnippetParameters
+import com.epages.restdocs.apispec.Schema
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
@@ -7,22 +12,31 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs
 import org.springframework.http.MediaType
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put
+import org.springframework.restdocs.payload.FieldDescriptor
+import org.springframework.restdocs.payload.JsonFieldType
+import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.delete
-import org.springframework.test.web.servlet.get
-import org.springframework.test.web.servlet.post
-import org.springframework.test.web.servlet.put
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import pt.up.fe.ni.website.backend.model.Project
 import pt.up.fe.ni.website.backend.repository.ProjectRepository
 import pt.up.fe.ni.website.backend.utils.ValidationTester
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
 import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
+import pt.up.fe.ni.website.backend.utils.documentation.EmptyObjectSchema
+import pt.up.fe.ni.website.backend.utils.documentation.ErrorSchema
+import pt.up.fe.ni.website.backend.utils.documentation.PayloadSchema
 import pt.up.fe.ni.website.backend.model.constants.ActivityConstants as Constants
 
 @ControllerTest
+@AutoConfigureRestDocs
 internal class ProjectControllerTest @Autowired constructor(
     val mockMvc: MockMvc,
     val objectMapper: ObjectMapper,
@@ -34,6 +48,18 @@ internal class ProjectControllerTest @Autowired constructor(
         false,
         listOf("Java", "Kotlin", "Spring"),
     )
+
+    private val projectFields = listOf<FieldDescriptor>(
+        fieldWithPath("title").type(JsonFieldType.STRING).description("Project title"),
+        fieldWithPath("description").type(JsonFieldType.STRING).description("Project description"),
+        fieldWithPath("isArchived").type(JsonFieldType.BOOLEAN).description("Whether this project is being actively maintained"),
+        fieldWithPath("technologies").type(JsonFieldType.ARRAY).description("Array of technologies used in the project").optional(),
+        fieldWithPath("associatedRoles[]").type(JsonFieldType.ARRAY).description("An activity that aggregates members with different roles").optional(),
+        fieldWithPath("associatedRoles[].*.permissions").type(JsonFieldType.OBJECT).description("Permissions of someone with a given role for this activity").optional(),
+        fieldWithPath("associatedRoles[].*.id").type(JsonFieldType.NUMBER).description("Id of the role/activity association").optional(),
+    )
+    private val projectPayloadSchema = PayloadSchema("project", projectFields)
+    private val responseOnlyProjectFields = listOf<FieldDescriptor>(fieldWithPath("id").type(JsonFieldType.NUMBER).description("Project ID"))
 
     @NestedTest
     @DisplayName("GET /projects")
@@ -55,11 +81,33 @@ internal class ProjectControllerTest @Autowired constructor(
 
         @Test
         fun `should return all projects`() {
-            mockMvc.get("/projects").andExpect {
-                status { isOk() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                content { json(objectMapper.writeValueAsString(testProjects)) }
-            }
+            mockMvc.perform(get("/projects"))
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    content().json(objectMapper.writeValueAsString(testProjects)),
+                )
+                .andDo(
+                    MockMvcRestDocumentationWrapper.document(
+                        "projects/{ClassName}/{methodName}",
+                        snippets = arrayOf(
+                            ResourceDocumentation.resource(
+                                ResourceSnippetParameters.builder()
+                                    .summary("Get all the events")
+                                    .description(
+                                        """
+                                        The operation returns an array of projects, allowing to easily retrieve all the created projects.
+                                        This is useful for example in the frontend project page, where projects are displayed.
+                                        """.trimIndent(),
+                                    )
+                                    .responseSchema(projectPayloadSchema.Response().arraySchema())
+                                    .responseFields(projectPayloadSchema.Response().arrayDocumentedFields(responseOnlyProjectFields))
+                                    .tag("Projects")
+                                    .build(),
+                            ),
+                        ),
+                    ),
+                )
         }
     }
 
@@ -73,24 +121,63 @@ internal class ProjectControllerTest @Autowired constructor(
 
         @Test
         fun `should return the project`() {
-            mockMvc.get("/projects/${testProject.id}").andExpect {
-                status { isOk() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.title") { value(testProject.title) }
-                jsonPath("$.description") { value(testProject.description) }
-                jsonPath("$.technologies.length()") { value(testProject.technologies.size) }
-                jsonPath("$.technologies[0]") { value(testProject.technologies[0]) }
-            }
+            mockMvc.perform(get("/projects/{id}", testProject.id))
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.title").value(testProject.title),
+                    jsonPath("$.description").value(testProject.description),
+                    jsonPath("$.technologies.length()").value(testProject.technologies.size),
+                    jsonPath("$.technologies[0]").value(testProject.technologies[0]),
+                )
+                .andDo(
+                    MockMvcRestDocumentationWrapper.document(
+                        "projects/{ClassName}/{methodName}",
+                        snippets = arrayOf(
+                            ResourceDocumentation.resource(
+                                ResourceSnippetParameters.builder()
+                                    .summary("Get projects by ID")
+                                    .description(
+                                        """
+                                        This endpoint allows the retrieval of a single project using its ID.
+                                        It might be used to generate the specific project page.
+                                        """.trimIndent(),
+                                    )
+                                    .pathParameters(parameterWithName("id").description("ID of the project to retrieve"))
+                                    .responseSchema(projectPayloadSchema.Response().schema())
+                                    .responseFields(projectPayloadSchema.Response().documentedFields(responseOnlyProjectFields))
+                                    .tag("Projects")
+                                    .build(),
+                            ),
+                        ),
+                    ),
+                )
         }
 
         @Test
         fun `should fail if the project does not exist`() {
-            mockMvc.get("/projects/1234").andExpect {
-                status { isNotFound() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.errors.length()") { value(1) }
-                jsonPath("$.errors[0].message") { value("project not found with id 1234") }
-            }
+            mockMvc.perform(get("/projects/{id}", 1234))
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("project not found with id 1234"),
+                )
+                .andDo(
+                    MockMvcRestDocumentationWrapper.document(
+                        "projects/{ClassName}/{methodName}",
+                        snippets = arrayOf(
+                            ResourceDocumentation.resource(
+                                ResourceSnippetParameters.builder()
+                                    .pathParameters(parameterWithName("id").description("ID of the project to retrieve"))
+                                    .responseSchema(ErrorSchema().Response().schema())
+                                    .responseFields(ErrorSchema().Response().documentedFields())
+                                    .tag("Projects")
+                                    .build(),
+                            ),
+                        ),
+                    ),
+                )
         }
     }
 
@@ -99,18 +186,41 @@ internal class ProjectControllerTest @Autowired constructor(
     inner class CreateProject {
         @Test
         fun `should create a new project`() {
-            mockMvc.post("/projects/new") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(testProject)
-            }
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.title") { value(testProject.title) }
-                    jsonPath("$.description") { value(testProject.description) }
-                    jsonPath("$.technologies.length()") { value(testProject.technologies.size) }
-                    jsonPath("$.technologies[0]") { value(testProject.technologies[0]) }
-                }
+            mockMvc.perform(
+                post("/projects/new")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(testProject)),
+            )
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.title").value(testProject.title),
+                    jsonPath("$.description").value(testProject.description),
+                    jsonPath("$.technologies.length()").value(testProject.technologies.size),
+                    jsonPath("$.technologies[0]").value(testProject.technologies[0]),
+                )
+                .andDo(
+                    MockMvcRestDocumentationWrapper.document(
+                        "events/{ClassName}/{methodName}",
+                        snippets = arrayOf(
+                            ResourceDocumentation.resource(
+                                ResourceSnippetParameters.builder()
+                                    .summary("Create new projects")
+                                    .description(
+                                        """
+                                        This endpoint operation creates new projects. 
+                                        """.trimIndent(),
+                                    )
+                                    .requestSchema(projectPayloadSchema.Request().schema())
+                                    .requestFields(projectPayloadSchema.Request().documentedFields())
+                                    .responseSchema(projectPayloadSchema.Response().schema())
+                                    .responseFields(projectPayloadSchema.Response().documentedFields(responseOnlyProjectFields))
+                                    .tag("Projects")
+                                    .build(),
+                            ),
+                        ),
+                    ),
+                )
         }
 
         @NestedTest
@@ -123,6 +233,20 @@ internal class ProjectControllerTest @Autowired constructor(
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(params)),
                     )
+                        .andDo(
+                            MockMvcRestDocumentationWrapper.document(
+                                "events/{ClassName}/{methodName}",
+                                snippets = arrayOf(
+                                    ResourceDocumentation.resource(
+                                        ResourceSnippetParameters.builder()
+                                            .responseSchema(ErrorSchema().Response().schema())
+                                            .responseFields(ErrorSchema().Response().documentedFields())
+                                            .tag("Projects")
+                                            .build(),
+                                    ),
+                                ),
+                            ),
+                        )
                 },
                 requiredFields = mapOf(
                     "title" to testProject.title,
@@ -175,23 +299,59 @@ internal class ProjectControllerTest @Autowired constructor(
 
         @Test
         fun `should delete the project`() {
-            mockMvc.delete("/projects/${testProject.id}").andExpect {
-                status { isOk() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$") { isEmpty() }
-            }
-
+            mockMvc.perform(delete("/projects/{id}", testProject.id))
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$").isEmpty,
+                )
+                .andDo(
+                    MockMvcRestDocumentationWrapper.document(
+                        "projects/{ClassName}/{methodName}",
+                        snippets = arrayOf(
+                            ResourceDocumentation.resource(
+                                ResourceSnippetParameters.builder()
+                                    .summary("Delete projects")
+                                    .description(
+                                        """
+                                        This operation deletes an projects using its ID.
+                                        """.trimIndent(),
+                                    )
+                                    .pathParameters(parameterWithName("id").description("ID of the project to delete"))
+                                    .responseSchema(EmptyObjectSchema().Response().schema())
+                                    .tag("Projects")
+                                    .build(),
+                            ),
+                        ),
+                    ),
+                )
             assert(repository.findById(testProject.id!!).isEmpty)
         }
 
         @Test
         fun `should fail if the project does not exist`() {
-            mockMvc.delete("/projects/1234").andExpect {
-                status { isNotFound() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.errors.length()") { value(1) }
-                jsonPath("$.errors[0].message") { value("project not found with id 1234") }
-            }
+            mockMvc.perform(delete("/projects/{id}", 1234))
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("project not found with id 1234"),
+                )
+                .andDo(
+                    MockMvcRestDocumentationWrapper.document(
+                        "projects/{ClassName}/{methodName}",
+                        snippets = arrayOf(
+                            ResourceDocumentation.resource(
+                                ResourceSnippetParameters.builder()
+                                    .pathParameters(parameterWithName("id").description("ID of the project to delete"))
+                                    .responseSchema(ErrorSchema().Response().schema())
+                                    .responseFields(ErrorSchema().Response().documentedFields())
+                                    .tag("Projects")
+                                    .build(),
+                            ),
+                        ),
+                    ),
+                )
         }
     }
 
@@ -209,23 +369,47 @@ internal class ProjectControllerTest @Autowired constructor(
             val newDescription = "New description of the project"
             val newIsArchived = true
 
-            mockMvc.put("/projects/${testProject.id}") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(
-                    mapOf(
-                        "title" to newTitle,
-                        "description" to newDescription,
-                        "isArchived" to newIsArchived,
+            mockMvc.perform(
+                put("/projects/{id}", testProject.id)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf(
+                                "title" to newTitle,
+                                "description" to newDescription,
+                                "isArchived" to newIsArchived,
+                            ),
+                        ),
+                    ),
+            )
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.title").value(newTitle),
+                    jsonPath("$.description").value(newDescription),
+                    jsonPath("$.isArchived").value(newIsArchived),
+                )
+                .andDo(
+                    MockMvcRestDocumentationWrapper.document(
+                        "projects/{ClassName}/{methodName}",
+                        snippets = arrayOf(
+                            ResourceDocumentation.resource(
+                                ResourceSnippetParameters.builder()
+                                    .summary("Update projects")
+                                    .description(
+                                        """Update previously created projects, using their ID.""",
+                                    )
+                                    .pathParameters(parameterWithName("id").description("ID of the project to update"))
+                                    .requestSchema(projectPayloadSchema.Request().schema())
+                                    .requestFields(projectPayloadSchema.Request().documentedFields())
+                                    .responseSchema(projectPayloadSchema.Response().schema())
+                                    .responseFields(projectPayloadSchema.Response().documentedFields(responseOnlyProjectFields))
+                                    .tag("Projects")
+                                    .build(),
+                            ),
+                        ),
                     ),
                 )
-            }
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.title") { value(newTitle) }
-                    jsonPath("$.description") { value(newDescription) }
-                    jsonPath("$.isArchived") { value(newIsArchived) }
-                }
 
             val updatedProject = repository.findById(testProject.id!!).get()
             assertEquals(newTitle, updatedProject.title)
@@ -235,21 +419,39 @@ internal class ProjectControllerTest @Autowired constructor(
 
         @Test
         fun `should fail if the project does not exist`() {
-            mockMvc.put("/projects/1234") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(
-                    mapOf(
-                        "title" to "New Title",
-                        "description" to "New description of the project",
+            mockMvc.perform(
+                put("/projects/{id}", 1234)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf(
+                                "title" to "New Title",
+                                "description" to "New description of the project",
+                            ),
+                        ),
+                    ),
+            )
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("project not found with id 1234"),
+                )
+                .andDo(
+                    MockMvcRestDocumentationWrapper.document(
+                        "projects/{ClassName}/{methodName}",
+                        snippets = arrayOf(
+                            ResourceDocumentation.resource(
+                                ResourceSnippetParameters.builder()
+                                    .pathParameters(parameterWithName("id").description("ID of the project to update"))
+                                    .responseSchema(ErrorSchema().Response().schema())
+                                    .responseFields(ErrorSchema().Response().documentedFields())
+                                    .tag("Projects")
+                                    .build(),
+                            ),
+                        ),
                     ),
                 )
-            }
-                .andExpect {
-                    status { isNotFound() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.errors.length()") { value(1) }
-                    jsonPath("$.errors[0].message") { value("project not found with id 1234") }
-                }
         }
 
         @NestedTest
@@ -262,6 +464,21 @@ internal class ProjectControllerTest @Autowired constructor(
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(params)),
                     )
+                        .andDo(
+                            MockMvcRestDocumentationWrapper.document(
+                                "projects/{ClassName}/{methodName}",
+                                snippets = arrayOf(
+                                    ResourceDocumentation.resource(
+                                        ResourceSnippetParameters.builder()
+                                            .pathParameters(parameterWithName("id").description("ID of the project to update"))
+                                            .responseSchema(ErrorSchema().Response().schema())
+                                            .responseFields(ErrorSchema().Response().documentedFields())
+                                            .tag("Projects")
+                                            .build(),
+                                    ),
+                                ),
+                            ),
+                        )
                 },
                 requiredFields = mapOf(
                     "title" to testProject.title,
@@ -316,15 +533,39 @@ internal class ProjectControllerTest @Autowired constructor(
         fun `should archive the project`() {
             val newIsArchived = true
 
-            mockMvc.put("/projects/${testProject.id}/archive") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString("isArchived" to newIsArchived)
-            }
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.isArchived") { value(newIsArchived) }
-                }
+            mockMvc.perform(
+                put("/projects/{id}/archive", testProject.id)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString("isArchived" to newIsArchived)),
+            )
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.isArchived").value(newIsArchived),
+                )
+                .andDo(
+                    MockMvcRestDocumentationWrapper.document(
+                        "projects/{ClassName}/{methodName}",
+                        snippets = arrayOf(
+                            ResourceDocumentation.resource(
+                                ResourceSnippetParameters.builder()
+                                    .summary("Archive projects")
+                                    .description(
+                                        """This endpoint updates projects as archived. This is useful to mark no longer maintained or complete projects of the Nucleus.""",
+                                    )
+                                    .pathParameters(parameterWithName("id").description("ID of the project to archive"))
+                                    .requestFields(
+                                        fieldWithPath("first").type(JsonFieldType.STRING).description("String with property name (\"isArchived\")"),
+                                        fieldWithPath("second").type(JsonFieldType.BOOLEAN).description("Whether the project is archived"),
+                                    )
+                                    .responseSchema(projectPayloadSchema.Response().schema())
+                                    .responseFields(projectPayloadSchema.Response().documentedFields(responseOnlyProjectFields))
+                                    .tag("Projects")
+                                    .build(),
+                            ),
+                        ),
+                    ),
+                )
 
             val archivedProject = repository.findById(testProject.id!!).get()
             assertEquals(newIsArchived, archivedProject.isArchived)
@@ -350,15 +591,40 @@ internal class ProjectControllerTest @Autowired constructor(
         fun `should unarchive the project`() {
             val newIsArchived = false
 
-            mockMvc.put("/projects/${project.id}/unarchive") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString("isArchived" to newIsArchived)
-            }
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.isArchived") { value(newIsArchived) }
-                }
+            mockMvc.perform(
+                put("/projects/{id}/unarchive", project.id)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString("isArchived" to newIsArchived)),
+            )
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.isArchived").value(newIsArchived),
+                )
+                .andDo(
+                    MockMvcRestDocumentationWrapper.document(
+                        "projects/{ClassName}/{methodName}",
+                        snippets = arrayOf(
+                            ResourceDocumentation.resource(
+                                ResourceSnippetParameters.builder()
+                                    .summary("Unarchive projects")
+                                    .description(
+                                        """This endpoint updates projects as unarchived. This is useful to mark previously unarchived projects as active.""",
+                                    )
+                                    .pathParameters(parameterWithName("id").description("ID of the project to unarchive"))
+                                    .requestSchema(Schema("project-archive-request"))
+                                    .requestFields(
+                                        fieldWithPath("first").type(JsonFieldType.STRING).description("String with property name (\"isArchived\")"),
+                                        fieldWithPath("second").type(JsonFieldType.BOOLEAN).description("Whether the project is archived"),
+                                    )
+                                    .responseSchema(projectPayloadSchema.Response().schema())
+                                    .responseFields(projectPayloadSchema.Response().documentedFields(responseOnlyProjectFields))
+                                    .tag("Projects")
+                                    .build(),
+                            ),
+                        ),
+                    ),
+                )
 
             val unarchivedProject = repository.findById(project.id!!).get()
             assertEquals(newIsArchived, unarchivedProject.isArchived)

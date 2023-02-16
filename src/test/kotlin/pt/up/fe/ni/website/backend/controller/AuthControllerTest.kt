@@ -1,16 +1,26 @@
 package pt.up.fe.ni.website.backend.controller
 
+import com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper
+import com.epages.restdocs.apispec.ResourceDocumentation.resource
+import com.epages.restdocs.apispec.ResourceSnippetParameters.Companion.builder
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.hamcrest.Matchers.startsWith
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs
 import org.springframework.http.MediaType
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
+import org.springframework.restdocs.payload.FieldDescriptor
+import org.springframework.restdocs.payload.JsonFieldType
+import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import pt.up.fe.ni.website.backend.dto.auth.LoginDto
 import pt.up.fe.ni.website.backend.dto.auth.TokenDto
 import pt.up.fe.ni.website.backend.model.Account
@@ -19,14 +29,17 @@ import pt.up.fe.ni.website.backend.repository.AccountRepository
 import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
 import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
+import pt.up.fe.ni.website.backend.utils.documentation.ErrorSchema
+import pt.up.fe.ni.website.backend.utils.documentation.PayloadSchema
 import java.util.Calendar
 
 @ControllerTest
+@AutoConfigureRestDocs
 class AuthControllerTest @Autowired constructor(
     val repository: AccountRepository,
     val mockMvc: MockMvc,
     val objectMapper: ObjectMapper,
-    passwordEncoder: PasswordEncoder
+    passwordEncoder: PasswordEncoder,
 ) {
     final val testPassword = "testPassword"
 
@@ -41,10 +54,22 @@ class AuthControllerTest @Autowired constructor(
         "https://linkedin.com",
         "https://github.com",
         listOf(
-            CustomWebsite("https://test-website.com", "https://test-website.com/logo.png")
+            CustomWebsite("https://test-website.com", "https://test-website.com/logo.png"),
         ),
         emptyList(),
     )
+
+    private val requestOnlyAuthFields = listOf<FieldDescriptor>(
+        fieldWithPath("email").type(JsonFieldType.STRING).description("Email of the account"),
+        fieldWithPath("password").type(JsonFieldType.STRING).description("Password of the account"),
+    )
+
+    private val responseOnlyAuthFields = listOf<FieldDescriptor>(
+        fieldWithPath("access_token").type(JsonFieldType.STRING).description("Access token, used to identify the user"),
+        fieldWithPath("refresh_token").type(JsonFieldType.STRING).description("Refresh token, used to renew the session"),
+
+    )
+    private val authPayloadSchema = PayloadSchema("auth", emptyList())
 
     @NestedTest
     @DisplayName("POST /auth/new")
@@ -56,41 +81,99 @@ class AuthControllerTest @Autowired constructor(
 
         @Test
         fun `should fail when email is not registered`() {
-            mockMvc.post("/auth/new") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(
-                    mapOf(
-                        "email" to "president@niaefeup.pt",
-                        "password" to testPassword
-                    )
+            mockMvc.perform(
+                post("/auth/new")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf(
+                                "email" to "president@niaefeup.pt",
+                                "password" to testPassword,
+                            ),
+                        ),
+                    ),
+            )
+                .andExpectAll(
+                    status().isNotFound,
+                    jsonPath("$.errors[0].message").value("account not found with email president@niaefeup.pt"),
                 )
-            }.andExpect {
-                status { isNotFound() }
-                jsonPath("$.errors[0].message") { value("account not found with email president@niaefeup.pt") }
-            }
+                .andDo(
+                    MockMvcRestDocumentationWrapper.document(
+                        "auth/{ClassName}/{methodName}",
+                        snippets = arrayOf(
+                            resource(
+                                builder()
+                                    .responseSchema(ErrorSchema().Response().schema())
+                                    .responseFields(ErrorSchema().Response().documentedFields())
+                                    .tag("Authentication")
+                                    .build(),
+                            ),
+                        ),
+                    ),
+                )
         }
 
         @Test
         fun `should fail when password is incorrect`() {
-            mockMvc.post("/auth/new") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(LoginDto(testAccount.email, "wrong_password"))
-            }.andExpect {
-                status { isUnauthorized() }
-                jsonPath("$.errors[0].message") { value("invalid credentials") }
-            }
+            mockMvc.perform(
+                post("/auth/new")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(LoginDto(testAccount.email, "wrong_password"))),
+            )
+                .andExpectAll(
+                    status().isUnauthorized,
+                    jsonPath("$.errors[0].message").value("invalid credentials"),
+                )
+                .andDo(
+                    MockMvcRestDocumentationWrapper.document(
+                        "auth/{ClassName}/{methodName}",
+                        snippets = arrayOf(
+                            resource(
+                                builder()
+                                    .responseSchema(ErrorSchema().Response().schema())
+                                    .responseFields(ErrorSchema().Response().documentedFields())
+                                    .tag("Authentication")
+                                    .build(),
+                            ),
+                        ),
+                    ),
+                )
         }
 
         @Test
         fun `should return access and refresh tokens`() {
-            mockMvc.post("/auth/new") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(LoginDto(testAccount.email, testPassword))
-            }.andExpect {
-                status { isOk() }
-                jsonPath("$.access_token") { exists() }
-                jsonPath("$.refresh_token") { exists() }
-            }
+            mockMvc.perform(
+                post("/auth/new")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(LoginDto(testAccount.email, testPassword))),
+            )
+                .andExpectAll(
+                    status().isOk,
+                    jsonPath("$.access_token").exists(),
+                    jsonPath("$.refresh_token").exists(),
+                )
+                .andDo(
+                    MockMvcRestDocumentationWrapper.document(
+                        "auth/{ClassName}/{methodName}",
+                        snippets = arrayOf(
+                            resource(
+                                builder()
+                                    .summary("Authenticate account")
+                                    .description(
+                                        """
+                                        This endpoint operation allows users to authenticate using their password and email, generating new access and refresh tokens to be used in later communication.
+                                        """.trimIndent(),
+                                    )
+                                    .requestSchema(authPayloadSchema.Request().schema())
+                                    .requestFields(authPayloadSchema.Request().documentedFields(requestOnlyAuthFields))
+                                    .responseSchema(authPayloadSchema.Response().schema())
+                                    .responseFields(authPayloadSchema.Response().documentedFields(responseOnlyAuthFields))
+                                    .tag("Authentication")
+                                    .build(),
+                            ),
+                        ),
+                    ),
+                )
         }
     }
 
