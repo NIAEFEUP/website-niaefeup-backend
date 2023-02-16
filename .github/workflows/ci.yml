@@ -72,4 +72,6 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: test-reports
-          path: build/reports/tests
+          path: |
+            build/reports/tests/test
+            build/reports/jacoco/test
