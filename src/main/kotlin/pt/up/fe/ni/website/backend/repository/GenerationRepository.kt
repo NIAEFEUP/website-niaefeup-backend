@@ -11,6 +11,6 @@ interface GenerationRepository : CrudRepository<Generation, Long> {
 
     fun findFirstByOrderBySchoolYearDesc(): Generation?
 
-    @Query("SELECT schoolYear FROM Generation")
-    fun findAllSchoolYear(): List<String>
+    @Query("SELECT schoolYear FROM Generation ORDER BY schoolYear DESC")
+    fun findAllSchoolYearOrdered(): List<String>
 }

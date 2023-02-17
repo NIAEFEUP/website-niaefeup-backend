@@ -15,10 +15,10 @@ import pt.up.fe.ni.website.backend.repository.GenerationRepository
 class GenerationService(
     private val repository: GenerationRepository,
     private val accountService: AccountService,
-    private val projectService: ProjectService
+    private val projectService: ProjectService,
 ) {
 
-    fun getAllGenerations(): List<String> = repository.findAllSchoolYear()
+    fun getAllGenerations(): List<String> = repository.findAllSchoolYearOrdered()
 
     fun getGenerationById(id: Long): GetGenerationDto {
         val generation =
