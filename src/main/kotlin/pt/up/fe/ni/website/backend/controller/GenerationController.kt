@@ -1,5 +1,6 @@
 package pt.up.fe.ni.website.backend.controller
 
+import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
@@ -37,13 +38,15 @@ class GenerationController(private val service: GenerationService) {
     @PatchMapping("/{id:\\d+}")
     fun updateGenerationById(
         @PathVariable id: Long,
-        @RequestBody dto: UpdateGenerationDto,
+        @RequestBody @Valid
+        dto: UpdateGenerationDto,
     ) = service.updateGenerationById(id, dto)
 
     @PatchMapping("/{year:\\d{2}-\\d{2}}")
     fun updateGenerationByYear(
         @PathVariable year: String,
-        @RequestBody dto: UpdateGenerationDto,
+        @RequestBody @Valid
+        dto: UpdateGenerationDto,
     ) = service.updateGenerationByYear(year, dto)
 
     @DeleteMapping("/{id:\\d+}")

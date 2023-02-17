@@ -9,12 +9,12 @@ typealias GetGenerationDto = List<GenerationSectionDto>
 data class GenerationUserDto(
     @JsonUnwrapped
     val account: Account,
-    val roles: List<String>
+    val roles: List<String>,
 )
 
 data class GenerationSectionDto(
     val section: String,
-    val users: List<GenerationUserDto>
+    val users: List<GenerationUserDto>,
 )
 
 fun buildGetGenerationDto(generation: Generation): GetGenerationDto {
@@ -32,9 +32,9 @@ fun buildGetGenerationDto(generation: Generation): GetGenerationDto {
                             account,
                             roles = account.roles
                                 .filter { it.generation == generation && !it.isSection }
-                                .map { it.name }
+                                .map { it.name },
                         )
-                    }
+                    },
             )
         }
     return sections
