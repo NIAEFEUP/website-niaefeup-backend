@@ -33,7 +33,7 @@ class GetGenerationDtoTest {
     )
 
     @Test
-    fun `generation with a section role and no users`() = testBuildGetGenerationDto(
+    fun `generation with a section role and no accounts`() = testBuildGetGenerationDto(
         mutableListOf(buildTestRole("role", true, mutableListOf())),
         emptyList(),
     )
@@ -99,7 +99,7 @@ class GetGenerationDtoTest {
     )
 
     @Test
-    fun `generation with a section role and multiple users`() = testBuildGetGenerationDto(
+    fun `generation with a section role and multiple accounts`() = testBuildGetGenerationDto(
         mutableListOf(
             buildTestRole(
                 "section-role",
@@ -128,7 +128,7 @@ class GetGenerationDtoTest {
     )
 
     @Test
-    fun `generation with multiple section roles and multiple users`() = testBuildGetGenerationDto(
+    fun `generation with multiple section roles and multiple accounts`() = testBuildGetGenerationDto(
         mutableListOf(
             buildTestRole(
                 "section-role",
@@ -164,7 +164,7 @@ class GetGenerationDtoTest {
     )
 
     @Test
-    fun `generation with multiple section roles, users and respective roles`() = testBuildGetGenerationDto(
+    fun `generation with multiple section roles, accounts and respective roles`() = testBuildGetGenerationDto(
         mutableListOf(
             buildTestRole(
                 "section-role",
@@ -206,7 +206,7 @@ class GetGenerationDtoTest {
     )
 
     @Test
-    fun `generation with multiple section roles and repeated users`() {
+    fun `generation with multiple section roles and repeated accounts`() {
         val account = buildTestAccount(
             "account",
             mutableListOf(buildTestRole("user-role", false)),
@@ -246,10 +246,10 @@ class GetGenerationDtoTest {
         actual.forEachIndexed { sectionIdx, actualSection ->
             val expectedSection = expected[sectionIdx]
             assertEquals(expectedSection.section, actualSection.section)
-            assertEquals(expectedSection.users.size, actualSection.users.size)
+            assertEquals(expectedSection.accounts.size, actualSection.accounts.size)
 
-            actualSection.users.forEachIndexed { userIdx, actualUser ->
-                val expectedUser = expectedSection.users[userIdx]
+            actualSection.accounts.forEachIndexed { userIdx, actualUser ->
+                val expectedUser = expectedSection.accounts[userIdx]
                 assertEquals(expectedUser.account.name, actualUser.account.name)
                 assertEquals(expectedUser.roles, actualUser.roles)
             }

@@ -14,7 +14,7 @@ data class GenerationUserDto(
 
 data class GenerationSectionDto(
     val section: String,
-    val users: List<GenerationUserDto>,
+    val accounts: List<GenerationUserDto>,
 )
 
 fun buildGetGenerationDto(generation: Generation): GetGenerationDto {
@@ -24,7 +24,7 @@ fun buildGetGenerationDto(generation: Generation): GetGenerationDto {
         .map { role ->
             GenerationSectionDto(
                 section = role.name,
-                users = role.accounts
+                accounts = role.accounts
                     .filter { !usedAccounts.contains(it) }
                     .map { account ->
                         usedAccounts.add(account)

@@ -74,8 +74,8 @@ class GenerationControllerTest @Autowired constructor(
                     content { contentType(MediaType.APPLICATION_JSON) }
                     jsonPath("$.length()") { value(2) }
                     jsonPath("$[0].section") { value("section-role1") }
-                    jsonPath("$[0].users.length()") { value(1) } // TODO: Change to accounts?
-                    jsonPath("$[0].users[0].name") { value("Test Account") }
+                    jsonPath("$[0].accounts.length()") { value(1) }
+                    jsonPath("$[0].accounts[0].name") { value("Test Account") }
                 }
         }
 
@@ -88,10 +88,10 @@ class GenerationControllerTest @Autowired constructor(
                     jsonPath("$.length()") { value(2) }
                     jsonPath("$[0].section") { value("section-role1") }
                     jsonPath("$[1].section") { value("section-role2") }
-                    jsonPath("$[0].users.length()") { value(1) }
-                    jsonPath("$[0].users[0].roles.length()") { value(2) }
-                    jsonPath("$[0].users[0].roles[0]") { value("regular-role1") }
-                    jsonPath("$[0].users[0].roles[1]") { value("regular-role2") }
+                    jsonPath("$[0].accounts.length()") { value(1) }
+                    jsonPath("$[0].accounts[0].roles.length()") { value(2) }
+                    jsonPath("$[0].accounts[0].roles[0]") { value("regular-role1") }
+                    jsonPath("$[0].accounts[0].roles[1]") { value("regular-role2") }
                 }
         }
 
@@ -103,11 +103,11 @@ class GenerationControllerTest @Autowired constructor(
                     content { contentType(MediaType.APPLICATION_JSON) }
                     jsonPath("$.length()") { value(2) }
                     jsonPath("$[0].section") { value("section-role1") }
-                    jsonPath("$[0].users.length()") { value(1) }
-                    jsonPath("$[0].users[0].name") { value("Test Account") }
+                    jsonPath("$[0].accounts.length()") { value(1) }
+                    jsonPath("$[0].accounts[0].name") { value("Test Account") }
                     jsonPath("$[1].section") { value("section-role2") }
-                    jsonPath("$[1].users.length()") { value(1) }
-                    jsonPath("$[1].users[0].name") { value("Test Account 2") }
+                    jsonPath("$[1].accounts.length()") { value(1) }
+                    jsonPath("$[1].accounts[0].name") { value("Test Account 2") }
                 }
         }
 
@@ -119,14 +119,14 @@ class GenerationControllerTest @Autowired constructor(
                     content { contentType(MediaType.APPLICATION_JSON) }
                     jsonPath("$.length()") { value(2) }
                     jsonPath("$[0].section") { value("section-role1") }
-                    jsonPath("$[0].users.length()") { value(1) }
-                    jsonPath("$[0].users[0].roles.length()") { value(2) }
-                    jsonPath("$[0].users[0].roles[0]") { value("regular-role1") }
-                    jsonPath("$[0].users[0].roles[1]") { value("regular-role2") }
+                    jsonPath("$[0].accounts.length()") { value(1) }
+                    jsonPath("$[0].accounts[0].roles.length()") { value(2) }
+                    jsonPath("$[0].accounts[0].roles[0]") { value("regular-role1") }
+                    jsonPath("$[0].accounts[0].roles[1]") { value("regular-role2") }
                     jsonPath("$[1].section") { value("section-role2") }
-                    jsonPath("$[1].users.length()") { value(1) }
-                    jsonPath("$[1].users[0].roles.length()") { value(1) }
-                    jsonPath("$[1].users[0].roles[0]") { value("regular-role2") }
+                    jsonPath("$[1].accounts.length()") { value(1) }
+                    jsonPath("$[1].accounts[0].roles.length()") { value(1) }
+                    jsonPath("$[1].accounts[0].roles[0]") { value("regular-role2") }
                 }
         }
 
@@ -158,8 +158,8 @@ class GenerationControllerTest @Autowired constructor(
                     content { contentType(MediaType.APPLICATION_JSON) }
                     jsonPath("$.length()") { value(2) }
                     jsonPath("$[0].section") { value("section-role1") }
-                    jsonPath("$[0].users.length()") { value(1) } // TODO: Change to accounts?
-                    jsonPath("$[0].users[0].name") { value("Test Account") }
+                    jsonPath("$[0].accounts.length()") { value(1) }
+                    jsonPath("$[0].accounts[0].name") { value("Test Account") }
                 }
         }
 
@@ -172,10 +172,10 @@ class GenerationControllerTest @Autowired constructor(
                     jsonPath("$.length()") { value(2) }
                     jsonPath("$[0].section") { value("section-role1") }
                     jsonPath("$[1].section") { value("section-role2") }
-                    jsonPath("$[0].users.length()") { value(1) }
-                    jsonPath("$[0].users[0].roles.length()") { value(2) }
-                    jsonPath("$[0].users[0].roles[0]") { value("regular-role1") }
-                    jsonPath("$[0].users[0].roles[1]") { value("regular-role2") }
+                    jsonPath("$[0].accounts.length()") { value(1) }
+                    jsonPath("$[0].accounts[0].roles.length()") { value(2) }
+                    jsonPath("$[0].accounts[0].roles[0]") { value("regular-role1") }
+                    jsonPath("$[0].accounts[0].roles[1]") { value("regular-role2") }
                 }
         }
 
@@ -187,11 +187,11 @@ class GenerationControllerTest @Autowired constructor(
                     content { contentType(MediaType.APPLICATION_JSON) }
                     jsonPath("$.length()") { value(2) }
                     jsonPath("$[0].section") { value("section-role1") }
-                    jsonPath("$[0].users.length()") { value(1) }
-                    jsonPath("$[0].users[0].name") { value("Test Account") }
+                    jsonPath("$[0].accounts.length()") { value(1) }
+                    jsonPath("$[0].accounts[0].name") { value("Test Account") }
                     jsonPath("$[1].section") { value("section-role2") }
-                    jsonPath("$[1].users.length()") { value(1) }
-                    jsonPath("$[1].users[0].name") { value("Test Account 2") }
+                    jsonPath("$[1].accounts.length()") { value(1) }
+                    jsonPath("$[1].accounts[0].name") { value("Test Account 2") }
                 }
         }
 
@@ -203,14 +203,14 @@ class GenerationControllerTest @Autowired constructor(
                     content { contentType(MediaType.APPLICATION_JSON) }
                     jsonPath("$.length()") { value(2) }
                     jsonPath("$[0].section") { value("section-role1") }
-                    jsonPath("$[0].users.length()") { value(1) }
-                    jsonPath("$[0].users[0].roles.length()") { value(2) }
-                    jsonPath("$[0].users[0].roles[0]") { value("regular-role1") }
-                    jsonPath("$[0].users[0].roles[1]") { value("regular-role2") }
+                    jsonPath("$[0].accounts.length()") { value(1) }
+                    jsonPath("$[0].accounts[0].roles.length()") { value(2) }
+                    jsonPath("$[0].accounts[0].roles[0]") { value("regular-role1") }
+                    jsonPath("$[0].accounts[0].roles[1]") { value("regular-role2") }
                     jsonPath("$[1].section") { value("section-role2") }
-                    jsonPath("$[1].users.length()") { value(1) }
-                    jsonPath("$[1].users[0].roles.length()") { value(1) }
-                    jsonPath("$[1].users[0].roles[0]") { value("regular-role2") }
+                    jsonPath("$[1].accounts.length()") { value(1) }
+                    jsonPath("$[1].accounts[0].roles.length()") { value(1) }
+                    jsonPath("$[1].accounts[0].roles[0]") { value("regular-role2") }
                 }
         }
 
@@ -242,8 +242,8 @@ class GenerationControllerTest @Autowired constructor(
                     content { contentType(MediaType.APPLICATION_JSON) }
                     jsonPath("$.length()") { value(2) }
                     jsonPath("$[0].section") { value("section-role1") }
-                    jsonPath("$[0].users.length()") { value(1) } // TODO: Change to accounts?
-                    jsonPath("$[0].users[0].name") { value("Test Account") }
+                    jsonPath("$[0].accounts.length()") { value(1) }
+                    jsonPath("$[0].accounts[0].name") { value("Test Account") }
                 }
         }
 
@@ -256,10 +256,10 @@ class GenerationControllerTest @Autowired constructor(
                     jsonPath("$.length()") { value(2) }
                     jsonPath("$[0].section") { value("section-role1") }
                     jsonPath("$[1].section") { value("section-role2") }
-                    jsonPath("$[0].users.length()") { value(1) }
-                    jsonPath("$[0].users[0].roles.length()") { value(2) }
-                    jsonPath("$[0].users[0].roles[0]") { value("regular-role1") }
-                    jsonPath("$[0].users[0].roles[1]") { value("regular-role2") }
+                    jsonPath("$[0].accounts.length()") { value(1) }
+                    jsonPath("$[0].accounts[0].roles.length()") { value(2) }
+                    jsonPath("$[0].accounts[0].roles[0]") { value("regular-role1") }
+                    jsonPath("$[0].accounts[0].roles[1]") { value("regular-role2") }
                 }
         }
 
@@ -271,11 +271,11 @@ class GenerationControllerTest @Autowired constructor(
                     content { contentType(MediaType.APPLICATION_JSON) }
                     jsonPath("$.length()") { value(2) }
                     jsonPath("$[0].section") { value("section-role1") }
-                    jsonPath("$[0].users.length()") { value(1) }
-                    jsonPath("$[0].users[0].name") { value("Test Account") }
+                    jsonPath("$[0].accounts.length()") { value(1) }
+                    jsonPath("$[0].accounts[0].name") { value("Test Account") }
                     jsonPath("$[1].section") { value("section-role2") }
-                    jsonPath("$[1].users.length()") { value(1) }
-                    jsonPath("$[1].users[0].name") { value("Test Account 2") }
+                    jsonPath("$[1].accounts.length()") { value(1) }
+                    jsonPath("$[1].accounts[0].name") { value("Test Account 2") }
                 }
         }
 
@@ -287,14 +287,14 @@ class GenerationControllerTest @Autowired constructor(
                     content { contentType(MediaType.APPLICATION_JSON) }
                     jsonPath("$.length()") { value(2) }
                     jsonPath("$[0].section") { value("section-role1") }
-                    jsonPath("$[0].users.length()") { value(1) }
-                    jsonPath("$[0].users[0].roles.length()") { value(2) }
-                    jsonPath("$[0].users[0].roles[0]") { value("regular-role1") }
-                    jsonPath("$[0].users[0].roles[1]") { value("regular-role2") }
+                    jsonPath("$[0].accounts.length()") { value(1) }
+                    jsonPath("$[0].accounts[0].roles.length()") { value(2) }
+                    jsonPath("$[0].accounts[0].roles[0]") { value("regular-role1") }
+                    jsonPath("$[0].accounts[0].roles[1]") { value("regular-role2") }
                     jsonPath("$[1].section") { value("section-role2") }
-                    jsonPath("$[1].users.length()") { value(1) }
-                    jsonPath("$[1].users[0].roles.length()") { value(1) }
-                    jsonPath("$[1].users[0].roles[0]") { value("regular-role2") }
+                    jsonPath("$[1].accounts.length()") { value(1) }
+                    jsonPath("$[1].accounts[0].roles.length()") { value(1) }
+                    jsonPath("$[1].accounts[0].roles[0]") { value("regular-role2") }
                 }
         }
     }
@@ -601,7 +601,7 @@ class GenerationControllerTest @Autowired constructor(
         }
         repository.save(generation)
 
-        // Add inverse relationships TODO: Check
+        // Add inverse relationships
         generation.roles.forEach { role ->
             role.accounts.forEach { it.roles.add(role); accountRepository.save(it) }
             role.associatedActivities.forEach { it.role = role }
