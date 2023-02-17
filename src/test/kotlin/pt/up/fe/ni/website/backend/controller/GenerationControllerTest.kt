@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.patch
 import org.springframework.web.servlet.function.RequestPredicates.contentType
@@ -67,7 +68,7 @@ class GenerationControllerTest @Autowired constructor(
 
         @Test
         fun `should return the generation of the year`() {
-            mockMvc.get("/generations/22-23")
+            mockMvc.get("/generations/${testGenerations[0].schoolYear}")
                 .andExpect {
                     status { isOk() }
                     content { contentType(MediaType.APPLICATION_JSON) }
@@ -80,7 +81,7 @@ class GenerationControllerTest @Autowired constructor(
 
         @Test
         fun `roles should be ordered`() {
-            mockMvc.get("/generations/22-23")
+            mockMvc.get("/generations/${testGenerations[0].schoolYear}")
                 .andExpect {
                     status { isOk() }
                     content { contentType(MediaType.APPLICATION_JSON) }
@@ -96,7 +97,7 @@ class GenerationControllerTest @Autowired constructor(
 
         @Test
         fun `shouldn't return repeated accounts`() {
-            mockMvc.get("/generations/22-23")
+            mockMvc.get("/generations/${testGenerations[0].schoolYear}")
                 .andExpect {
                     status { isOk() }
                     content { contentType(MediaType.APPLICATION_JSON) }
@@ -112,7 +113,7 @@ class GenerationControllerTest @Autowired constructor(
 
         @Test
         fun `should return non-section roles`() {
-            mockMvc.get("/generations/22-23")
+            mockMvc.get("/generations/${testGenerations[0].schoolYear}")
                 .andExpect {
                     status { isOk() }
                     content { contentType(MediaType.APPLICATION_JSON) }
@@ -151,7 +152,7 @@ class GenerationControllerTest @Autowired constructor(
 
         @Test
         fun `should return the generation of the id`() {
-            mockMvc.get("/generations/1")
+            mockMvc.get("/generations/${testGenerations[0].id}")
                 .andExpect {
                     status { isOk() }
                     content { contentType(MediaType.APPLICATION_JSON) }
@@ -164,7 +165,7 @@ class GenerationControllerTest @Autowired constructor(
 
         @Test
         fun `roles should be ordered`() {
-            mockMvc.get("/generations/1")
+            mockMvc.get("/generations/${testGenerations[0].id}")
                 .andExpect {
                     status { isOk() }
                     content { contentType(MediaType.APPLICATION_JSON) }
@@ -180,7 +181,7 @@ class GenerationControllerTest @Autowired constructor(
 
         @Test
         fun `shouldn't return repeated accounts`() {
-            mockMvc.get("/generations/1")
+            mockMvc.get("/generations/${testGenerations[0].id}")
                 .andExpect {
                     status { isOk() }
                     content { contentType(MediaType.APPLICATION_JSON) }
@@ -196,7 +197,7 @@ class GenerationControllerTest @Autowired constructor(
 
         @Test
         fun `should return non-section roles`() {
-            mockMvc.get("/generations/1")
+            mockMvc.get("/generations/${testGenerations[0].id}")
                 .andExpect {
                     status { isOk() }
                     content { contentType(MediaType.APPLICATION_JSON) }
@@ -308,7 +309,7 @@ class GenerationControllerTest @Autowired constructor(
 
         @Test
         fun `should update the generation year`() {
-            mockMvc.patch("/generations/22-23") {
+            mockMvc.patch("/generations/${testGenerations[0].schoolYear}") {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(
                     mapOf("schoolYear" to "19-20"),
@@ -339,7 +340,7 @@ class GenerationControllerTest @Autowired constructor(
 
         @Test
         fun `should fail if the new year is already taken`() {
-            mockMvc.patch("/generations/22-23") {
+            mockMvc.patch("/generations/${testGenerations[0].schoolYear}") {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(
                     mapOf("schoolYear" to "21-22"),
@@ -355,7 +356,7 @@ class GenerationControllerTest @Autowired constructor(
 
         @Test
         fun `should fail if the new year is not valid`() {
-            mockMvc.patch("/generations/22-23") {
+            mockMvc.patch("/generations/${testGenerations[0].schoolYear}") {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(
                     mapOf("schoolYear" to "123"),
@@ -380,7 +381,7 @@ class GenerationControllerTest @Autowired constructor(
 
         @Test
         fun `should update the generation year`() {
-            mockMvc.patch("/generations/1") {
+            mockMvc.patch("/generations/${testGenerations[0].id}") {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(
                     mapOf("schoolYear" to "19-20"),
@@ -411,7 +412,7 @@ class GenerationControllerTest @Autowired constructor(
 
         @Test
         fun `should fail if the new year is already taken`() {
-            mockMvc.patch("/generations/1") {
+            mockMvc.patch("/generations/${testGenerations[0].id}") {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(
                     mapOf("schoolYear" to "21-22"),
@@ -438,6 +439,70 @@ class GenerationControllerTest @Autowired constructor(
                     content { contentType(MediaType.APPLICATION_JSON) }
                     jsonPath("$.errors.length()") { value(1) }
                     jsonPath("$.errors[0].message") { value("must be formatted as <xx-yy> where yy=xx+1") }
+                }
+        }
+    }
+
+    @NestedTest
+    @DisplayName("DELETE /generations/year")
+    inner class DeleteGenerationByYear {
+        @BeforeEach
+        fun addGenerations() {
+            initializeGenerations()
+        }
+
+        @Test
+        fun `should delete the generation`() {
+            mockMvc.delete("/generations/${testGenerations[0].schoolYear}")
+                .andExpect {
+                    status { isOk() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$") { isEmpty() }
+                }
+
+            assert(repository.findById(testGenerations[0].id!!).isEmpty)
+        }
+
+        @Test
+        fun `should fail if the generation does not exist`() {
+            mockMvc.delete("/generations/17-18")
+                .andExpect {
+                    status { isNotFound() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$.errors.length()") { value(1) }
+                    jsonPath("$.errors[0].message") { value("generation not found with year 17-18") }
+                }
+        }
+    }
+
+    @NestedTest
+    @DisplayName("DELETE /generations/id")
+    inner class DeleteGenerationById {
+        @BeforeEach
+        fun addGenerations() {
+            initializeGenerations()
+        }
+
+        @Test
+        fun `should delete the generation`() {
+            mockMvc.delete("/generations/${testGenerations[0].id}")
+                .andExpect {
+                    status { isOk() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$") { isEmpty() }
+                }
+
+            assert(repository.findById(testGenerations[0].id!!).isEmpty)
+        }
+
+        @Test
+        fun `should fail if the generation does not exist`() {
+            mockMvc.delete("/generations/123")
+                .andExpect {
+                    status { isNotFound() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$.errors.length()") { value(1) }
+                    jsonPath("$.errors[0].message") { value("generation not found with id 123") }
                 }
         }
     }
