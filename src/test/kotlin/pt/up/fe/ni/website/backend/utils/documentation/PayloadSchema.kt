@@ -8,12 +8,12 @@ open class PayloadSchema(
     private val schemaName: String,
     val documentedJsonFields: List<FieldDescriptor>,
 ) {
-    inner class Request {
+    open inner class Request {
         fun schema(): Schema {
             return Schema("$schemaName-request")
         }
 
-        fun documentedFields(requestOnlyFields: List<FieldDescriptor>? = null): MutableList<FieldDescriptor> {
+        open fun documentedFields(requestOnlyFields: List<FieldDescriptor>? = null): MutableList<FieldDescriptor> {
             requestOnlyFields?.let {
                 val requestFields = documentedJsonFields.toMutableList()
                 requestFields.addAll(it)
@@ -23,12 +23,12 @@ open class PayloadSchema(
         }
     }
 
-    inner class Response {
+    open inner class Response {
         fun schema(): Schema {
             return Schema("$schemaName-response")
         }
 
-        fun documentedFields(responseOnlyFields: List<FieldDescriptor>? = null): MutableList<FieldDescriptor> {
+        open fun documentedFields(responseOnlyFields: List<FieldDescriptor>? = null): MutableList<FieldDescriptor> {
             val fieldsList = documentedJsonFields.toMutableList()
             responseOnlyFields?.let {
                 fieldsList.addAll(it)
@@ -41,8 +41,7 @@ open class PayloadSchema(
         }
 
         fun arrayDocumentedFields(responseOnlyFields: List<FieldDescriptor>? = null): MutableList<FieldDescriptor> {
-            val fieldsList = documentedJsonFields.toMutableList()
-            responseOnlyFields?.let { fieldsList.addAll(it) }
+            val fieldsList = documentedFields(responseOnlyFields)
 
             val arrayFieldsList = mutableListOf<FieldDescriptor>()
             for (field in fieldsList) {
@@ -55,6 +54,8 @@ open class PayloadSchema(
                 if (field.isIgnored) {
                     arrayField.ignored()
                 }
+
+                arrayField.attributes.putAll(field.attributes)
 
                 arrayFieldsList.add(arrayField)
             }
