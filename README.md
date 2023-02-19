@@ -66,6 +66,28 @@ Run the following command in your shell:
 gradle test
 ```
 
+
+### API Documentation
+API documentation is generated through the use of the [Spring REST Docs API specification Integration (aka restdocs-api-spec)](https://github.com/ePages-de/restdocs-api-spec), a [Spring Rest Docs](https://spring.io/projects/spring-restdocs) extension that builds an [OpenAPI](https://www.openapis.org/) or a [Postman collection](https://learning.postman.com/docs/sending-requests/intro-to-collections/) specification from its description, included in the controller tests. To see examples of how to document the API hop to one of the controller tests and read the [API documentation wiki page](https://github.com/NIAEFEUP/website-niaefeup-backend/wiki/API-documentation).
+
+##### With IntelliJ
+Run the `openapi3` or `postman` gradle task to get either the OpenAPI specification or the Postman collection respectively.
+
+##### With the command line
+Run the following command in your shell:
+
+```bash
+gradle openapi3
+```
+
+```bash
+gradle postman
+```
+
+###### Results
+Find the OpenAPI specification under `build/api-spec/openapi3.json` after running the task or the resulting Postman collection under `build/api-spec/postman-collection.json`.
+
+
 ## Project Details
 
 ### Project Structure
