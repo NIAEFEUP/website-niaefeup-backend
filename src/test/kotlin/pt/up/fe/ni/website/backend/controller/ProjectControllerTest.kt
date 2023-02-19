@@ -239,6 +239,7 @@ internal class ProjectControllerTest @Autowired constructor(
                                 snippets = arrayOf(
                                     ResourceDocumentation.resource(
                                         ResourceSnippetParameters.builder()
+                                            .requestSchema(projectPayloadSchema.Request().schema())
                                             .responseSchema(ErrorSchema().Response().schema())
                                             .responseFields(ErrorSchema().Response().documentedFields())
                                             .tag("Projects")
@@ -444,6 +445,7 @@ internal class ProjectControllerTest @Autowired constructor(
                             ResourceDocumentation.resource(
                                 ResourceSnippetParameters.builder()
                                     .pathParameters(parameterWithName("id").description("ID of the project to update"))
+                                    .requestSchema(projectPayloadSchema.Request().schema())
                                     .responseSchema(ErrorSchema().Response().schema())
                                     .responseFields(ErrorSchema().Response().documentedFields())
                                     .tag("Projects")
@@ -471,6 +473,7 @@ internal class ProjectControllerTest @Autowired constructor(
                                     ResourceDocumentation.resource(
                                         ResourceSnippetParameters.builder()
                                             .pathParameters(parameterWithName("id").description("ID of the project to update"))
+                                            .requestSchema(projectPayloadSchema.Request().schema())
                                             .responseSchema(ErrorSchema().Response().schema())
                                             .responseFields(ErrorSchema().Response().documentedFields())
                                             .tag("Projects")
@@ -554,6 +557,7 @@ internal class ProjectControllerTest @Autowired constructor(
                                         """This endpoint updates projects as archived. This is useful to mark no longer maintained or complete projects of the Nucleus.""",
                                     )
                                     .pathParameters(parameterWithName("id").description("ID of the project to archive"))
+                                    .requestSchema(Schema("project-archive-request"))
                                     .requestFields(
                                         fieldWithPath("first").type(JsonFieldType.STRING).description("String with property name (\"isArchived\")"),
                                         fieldWithPath("second").type(JsonFieldType.BOOLEAN).description("Whether the project is archived"),
@@ -612,7 +616,7 @@ internal class ProjectControllerTest @Autowired constructor(
                                         """This endpoint updates projects as unarchived. This is useful to mark previously unarchived projects as active.""",
                                     )
                                     .pathParameters(parameterWithName("id").description("ID of the project to unarchive"))
-                                    .requestSchema(Schema("project-archive-request"))
+                                    .requestSchema(Schema("project-unarchive-request"))
                                     .requestFields(
                                         fieldWithPath("first").type(JsonFieldType.STRING).description("String with property name (\"isArchived\")"),
                                         fieldWithPath("second").type(JsonFieldType.BOOLEAN).description("Whether the project is archived"),

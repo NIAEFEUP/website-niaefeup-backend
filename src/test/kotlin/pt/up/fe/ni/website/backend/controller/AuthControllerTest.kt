@@ -103,6 +103,7 @@ class AuthControllerTest @Autowired constructor(
                         snippets = arrayOf(
                             resource(
                                 builder()
+                                    .requestSchema(ErrorSchema().Request().schema())
                                     .responseSchema(ErrorSchema().Response().schema())
                                     .responseFields(ErrorSchema().Response().documentedFields())
                                     .tag("Authentication")
@@ -130,6 +131,7 @@ class AuthControllerTest @Autowired constructor(
                         snippets = arrayOf(
                             resource(
                                 builder()
+                                    .requestSchema(ErrorSchema().Request().schema())
                                     .responseSchema(ErrorSchema().Response().schema())
                                     .responseFields(ErrorSchema().Response().documentedFields())
                                     .tag("Authentication")

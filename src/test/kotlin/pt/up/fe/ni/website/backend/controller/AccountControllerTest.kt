@@ -341,6 +341,7 @@ class AccountControllerTest @Autowired constructor(
                                 snippets = arrayOf(
                                     resource(
                                         builder()
+                                            .requestSchema(accountPayloadSchema.Request().schema())
                                             .responseSchema(ErrorSchema().Response().schema())
                                             .responseFields(ErrorSchema().Response().documentedFields())
                                             .tag("Accounts")
@@ -507,6 +508,7 @@ class AccountControllerTest @Autowired constructor(
                                     snippets = arrayOf(
                                         resource(
                                             builder()
+                                                .requestSchema(accountPayloadSchema.Request().schema())
                                                 .responseSchema(ErrorSchema().Response().schema())
                                                 .responseFields(ErrorSchema().Response().documentedFields())
                                                 .tag("Accounts")
@@ -596,6 +598,7 @@ class AccountControllerTest @Autowired constructor(
                         snippets = arrayOf(
                             resource(
                                 builder()
+                                    .requestSchema(accountPayloadSchema.Request().schema())
                                     .responseSchema(ErrorSchema().Response().schema())
                                     .responseFields(ErrorSchema().Response().documentedFields())
                                     .tag("Accounts")

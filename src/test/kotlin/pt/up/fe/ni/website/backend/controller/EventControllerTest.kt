@@ -3,7 +3,6 @@ package pt.up.fe.ni.website.backend.controller
 import com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document
 import com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName
 import com.epages.restdocs.apispec.ResourceDocumentation.resource
-import com.epages.restdocs.apispec.ResourceSnippetParameters
 import com.epages.restdocs.apispec.ResourceSnippetParameters.Companion.builder
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -113,7 +112,7 @@ internal class EventControllerTest @Autowired constructor(
                         "events/{ClassName}/{methodName}",
                         snippets = arrayOf(
                             resource(
-                                ResourceSnippetParameters.builder()
+                                builder()
                                     .summary("Get all the events")
                                     .description(
                                         """
@@ -160,7 +159,7 @@ internal class EventControllerTest @Autowired constructor(
                         "events/{ClassName}/{methodName}",
                         snippets = arrayOf(
                             resource(
-                                ResourceSnippetParameters.builder()
+                                builder()
                                     .responseSchema(eventPayloadSchema.Response().schema())
                                     .responseFields(eventPayloadSchema.Response().documentedFields(responseOnlyEventFields))
                                     .tag("Events")
@@ -268,7 +267,7 @@ internal class EventControllerTest @Autowired constructor(
                         "events/{ClassName}/{methodName}",
                         snippets = arrayOf(
                             resource(
-                                ResourceSnippetParameters.builder()
+                                builder()
                                     .summary("Get events by category")
                                     .description(
                                         """
@@ -316,7 +315,7 @@ internal class EventControllerTest @Autowired constructor(
                         "events/{ClassName}/{methodName}",
                         snippets = arrayOf(
                             resource(
-                                ResourceSnippetParameters.builder()
+                                builder()
                                     .summary("Create new events")
                                     .description(
                                         """
@@ -350,6 +349,7 @@ internal class EventControllerTest @Autowired constructor(
                             snippets = arrayOf(
                                 resource(
                                     builder()
+                                        .requestSchema(eventPayloadSchema.Request().schema())
                                         .responseSchema(ErrorSchema().Response().schema())
                                         .responseFields(ErrorSchema().Response().documentedFields())
                                         .tag("Events")
@@ -503,7 +503,7 @@ internal class EventControllerTest @Autowired constructor(
                         "events/{ClassName}/{methodName}",
                         snippets = arrayOf(
                             resource(
-                                ResourceSnippetParameters.builder()
+                                builder()
                                     .summary("Delete events")
                                     .description(
                                         """
@@ -536,7 +536,7 @@ internal class EventControllerTest @Autowired constructor(
                         "events/{ClassName}/{methodName}",
                         snippets = arrayOf(
                             resource(
-                                ResourceSnippetParameters.builder()
+                                builder()
                                     .pathParameters(parameterWithName("id").description("ID of the event to delete"))
                                     .responseSchema(ErrorSchema().Response().schema())
                                     .responseFields(ErrorSchema().Response().documentedFields())
@@ -605,7 +605,7 @@ internal class EventControllerTest @Autowired constructor(
                         "events/{ClassName}/{methodName}",
                         snippets = arrayOf(
                             resource(
-                                ResourceSnippetParameters.builder()
+                                builder()
                                     .summary("Update events")
                                     .description(
                                         """Update previously created events, using their ID.""",
@@ -661,8 +661,9 @@ internal class EventControllerTest @Autowired constructor(
                         "events/{ClassName}/{methodName}",
                         snippets = arrayOf(
                             resource(
-                                ResourceSnippetParameters.builder()
+                                builder()
                                     .pathParameters(parameterWithName("id").description("ID of the event to update"))
+                                    .requestSchema(eventPayloadSchema.Request().schema())
                                     .responseSchema(ErrorSchema().Response().schema())
                                     .responseFields(ErrorSchema().Response().documentedFields())
                                     .tag("Events")
@@ -688,8 +689,9 @@ internal class EventControllerTest @Autowired constructor(
                                 "events/{ClassName}/{methodName}",
                                 snippets = arrayOf(
                                     resource(
-                                        ResourceSnippetParameters.builder()
+                                        builder()
                                             .pathParameters(parameterWithName("id").description("ID of the events to update"))
+                                            .requestSchema(eventPayloadSchema.Request().schema())
                                             .responseSchema(ErrorSchema().Response().schema())
                                             .responseFields(ErrorSchema().Response().documentedFields())
                                             .tag("Events")

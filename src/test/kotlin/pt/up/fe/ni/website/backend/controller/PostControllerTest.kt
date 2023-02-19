@@ -328,6 +328,7 @@ internal class PostControllerTest @Autowired constructor(
                         snippets = arrayOf(
                             ResourceDocumentation.resource(
                                 ResourceSnippetParameters.builder()
+                                    .requestSchema(postPayloadSchema.Request().schema())
                                     .responseSchema(ErrorSchema().Response().schema())
                                     .responseFields(ErrorSchema().Response().documentedFields())
                                     .tag("Posts")
@@ -354,6 +355,7 @@ internal class PostControllerTest @Autowired constructor(
                                 snippets = arrayOf(
                                     ResourceDocumentation.resource(
                                         ResourceSnippetParameters.builder()
+                                            .requestSchema(postPayloadSchema.Request().schema())
                                             .responseSchema(ErrorSchema().Response().schema())
                                             .responseFields(ErrorSchema().Response().documentedFields())
                                             .tag("Posts")
@@ -611,6 +613,7 @@ internal class PostControllerTest @Autowired constructor(
                             ResourceDocumentation.resource(
                                 ResourceSnippetParameters.builder()
                                     .pathParameters(ResourceDocumentation.parameterWithName("id").description("ID of the post to update"))
+                                    .requestSchema(postPayloadSchema.Request().schema())
                                     .responseSchema(postPayloadSchema.Response().schema())
                                     .responseFields(postPayloadSchema.Response().documentedFields(responseOnlyPostFields))
                                     .tag("Posts")
@@ -657,6 +660,7 @@ internal class PostControllerTest @Autowired constructor(
                             ResourceDocumentation.resource(
                                 ResourceSnippetParameters.builder()
                                     .pathParameters(ResourceDocumentation.parameterWithName("id").description("ID of the post to update"))
+                                    .requestSchema(postPayloadSchema.Request().schema())
                                     .responseSchema(ErrorSchema().Response().schema())
                                     .responseFields(ErrorSchema().Response().documentedFields())
                                     .tag("Posts")
@@ -730,6 +734,7 @@ internal class PostControllerTest @Autowired constructor(
                                     ResourceDocumentation.resource(
                                         ResourceSnippetParameters.builder()
                                             .pathParameters(ResourceDocumentation.parameterWithName("id").description("ID of the post to update"))
+                                            .requestSchema(postPayloadSchema.Request().schema())
                                             .responseSchema(ErrorSchema().Response().schema())
                                             .responseFields(ErrorSchema().Response().documentedFields())
                                             .tag("Posts")
