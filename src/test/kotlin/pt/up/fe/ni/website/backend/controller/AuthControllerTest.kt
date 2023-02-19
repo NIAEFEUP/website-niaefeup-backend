@@ -1,6 +1,8 @@
 package pt.up.fe.ni.website.backend.controller
 
+import com.epages.restdocs.apispec.HeaderDescriptorWithType
 import com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper
+import com.epages.restdocs.apispec.ResourceDocumentation.headerWithName
 import com.epages.restdocs.apispec.ResourceDocumentation.resource
 import com.epages.restdocs.apispec.ResourceSnippetParameters.Companion.builder
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -10,14 +12,15 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs
+import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -59,17 +62,32 @@ class AuthControllerTest @Autowired constructor(
         emptyList(),
     )
 
-    private val requestOnlyAuthFields = listOf<FieldDescriptor>(
+    private val requestOnlyNewAuthFields = listOf<FieldDescriptor>(
         fieldWithPath("email").type(JsonFieldType.STRING).description("Email of the account"),
         fieldWithPath("password").type(JsonFieldType.STRING).description("Password of the account"),
     )
 
-    private val responseOnlyAuthFields = listOf<FieldDescriptor>(
+    private val responseOnlyNewAuthFields = listOf<FieldDescriptor>(
         fieldWithPath("access_token").type(JsonFieldType.STRING).description("Access token, used to identify the user"),
-        fieldWithPath("refresh_token").type(JsonFieldType.STRING).description("Refresh token, used to renew the session"),
-
+        fieldWithPath("refresh_token").type(JsonFieldType.STRING).description("Refresh token, used to refresh the access token"),
     )
-    private val authPayloadSchema = PayloadSchema("auth", emptyList())
+    private val newAuthPayloadSchema = PayloadSchema("auth-new", emptyList())
+
+    private val requestOnlyRefreshAuthFields = listOf<FieldDescriptor>(
+        fieldWithPath("token").type(JsonFieldType.STRING).description("Refresh token, used to refresh the access token"),
+    )
+    private val responseOnlyRefreshAuthFields = listOf<FieldDescriptor>(
+        fieldWithPath("access_token").type(JsonFieldType.STRING).description("Access token, used to identify the user"),
+    )
+    private val refreshAuthPayloadSchema = PayloadSchema("auth-refresh", emptyList())
+
+    private val responseOnlyCheckAuthFields = listOf<FieldDescriptor>(
+        fieldWithPath("authenticated_user").type(JsonFieldType.STRING).description("Email of the authenticated user."),
+    )
+    private val checkAuthHeaders = listOf<HeaderDescriptorWithType>(
+        headerWithName(HttpHeaders.AUTHORIZATION).description("Bearer authentication token"),
+    )
+    private val checkAuthPayloadSchema = PayloadSchema("auth-check", emptyList())
 
     @NestedTest
     @DisplayName("POST /auth/new")
@@ -103,7 +121,7 @@ class AuthControllerTest @Autowired constructor(
                         snippets = arrayOf(
                             resource(
                                 builder()
-                                    .requestSchema(ErrorSchema().Request().schema())
+                                    .requestSchema(newAuthPayloadSchema.Request().schema())
                                     .responseSchema(ErrorSchema().Response().schema())
                                     .responseFields(ErrorSchema().Response().documentedFields())
                                     .tag("Authentication")
@@ -131,7 +149,7 @@ class AuthControllerTest @Autowired constructor(
                         snippets = arrayOf(
                             resource(
                                 builder()
-                                    .requestSchema(ErrorSchema().Request().schema())
+                                    .requestSchema(newAuthPayloadSchema.Request().schema())
                                     .responseSchema(ErrorSchema().Response().schema())
                                     .responseFields(ErrorSchema().Response().documentedFields())
                                     .tag("Authentication")
@@ -163,13 +181,13 @@ class AuthControllerTest @Autowired constructor(
                                     .summary("Authenticate account")
                                     .description(
                                         """
-                                        This endpoint operation allows users to authenticate using their password and email, generating new access and refresh tokens to be used in later communication.
+                                        This endpoint operation allows authentication using user's password and email, generating new access and refresh tokens to be used in later communication.
                                         """.trimIndent(),
                                     )
-                                    .requestSchema(authPayloadSchema.Request().schema())
-                                    .requestFields(authPayloadSchema.Request().documentedFields(requestOnlyAuthFields))
-                                    .responseSchema(authPayloadSchema.Response().schema())
-                                    .responseFields(authPayloadSchema.Response().documentedFields(responseOnlyAuthFields))
+                                    .requestSchema(newAuthPayloadSchema.Request().schema())
+                                    .requestFields(newAuthPayloadSchema.Request().documentedFields(requestOnlyNewAuthFields))
+                                    .responseSchema(newAuthPayloadSchema.Response().schema())
+                                    .responseFields(newAuthPayloadSchema.Response().documentedFields(responseOnlyNewAuthFields))
                                     .tag("Authentication")
                                     .build(),
                             ),
@@ -189,13 +207,30 @@ class AuthControllerTest @Autowired constructor(
 
         @Test
         fun `should fail when refresh token is invalid`() {
-            mockMvc.post("/auth/refresh") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(TokenDto("invalid_refresh_token"))
-            }.andExpect {
-                status { isUnauthorized() }
-                jsonPath("$.errors[0].message") { value("invalid refresh token") }
-            }
+            mockMvc.perform(
+                post("/auth/refresh")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(TokenDto("invalid_refresh_token"))),
+            )
+                .andExpectAll(
+                    status().isUnauthorized,
+                    jsonPath("$.errors[0].message").value("invalid refresh token"),
+                )
+                .andDo(
+                    MockMvcRestDocumentationWrapper.document(
+                        "auth/{ClassName}/{methodName}",
+                        snippets = arrayOf(
+                            resource(
+                                builder()
+                                    .requestSchema(refreshAuthPayloadSchema.Request().schema())
+                                    .responseSchema(ErrorSchema().Response().schema())
+                                    .responseFields(ErrorSchema().Response().documentedFields())
+                                    .tag("Authentication")
+                                    .build(),
+                            ),
+                        ),
+                    ),
+                )
         }
 
         @Test
@@ -205,13 +240,37 @@ class AuthControllerTest @Autowired constructor(
                 content = objectMapper.writeValueAsString(LoginDto(testAccount.email, testPassword))
             }.andReturn().response.let { response ->
                 val refreshToken = objectMapper.readTree(response.contentAsString)["refresh_token"].asText()
-                mockMvc.post("/auth/refresh") {
-                    contentType = MediaType.APPLICATION_JSON
-                    content = objectMapper.writeValueAsString(TokenDto(refreshToken))
-                }.andExpect {
-                    status { isOk() }
-                    jsonPath("$.access_token") { exists() }
-                }
+                mockMvc.perform(
+                    post("/auth/refresh")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(TokenDto(refreshToken))),
+                )
+                    .andExpectAll(
+                        status().isOk,
+                        jsonPath("$.access_token").exists(),
+                    )
+                    .andDo(
+                        MockMvcRestDocumentationWrapper.document(
+                            "auth/{ClassName}/{methodName}",
+                            snippets = arrayOf(
+                                resource(
+                                    builder()
+                                        .summary("Refresh access token")
+                                        .description(
+                                            """
+                                        This endpoint operation allows the renewal of access tokens when expiring, using the appropriate refresh token.
+                                            """.trimIndent(),
+                                        )
+                                        .requestSchema(refreshAuthPayloadSchema.Request().schema())
+                                        .requestFields(refreshAuthPayloadSchema.Request().documentedFields(requestOnlyRefreshAuthFields))
+                                        .responseSchema(refreshAuthPayloadSchema.Response().schema())
+                                        .responseFields(refreshAuthPayloadSchema.Response().documentedFields(responseOnlyRefreshAuthFields))
+                                        .tag("Authentication")
+                                        .build(),
+                                ),
+                            ),
+                        ),
+                    )
             }
         }
     }
@@ -226,20 +285,50 @@ class AuthControllerTest @Autowired constructor(
 
         @Test
         fun `should fail when no access token is provided`() {
-            mockMvc.get("/auth").andExpect {
-                status { isForbidden() }
-                jsonPath("$.errors[0].message") { value("Access Denied") }
-            }
+            mockMvc.perform(get("/auth")).andExpectAll(
+                status().isForbidden,
+                jsonPath("$.errors[0].message").value("Access Denied"),
+            )
+                .andDo(
+                    MockMvcRestDocumentationWrapper.document(
+                        "auth/{ClassName}/{methodName}",
+                        snippets = arrayOf(
+                            resource(
+                                builder()
+                                    .responseSchema(ErrorSchema().Response().schema())
+                                    .responseFields(ErrorSchema().Response().documentedFields())
+                                    .tag("Authentication")
+                                    .build(),
+                            ),
+                        ),
+                    ),
+                )
         }
 
         @Test
         fun `should fail when access token is invalid`() {
-            mockMvc.get("/auth") {
-                header("Authorization", "Bearer invalid_access_token")
-            }.andExpect {
-                status { isUnauthorized() }
-                jsonPath("$.errors[0].message") { startsWith("An error occurred while attempting to decode the Jwt") }
-            }
+            mockMvc.perform(
+                get("/auth")
+                    .header("Authorization", "Bearer invalid_access_token"),
+            )
+                .andExpectAll(
+                    status().isUnauthorized,
+                    jsonPath("$.errors[0].message").value(startsWith("An error occurred while attempting to decode the Jwt")),
+                )
+                .andDo(
+                    MockMvcRestDocumentationWrapper.document(
+                        "auth/{ClassName}/{methodName}",
+                        snippets = arrayOf(
+                            resource(
+                                builder()
+                                    .responseSchema(ErrorSchema().Response().schema())
+                                    .responseFields(ErrorSchema().Response().documentedFields())
+                                    .tag("Authentication")
+                                    .build(),
+                            ),
+                        ),
+                    ),
+                )
         }
 
         @Test
@@ -249,12 +338,34 @@ class AuthControllerTest @Autowired constructor(
                 content = objectMapper.writeValueAsString(LoginDto(testAccount.email, testPassword))
             }.andReturn().response.let { response ->
                 val accessToken = objectMapper.readTree(response.contentAsString)["access_token"].asText()
-                mockMvc.get("/auth") {
-                    header("Authorization", "Bearer $accessToken")
-                }.andExpect {
-                    status { isOk() }
-                    jsonPath("$.authenticated_user") { value(testAccount.email) }
-                }
+                mockMvc.perform(
+                    get("/auth")
+                        .header("Authorization", "Bearer $accessToken"),
+                ).andExpectAll(
+                    status().isOk,
+                    jsonPath("$.authenticated_user").value(testAccount.email),
+                )
+                    .andDo(
+                        MockMvcRestDocumentationWrapper.document(
+                            "auth/{ClassName}/{methodName}",
+                            snippets = arrayOf(
+                                resource(
+                                    builder()
+                                        .summary("Check access token")
+                                        .description(
+                                            """
+                                        This endpoint operation allows to check if a given access token is valid, returning the associated account's email.
+                                            """.trimIndent(),
+                                        )
+                                        .requestHeaders(checkAuthHeaders)
+                                        .responseSchema(checkAuthPayloadSchema.Response().schema())
+                                        .responseFields(checkAuthPayloadSchema.Response().documentedFields(responseOnlyCheckAuthFields))
+                                        .tag("Authentication")
+                                        .build(),
+                                ),
+                            ),
+                        ),
+                    )
             }
         }
     }
