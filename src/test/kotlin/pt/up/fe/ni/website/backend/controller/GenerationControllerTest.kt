@@ -14,14 +14,17 @@ import org.springframework.test.web.servlet.patch
 import org.springframework.web.servlet.function.RequestPredicates.contentType
 import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.Activity
+import pt.up.fe.ni.website.backend.model.Event
 import pt.up.fe.ni.website.backend.model.Generation
 import pt.up.fe.ni.website.backend.model.PerActivityRole
 import pt.up.fe.ni.website.backend.model.Project
 import pt.up.fe.ni.website.backend.model.Role
+import pt.up.fe.ni.website.backend.model.embeddable.DateInterval
 import pt.up.fe.ni.website.backend.model.permissions.Permissions
 import pt.up.fe.ni.website.backend.repository.AccountRepository
+import pt.up.fe.ni.website.backend.repository.ActivityRepository
 import pt.up.fe.ni.website.backend.repository.GenerationRepository
-import pt.up.fe.ni.website.backend.repository.ProjectRepository
+import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
 import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
 
@@ -32,7 +35,7 @@ class GenerationControllerTest @Autowired constructor(
     val objectMapper: ObjectMapper,
     val repository: GenerationRepository,
     val accountRepository: AccountRepository,
-    val activityRepository: ProjectRepository, // TODO: Change to ActivityRepository
+    val activityRepository: ActivityRepository<Activity>,
 ) {
     private lateinit var testGenerations: List<Generation>
 
@@ -557,7 +560,14 @@ class GenerationControllerTest @Autowired constructor(
                     listOf(testAccount),
                     listOf(
                         buildTestPerActivityRole(
-                            Project("NIJobs", "cool project"),
+                            Event(
+                                title = "SINF",
+                                description = "cool event",
+                                dateInterval = DateInterval(TestUtils.createDate(2023, 9, 10)),
+                                location = null,
+                                category = null,
+                                thumbnailPath = "https://www.google.com",
+                            ),
                         ),
                     ),
                 ),
@@ -597,7 +607,7 @@ class GenerationControllerTest @Autowired constructor(
     private fun saveGeneration(generation: Generation) {
         generation.roles.forEach { role ->
             accountRepository.saveAll(role.accounts)
-            activityRepository.saveAll(role.associatedActivities.map { it.activity as Project }) // TODO: Change to Activity
+            activityRepository.saveAll(role.associatedActivities.map { it.activity })
         }
         repository.save(generation)
 

@@ -9,13 +9,14 @@ import pt.up.fe.ni.website.backend.dto.generations.UpdateGenerationDto
 import pt.up.fe.ni.website.backend.dto.generations.buildGetGenerationDto
 import pt.up.fe.ni.website.backend.model.Generation
 import pt.up.fe.ni.website.backend.repository.GenerationRepository
+import pt.up.fe.ni.website.backend.service.activity.ActivityService
 
 @Service
 @Transactional
 class GenerationService(
     private val repository: GenerationRepository,
     private val accountService: AccountService,
-    private val projectService: ProjectService,
+    private val activityService: ActivityService,
 ) {
 
     fun getAllGenerations(): List<String> = repository.findAllSchoolYearOrdered()
@@ -55,8 +56,7 @@ class GenerationService(
             roleDto.associatedActivities.forEachIndexed associatedLoop@{ activityRoleIdx, activityRoleDto ->
                 val activityRole = role.associatedActivities[activityRoleIdx]
                 val activityId = activityRoleDto.activityId ?: return@associatedLoop
-                // TODO: Use activity service once PR is merged
-                activityRole.activity = projectService.getProjectById(activityId)
+                activityRole.activity = activityService.getActivityById(activityId)
             }
         }
 

@@ -10,5 +10,5 @@ import pt.up.fe.ni.website.backend.annotations.validation.ValidDateInterval
 class DateInterval(
     @JsonProperty(required = true)
     val startDate: Date,
-    val endDate: Date?
+    val endDate: Date? = null,
 )
