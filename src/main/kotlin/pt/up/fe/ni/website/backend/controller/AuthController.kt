@@ -2,6 +2,7 @@ package pt.up.fe.ni.website.backend.controller
 
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -25,6 +26,12 @@ class AuthController(val authService: AuthService) {
     fun refreshAccessToken(@RequestBody tokenDto: TokenDto): Map<String, String> {
         val accessToken = authService.refreshAccessToken(tokenDto.token)
         return mapOf("access_token" to accessToken)
+    }
+
+    @PostMapping("/recoverPassword/{id}")
+    fun generateRecoveryToken(@PathVariable id: Long): Map<String, String> {
+        val recoveryToken = authService.generateRecoveryToken(id)
+        return mapOf("recovery_token" to recoveryToken)
     }
 
     @GetMapping

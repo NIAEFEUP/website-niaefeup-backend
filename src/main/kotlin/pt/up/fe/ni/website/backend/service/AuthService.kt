@@ -57,6 +57,11 @@ class AuthService(
         return generateAccessToken(account)
     }
 
+    fun generateRecoveryToken(id: Long): String {
+        val account = accountService.getAccountById(id)
+        return generateToken(account, Duration.ofMinutes(authConfigProperties.jwtRecoveryExpirationMinutes))
+    }
+
     fun getAuthenticatedAccount(): Account {
         val authentication = SecurityContextHolder.getContext().authentication
         return accountService.getAccountByEmail(authentication.name)
