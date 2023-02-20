@@ -31,7 +31,8 @@ class AuthController(val authService: AuthService) {
     @PostMapping("/recoverPassword/{id}")
     fun generateRecoveryToken(@PathVariable id: Long): Map<String, String> {
         val recoveryToken = authService.generateRecoveryToken(id)
-        return mapOf("recovery_token" to recoveryToken)
+        // TODO: Change URL Later
+        return mapOf("recovery_url" to "localhost:8080/accounts/recoverPassword/$recoveryToken")
     }
 
     @GetMapping
