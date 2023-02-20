@@ -40,26 +40,9 @@ class GenerationService(
     }
 
     fun createNewGeneration(dto: GenerationDto): Generation {
-        repository.findBySchoolYear(dto.schoolYear)?.let {
-            throw IllegalArgumentException(ErrorMessages.generationAlreadyExists)
-        }
-
+        dto.schoolYear = inferSchoolYearIfNotSpecified(dto)
         val generation = dto.create()
-        generation.roles.forEachIndexed { roleIdx, role ->
-            val roleDto = dto.roles[roleIdx]
-
-            roleDto.accountIds.forEach {
-                val account = accountService.getAccountById(it)
-                account.roles.add(role) // account owns the relationship
-            }
-
-            roleDto.associatedActivities.forEachIndexed associatedLoop@{ activityRoleIdx, activityRoleDto ->
-                val activityRole = role.associatedActivities[activityRoleIdx]
-                val activityId = activityRoleDto.activityId ?: return@associatedLoop
-                activityRole.activity = activityService.getActivityById(activityId)
-            }
-        }
-
+        assignRolesAndActivities(generation, dto)
         return repository.save(generation)
     }
 
@@ -90,5 +73,36 @@ class GenerationService(
     fun deleteGenerationById(id: Long) {
         repository.findByIdOrNull(id) ?: throw NoSuchElementException(ErrorMessages.generationNotFound(id))
         repository.deleteById(id)
+    }
+
+    private fun inferSchoolYearIfNotSpecified(dto: GenerationDto): String {
+        dto.schoolYear?.let {
+            repository.findBySchoolYear(it)?.let {
+                throw IllegalArgumentException(ErrorMessages.generationAlreadyExists)
+            }
+            return it
+        }
+
+        val lastSchoolYear = repository.findFirstByOrderBySchoolYearDesc()?.schoolYear
+            ?: throw IllegalArgumentException(ErrorMessages.noGenerationsToInferYear)
+        val lastYear = lastSchoolYear.substring(3, 5).toInt()
+        return "$lastYear-${lastYear + 1}"
+    }
+
+    private fun assignRolesAndActivities(generation: Generation, dto: GenerationDto) {
+        generation.roles.forEachIndexed { roleIdx, role ->
+            val roleDto = dto.roles[roleIdx]
+
+            roleDto.accountIds.forEach {
+                val account = accountService.getAccountById(it)
+                account.roles.add(role) // account owns the relationship
+            }
+
+            roleDto.associatedActivities.forEachIndexed associatedLoop@{ activityRoleIdx, activityRoleDto ->
+                val activityRole = role.associatedActivities[activityRoleIdx]
+                val activityId = activityRoleDto.activityId ?: return@associatedLoop
+                activityRole.activity = activityService.getActivityById(activityId)
+            }
+        }
     }
 }

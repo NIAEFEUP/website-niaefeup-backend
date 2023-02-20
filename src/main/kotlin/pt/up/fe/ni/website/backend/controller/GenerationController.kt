@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import pt.up.fe.ni.website.backend.dto.entity.GenerationDto
 import pt.up.fe.ni.website.backend.dto.generations.UpdateGenerationDto
@@ -31,7 +30,6 @@ class GenerationController(private val service: GenerationService) {
 
     @PostMapping("/new")
     fun createNewGeneration(
-        @RequestParam year: String?,
         @RequestBody dto: GenerationDto,
     ) = service.createNewGeneration(dto)
 

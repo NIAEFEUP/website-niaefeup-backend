@@ -13,6 +13,8 @@ object ErrorMessages {
 
     const val noGenerations = "no generations created yet"
 
+    const val noGenerationsToInferYear = "no generations created yet, please specify school year"
+
     const val generationAlreadyExists = "generation already exists"
 
     fun postNotFound(postId: Long): String = "post not found with id $postId"
