@@ -6,6 +6,7 @@ import pt.up.fe.ni.website.backend.model.embeddable.DateInterval
 class EventDto(
     val title: String,
     val description: String,
+    val teamMembersIds: List<Long>?,
     val registerUrl: String?,
     val dateInterval: DateInterval,
     val location: String?,

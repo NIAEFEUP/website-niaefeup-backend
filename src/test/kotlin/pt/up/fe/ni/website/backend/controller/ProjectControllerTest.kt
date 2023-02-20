@@ -13,22 +13,45 @@ import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.put
+import pt.up.fe.ni.website.backend.model.Account
+import pt.up.fe.ni.website.backend.model.CustomWebsite
 import pt.up.fe.ni.website.backend.model.Project
+import pt.up.fe.ni.website.backend.repository.AccountRepository
 import pt.up.fe.ni.website.backend.repository.ProjectRepository
+import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.ValidationTester
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
 import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
+import java.util.Calendar
+import java.util.Date
 import pt.up.fe.ni.website.backend.model.constants.ActivityConstants as Constants
 
 @ControllerTest
 internal class ProjectControllerTest @Autowired constructor(
     val mockMvc: MockMvc,
     val objectMapper: ObjectMapper,
-    val repository: ProjectRepository
+    val repository: ProjectRepository,
+    val accountRepository: AccountRepository
 ) {
+
+    final val testAccount = Account(
+        "Test Account",
+        "test_account@test.com",
+        "test_password",
+        "This is a test account",
+        TestUtils.createDate(2001, Calendar.JULY, 28),
+        "https://test-photo.com",
+        "https://linkedin.com",
+        "https://github.com",
+        listOf(
+            CustomWebsite("https://test-website.com", "https://test-website.com/logo.png")
+        )
+    )
+
     val testProject = Project(
         "Awesome project",
         "this is a test project",
+        mutableListOf(testAccount),
         false,
         listOf("Java", "Kotlin", "Spring")
     )
@@ -41,13 +64,15 @@ internal class ProjectControllerTest @Autowired constructor(
             Project(
                 "NIJobs",
                 "Job platform for students",
+                mutableListOf(),
                 false,
                 listOf("ExpressJS", "React")
             )
         )
 
         @BeforeEach
-        fun addProjects() {
+        fun addToRepositories() {
+            accountRepository.save(testAccount)
             for (project in testProjects) repository.save(project)
         }
 
@@ -65,7 +90,8 @@ internal class ProjectControllerTest @Autowired constructor(
     @DisplayName("GET /projects/{projectId}")
     inner class GetProject {
         @BeforeEach
-        fun addProject() {
+        fun addToRepositories() {
+            accountRepository.save(testAccount)
             repository.save(testProject)
         }
 
@@ -95,17 +121,34 @@ internal class ProjectControllerTest @Autowired constructor(
     @NestedTest
     @DisplayName("POST /projects/new")
     inner class CreateProject {
+        @BeforeEach
+        fun addToRepositories() {
+            accountRepository.save(testAccount)
+            repository.save(testProject)
+        }
+
         @Test
         fun `should create a new project`() {
             mockMvc.post("/projects/new") {
                 contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(testProject)
+                content = objectMapper.writeValueAsString(
+                    mapOf(
+                        "title" to testProject.title,
+                        "description" to testProject.description,
+                        "teamMembersIds" to mutableListOf(testAccount.id!!),
+                        "isArchived" to testProject.isArchived,
+                        "technologies" to testProject.technologies
+                    )
+                )
             }
                 .andExpect {
                     status { isOk() }
                     content { contentType(MediaType.APPLICATION_JSON) }
                     jsonPath("$.title") { value(testProject.title) }
                     jsonPath("$.description") { value(testProject.description) }
+                    jsonPath("$.teamMembers.length()") { value(1) }
+                    jsonPath("$.teamMembers[0].email") { value(testAccount.email) }
+                    jsonPath("$.teamMembers[0].name") { value(testAccount.name) }
                     jsonPath("$.technologies.length()") { value(testProject.technologies.size) }
                     jsonPath("$.technologies[0]") { value(testProject.technologies[0]) }
                 }
@@ -166,7 +209,8 @@ internal class ProjectControllerTest @Autowired constructor(
     @DisplayName("DELETE /projects/{projectId}")
     inner class DeleteProject {
         @BeforeEach
-        fun addProject() {
+        fun addToRepositories() {
+            accountRepository.save(testAccount)
             repository.save(testProject)
         }
 
@@ -195,8 +239,10 @@ internal class ProjectControllerTest @Autowired constructor(
     @NestedTest
     @DisplayName("PUT /projects/{projectId}")
     inner class UpdateProject {
+
         @BeforeEach
-        fun addProject() {
+        fun addToRepositories() {
+            accountRepository.save(testAccount)
             repository.save(testProject)
         }
 
@@ -204,6 +250,7 @@ internal class ProjectControllerTest @Autowired constructor(
         fun `should update the project`() {
             val newTitle = "New Title"
             val newDescription = "New description of the project"
+            val newTeamMembers = mutableListOf<Long>()
             val newIsArchived = true
 
             mockMvc.put("/projects/${testProject.id}") {
@@ -212,6 +259,7 @@ internal class ProjectControllerTest @Autowired constructor(
                     mapOf(
                         "title" to newTitle,
                         "description" to newDescription,
+                        "teamMembersIds" to newTeamMembers,
                         "isArchived" to newIsArchived
                     )
                 )
@@ -221,6 +269,7 @@ internal class ProjectControllerTest @Autowired constructor(
                     content { contentType(MediaType.APPLICATION_JSON) }
                     jsonPath("$.title") { value(newTitle) }
                     jsonPath("$.description") { value(newDescription) }
+                    jsonPath("$.teamMembers.length()") { value(0) }
                     jsonPath("$.isArchived") { value(newIsArchived) }
                 }
 
@@ -304,7 +353,8 @@ internal class ProjectControllerTest @Autowired constructor(
     @DisplayName("PUT /projects/{projectId}/archive")
     inner class ArchiveProject {
         @BeforeEach
-        fun addProject() {
+        fun addToRepositories() {
+            accountRepository.save(testAccount)
             repository.save(testProject)
         }
 
@@ -333,12 +383,14 @@ internal class ProjectControllerTest @Autowired constructor(
         private val project = Project(
             "proj1",
             "very cool project",
+            mutableListOf(),
             true,
             listOf("React", "TailwindCSS")
         )
 
         @BeforeEach
-        fun addProject() {
+        fun addToRepositories() {
+            accountRepository.save(testAccount)
             repository.save(project)
         }
 
@@ -359,5 +411,108 @@ internal class ProjectControllerTest @Autowired constructor(
             val unarchivedProject = repository.findById(project.id!!).get()
             assertEquals(newIsArchived, unarchivedProject.isArchived)
         }
+    }
+
+    @NestedTest
+    @DisplayName("PUT /projects/{projectId}/addTeamMember/{accountId}")
+    inner class AddTeamMember {
+
+        private val newAccount = Account(
+            "Another test Account",
+            "test2_account@test.com",
+            "test_password",
+            "This is another test account",
+            TestUtils.createDate(2003, Calendar.APRIL, 4),
+            "https://test-photo.com",
+            "https://linkedin.com",
+            "https://github.com",
+            listOf(
+                CustomWebsite("https://test-website.com", "https://test-website.com/logo.png")
+            )
+        )
+
+        @BeforeEach
+        fun addToRepositories() {
+            accountRepository.save(testAccount)
+            accountRepository.save(newAccount)
+            repository.save(testProject)
+        }
+
+        @Test
+        fun `should add a team member`() {
+            mockMvc.put("/projects/${testProject.id}/addTeamMember/${newAccount.id}")
+                .andExpect {
+                    status { isOk() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$.teamMembers.length()") { value(2) }
+                    jsonPath("$.teamMembers[0].name") { value(testAccount.name) }
+                    jsonPath("$.teamMembers[0].email") { value(testAccount.email) }
+                    jsonPath("$.teamMembers[0].bio") { value(testAccount.bio) }
+                    jsonPath("$.teamMembers[0].birthDate") { value(testAccount.birthDate.toJson()) }
+                    jsonPath("$.teamMembers[0].photoPath") { value(testAccount.photoPath) }
+                    jsonPath("$.teamMembers[0].linkedin") { value(testAccount.linkedin) }
+                    jsonPath("$.teamMembers[0].github") { value(testAccount.github) }
+                    jsonPath("$.teamMembers[0].websites.length()") { value(1) }
+                    jsonPath("$.teamMembers[0].websites[0].url") { value(testAccount.websites[0].url) }
+                    jsonPath("$.teamMembers[0].websites[0].iconPath") { value(testAccount.websites[0].iconPath) }
+                    jsonPath("$.teamMembers[1].name") { value(newAccount.name) }
+                    jsonPath("$.teamMembers[1].email") { value(newAccount.email) }
+                    jsonPath("$.teamMembers[1].bio") { value(newAccount.bio) }
+                    jsonPath("$.teamMembers[1].birthDate") { value(newAccount.birthDate.toJson()) }
+                    jsonPath("$.teamMembers[1].photoPath") { value(newAccount.photoPath) }
+                    jsonPath("$.teamMembers[1].linkedin") { value(newAccount.linkedin) }
+                    jsonPath("$.teamMembers[1].github") { value(newAccount.github) }
+                    jsonPath("$.teamMembers[1].websites.length()") { value(1) }
+                    jsonPath("$.teamMembers[1].websites[0].url") { value(newAccount.websites[0].url) }
+                    jsonPath("$.teamMembers[1].websites[0].iconPath") { value(newAccount.websites[0].iconPath) }
+                }
+        }
+
+        @Test
+        fun `should fail if the team member does not exist`() {
+            mockMvc.put("/projects/${testProject.id}/addTeamMember/1234").andExpect {
+                status { isNotFound() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                jsonPath("$.errors.length()") { value(1) }
+                jsonPath("$.errors[0].message") { value("account not found with id 1234") }
+            }
+        }
+    }
+
+    @NestedTest
+    @DisplayName("PUT /projects/{projectId}/removeTeamMember/{accountId}")
+    inner class RemoveTeamMember {
+
+        @BeforeEach
+        fun addToRepositories() {
+            accountRepository.save(testAccount)
+            repository.save(testProject)
+        }
+
+        @Test
+        fun `should remove a team member`() {
+            mockMvc.put("/projects/${testProject.id}/removeTeamMember/${testAccount.id}")
+                .andExpect {
+                    status { isOk() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$.teamMembers.length()") { value(0) }
+                }
+        }
+
+        @Test
+        fun `should fail if the team member does not exist`() {
+            mockMvc.put("/projects/${testProject.id}/removeTeamMember/1234").andExpect {
+                status { isNotFound() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                jsonPath("$.errors.length()") { value(1) }
+                jsonPath("$.errors[0].message") { value("account not found with id 1234") }
+            }
+        }
+    }
+
+    fun Date?.toJson(): String {
+        val quotedDate = objectMapper.writeValueAsString(this)
+        // objectMapper adds quotes to the date, so remove them
+        return quotedDate.substring(1, quotedDate.length - 1)
     }
 }

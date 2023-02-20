@@ -13,9 +13,12 @@ import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.put
+import pt.up.fe.ni.website.backend.model.Account
+import pt.up.fe.ni.website.backend.model.CustomWebsite
 import pt.up.fe.ni.website.backend.model.Event
 import pt.up.fe.ni.website.backend.model.constants.ActivityConstants
 import pt.up.fe.ni.website.backend.model.embeddable.DateInterval
+import pt.up.fe.ni.website.backend.repository.AccountRepository
 import pt.up.fe.ni.website.backend.repository.EventRepository
 import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.ValidationTester
@@ -29,11 +32,28 @@ import pt.up.fe.ni.website.backend.model.constants.EventConstants as Constants
 internal class EventControllerTest @Autowired constructor(
     val mockMvc: MockMvc,
     val objectMapper: ObjectMapper,
-    val repository: EventRepository
+    val repository: EventRepository,
+    val accountRepository: AccountRepository
 ) {
+    final val testAccount = Account(
+        "Test Account",
+        "test_account@test.com",
+        "test_password",
+        "This is a test account",
+        TestUtils.createDate(2001, Calendar.JULY, 28),
+        "https://test-photo.com",
+        "https://linkedin.com",
+        "https://github.com",
+        listOf(
+            CustomWebsite("https://test-website.com", "https://test-website.com/logo.png")
+        ),
+        emptyList()
+    )
+
     val testEvent = Event(
         "Great event",
         "This was a nice and iconic event",
+        mutableListOf(testAccount),
         "https://docs.google.com/forms",
         DateInterval(
             TestUtils.createDate(2022, Calendar.JULY, 28),
@@ -52,6 +72,7 @@ internal class EventControllerTest @Autowired constructor(
             Event(
                 "Bad event",
                 "This event was a failure",
+                mutableListOf(),
                 null,
                 DateInterval(
                     TestUtils.createDate(2021, Calendar.OCTOBER, 27),
@@ -64,7 +85,8 @@ internal class EventControllerTest @Autowired constructor(
         )
 
         @BeforeEach
-        fun addEvents() {
+        fun addToRepositories() {
+            accountRepository.save(testAccount)
             for (event in testEvents) repository.save(event)
         }
 
@@ -83,7 +105,8 @@ internal class EventControllerTest @Autowired constructor(
     @DisplayName("GET /events/{id}")
     inner class GetEvent {
         @BeforeEach
-        fun addEvent() {
+        fun addToRepositories() {
+            accountRepository.save(testAccount)
             repository.save(testEvent)
         }
 
@@ -95,6 +118,9 @@ internal class EventControllerTest @Autowired constructor(
                     content { contentType(MediaType.APPLICATION_JSON) }
                     jsonPath("$.title") { value(testEvent.title) }
                     jsonPath("$.description") { value(testEvent.description) }
+                    jsonPath("$.teamMembers.length()") { value(1) }
+                    jsonPath("$.teamMembers[0].email") { value(testAccount.email) }
+                    jsonPath("$.teamMembers[0].name") { value(testAccount.name) }
                     jsonPath("$.registerUrl") { value(testEvent.registerUrl) }
                     jsonPath("$.dateInterval.startDate") { value(testEvent.dateInterval.startDate.toJson()) }
                     jsonPath("$.dateInterval.endDate") { value(testEvent.dateInterval.endDate.toJson()) }
@@ -123,6 +149,7 @@ internal class EventControllerTest @Autowired constructor(
             Event(
                 "Bad event",
                 "This event was a failure",
+                mutableListOf(testAccount),
                 null,
                 DateInterval(
                     TestUtils.createDate(2021, Calendar.OCTOBER, 27),
@@ -135,6 +162,7 @@ internal class EventControllerTest @Autowired constructor(
             Event(
                 "Mid event",
                 "This event was ok",
+                mutableListOf(),
                 null,
                 DateInterval(
                     TestUtils.createDate(2022, Calendar.JANUARY, 15),
@@ -147,6 +175,7 @@ internal class EventControllerTest @Autowired constructor(
             Event(
                 "Cool event",
                 "This event was a awesome",
+                mutableListOf(testAccount),
                 null,
                 DateInterval(
                     TestUtils.createDate(2022, Calendar.SEPTEMBER, 11),
@@ -159,7 +188,8 @@ internal class EventControllerTest @Autowired constructor(
         )
 
         @BeforeEach
-        fun addEvents() {
+        fun addToRepositories() {
+            accountRepository.save(testAccount)
             for (event in testEvents) repository.save(event)
         }
 
@@ -179,18 +209,36 @@ internal class EventControllerTest @Autowired constructor(
     @NestedTest
     @DisplayName("POST /events/new")
     inner class CreateEvent {
+        @BeforeEach
+        fun addAccount() {
+            accountRepository.save(testAccount)
+        }
+
         @Test
         fun `should create a new event`() {
             mockMvc.post("/events/new") {
                 contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(testEvent)
+                content = objectMapper.writeValueAsString(
+                    mapOf(
+                        "title" to testEvent.title,
+                        "description" to testEvent.description,
+                        "dateInterval" to testEvent.dateInterval,
+                        "teamMembersIds" to mutableListOf(testAccount.id!!),
+                        "registerUrl" to testEvent.registerUrl,
+                        "location" to testEvent.location,
+                        "category" to testEvent.category,
+                        "thumbnailPath" to testEvent.thumbnailPath
+                    )
+                )
             }
                 .andExpect {
                     status { isOk() }
                     content { contentType(MediaType.APPLICATION_JSON) }
                     jsonPath("$.title") { value(testEvent.title) }
                     jsonPath("$.description") { value(testEvent.description) }
-                    jsonPath("$.registerUrl") { value(testEvent.registerUrl) }
+                    jsonPath("$.teamMembers.length()") { value(1) }
+                    jsonPath("$.teamMembers[0].email") { value(testAccount.email) }
+                    jsonPath("$.teamMembers[0].name") { value(testAccount.name) }
                     jsonPath("$.dateInterval.startDate") { value(testEvent.dateInterval.startDate.toJson()) }
                     jsonPath("$.dateInterval.endDate") { value(testEvent.dateInterval.endDate.toJson()) }
                     jsonPath("$.location") { value(testEvent.location) }
@@ -336,7 +384,8 @@ internal class EventControllerTest @Autowired constructor(
     @DisplayName("DELETE /events/{eventId}")
     inner class DeleteEvent {
         @BeforeEach
-        fun addEvent() {
+        fun addToRepositories() {
+            accountRepository.save(testAccount)
             repository.save(testEvent)
         }
 
@@ -363,10 +412,112 @@ internal class EventControllerTest @Autowired constructor(
     }
 
     @NestedTest
+    @DisplayName("PUT /events/{eventId}/addTeamMember/{accountId}")
+    inner class AddTeamMember {
+
+        private val newAccount = Account(
+            "Another test Account",
+            "test2_account@test.com",
+            "test_password",
+            "This is another test account",
+            TestUtils.createDate(2003, Calendar.APRIL, 4),
+            "https://test-photo.com",
+            "https://linkedin.com",
+            "https://github.com",
+            listOf(
+                CustomWebsite("https://test-website.com", "https://test-website.com/logo.png")
+            ),
+            emptyList()
+        )
+
+        @BeforeEach
+        fun addAccounts() {
+            accountRepository.save(testAccount)
+            accountRepository.save(newAccount)
+            repository.save(testEvent)
+        }
+
+        @Test
+        fun `should add a team member`() {
+            mockMvc.put("/events/${testEvent.id}/addTeamMember/${newAccount.id}")
+                .andExpect {
+                    status { isOk() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$.teamMembers.length()") { value(2) }
+                    jsonPath("$.teamMembers.length()") { value(2) }
+                    jsonPath("$.teamMembers[0].name") { value(testAccount.name) }
+                    jsonPath("$.teamMembers[0].email") { value(testAccount.email) }
+                    jsonPath("$.teamMembers[0].bio") { value(testAccount.bio) }
+                    jsonPath("$.teamMembers[0].birthDate") { value(testAccount.birthDate.toJson()) }
+                    jsonPath("$.teamMembers[0].photoPath") { value(testAccount.photoPath) }
+                    jsonPath("$.teamMembers[0].linkedin") { value(testAccount.linkedin) }
+                    jsonPath("$.teamMembers[0].github") { value(testAccount.github) }
+                    jsonPath("$.teamMembers[0].websites.length()") { value(1) }
+                    jsonPath("$.teamMembers[0].websites[0].url") { value(testAccount.websites[0].url) }
+                    jsonPath("$.teamMembers[0].websites[0].iconPath") { value(testAccount.websites[0].iconPath) }
+                    jsonPath("$.teamMembers[1].name") { value(newAccount.name) }
+                    jsonPath("$.teamMembers[1].email") { value(newAccount.email) }
+                    jsonPath("$.teamMembers[1].bio") { value(newAccount.bio) }
+                    jsonPath("$.teamMembers[1].birthDate") { value(newAccount.birthDate.toJson()) }
+                    jsonPath("$.teamMembers[1].photoPath") { value(newAccount.photoPath) }
+                    jsonPath("$.teamMembers[1].linkedin") { value(newAccount.linkedin) }
+                    jsonPath("$.teamMembers[1].github") { value(newAccount.github) }
+                    jsonPath("$.teamMembers[1].websites.length()") { value(1) }
+                    jsonPath("$.teamMembers[1].websites[0].url") { value(newAccount.websites[0].url) }
+                    jsonPath("$.teamMembers[1].websites[0].iconPath") { value(newAccount.websites[0].iconPath) }
+                }
+        }
+
+        @Test
+        fun `should fail if the team member does not exist`() {
+            mockMvc.put("/events/${testEvent.id}/addTeamMember/1234")
+                .andExpect {
+                    status { isNotFound() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$.errors.length()") { value(1) }
+                    jsonPath("$.errors[0].message") { value("account not found with id 1234") }
+                }
+        }
+    }
+
+    @NestedTest
+    @DisplayName("PUT /events/{projectId}/addTeamMember/{accountId}")
+    inner class RemoveTeamMember {
+
+        @BeforeEach
+        fun addToRepositories() {
+            accountRepository.save(testAccount)
+            repository.save(testEvent)
+        }
+
+        @Test
+        fun `should remove a team member`() {
+            mockMvc.put("/events/${testEvent.id}/removeTeamMember/${testAccount.id}")
+                .andExpect {
+                    status { isOk() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$.teamMembers.length()") { value(0) }
+                }
+        }
+
+        @Test
+        fun `should fail if the team member does not exist`() {
+            mockMvc.put("/events/${testEvent.id}/removeTeamMember/1234")
+                .andExpect {
+                    status { isNotFound() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$.errors.length()") { value(1) }
+                    jsonPath("$.errors[0].message") { value("account not found with id 1234") }
+                }
+        }
+    }
+
+    @NestedTest
     @DisplayName("PUT /events/{eventId}")
     inner class UpdateEvent {
         @BeforeEach
-        fun addEvent() {
+        fun addToRepositories() {
+            accountRepository.save(testAccount)
             repository.save(testEvent)
         }
 
@@ -374,6 +525,7 @@ internal class EventControllerTest @Autowired constructor(
         fun `should update the event`() {
             val newTitle = "New event title"
             val newDescription = "New event description"
+            val newTeamMembers = mutableListOf<Long>()
             val newRegisterUrl = "https://example.com/newUrl"
             val newDateInterval = DateInterval(
                 TestUtils.createDate(2022, Calendar.DECEMBER, 1),
@@ -389,6 +541,7 @@ internal class EventControllerTest @Autowired constructor(
                     mapOf(
                         "title" to newTitle,
                         "description" to newDescription,
+                        "teamMembersIds" to newTeamMembers,
                         "registerUrl" to newRegisterUrl,
                         "dateInterval" to newDateInterval,
                         "location" to newLocation,
@@ -402,6 +555,7 @@ internal class EventControllerTest @Autowired constructor(
                     content { contentType(MediaType.APPLICATION_JSON) }
                     jsonPath("$.title") { value(newTitle) }
                     jsonPath("$.description") { value(newDescription) }
+                    jsonPath("$.teamMembers.length()") { value(0) }
                     jsonPath("$.registerUrl") { value(newRegisterUrl) }
                     jsonPath("$.dateInterval.startDate") { value(newDateInterval.startDate.toJson()) }
                     jsonPath("$.dateInterval.endDate") { value(newDateInterval.endDate.toJson()) }
@@ -474,7 +628,10 @@ internal class EventControllerTest @Autowired constructor(
                 @Test
                 @DisplayName("size should be between ${ActivityConstants.Title.minSize} and ${ActivityConstants.Title.maxSize}()")
                 fun size() =
-                    validationTester.hasSizeBetween(ActivityConstants.Title.minSize, ActivityConstants.Title.maxSize)
+                    validationTester.hasSizeBetween(
+                        ActivityConstants.Title.minSize,
+                        ActivityConstants.Title.maxSize
+                    )
             }
 
             @NestedTest

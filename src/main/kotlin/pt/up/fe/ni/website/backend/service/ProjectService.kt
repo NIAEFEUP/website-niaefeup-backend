@@ -7,12 +7,21 @@ import pt.up.fe.ni.website.backend.model.Project
 import pt.up.fe.ni.website.backend.repository.ProjectRepository
 
 @Service
-class ProjectService(private val repository: ProjectRepository) {
+class ProjectService(
+    private val repository: ProjectRepository,
+    private val accountService: AccountService
+) : ActivityService<Project>(repository, accountService) {
 
     fun getAllProjects(): List<Project> = repository.findAll().toList()
 
     fun createProject(dto: ProjectDto): Project {
         val project = dto.create()
+
+        dto.teamMembersIds?.forEach {
+            val account = accountService.getAccountById(it)
+            project.teamMembers.add(account)
+        }
+
         return repository.save(project)
     }
 
@@ -22,6 +31,13 @@ class ProjectService(private val repository: ProjectRepository) {
     fun updateProjectById(id: Long, dto: ProjectDto): Project {
         val project = getProjectById(id)
         val newProject = dto.update(project)
+        newProject.apply {
+            teamMembers.clear()
+            dto.teamMembersIds?.forEach {
+                val account = accountService.getAccountById(it)
+                teamMembers.add(account)
+            }
+        }
         return repository.save(newProject)
     }
 

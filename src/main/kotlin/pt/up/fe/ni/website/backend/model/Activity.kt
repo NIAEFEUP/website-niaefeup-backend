@@ -27,6 +27,9 @@ abstract class Activity(
     open val description: String,
 
     @JoinColumn
+    @OneToMany(fetch = FetchType.EAGER)
+    open val teamMembers: MutableList<Account>,
+
     @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
     open var associatedRoles: List<@Valid PerActivityRole>,
 

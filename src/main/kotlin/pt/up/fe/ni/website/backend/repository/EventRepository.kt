@@ -1,8 +1,10 @@
 package pt.up.fe.ni.website.backend.repository
 
-import org.springframework.data.repository.CrudRepository
+import org.springframework.stereotype.Repository
 import pt.up.fe.ni.website.backend.model.Event
 
-interface EventRepository : CrudRepository<Event, Long> {
+@Repository
+interface EventRepository : ActivityRepository<Event> {
+
     fun findAllByCategory(category: String): List<Event>
 }
