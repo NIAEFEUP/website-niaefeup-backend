@@ -2,14 +2,14 @@ package pt.up.fe.ni.website.backend.utils.listeners
 
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
+import java.sql.Connection
+import java.sql.Statement
+import javax.sql.DataSource
 import org.hibernate.id.enhanced.PooledOptimizer
 import org.hibernate.id.enhanced.SequenceStyleGenerator
 import org.hibernate.metamodel.model.domain.internal.MappingMetamodelImpl
 import org.springframework.test.context.TestContext
 import org.springframework.test.context.TestExecutionListener
-import java.sql.Connection
-import java.sql.Statement
-import javax.sql.DataSource
 
 class DbCleanupListener : TestExecutionListener {
     companion object {

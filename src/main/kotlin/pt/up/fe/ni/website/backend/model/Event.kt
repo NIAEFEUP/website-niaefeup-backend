@@ -8,8 +8,8 @@ import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.Size
 import org.hibernate.validator.constraints.URL
 import pt.up.fe.ni.website.backend.annotations.validation.NullOrNotBlank
-import pt.up.fe.ni.website.backend.model.embeddable.DateInterval
 import pt.up.fe.ni.website.backend.model.constants.EventConstants as Constants
+import pt.up.fe.ni.website.backend.model.embeddable.DateInterval
 
 @Entity
 class Event(
