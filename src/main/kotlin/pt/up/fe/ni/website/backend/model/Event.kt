@@ -15,6 +15,7 @@ import pt.up.fe.ni.website.backend.model.constants.EventConstants as Constants
 class Event(
     title: String,
     description: String,
+    teamMembers: MutableList<Account> = mutableListOf(),
 
     @field:NullOrNotBlank
     @field:URL
@@ -37,4 +38,5 @@ class Event(
 
     associatedRoles: List<PerActivityRole> = emptyList(),
     id: Long? = null
-) : Activity(title, description, associatedRoles, id)
+
+) : Activity(title, description, teamMembers, associatedRoles, id)

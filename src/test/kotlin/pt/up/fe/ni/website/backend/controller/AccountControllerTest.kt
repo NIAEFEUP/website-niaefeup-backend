@@ -58,27 +58,29 @@ class AccountControllerTest @Autowired constructor(
         emptyList(),
     )
 
-    private val accountFields = listOf<FieldDescriptor>(
-        fieldWithPath("name").type(JsonFieldType.STRING).description("Name of the account owner"),
-        fieldWithPath("email").type(JsonFieldType.STRING).description("Email associated to the account"),
-        fieldWithPath("bio").type(JsonFieldType.STRING).description("Short profile description").optional(),
-        fieldWithPath("birthDate").type(JsonFieldType.STRING).description("Birth date of the owner").optional(),
-        fieldWithPath("photoPath").type(JsonFieldType.STRING).description("Path to the photo resource on the backend server").optional(),
-        fieldWithPath("linkedin").type(JsonFieldType.STRING).description("Handle/link to the owner's LinkedIn profile").optional(),
-        fieldWithPath("github").type(JsonFieldType.STRING).description("Handle/link to the owner's LinkedIn profile").optional(),
-        fieldWithPath("websites[]").type(JsonFieldType.ARRAY).description("Array with relevant websites about the owner").optional(),
-        fieldWithPath("websites[].url").type(JsonFieldType.STRING).description("URL to the website").optional(),
-        fieldWithPath("websites[].iconPath").type(JsonFieldType.STRING).description("URL to the website's icon").optional(),
-        fieldWithPath("roles[]").type(JsonFieldType.ARRAY).description("Array with the roles of the account").optional(),
-    )
-    private val accountPayloadSchema = PayloadSchema("account", accountFields)
-    private val requestOnlyAccountFields = listOf<FieldDescriptor>(
-        fieldWithPath("password").type(JsonFieldType.STRING).description("Account password"),
-    )
-    private val responseOnlyAccountFields = listOf<FieldDescriptor>(
-        fieldWithPath("id").type(JsonFieldType.NUMBER).description("Account ID"),
-        fieldWithPath("websites[].id").type(JsonFieldType.NUMBER).description("Related website ID").optional(),
-    )
+    companion object {
+        val accountFields = listOf<FieldDescriptor>(
+            fieldWithPath("name").type(JsonFieldType.STRING).description("Name of the account owner"),
+            fieldWithPath("email").type(JsonFieldType.STRING).description("Email associated to the account"),
+            fieldWithPath("bio").type(JsonFieldType.STRING).description("Short profile description").optional(),
+            fieldWithPath("birthDate").type(JsonFieldType.STRING).description("Birth date of the owner").optional(),
+            fieldWithPath("photoPath").type(JsonFieldType.STRING).description("Path to the photo resource on the backend server").optional(),
+            fieldWithPath("linkedin").type(JsonFieldType.STRING).description("Handle/link to the owner's LinkedIn profile").optional(),
+            fieldWithPath("github").type(JsonFieldType.STRING).description("Handle/link to the owner's LinkedIn profile").optional(),
+            fieldWithPath("websites[]").type(JsonFieldType.ARRAY).description("Array with relevant websites about the owner").optional(),
+            fieldWithPath("websites[].url").type(JsonFieldType.STRING).description("URL to the website").optional(),
+            fieldWithPath("websites[].iconPath").type(JsonFieldType.STRING).description("URL to the website's icon").optional(),
+            fieldWithPath("roles[]").type(JsonFieldType.ARRAY).description("Array with the roles of the account").optional(),
+        )
+        val accountPayloadSchema = PayloadSchema("account", accountFields)
+        val requestOnlyAccountFields = listOf<FieldDescriptor>(
+            fieldWithPath("password").type(JsonFieldType.STRING).description("Account password"),
+        )
+        val responseOnlyAccountFields = listOf<FieldDescriptor>(
+            fieldWithPath("id").type(JsonFieldType.NUMBER).description("Account ID"),
+            fieldWithPath("websites[].id").type(JsonFieldType.NUMBER).description("Related website ID").optional(),
+        )
+    }
 
     @NestedTest
     @DisplayName("GET /accounts")

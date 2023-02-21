@@ -6,9 +6,10 @@ import jakarta.persistence.Entity
 class Project(
     title: String,
     description: String,
+    teamMembers: MutableList<Account> = mutableListOf(),
     var isArchived: Boolean = false,
     val technologies: List<String> = emptyList(),
-
     associatedRoles: List<PerActivityRole> = emptyList(),
     id: Long? = null
-) : Activity(title, description, associatedRoles, id)
+
+) : Activity(title, description, teamMembers, associatedRoles, id)
