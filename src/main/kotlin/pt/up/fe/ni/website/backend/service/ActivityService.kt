@@ -22,11 +22,13 @@ abstract class ActivityService<T : Activity>(
 
     fun removeTeamMemberById(idActivity: Long, idAccount: Long): T {
         val activity = getActivityById(idActivity)
-        if (!accountService.doesAccountExist(idAccount)) throw NoSuchElementException(
-            ErrorMessages.accountNotFound(
-                idAccount
+        if (!accountService.doesAccountExist(idAccount)) {
+            throw NoSuchElementException(
+                ErrorMessages.accountNotFound(
+                    idAccount
+                )
             )
-        )
+        }
         activity.teamMembers.removeIf { it.id == idAccount }
         return repository.save(activity)
     }

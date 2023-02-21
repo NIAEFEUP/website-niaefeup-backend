@@ -1,6 +1,8 @@
 package pt.up.fe.ni.website.backend.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import java.util.Calendar
+import java.util.Date
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
@@ -13,14 +15,12 @@ import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.CustomWebsite
+import pt.up.fe.ni.website.backend.model.constants.AccountConstants as Constants
 import pt.up.fe.ni.website.backend.repository.AccountRepository
 import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.ValidationTester
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
 import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
-import java.util.Calendar
-import java.util.Date
-import pt.up.fe.ni.website.backend.model.constants.AccountConstants as Constants
 
 @ControllerTest
 class AccountControllerTest @Autowired constructor(
@@ -144,6 +144,7 @@ class AccountControllerTest @Autowired constructor(
                 jsonPath("$.websites[0].iconPath") { value(testAccount.websites[0].iconPath) }
             }
         }
+
         @Test
         fun `should create an account with an empty website list`() {
             val noWebsite = Account(

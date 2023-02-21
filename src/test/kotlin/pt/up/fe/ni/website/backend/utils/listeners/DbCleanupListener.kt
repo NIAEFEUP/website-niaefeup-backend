@@ -40,7 +40,10 @@ class DbCleanupListener : TestExecutionListener {
             resetSequences(statement)
             enableConstraints(statement)
         } else {
-            print("Unexpected database type: ${connection.metaData.databaseProductName} (expected: $DB_NAME). Skipping cleanup.")
+            print(
+                "Unexpected database type: ${connection.metaData.databaseProductName}" +
+                    " (expected: $DB_NAME). Skipping cleanup."
+            )
         }
     }
 
@@ -52,7 +55,9 @@ class DbCleanupListener : TestExecutionListener {
         metaModel.forEachEntityDescriptor { entityDescriptor ->
             if (!entityDescriptor.hasIdentifierProperty() ||
                 entityDescriptor.identifierGenerator !is SequenceStyleGenerator
-            ) return@forEachEntityDescriptor
+            ) {
+                return@forEachEntityDescriptor
+            }
 
             val sequenceStyleGenerator = (entityDescriptor.identifierGenerator as SequenceStyleGenerator)
             val optimizer = sequenceStyleGenerator.optimizer as? PooledOptimizer

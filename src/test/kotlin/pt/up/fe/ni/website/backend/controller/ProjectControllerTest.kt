@@ -198,7 +198,10 @@ internal class ProjectControllerTest @Autowired constructor(
                 fun `should be required`() = validationTester.isRequired()
 
                 @Test
-                @DisplayName("size should be between ${Constants.Description.minSize} and ${Constants.Description.maxSize}()")
+                @DisplayName(
+                    "size should be between ${Constants.Description.minSize} " +
+                        "and ${Constants.Description.maxSize}()"
+                )
                 fun size() =
                     validationTester.hasSizeBetween(Constants.Description.minSize, Constants.Description.maxSize)
             }
@@ -342,7 +345,10 @@ internal class ProjectControllerTest @Autowired constructor(
                 fun `should be required`() = validationTester.isRequired()
 
                 @Test
-                @DisplayName("size should be between ${Constants.Description.minSize} and ${Constants.Description.maxSize}()")
+                @DisplayName(
+                    "size should be between ${Constants.Description.minSize}" +
+                        " and ${Constants.Description.maxSize}()"
+                )
                 fun size() =
                     validationTester.hasSizeBetween(Constants.Description.minSize, Constants.Description.maxSize)
             }

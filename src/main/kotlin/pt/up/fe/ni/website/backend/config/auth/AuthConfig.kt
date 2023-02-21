@@ -50,7 +50,9 @@ class AuthConfig(
 
     @Bean
     fun jwtEncoder(): JwtEncoder {
-        val jwt = RSAKey.Builder(authConfigProperties::publicKey.get()).privateKey(authConfigProperties::privateKey.get()).build()
+        val jwt = RSAKey.Builder(authConfigProperties::publicKey.get()).privateKey(
+            authConfigProperties::privateKey.get()
+        ).build()
         return NimbusJwtEncoder(ImmutableJWKSet(JWKSet(jwt)))
     }
 

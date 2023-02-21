@@ -277,7 +277,10 @@ internal class EventControllerTest @Autowired constructor(
                 fun `should be required`() = validationTester.isRequired()
 
                 @Test
-                @DisplayName("size should be between ${ActivityConstants.Title.minSize} and ${ActivityConstants.Title.maxSize}()")
+                @DisplayName(
+                    "size should be between ${ActivityConstants.Title.minSize}" +
+                        " and ${ActivityConstants.Title.maxSize}()"
+                )
                 fun size() =
                     validationTester.hasSizeBetween(ActivityConstants.Title.minSize, ActivityConstants.Title.maxSize)
             }
@@ -294,7 +297,10 @@ internal class EventControllerTest @Autowired constructor(
                 fun `should be required`() = validationTester.isRequired()
 
                 @Test
-                @DisplayName("size should be between ${ActivityConstants.Description.minSize} and ${ActivityConstants.Description.maxSize}()")
+                @DisplayName(
+                    "size should be between ${ActivityConstants.Description.minSize}" +
+                        " and ${ActivityConstants.Description.maxSize}()"
+                )
                 fun size() =
                     validationTester.hasSizeBetween(
                         ActivityConstants.Description.minSize,
@@ -626,7 +632,10 @@ internal class EventControllerTest @Autowired constructor(
                 fun `should be required`() = validationTester.isRequired()
 
                 @Test
-                @DisplayName("size should be between ${ActivityConstants.Title.minSize} and ${ActivityConstants.Title.maxSize}()")
+                @DisplayName(
+                    "size should be between ${ActivityConstants.Title.minSize}" +
+                        " and ${ActivityConstants.Title.maxSize}()"
+                )
                 fun size() =
                     validationTester.hasSizeBetween(
                         ActivityConstants.Title.minSize,
@@ -646,7 +655,10 @@ internal class EventControllerTest @Autowired constructor(
                 fun `should be required`() = validationTester.isRequired()
 
                 @Test
-                @DisplayName("size should be between ${ActivityConstants.Description.minSize} and ${ActivityConstants.Description.maxSize}()")
+                @DisplayName(
+                    "size should be between ${ActivityConstants.Description.minSize} " +
+                        "and ${ActivityConstants.Description.maxSize}()"
+                )
                 fun size() =
                     validationTester.hasSizeBetween(
                         ActivityConstants.Description.minSize,
