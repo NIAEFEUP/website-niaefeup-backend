@@ -95,13 +95,20 @@ class GenerationService(
 
             roleDto.accountIds.forEach {
                 val account = accountService.getAccountById(it)
-                account.roles.add(role) // account owns the relationship
+
+                // only owner side is needed after transaction, but it's useful to update the objects
+                account.roles.add(role)
+                role.accounts.add(account)
             }
 
             roleDto.associatedActivities.forEachIndexed associatedLoop@{ activityRoleIdx, activityRoleDto ->
-                val activityRole = role.associatedActivities[activityRoleIdx]
+                val perActivityRole = role.associatedActivities[activityRoleIdx]
                 val activityId = activityRoleDto.activityId ?: return@associatedLoop
-                activityRole.activity = activityService.getActivityById(activityId)
+                val activity = activityService.getActivityById(activityId)
+
+                // only owner side is needed after transaction, but it's useful to update the objects
+                perActivityRole.activity = activity
+                activity.associatedRoles.add(perActivityRole)
             }
         }
     }

@@ -30,7 +30,7 @@ class Role(
     @JsonProperty(required = true)
     var isSection: Boolean,
 
-    @ManyToMany(mappedBy = "roles", cascade = [CascadeType.REMOVE])
+    @ManyToMany(mappedBy = "roles")
     @JsonIgnore // TODO: Decide if we want to return accounts (or IDs) by default
     val accounts: MutableList<@Valid Account> = mutableListOf(),
 

@@ -2,6 +2,8 @@ package pt.up.fe.ni.website.backend.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.transaction.Transactional
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -11,7 +13,10 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.patch
-import org.springframework.web.servlet.function.RequestPredicates.contentType
+import org.springframework.test.web.servlet.post
+import pt.up.fe.ni.website.backend.dto.entity.GenerationDto
+import pt.up.fe.ni.website.backend.dto.entity.PerActivityRoleDto
+import pt.up.fe.ni.website.backend.dto.entity.RoleDto
 import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.Activity
 import pt.up.fe.ni.website.backend.model.Event
@@ -20,10 +25,12 @@ import pt.up.fe.ni.website.backend.model.PerActivityRole
 import pt.up.fe.ni.website.backend.model.Project
 import pt.up.fe.ni.website.backend.model.Role
 import pt.up.fe.ni.website.backend.model.embeddable.DateInterval
+import pt.up.fe.ni.website.backend.model.permissions.Permission
 import pt.up.fe.ni.website.backend.model.permissions.Permissions
 import pt.up.fe.ni.website.backend.repository.AccountRepository
 import pt.up.fe.ni.website.backend.repository.ActivityRepository
 import pt.up.fe.ni.website.backend.repository.GenerationRepository
+import pt.up.fe.ni.website.backend.repository.RoleRepository
 import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
 import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
@@ -36,7 +43,9 @@ class GenerationControllerTest @Autowired constructor(
     val repository: GenerationRepository,
     val accountRepository: AccountRepository,
     val activityRepository: ActivityRepository<Activity>,
+    val roleRepository: RoleRepository,
 ) {
+    private lateinit var testGeneration: Generation
     private lateinit var testGenerations: List<Generation>
 
     @NestedTest
@@ -45,7 +54,7 @@ class GenerationControllerTest @Autowired constructor(
 
         @BeforeEach
         fun addGenerations() {
-            initializeGenerations()
+            initializeTestGenerations()
         }
 
         @Test
@@ -66,7 +75,7 @@ class GenerationControllerTest @Autowired constructor(
     inner class GetGenerationByYear {
         @BeforeEach
         fun addGenerations() {
-            initializeGenerations()
+            initializeTestGenerations()
         }
 
         @Test
@@ -150,7 +159,7 @@ class GenerationControllerTest @Autowired constructor(
     inner class GetGenerationById {
         @BeforeEach
         fun addGenerations() {
-            initializeGenerations()
+            initializeTestGenerations()
         }
 
         @Test
@@ -234,7 +243,7 @@ class GenerationControllerTest @Autowired constructor(
     inner class GetLatestGeneration {
         @BeforeEach
         fun addGenerations() {
-            initializeGenerations()
+            initializeTestGenerations()
         }
 
         @Test
@@ -303,11 +312,269 @@ class GenerationControllerTest @Autowired constructor(
     }
 
     @NestedTest
+    @DisplayName("POST /generations/new")
+    inner class CreateGeneration {
+        @Test
+        fun `should create a new generation`() {
+            mockMvc.post("/generations/new") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(GenerationDto("22-23", emptyList()))
+            }
+                .andExpect {
+                    status { isOk() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$.schoolYear") { value("22-23") }
+                }
+        }
+
+        @Test
+        fun `should create a generation with roles`() {
+            val generationDtoWithRoles = GenerationDto(
+                "20-21",
+                listOf(
+                    RoleDto(
+                        "role1",
+                        emptyList(),
+                        true,
+                        emptyList(),
+                        emptyList(),
+                    ),
+                    RoleDto(
+                        "role2",
+                        emptyList(),
+                        false,
+                        emptyList(),
+                        emptyList(),
+                    ),
+                ),
+            )
+
+            mockMvc.post("/generations/new") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(generationDtoWithRoles)
+            }
+                .andExpect {
+                    status { isOk() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$.schoolYear") { value("20-21") }
+                    jsonPath("$.roles.length()") { value(2) }
+                    jsonPath("$.roles[0].name") { value("role1") }
+                    jsonPath("$.roles[0].isSection") { value(true) }
+                    jsonPath("$.roles[0].permissions.length()") { value(0) }
+                    jsonPath("$.roles[0].associatedActivities.length()") { value(0) }
+                    jsonPath("$.roles[1].name") { value("role2") }
+                    jsonPath("$.roles[1].isSection") { value(false) }
+                    jsonPath("$.roles[1].permissions.length()") { value(0) }
+                    jsonPath("$.roles[1].associatedActivities.length()") { value(0) }
+                }
+
+            val roles = roleRepository.findAll().toList()
+            assertEquals(2, roles.size)
+            val generation = repository.findBySchoolYear("20-21")
+            assertNotNull(generation)
+            assert(generation!!.roles.containsAll(roles))
+            assert(roles.all { it.generation == generation })
+        }
+
+        @Test
+        fun `should create a generation with roles and permissions`() {
+            val generationDtoWithRoles = GenerationDto(
+                "20-21",
+                listOf(
+                    RoleDto(
+                        "role1",
+                        listOf(0, 1),
+                        true,
+                        emptyList(),
+                        emptyList(),
+                    ),
+                ),
+            )
+
+            mockMvc.post("/generations/new") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(generationDtoWithRoles)
+            }
+                .andExpect {
+                    status { isOk() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$.schoolYear") { value("20-21") }
+                    jsonPath("$.roles.length()") { value(1) }
+                    jsonPath("$.roles[0].name") { value("role1") }
+                    jsonPath("$.roles[0].permissions.length()") { value(2) }
+                    jsonPath("$.roles[0].permissions[0]") { value(Permission.values()[0].name) }
+                    jsonPath("$.roles[0].permissions[1]") { value(Permission.values()[1].name) }
+                }
+
+            val roles = roleRepository.findAll().toList()
+            assertEquals(1, roles.size)
+            assert(roles[0].permissions.contains(Permission.values()[0]))
+            assert(roles[0].permissions.contains(Permission.values()[1]))
+        }
+
+        @Test
+        fun `should fail if year is not specified and there are no generations`() {
+            mockMvc.post("/generations/new") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(GenerationDto(null, emptyList()))
+            }
+                .andExpect {
+                    status { isUnprocessableEntity() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$.errors.length()") { value(1) }
+                    jsonPath("$.errors[0].message") { value("no generations created yet, please specify school year") }
+                }
+        }
+
+        @NestedTest
+        @DisplayName("with existing generations")
+        inner class WithExistingGenerations {
+            @BeforeEach
+            fun addGenerations() {
+                initializeTestGenerations()
+            }
+
+            @Test
+            fun `should infer the year if not specified and create generation`() {
+                mockMvc.post("/generations/new") {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = objectMapper.writeValueAsString(GenerationDto(null, emptyList()))
+                }
+                    .andExpect {
+                        status { isOk() }
+                        content { contentType(MediaType.APPLICATION_JSON) }
+                        jsonPath("$.schoolYear") { value("23-24") }
+                    }
+            }
+
+            @Test
+            fun `should create a generation with role and associated accounts`() {
+                val generationDtoWithAccounts = GenerationDto(
+                    "20-21",
+                    listOf(
+                        RoleDto(
+                            "role1",
+                            emptyList(),
+                            true,
+                            listOf(1, 2),
+                            emptyList(),
+                        ),
+                    ),
+                )
+
+                mockMvc.post("/generations/new") {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = objectMapper.writeValueAsString(generationDtoWithAccounts)
+                }
+                    .andExpect {
+                        status { isOk() }
+                        content { contentType(MediaType.APPLICATION_JSON) }
+                        jsonPath("$.schoolYear") { value("20-21") }
+                        jsonPath("$.roles.length()") { value(1) }
+                        jsonPath("$.roles[0].name") { value("role1") }
+                    }
+
+                val role = roleRepository.findAll().toList()
+                    .filter { it.generation.schoolYear == "20-21" }
+                    .find { it.name == "role1" }
+                assert(role != null)
+
+                val account1 = accountRepository.findById(1).get()
+                val account2 = accountRepository.findById(2).get()
+                assert(account1.roles.contains(role))
+                assert(account2.roles.contains(role))
+
+                assert(role!!.accounts.contains(account1))
+                assert(role.accounts.contains(account2))
+            }
+
+            @Test
+            fun `should create a generation with role and associated activities`() {
+                val generationDtoWithActivities = GenerationDto(
+                    "20-21",
+                    listOf(
+                        RoleDto(
+                            "role1",
+                            emptyList(),
+                            true,
+                            emptyList(),
+                            listOf(
+                                PerActivityRoleDto(
+                                    1,
+                                    listOf(0, 1),
+                                ),
+                                PerActivityRoleDto(
+                                    2,
+                                    listOf(2),
+                                ),
+                            ),
+                        ),
+                    ),
+                )
+
+                mockMvc.post("/generations/new") {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = objectMapper.writeValueAsString(generationDtoWithActivities)
+                }
+                    .andExpect {
+                        status { isOk() }
+                        content { contentType(MediaType.APPLICATION_JSON) }
+                        jsonPath("$.schoolYear") { value("20-21") }
+                        jsonPath("$.roles.length()") { value(1) }
+                        jsonPath("$.roles[0].associatedActivities.length()") { value(2) }
+                        jsonPath("$.roles[0].associatedActivities[0].permissions.length()") { value(2) }
+                        jsonPath("$.roles[0].associatedActivities[0].permissions[0]") { value(Permission.values()[0].name) }
+                        jsonPath("$.roles[0].associatedActivities[0].permissions[1]") { value(Permission.values()[1].name) }
+                        jsonPath("$.roles[0].associatedActivities[1].permissions.length()") { value(1) }
+                        jsonPath("$.roles[0].associatedActivities[1].permissions[0]") { value(Permission.values()[2].name) }
+                    }
+
+                val role = roleRepository.findAll().toList()
+                    .filter { it.generation.schoolYear == "20-21" }
+                    .find { it.name == "role1" }
+                assert(role != null)
+
+                assert(role!!.associatedActivities.all { it.role == role })
+
+                val activity1 = activityRepository.findById(1).get()
+                val activity2 = activityRepository.findById(2).get()
+                assert(
+                    activity1.associatedRoles.any {
+                        it.role == role && it.activity == activity1 &&
+                            it.permissions.contains(Permission.values()[0]) &&
+                            it.permissions.contains(Permission.values()[1])
+                    },
+                )
+                assert(
+                    activity2.associatedRoles.any {
+                        it.role == role && it.activity == activity2 &&
+                            it.permissions.contains(Permission.values()[2])
+                    },
+                )
+            }
+
+            @Test
+            fun `should fail if the year already exists`() {
+                mockMvc.post("/generations/new") {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = objectMapper.writeValueAsString(GenerationDto("22-23", emptyList()))
+                }
+                    .andExpect {
+                        status { isUnprocessableEntity() }
+                        content { contentType(MediaType.APPLICATION_JSON) }
+                        jsonPath("$.errors.length()") { value(1) }
+                        jsonPath("$.errors[0].message") { value("generation already exists") }
+                    }
+            }
+        }
+    }
+
+    @NestedTest
     @DisplayName("PATCH /generations/year")
     inner class UpdateGenerationByYear {
         @BeforeEach
         fun addGenerations() {
-            initializeGenerations()
+            initializeTestGenerations()
         }
 
         @Test
@@ -379,7 +646,7 @@ class GenerationControllerTest @Autowired constructor(
     inner class UpdateGenerationById {
         @BeforeEach
         fun addGenerations() {
-            initializeGenerations()
+            initializeTestGenerations()
         }
 
         @Test
@@ -451,7 +718,7 @@ class GenerationControllerTest @Autowired constructor(
     inner class DeleteGenerationByYear {
         @BeforeEach
         fun addGenerations() {
-            initializeGenerations()
+            initializeTestGenerations()
         }
 
         @Test
@@ -483,7 +750,7 @@ class GenerationControllerTest @Autowired constructor(
     inner class DeleteGenerationById {
         @BeforeEach
         fun addGenerations() {
-            initializeGenerations()
+            initializeTestGenerations()
         }
 
         @Test
@@ -510,7 +777,7 @@ class GenerationControllerTest @Autowired constructor(
         }
     }
 
-    private fun initializeGenerations() {
+    private fun initializeTestGenerations() {
         val testAccount = Account(
             "Test Account",
             "test-account@gmail.com",
@@ -535,7 +802,7 @@ class GenerationControllerTest @Autowired constructor(
             emptyList(),
         )
 
-        val testGeneration = buildTestGeneration(
+        testGeneration = buildTestGeneration(
             "22-23",
             listOf(
                 buildTestRole(
