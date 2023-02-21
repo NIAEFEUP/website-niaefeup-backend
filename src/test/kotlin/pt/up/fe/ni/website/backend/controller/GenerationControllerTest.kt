@@ -247,7 +247,7 @@ class GenerationControllerTest @Autowired constructor(
         }
 
         @Test
-        fun `should return the generation of the id`() {
+        fun `should return the latest generation`() {
             mockMvc.get("/generations/latest")
                 .andExpect {
                     status { isOk() }
@@ -307,6 +307,18 @@ class GenerationControllerTest @Autowired constructor(
                     jsonPath("$[1].accounts.length()") { value(1) }
                     jsonPath("$[1].accounts[0].roles.length()") { value(1) }
                     jsonPath("$[1].accounts[0].roles[0]") { value("regular-role2") }
+                }
+        }
+
+        @Test
+        fun `should fail if no generations`() {
+            repository.deleteAll()
+            mockMvc.get("/generations/latest")
+                .andExpect {
+                    status { isNotFound() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$.errors.length()") { value(1) }
+                    jsonPath("$.errors[0].message") { value("no generations created yet") }
                 }
         }
     }
