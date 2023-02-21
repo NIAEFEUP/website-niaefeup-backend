@@ -743,6 +743,47 @@ class GenerationControllerTest @Autowired constructor(
                     jsonPath("$.errors[0].message") { value("generation not found with year 17-18") }
                 }
         }
+
+        @Test
+        fun `should cascade delete the generation roles`() {
+            mockMvc.delete("/generations/${testGenerations[0].schoolYear}")
+                .andExpect {
+                    status { isOk() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$") { isEmpty() }
+                }
+
+            val roles = roleRepository.findAll().filter { it.generation.id == testGenerations[0].id }
+            assert(roles.isEmpty())
+        }
+
+        @Test
+        fun `should not cascade delete the role accounts`() {
+            val accountNumber = accountRepository.count()
+
+            mockMvc.delete("/generations/${testGenerations[0].schoolYear}")
+                .andExpect {
+                    status { isOk() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$") { isEmpty() }
+                }
+
+            assertEquals(accountNumber, accountRepository.count())
+        }
+
+        @Test
+        fun `should not cascade delete the role associated activities`() {
+            val activityNumber = activityRepository.count()
+
+            mockMvc.delete("/generations/${testGenerations[0].schoolYear}")
+                .andExpect {
+                    status { isOk() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$") { isEmpty() }
+                }
+
+            assertEquals(activityNumber, activityRepository.count())
+        }
     }
 
     @NestedTest

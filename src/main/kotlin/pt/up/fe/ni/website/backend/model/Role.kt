@@ -15,6 +15,8 @@ import jakarta.persistence.ManyToMany
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.OneToMany
 import jakarta.validation.Valid
+import org.hibernate.annotations.OnDelete
+import org.hibernate.annotations.OnDeleteAction
 import pt.up.fe.ni.website.backend.model.permissions.Permissions
 import pt.up.fe.ni.website.backend.model.permissions.PermissionsConverter
 
@@ -32,6 +34,7 @@ class Role(
 
     @ManyToMany(mappedBy = "roles")
     @JsonIgnore // TODO: Decide if we want to return accounts (or IDs) by default
+    @OnDelete(action = OnDeleteAction.CASCADE) // Remove relationship, since this is the non-owner side
     val accounts: MutableList<@Valid Account> = mutableListOf(),
 
     @JsonProperty(required = true)
