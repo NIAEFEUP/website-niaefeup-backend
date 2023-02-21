@@ -22,6 +22,6 @@ class AccountController(private val service: AccountService) {
     @PostMapping("/new")
     fun createAccount(@RequestBody dto: AccountDto) = service.createAccount(dto)
 
-    @PostMapping("/{id}/change-password")
+    @PostMapping("/changePassword/{id}")
     fun changePassword(@PathVariable id: Long, @RequestBody dto: ChangePassDto) = service.changePassword(id, dto)
 }

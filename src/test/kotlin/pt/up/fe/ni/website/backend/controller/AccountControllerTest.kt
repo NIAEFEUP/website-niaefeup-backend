@@ -387,8 +387,8 @@ class AccountControllerTest @Autowired constructor(
         }
     }
 
-    @Nested
-    @DisplayName("POST /accounts/{id}/change-password")
+    @NestedTest
+    @DisplayName("POST /accounts/changePassword/{id}")
     inner class ChangePassword {
         private val password = "test_password"
         private val testAccountToo = Account(
@@ -413,7 +413,7 @@ class AccountControllerTest @Autowired constructor(
 
         @Test
         fun `should change password`() {
-            mockMvc.post("/accounts/${testAccountToo.id}/change-password") {
+            mockMvc.post("/accounts/changePassword/${testAccountToo.id}") {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(
                     mapOf(
