@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import pt.up.fe.ni.website.backend.dto.auth.ChangePassDto
 import pt.up.fe.ni.website.backend.dto.entity.AccountDto
 import pt.up.fe.ni.website.backend.service.AccountService
 
@@ -20,4 +21,10 @@ class AccountController(private val service: AccountService) {
 
     @PostMapping("/new")
     fun createAccount(@RequestBody dto: AccountDto) = service.createAccount(dto)
+
+    @PostMapping("/changePassword/{id}")
+    fun changePassword(@PathVariable id: Long, @RequestBody dto: ChangePassDto): Map<String, String> {
+        service.changePassword(id, dto)
+        return mapOf()
+    }
 }
