@@ -32,12 +32,13 @@ class AccountService(private val repository: AccountRepository, private val enco
 
     fun changePassword(id: Long, dto: ChangePassDto): Map<String, String> {
         val account = getAccountById(id)
-        if (encoder.matches(dto.oldPassword, account.password)) {
-            account.password = encoder.encode(dto.newPassword)
-            repository.save(account)
-        } else {
+        if (!encoder.matches(dto.oldPassword, account.password)) {
             throw IllegalArgumentException(ErrorMessages.incorrectPassword)
         }
+
+        account.password = encoder.encode(dto.newPassword)
+        repository.save(account)
+
         return emptyMap()
     }
 }

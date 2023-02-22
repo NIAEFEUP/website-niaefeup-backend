@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
@@ -27,7 +28,8 @@ import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
 class AccountControllerTest @Autowired constructor(
     val mockMvc: MockMvc,
     val objectMapper: ObjectMapper,
-    val repository: AccountRepository
+    val repository: AccountRepository,
+    val encoder: PasswordEncoder
 ) {
     val testAccount = Account(
         "Test Account",
@@ -388,18 +390,34 @@ class AccountControllerTest @Autowired constructor(
     @Nested
     @DisplayName("POST /accounts/{id}/change-password")
     inner class ChangePassword {
+        private val password = "test_password"
+        private val testAccountToo = Account(
+            "Test Account",
+            "test_account@test.com",
+            encoder.encode(password),
+            "This is a test account",
+            TestUtils.createDate(2001, Calendar.JULY, 28),
+            "https://test-photo.com",
+            "https://linkedin.com",
+            "https://github.com",
+            listOf(
+                CustomWebsite("https://test-website.com", "https://test-website.com/logo.png")
+            ),
+            emptyList()
+        )
+
         @BeforeEach
         fun addAccount() {
-            repository.save(testAccount)
+            repository.save(testAccountToo)
         }
 
         @Test
         fun `should change password`() {
-            mockMvc.post("/accounts/${testAccount.id}/change-password") {
+            mockMvc.post("/accounts/${testAccountToo.id}/change-password") {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(
                     mapOf(
-                        "oldPassword" to testAccount.password,
+                        "oldPassword" to password,
                         "newPassword" to "test_password2"
                     )
                 )
@@ -409,7 +427,7 @@ class AccountControllerTest @Autowired constructor(
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(
                     mapOf(
-                        "email" to testAccount.email,
+                        "email" to testAccountToo.email,
                         "password" to "test_password2"
                     )
                 )
