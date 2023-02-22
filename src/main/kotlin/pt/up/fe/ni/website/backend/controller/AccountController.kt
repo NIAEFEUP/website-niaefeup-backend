@@ -23,5 +23,8 @@ class AccountController(private val service: AccountService) {
     fun createAccount(@RequestBody dto: AccountDto) = service.createAccount(dto)
 
     @PostMapping("/changePassword/{id}")
-    fun changePassword(@PathVariable id: Long, @RequestBody dto: ChangePassDto) = service.changePassword(id, dto)
+    fun changePassword(@PathVariable id: Long, @RequestBody dto: ChangePassDto): Map<String, String> {
+        service.changePassword(id, dto)
+        return mapOf()
+    }
 }
