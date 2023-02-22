@@ -1,6 +1,8 @@
 package pt.up.fe.ni.website.backend.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import java.util.Calendar
+import java.util.Date
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
@@ -16,15 +18,13 @@ import org.springframework.test.web.servlet.put
 import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.CustomWebsite
 import pt.up.fe.ni.website.backend.model.Project
+import pt.up.fe.ni.website.backend.model.constants.ActivityConstants as Constants
 import pt.up.fe.ni.website.backend.repository.AccountRepository
 import pt.up.fe.ni.website.backend.repository.ProjectRepository
 import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.ValidationTester
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
 import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
-import java.util.Calendar
-import java.util.Date
-import pt.up.fe.ni.website.backend.model.constants.ActivityConstants as Constants
 
 @ControllerTest
 internal class ProjectControllerTest @Autowired constructor(
@@ -198,7 +198,10 @@ internal class ProjectControllerTest @Autowired constructor(
                 fun `should be required`() = validationTester.isRequired()
 
                 @Test
-                @DisplayName("size should be between ${Constants.Description.minSize} and ${Constants.Description.maxSize}()")
+                @DisplayName(
+                    "size should be between ${Constants.Description.minSize} " +
+                        "and ${Constants.Description.maxSize}()"
+                )
                 fun size() =
                     validationTester.hasSizeBetween(Constants.Description.minSize, Constants.Description.maxSize)
             }
@@ -342,7 +345,10 @@ internal class ProjectControllerTest @Autowired constructor(
                 fun `should be required`() = validationTester.isRequired()
 
                 @Test
-                @DisplayName("size should be between ${Constants.Description.minSize} and ${Constants.Description.maxSize}()")
+                @DisplayName(
+                    "size should be between ${Constants.Description.minSize}" +
+                        " and ${Constants.Description.maxSize}()"
+                )
                 fun size() =
                     validationTester.hasSizeBetween(Constants.Description.minSize, Constants.Description.maxSize)
             }

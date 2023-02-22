@@ -5,10 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.persistence.Entity
 import jakarta.validation.ConstraintViolationException
 import jakarta.validation.Validator
-import pt.up.fe.ni.website.backend.config.ApplicationContextUtils
 import kotlin.reflect.KClass
 import kotlin.reflect.full.hasAnnotation
 import kotlin.reflect.jvm.jvmErasure
+import pt.up.fe.ni.website.backend.config.ApplicationContextUtils
 
 abstract class EntityDto<T : Any> {
 

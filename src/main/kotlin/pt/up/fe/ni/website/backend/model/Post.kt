@@ -9,11 +9,11 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.Size
+import java.util.Date
 import org.hibernate.validator.constraints.URL
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
-import java.util.Date
 import pt.up.fe.ni.website.backend.model.constants.PostConstants as Constants
 
 @Entity

@@ -1,6 +1,7 @@
 package pt.up.fe.ni.website.backend.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import java.util.Calendar
 import org.hamcrest.Matchers.startsWith
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -19,7 +20,6 @@ import pt.up.fe.ni.website.backend.repository.AccountRepository
 import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
 import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
-import java.util.Calendar
 
 @ControllerTest
 class AuthControllerTest @Autowired constructor(
@@ -43,7 +43,7 @@ class AuthControllerTest @Autowired constructor(
         listOf(
             CustomWebsite("https://test-website.com", "https://test-website.com/logo.png")
         ),
-        emptyList(),
+        emptyList()
     )
 
     @NestedTest

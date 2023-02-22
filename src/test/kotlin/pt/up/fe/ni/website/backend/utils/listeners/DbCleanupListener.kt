@@ -2,14 +2,14 @@ package pt.up.fe.ni.website.backend.utils.listeners
 
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
+import java.sql.Connection
+import java.sql.Statement
+import javax.sql.DataSource
 import org.hibernate.id.enhanced.PooledOptimizer
 import org.hibernate.id.enhanced.SequenceStyleGenerator
 import org.hibernate.metamodel.model.domain.internal.MappingMetamodelImpl
 import org.springframework.test.context.TestContext
 import org.springframework.test.context.TestExecutionListener
-import java.sql.Connection
-import java.sql.Statement
-import javax.sql.DataSource
 
 class DbCleanupListener : TestExecutionListener {
     companion object {
@@ -40,7 +40,10 @@ class DbCleanupListener : TestExecutionListener {
             resetSequences(statement)
             enableConstraints(statement)
         } else {
-            print("Unexpected database type: ${connection.metaData.databaseProductName} (expected: $DB_NAME). Skipping cleanup.")
+            print(
+                "Unexpected database type: ${connection.metaData.databaseProductName}" +
+                    " (expected: $DB_NAME). Skipping cleanup."
+            )
         }
     }
 
@@ -52,7 +55,9 @@ class DbCleanupListener : TestExecutionListener {
         metaModel.forEachEntityDescriptor { entityDescriptor ->
             if (!entityDescriptor.hasIdentifierProperty() ||
                 entityDescriptor.identifierGenerator !is SequenceStyleGenerator
-            ) return@forEachEntityDescriptor
+            ) {
+                return@forEachEntityDescriptor
+            }
 
             val sequenceStyleGenerator = (entityDescriptor.identifierGenerator as SequenceStyleGenerator)
             val optimizer = sequenceStyleGenerator.optimizer as? PooledOptimizer
