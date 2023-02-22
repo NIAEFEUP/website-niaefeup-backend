@@ -35,6 +35,7 @@ class Role(
     var associatedActivities: List<@Valid PerActivityRole> = emptyList(),
 
     @JsonProperty(required = true)
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue
     val id: Long? = null
 )

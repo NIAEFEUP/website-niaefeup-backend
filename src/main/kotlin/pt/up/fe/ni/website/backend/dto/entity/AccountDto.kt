@@ -1,7 +1,7 @@
 package pt.up.fe.ni.website.backend.dto.entity
 
-import pt.up.fe.ni.website.backend.model.Account
 import java.util.Date
+import pt.up.fe.ni.website.backend.model.Account
 
 class AccountDto(
     val email: String,

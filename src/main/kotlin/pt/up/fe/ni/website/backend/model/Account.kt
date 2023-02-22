@@ -15,11 +15,11 @@ import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.Past
 import jakarta.validation.constraints.Size
+import java.util.Date
 import org.hibernate.validator.constraints.URL
 import pt.up.fe.ni.website.backend.annotations.validation.NullOrNotBlank
-import pt.up.fe.ni.website.backend.model.permissions.Permissions
-import java.util.Date
 import pt.up.fe.ni.website.backend.model.constants.AccountConstants as Constants
+import pt.up.fe.ni.website.backend.model.permissions.Permissions
 
 @Entity
 class Account(

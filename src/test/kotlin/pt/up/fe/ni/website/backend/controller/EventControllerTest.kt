@@ -5,6 +5,8 @@ import com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName
 import com.epages.restdocs.apispec.ResourceDocumentation.resource
 import com.epages.restdocs.apispec.ResourceSnippetParameters.Companion.builder
 import com.fasterxml.jackson.databind.ObjectMapper
+import java.util.Calendar
+import java.util.Date
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
@@ -28,6 +30,7 @@ import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.CustomWebsite
 import pt.up.fe.ni.website.backend.model.Event
 import pt.up.fe.ni.website.backend.model.constants.ActivityConstants
+import pt.up.fe.ni.website.backend.model.constants.EventConstants as Constants
 import pt.up.fe.ni.website.backend.model.embeddable.DateInterval
 import pt.up.fe.ni.website.backend.repository.AccountRepository
 import pt.up.fe.ni.website.backend.repository.EventRepository
@@ -39,9 +42,6 @@ import pt.up.fe.ni.website.backend.utils.documentation.DocumentationHelper.Compa
 import pt.up.fe.ni.website.backend.utils.documentation.EmptyObjectSchema
 import pt.up.fe.ni.website.backend.utils.documentation.ErrorSchema
 import pt.up.fe.ni.website.backend.utils.documentation.PayloadSchema
-import java.util.Calendar
-import java.util.Date
-import pt.up.fe.ni.website.backend.model.constants.EventConstants as Constants
 
 @ControllerTest
 @AutoConfigureRestDocs
@@ -49,7 +49,7 @@ internal class EventControllerTest @Autowired constructor(
     val mockMvc: MockMvc,
     val objectMapper: ObjectMapper,
     val repository: EventRepository,
-    val accountRepository: AccountRepository,
+    val accountRepository: AccountRepository
 ) {
     final val testAccount = Account(
         "Test Account",
@@ -61,9 +61,9 @@ internal class EventControllerTest @Autowired constructor(
         "https://linkedin.com",
         "https://github.com",
         listOf(
-            CustomWebsite("https://test-website.com", "https://test-website.com/logo.png"),
+            CustomWebsite("https://test-website.com", "https://test-website.com/logo.png")
         ),
-        emptyList(),
+        emptyList()
     )
 
     val testEvent = Event(
@@ -73,11 +73,11 @@ internal class EventControllerTest @Autowired constructor(
         "https://docs.google.com/forms",
         DateInterval(
             TestUtils.createDate(2022, Calendar.JULY, 28),
-            TestUtils.createDate(2022, Calendar.JULY, 30),
+            TestUtils.createDate(2022, Calendar.JULY, 30)
         ),
         "FEUP",
         "Great Events",
-        "https://example.com/exampleThumbnail",
+        "https://example.com/exampleThumbnail"
     )
 
     private val eventFields = listOf<FieldDescriptor>(
@@ -88,24 +88,34 @@ internal class EventControllerTest @Autowired constructor(
         fieldWithPath("dateInterval.startDate").type(JsonFieldType.STRING).description("Event beginning date"),
         fieldWithPath("dateInterval.endDate").type(JsonFieldType.STRING).description("Event finishing date").optional(),
         fieldWithPath("location").type(JsonFieldType.STRING).description("Location for the event").optional(),
-        fieldWithPath("category").type(JsonFieldType.STRING).description("Event category").optional(),
+        fieldWithPath("category").type(JsonFieldType.STRING).description("Event category").optional()
     )
     private val eventPayloadSchema = PayloadSchema("event", eventFields)
     private val responseOnlyEventFields = mutableListOf<FieldDescriptor>(
         fieldWithPath("id").type(JsonFieldType.NUMBER).description("Event ID"),
         fieldWithPath("teamMembers").type(JsonFieldType.ARRAY).description("Array of members associated with the event"),
         fieldWithPath("associatedRoles[]").description("Array of Roles/Activity associations"),
-        fieldWithPath("associatedRoles[].*.role").type(JsonFieldType.OBJECT).description("Roles associated with the activity").optional(),
-        fieldWithPath("associatedRoles[].*.activity").type(JsonFieldType.OBJECT).description("An activity that aggregates members with different roles").optional(),
-        fieldWithPath("associatedRoles[].*.permissions").type(JsonFieldType.OBJECT).description("Permissions of someone with a given role for this activity").optional(),
-        fieldWithPath("associatedRoles[].*.id").type(JsonFieldType.NUMBER).description("Id of the role/activity association").optional(),
+        fieldWithPath("associatedRoles[].*.role").type(JsonFieldType.OBJECT).description(
+            "Roles associated with the activity"
+        ).optional(),
+        fieldWithPath("associatedRoles[].*.activity").type(JsonFieldType.OBJECT).description(
+            "An activity that aggregates members with different roles"
+        ).optional(),
+        fieldWithPath("associatedRoles[].*.permissions").type(JsonFieldType.OBJECT).description(
+            "Permissions of someone with a given role for this activity"
+        ).optional(),
+        fieldWithPath("associatedRoles[].*.id").type(JsonFieldType.NUMBER).description(
+            "Id of the role/activity association"
+        ).optional()
     ).addFieldsToPayloadBeneathPath(
         "teamMembers",
-        AccountControllerTest.accountPayloadSchema.Response().arrayDocumentedFields(AccountControllerTest.responseOnlyAccountFields),
-        optional = true,
+        AccountControllerTest.accountPayloadSchema.Response().arrayDocumentedFields(
+            AccountControllerTest.responseOnlyAccountFields
+        ),
+        optional = true
     )
     private val requestOnlyEventFields = listOf<FieldDescriptor>(
-        fieldWithPath("teamMembersIds[]").type(JsonFieldType.ARRAY).description("Team member IDs"),
+        fieldWithPath("teamMembersIds[]").type(JsonFieldType.ARRAY).description("Team member IDs")
     )
 
     @NestedTest
@@ -120,12 +130,12 @@ internal class EventControllerTest @Autowired constructor(
                 null,
                 DateInterval(
                     TestUtils.createDate(2021, Calendar.OCTOBER, 27),
-                    null,
+                    null
                 ),
                 null,
                 null,
-                "https://example.com/exampleThumbnail2",
-            ),
+                "https://example.com/exampleThumbnail2"
+            )
         )
 
         @BeforeEach
@@ -151,15 +161,17 @@ internal class EventControllerTest @Autowired constructor(
                                         """
                                         The operation returns an array of events, allowing to easily retrieve all the created events.
                                         This is useful for example in the frontend's event page, where events are displayed.
-                                        """.trimIndent(),
+                                        """.trimIndent()
                                     )
                                     .responseSchema(eventPayloadSchema.Response().arraySchema())
-                                    .responseFields(eventPayloadSchema.Response().arrayDocumentedFields(responseOnlyEventFields))
+                                    .responseFields(
+                                        eventPayloadSchema.Response().arrayDocumentedFields(responseOnlyEventFields)
+                                    )
                                     .tag("Events")
-                                    .build(),
-                            ),
-                        ),
-                    ),
+                                    .build()
+                            )
+                        )
+                    )
                 )
         }
     }
@@ -189,7 +201,7 @@ internal class EventControllerTest @Autowired constructor(
                     jsonPath("$.dateInterval.endDate").value(testEvent.dateInterval.endDate.toJson()),
                     jsonPath("$.location").value(testEvent.location),
                     jsonPath("$.category").value(testEvent.category),
-                    jsonPath("$.thumbnailPath").value(testEvent.thumbnailPath),
+                    jsonPath("$.thumbnailPath").value(testEvent.thumbnailPath)
                 )
                 .andDo(
                     document(
@@ -198,12 +210,14 @@ internal class EventControllerTest @Autowired constructor(
                             resource(
                                 builder()
                                     .responseSchema(eventPayloadSchema.Response().schema())
-                                    .responseFields(eventPayloadSchema.Response().documentedFields(responseOnlyEventFields))
+                                    .responseFields(
+                                        eventPayloadSchema.Response().documentedFields(responseOnlyEventFields)
+                                    )
                                     .tag("Events")
-                                    .build(),
-                            ),
-                        ),
-                    ),
+                                    .build()
+                            )
+                        )
+                    )
                 )
         }
 
@@ -214,7 +228,7 @@ internal class EventControllerTest @Autowired constructor(
                     status().isNotFound,
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.errors.length()").value(1),
-                    jsonPath("$.errors[0].message").value("event not found with id 1234"),
+                    jsonPath("$.errors[0].message").value("event not found with id 1234")
                 )
                 .andDo(
                     document(
@@ -227,16 +241,16 @@ internal class EventControllerTest @Autowired constructor(
                                         """
                                         This endpoint allows the retrieval of a single event using its ID.
                                         It might be used to generate the specific event page.
-                                        """.trimIndent(),
+                                        """.trimIndent()
                                     )
                                     .pathParameters(parameterWithName("id").description("ID of the event to retrieve"))
                                     .responseSchema(ErrorSchema().Response().schema())
                                     .responseFields(ErrorSchema().Response().documentedFields())
                                     .tag("Events")
-                                    .build(),
-                            ),
-                        ),
-                    ),
+                                    .build()
+                            )
+                        )
+                    )
                 )
         }
     }
@@ -253,11 +267,11 @@ internal class EventControllerTest @Autowired constructor(
                 null,
                 DateInterval(
                     TestUtils.createDate(2021, Calendar.OCTOBER, 27),
-                    null,
+                    null
                 ),
                 null,
                 null,
-                "https://example.com/exampleThumbnail2",
+                "https://example.com/exampleThumbnail2"
             ),
             Event(
                 "Mid event",
@@ -266,11 +280,11 @@ internal class EventControllerTest @Autowired constructor(
                 null,
                 DateInterval(
                     TestUtils.createDate(2022, Calendar.JANUARY, 15),
-                    null,
+                    null
                 ),
                 null,
                 "Other category",
-                "https://example.com/exampleThumbnail2",
+                "https://example.com/exampleThumbnail2"
             ),
             Event(
                 "Cool event",
@@ -279,12 +293,12 @@ internal class EventControllerTest @Autowired constructor(
                 null,
                 DateInterval(
                     TestUtils.createDate(2022, Calendar.SEPTEMBER, 11),
-                    null,
+                    null
                 ),
                 null,
                 "Great Events",
-                "https://example.com/exampleThumbnail2",
-            ),
+                "https://example.com/exampleThumbnail2"
+            )
         )
 
         @BeforeEach
@@ -301,7 +315,7 @@ internal class EventControllerTest @Autowired constructor(
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.length()").value(2),
                     jsonPath("$[0].category").value(testEvent.category),
-                    jsonPath("$[1].category").value(testEvent.category),
+                    jsonPath("$[1].category").value(testEvent.category)
                 )
                 .andDo(
                     document(
@@ -314,16 +328,20 @@ internal class EventControllerTest @Autowired constructor(
                                         """
                                         This endpoint allows the retrieval of events labeled with a given category.
                                         It might be used to filter events in the event page.
-                                        """.trimIndent(),
+                                        """.trimIndent()
                                     )
-                                    .pathParameters(parameterWithName("category").description("Category of the events to retrieve"))
+                                    .pathParameters(
+                                        parameterWithName("category").description("Category of the events to retrieve")
+                                    )
                                     .responseSchema(eventPayloadSchema.Response().arraySchema())
-                                    .responseFields(eventPayloadSchema.Response().arrayDocumentedFields(responseOnlyEventFields))
+                                    .responseFields(
+                                        eventPayloadSchema.Response().arrayDocumentedFields(responseOnlyEventFields)
+                                    )
                                     .tag("Events")
-                                    .build(),
-                            ),
-                        ),
-                    ),
+                                    .build()
+                            )
+                        )
+                    )
                 )
         }
     }
@@ -351,10 +369,10 @@ internal class EventControllerTest @Autowired constructor(
                                 "registerUrl" to testEvent.registerUrl,
                                 "location" to testEvent.location,
                                 "category" to testEvent.category,
-                                "thumbnailPath" to testEvent.thumbnailPath,
-                            ),
-                        ),
-                    ),
+                                "thumbnailPath" to testEvent.thumbnailPath
+                            )
+                        )
+                    )
             )
                 .andExpectAll(
                     status().isOk,
@@ -368,7 +386,7 @@ internal class EventControllerTest @Autowired constructor(
                     jsonPath("$.dateInterval.endDate").value(testEvent.dateInterval.endDate.toJson()),
                     jsonPath("$.location").value(testEvent.location),
                     jsonPath("$.category").value(testEvent.category),
-                    jsonPath("$.thumbnailPath").value(testEvent.thumbnailPath),
+                    jsonPath("$.thumbnailPath").value(testEvent.thumbnailPath)
                 )
                 .andDo(
                     document(
@@ -380,17 +398,21 @@ internal class EventControllerTest @Autowired constructor(
                                     .description(
                                         """
                                         This endpoint operation creates new events.
-                                        """.trimIndent(),
+                                        """.trimIndent()
                                     )
                                     .requestSchema(eventPayloadSchema.Request().schema())
-                                    .requestFields(eventPayloadSchema.Request().documentedFields(requestOnlyEventFields))
+                                    .requestFields(
+                                        eventPayloadSchema.Request().documentedFields(requestOnlyEventFields)
+                                    )
                                     .responseSchema(eventPayloadSchema.Response().schema())
-                                    .responseFields(eventPayloadSchema.Response().documentedFields(responseOnlyEventFields))
+                                    .responseFields(
+                                        eventPayloadSchema.Response().documentedFields(responseOnlyEventFields)
+                                    )
                                     .tag("Events")
-                                    .build(),
-                            ),
-                        ),
-                    ),
+                                    .build()
+                            )
+                        )
+                    )
                 )
         }
 
@@ -402,7 +424,7 @@ internal class EventControllerTest @Autowired constructor(
                     mockMvc.perform(
                         post("/events/new")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(params)),
+                            .content(objectMapper.writeValueAsString(params))
                     ).andDo(
                         document(
                             "events/{ClassName}/{methodName}",
@@ -413,18 +435,18 @@ internal class EventControllerTest @Autowired constructor(
                                         .responseSchema(ErrorSchema().Response().schema())
                                         .responseFields(ErrorSchema().Response().documentedFields())
                                         .tag("Events")
-                                        .build(),
-                                ),
-                            ),
-                        ),
+                                        .build()
+                                )
+                            )
+                        )
                     )
                 },
                 requiredFields = mapOf(
                     "title" to testEvent.title,
                     "description" to testEvent.description,
                     "dateInterval" to testEvent.dateInterval,
-                    "thumbnailPath" to testEvent.thumbnailPath,
-                ),
+                    "thumbnailPath" to testEvent.thumbnailPath
+                )
             )
 
             @NestedTest
@@ -439,7 +461,10 @@ internal class EventControllerTest @Autowired constructor(
                 fun `should be required`() = validationTester.isRequired()
 
                 @Test
-                @DisplayName("size should be between ${ActivityConstants.Title.minSize} and ${ActivityConstants.Title.maxSize}()")
+                @DisplayName(
+                    "size should be between ${ActivityConstants.Title.minSize}" +
+                        " and ${ActivityConstants.Title.maxSize}()"
+                )
                 fun size() =
                     validationTester.hasSizeBetween(ActivityConstants.Title.minSize, ActivityConstants.Title.maxSize)
             }
@@ -456,11 +481,14 @@ internal class EventControllerTest @Autowired constructor(
                 fun `should be required`() = validationTester.isRequired()
 
                 @Test
-                @DisplayName("size should be between ${ActivityConstants.Description.minSize} and ${ActivityConstants.Description.maxSize}()")
+                @DisplayName(
+                    "size should be between ${ActivityConstants.Description.minSize}" +
+                        " and ${ActivityConstants.Description.maxSize}()"
+                )
                 fun size() =
                     validationTester.hasSizeBetween(
                         ActivityConstants.Description.minSize,
-                        ActivityConstants.Description.maxSize,
+                        ActivityConstants.Description.maxSize
                     )
             }
 
@@ -557,7 +585,7 @@ internal class EventControllerTest @Autowired constructor(
                 .andExpectAll(
                     status().isOk,
                     content().contentType(MediaType.APPLICATION_JSON),
-                    jsonPath("$").isEmpty,
+                    jsonPath("$").isEmpty
                 )
                 .andDo(
                     document(
@@ -569,15 +597,15 @@ internal class EventControllerTest @Autowired constructor(
                                     .description(
                                         """
                                         This operation deletes an event using its ID.
-                                        """.trimIndent(),
+                                        """.trimIndent()
                                     )
                                     .pathParameters(parameterWithName("id").description("ID of the event to delete"))
                                     .responseSchema(EmptyObjectSchema().Response().schema())
                                     .tag("Events")
-                                    .build(),
-                            ),
-                        ),
-                    ),
+                                    .build()
+                            )
+                        )
+                    )
                 )
 
             assert(repository.findById(testEvent.id!!).isEmpty)
@@ -590,7 +618,7 @@ internal class EventControllerTest @Autowired constructor(
                     status().isNotFound,
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.errors.length()").value(1),
-                    jsonPath("$.errors[0].message").value("event not found with id 1234"),
+                    jsonPath("$.errors[0].message").value("event not found with id 1234")
                 )
                 .andDo(
                     document(
@@ -602,10 +630,10 @@ internal class EventControllerTest @Autowired constructor(
                                     .responseSchema(ErrorSchema().Response().schema())
                                     .responseFields(ErrorSchema().Response().documentedFields())
                                     .tag("Events")
-                                    .build(),
-                            ),
-                        ),
-                    ),
+                                    .build()
+                            )
+                        )
+                    )
                 )
         }
     }
@@ -624,9 +652,9 @@ internal class EventControllerTest @Autowired constructor(
             "https://linkedin.com",
             "https://github.com",
             listOf(
-                CustomWebsite("https://test-website.com", "https://test-website.com/logo.png"),
+                CustomWebsite("https://test-website.com", "https://test-website.com/logo.png")
             ),
-            emptyList(),
+            emptyList()
         )
 
         @BeforeEach
@@ -663,7 +691,7 @@ internal class EventControllerTest @Autowired constructor(
                     jsonPath("$.teamMembers[1].github").value(newAccount.github),
                     jsonPath("$.teamMembers[1].websites.length()").value(1),
                     jsonPath("$.teamMembers[1].websites[0].url").value(newAccount.websites[0].url),
-                    jsonPath("$.teamMembers[1].websites[0].iconPath").value(newAccount.websites[0].iconPath),
+                    jsonPath("$.teamMembers[1].websites[0].iconPath").value(newAccount.websites[0].iconPath)
                 )
                 .andDo(
                     document(
@@ -675,19 +703,21 @@ internal class EventControllerTest @Autowired constructor(
                                     .description(
                                         """
                                         This operation adds a member to a given event.
-                                        """.trimIndent(),
+                                        """.trimIndent()
                                     )
                                     .pathParameters(
                                         parameterWithName("eventId").description("ID of the event to add the member to"),
-                                        parameterWithName("accountId").description("ID of the account to add"),
+                                        parameterWithName("accountId").description("ID of the account to add")
                                     )
                                     .responseSchema(eventPayloadSchema.Response().schema())
-                                    .responseFields(eventPayloadSchema.Response().documentedFields(responseOnlyEventFields))
+                                    .responseFields(
+                                        eventPayloadSchema.Response().documentedFields(responseOnlyEventFields)
+                                    )
                                     .tag("Events")
-                                    .build(),
-                            ),
-                        ),
-                    ),
+                                    .build()
+                            )
+                        )
+                    )
                 )
         }
 
@@ -698,7 +728,7 @@ internal class EventControllerTest @Autowired constructor(
                     status().isNotFound,
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.errors.length()").value(1),
-                    jsonPath("$.errors[0].message").value("account not found with id 1234"),
+                    jsonPath("$.errors[0].message").value("account not found with id 1234")
                 )
                 .andDo(
                     document(
@@ -708,15 +738,15 @@ internal class EventControllerTest @Autowired constructor(
                                 builder()
                                     .pathParameters(
                                         parameterWithName("eventId").description("ID of the event to add the member to"),
-                                        parameterWithName("accountId").description("ID of the account to add"),
+                                        parameterWithName("accountId").description("ID of the account to add")
                                     )
                                     .responseSchema(ErrorSchema().Response().schema())
                                     .responseFields(ErrorSchema().Response().documentedFields())
                                     .tag("Events")
-                                    .build(),
-                            ),
-                        ),
-                    ),
+                                    .build()
+                            )
+                        )
+                    )
                 )
         }
     }
@@ -737,7 +767,7 @@ internal class EventControllerTest @Autowired constructor(
                 .andExpectAll(
                     status().isOk,
                     content().contentType(MediaType.APPLICATION_JSON),
-                    jsonPath("$.teamMembers.length()").value(0),
+                    jsonPath("$.teamMembers.length()").value(0)
                 )
                 .andDo(
                     document(
@@ -749,19 +779,23 @@ internal class EventControllerTest @Autowired constructor(
                                     .description(
                                         """
                                         This operation removes a member of a given event.
-                                        """.trimIndent(),
+                                        """.trimIndent()
                                     )
                                     .pathParameters(
-                                        parameterWithName("eventId").description("ID of the event to remove the member from"),
-                                        parameterWithName("accountId").description("ID of the account to remove"),
+                                        parameterWithName("eventId").description(
+                                            "ID of the event to remove the member from"
+                                        ),
+                                        parameterWithName("accountId").description("ID of the account to remove")
                                     )
                                     .responseSchema(eventPayloadSchema.Response().schema())
-                                    .responseFields(eventPayloadSchema.Response().documentedFields(responseOnlyEventFields))
+                                    .responseFields(
+                                        eventPayloadSchema.Response().documentedFields(responseOnlyEventFields)
+                                    )
                                     .tag("Events")
-                                    .build(),
-                            ),
-                        ),
-                    ),
+                                    .build()
+                            )
+                        )
+                    )
                 )
         }
 
@@ -772,7 +806,7 @@ internal class EventControllerTest @Autowired constructor(
                     status().isNotFound,
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.errors.length()").value(1),
-                    jsonPath("$.errors[0].message").value("account not found with id 1234"),
+                    jsonPath("$.errors[0].message").value("account not found with id 1234")
                 )
                 .andDo(
                     document(
@@ -781,16 +815,18 @@ internal class EventControllerTest @Autowired constructor(
                             resource(
                                 builder()
                                     .pathParameters(
-                                        parameterWithName("eventId").description("ID of the event to remove the member from"),
-                                        parameterWithName("accountId").description("ID of the account to remove"),
+                                        parameterWithName("eventId").description(
+                                            "ID of the event to remove the member from"
+                                        ),
+                                        parameterWithName("accountId").description("ID of the account to remove")
                                     )
                                     .responseSchema(ErrorSchema().Response().schema())
                                     .responseFields(ErrorSchema().Response().documentedFields())
                                     .tag("Events")
-                                    .build(),
-                            ),
-                        ),
-                    ),
+                                    .build()
+                            )
+                        )
+                    )
                 )
         }
     }
@@ -812,7 +848,7 @@ internal class EventControllerTest @Autowired constructor(
             val newRegisterUrl = "https://example.com/newUrl"
             val newDateInterval = DateInterval(
                 TestUtils.createDate(2022, Calendar.DECEMBER, 1),
-                TestUtils.createDate(2022, Calendar.DECEMBER, 2),
+                TestUtils.createDate(2022, Calendar.DECEMBER, 2)
             )
             val newLocation = "FLUP"
             val newCategory = "Greatest Events"
@@ -831,10 +867,10 @@ internal class EventControllerTest @Autowired constructor(
                                 "dateInterval" to newDateInterval,
                                 "location" to newLocation,
                                 "category" to newCategory,
-                                "thumbnailPath" to newThumbnailPath,
-                            ),
-                        ),
-                    ),
+                                "thumbnailPath" to newThumbnailPath
+                            )
+                        )
+                    )
             )
                 .andExpectAll(
                     status().isOk,
@@ -847,7 +883,7 @@ internal class EventControllerTest @Autowired constructor(
                     jsonPath("$.dateInterval.endDate").value(newDateInterval.endDate.toJson()),
                     jsonPath("$.location").value(newLocation),
                     jsonPath("$.category").value(newCategory),
-                    jsonPath("$.thumbnailPath").value(newThumbnailPath),
+                    jsonPath("$.thumbnailPath").value(newThumbnailPath)
                 )
                 .andDo(
                     document(
@@ -857,18 +893,22 @@ internal class EventControllerTest @Autowired constructor(
                                 builder()
                                     .summary("Update events")
                                     .description(
-                                        """Update previously created events, using their ID.""",
+                                        """Update previously created events, using their ID."""
                                     )
                                     .pathParameters(parameterWithName("id").description("ID of the event to update"))
                                     .requestSchema(eventPayloadSchema.Request().schema())
-                                    .requestFields(eventPayloadSchema.Request().documentedFields(requestOnlyEventFields))
+                                    .requestFields(
+                                        eventPayloadSchema.Request().documentedFields(requestOnlyEventFields)
+                                    )
                                     .responseSchema(eventPayloadSchema.Response().schema())
-                                    .responseFields(eventPayloadSchema.Response().documentedFields(responseOnlyEventFields))
+                                    .responseFields(
+                                        eventPayloadSchema.Response().documentedFields(responseOnlyEventFields)
+                                    )
                                     .tag("Events")
-                                    .build(),
-                            ),
-                        ),
-                    ),
+                                    .build()
+                            )
+                        )
+                    )
                 )
 
             val updatedEvent = repository.findById(testEvent.id!!).get()
@@ -894,16 +934,16 @@ internal class EventControllerTest @Autowired constructor(
                                 "description" to "New Description",
                                 "dateInterval" to DateInterval(TestUtils.createDate(2022, Calendar.DECEMBER, 1), null),
                                 "thumbnailPath" to "http://test.com/thumbnail/1",
-                                "associatedRoles" to testEvent.associatedRoles,
-                            ),
-                        ),
-                    ),
+                                "associatedRoles" to testEvent.associatedRoles
+                            )
+                        )
+                    )
             )
                 .andExpectAll(
                     status().isNotFound,
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.errors.length()").value(1),
-                    jsonPath("$.errors[0].message").value("event not found with id 1234"),
+                    jsonPath("$.errors[0].message").value("event not found with id 1234")
                 )
                 .andDo(
                     document(
@@ -916,10 +956,10 @@ internal class EventControllerTest @Autowired constructor(
                                     .responseSchema(ErrorSchema().Response().schema())
                                     .responseFields(ErrorSchema().Response().documentedFields())
                                     .tag("Events")
-                                    .build(),
-                            ),
-                        ),
-                    ),
+                                    .build()
+                            )
+                        )
+                    )
                 )
         }
 
@@ -931,7 +971,7 @@ internal class EventControllerTest @Autowired constructor(
                     mockMvc.perform(
                         put("/events/{id}", testEvent.id)
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(params)),
+                            .content(objectMapper.writeValueAsString(params))
                     )
                         .andDo(
                             document(
@@ -939,23 +979,25 @@ internal class EventControllerTest @Autowired constructor(
                                 snippets = arrayOf(
                                     resource(
                                         builder()
-                                            .pathParameters(parameterWithName("id").description("ID of the events to update"))
+                                            .pathParameters(
+                                                parameterWithName("id").description("ID of the events to update")
+                                            )
                                             .requestSchema(eventPayloadSchema.Request().schema())
                                             .responseSchema(ErrorSchema().Response().schema())
                                             .responseFields(ErrorSchema().Response().documentedFields())
                                             .tag("Events")
-                                            .build(),
-                                    ),
-                                ),
-                            ),
+                                            .build()
+                                    )
+                                )
+                            )
                         )
                 },
                 requiredFields = mapOf(
                     "title" to testEvent.title,
                     "description" to testEvent.description,
                     "dateInterval" to testEvent.dateInterval,
-                    "thumbnailPath" to testEvent.thumbnailPath,
-                ),
+                    "thumbnailPath" to testEvent.thumbnailPath
+                )
             )
 
             @NestedTest
@@ -970,11 +1012,14 @@ internal class EventControllerTest @Autowired constructor(
                 fun `should be required`() = validationTester.isRequired()
 
                 @Test
-                @DisplayName("size should be between ${ActivityConstants.Title.minSize} and ${ActivityConstants.Title.maxSize}()")
+                @DisplayName(
+                    "size should be between ${ActivityConstants.Title.minSize}" +
+                        " and ${ActivityConstants.Title.maxSize}()"
+                )
                 fun size() =
                     validationTester.hasSizeBetween(
                         ActivityConstants.Title.minSize,
-                        ActivityConstants.Title.maxSize,
+                        ActivityConstants.Title.maxSize
                     )
             }
 
@@ -990,11 +1035,14 @@ internal class EventControllerTest @Autowired constructor(
                 fun `should be required`() = validationTester.isRequired()
 
                 @Test
-                @DisplayName("size should be between ${ActivityConstants.Description.minSize} and ${ActivityConstants.Description.maxSize}()")
+                @DisplayName(
+                    "size should be between ${ActivityConstants.Description.minSize} " +
+                        "and ${ActivityConstants.Description.maxSize}()"
+                )
                 fun size() =
                     validationTester.hasSizeBetween(
                         ActivityConstants.Description.minSize,
-                        ActivityConstants.Description.maxSize,
+                        ActivityConstants.Description.maxSize
                     )
             }
 

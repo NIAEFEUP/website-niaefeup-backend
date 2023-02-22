@@ -1,9 +1,12 @@
 package pt.up.fe.ni.website.backend.controller
 
+import pt.up.fe.ni.website.backend.model.constants.PostConstants as Constants
 import com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper
 import com.epages.restdocs.apispec.ResourceDocumentation
 import com.epages.restdocs.apispec.ResourceSnippetParameters
 import com.fasterxml.jackson.databind.ObjectMapper
+import java.text.SimpleDateFormat
+import java.util.Date
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.BeforeAll
@@ -33,35 +36,40 @@ import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
 import pt.up.fe.ni.website.backend.utils.documentation.EmptyObjectSchema
 import pt.up.fe.ni.website.backend.utils.documentation.ErrorSchema
 import pt.up.fe.ni.website.backend.utils.documentation.PayloadSchema
-import java.text.SimpleDateFormat
-import java.util.Date
-import pt.up.fe.ni.website.backend.model.constants.PostConstants as Constants
 
 @ControllerTest
 @AutoConfigureRestDocs
 internal class PostControllerTest @Autowired constructor(
     val mockMvc: MockMvc,
     val objectMapper: ObjectMapper,
-    val repository: PostRepository,
+    val repository: PostRepository
 ) {
     val testPost = Post(
         "New test released",
         "this is a test post",
         "https://thumbnails/test.png",
-        slug = "new-test-released",
+        slug = "new-test-released"
     )
 
     private val postFields = listOf<FieldDescriptor>(
         PayloadDocumentation.fieldWithPath("title").type(JsonFieldType.STRING).description("Post title"),
         PayloadDocumentation.fieldWithPath("body").type(JsonFieldType.STRING).description("Post body"),
-        PayloadDocumentation.fieldWithPath("thumbnailPath").type(JsonFieldType.STRING).description("Path for the post thumbnail image"),
-        PayloadDocumentation.fieldWithPath("slug").type(JsonFieldType.STRING).description("Short and friendly textual post identifier").optional(),
+        PayloadDocumentation.fieldWithPath("thumbnailPath").type(JsonFieldType.STRING).description(
+            "Path for the post thumbnail image"
+        ),
+        PayloadDocumentation.fieldWithPath("slug").type(JsonFieldType.STRING).description(
+            "Short and friendly textual post identifier"
+        ).optional()
     )
     private val postPayloadSchema = PayloadSchema("post", postFields)
     private val responseOnlyPostFields = listOf<FieldDescriptor>(
         PayloadDocumentation.fieldWithPath("id").type(JsonFieldType.NUMBER).description("Post ID"),
-        PayloadDocumentation.fieldWithPath("publishDate").type(JsonFieldType.STRING).description("Date of publication of the post"),
-        PayloadDocumentation.fieldWithPath("lastUpdatedAt").type(JsonFieldType.STRING).description("Date of the last update of the post"),
+        PayloadDocumentation.fieldWithPath("publishDate").type(JsonFieldType.STRING).description(
+            "Date of publication of the post"
+        ),
+        PayloadDocumentation.fieldWithPath("lastUpdatedAt").type(JsonFieldType.STRING).description(
+            "Date of the last update of the post"
+        )
     )
 
     @NestedTest
@@ -72,8 +80,8 @@ internal class PostControllerTest @Autowired constructor(
             Post(
                 "NIAEFEUP gets a new president",
                 "New president promised to buy new chairs",
-                "https://thumbnails/pres.png",
-            ),
+                "https://thumbnails/pres.png"
+            )
         )
 
         @BeforeEach
@@ -88,8 +96,8 @@ internal class PostControllerTest @Autowired constructor(
                     status().isOk,
                     content().contentType(MediaType.APPLICATION_JSON),
                     content().json(
-                        objectMapper.writeValueAsString(testPosts),
-                    ),
+                        objectMapper.writeValueAsString(testPosts)
+                    )
                 )
                 .andDo(
                     MockMvcRestDocumentationWrapper.document(
@@ -101,15 +109,17 @@ internal class PostControllerTest @Autowired constructor(
                                     .description(
                                         """
                                         The operation returns an array of posts, allowing to easily retrieve all the created posts.
-                                        """.trimIndent(),
+                                        """.trimIndent()
                                     )
                                     .responseSchema(postPayloadSchema.Response().arraySchema())
-                                    .responseFields(postPayloadSchema.Response().arrayDocumentedFields(responseOnlyPostFields))
+                                    .responseFields(
+                                        postPayloadSchema.Response().arrayDocumentedFields(responseOnlyPostFields)
+                                    )
                                     .tag("Posts")
-                                    .build(),
-                            ),
-                        ),
-                    ),
+                                    .build()
+                            )
+                        )
+                    )
                 )
         }
     }
@@ -132,7 +142,7 @@ internal class PostControllerTest @Autowired constructor(
                     jsonPath("$.body").value(testPost.body),
                     jsonPath("$.thumbnailPath").value(testPost.thumbnailPath),
                     jsonPath("$.publishDate").value(testPost.publishDate.toJson()),
-                    jsonPath("$.lastUpdatedAt").value(testPost.lastUpdatedAt.toJson(true)),
+                    jsonPath("$.lastUpdatedAt").value(testPost.lastUpdatedAt.toJson(true))
                 )
                 .andDo(
                     MockMvcRestDocumentationWrapper.document(
@@ -145,16 +155,22 @@ internal class PostControllerTest @Autowired constructor(
                                         """
                                         This endpoint allows the retrieval of a single post using its ID.
                                         It might be used to generate the specific post page.
-                                        """.trimIndent(),
+                                        """.trimIndent()
                                     )
-                                    .pathParameters(ResourceDocumentation.parameterWithName("id").description("ID of the post to retrieve"))
+                                    .pathParameters(
+                                        ResourceDocumentation.parameterWithName("id").description(
+                                            "ID of the post to retrieve"
+                                        )
+                                    )
                                     .responseSchema(postPayloadSchema.Response().schema())
-                                    .responseFields(postPayloadSchema.Response().documentedFields(responseOnlyPostFields))
+                                    .responseFields(
+                                        postPayloadSchema.Response().documentedFields(responseOnlyPostFields)
+                                    )
                                     .tag("Posts")
-                                    .build(),
-                            ),
-                        ),
-                    ),
+                                    .build()
+                            )
+                        )
+                    )
                 )
         }
 
@@ -165,7 +181,7 @@ internal class PostControllerTest @Autowired constructor(
                     status().isNotFound,
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.errors.length()").value(1),
-                    jsonPath("$.errors[0].message").value("post not found with id 1234"),
+                    jsonPath("$.errors[0].message").value("post not found with id 1234")
                 )
                 .andDo(
                     MockMvcRestDocumentationWrapper.document(
@@ -173,14 +189,18 @@ internal class PostControllerTest @Autowired constructor(
                         snippets = arrayOf(
                             ResourceDocumentation.resource(
                                 ResourceSnippetParameters.builder()
-                                    .pathParameters(ResourceDocumentation.parameterWithName("id").description("ID of the post to retrieve"))
+                                    .pathParameters(
+                                        ResourceDocumentation.parameterWithName("id").description(
+                                            "ID of the post to retrieve"
+                                        )
+                                    )
                                     .responseSchema(ErrorSchema().Response().schema())
                                     .responseFields(ErrorSchema().Response().documentedFields())
                                     .tag("Posts")
-                                    .build(),
-                            ),
-                        ),
-                    ),
+                                    .build()
+                            )
+                        )
+                    )
                 )
         }
     }
@@ -204,7 +224,7 @@ internal class PostControllerTest @Autowired constructor(
                     jsonPath("$.body").value(testPost.body),
                     jsonPath("$.thumbnailPath").value(testPost.thumbnailPath),
                     jsonPath("$.publishDate").value(testPost.publishDate.toJson()),
-                    jsonPath("$.lastUpdatedAt").value(testPost.lastUpdatedAt.toJson(true)),
+                    jsonPath("$.lastUpdatedAt").value(testPost.lastUpdatedAt.toJson(true))
                 )
                 .andDo(
                     MockMvcRestDocumentationWrapper.document(
@@ -217,16 +237,22 @@ internal class PostControllerTest @Autowired constructor(
                                         """
                                         This endpoint allows the retrieval of a single post using its slug.
                                         It might be used to generate the specific post page.
-                                        """.trimIndent(),
+                                        """.trimIndent()
                                     )
-                                    .pathParameters(ResourceDocumentation.parameterWithName("slug").description("Short and friendly textual post identifier"))
+                                    .pathParameters(
+                                        ResourceDocumentation.parameterWithName("slug").description(
+                                            "Short and friendly textual post identifier"
+                                        )
+                                    )
                                     .responseSchema(postPayloadSchema.Response().schema())
-                                    .responseFields(postPayloadSchema.Response().documentedFields(responseOnlyPostFields))
+                                    .responseFields(
+                                        postPayloadSchema.Response().documentedFields(responseOnlyPostFields)
+                                    )
                                     .tag("Posts")
-                                    .build(),
-                            ),
-                        ),
-                    ),
+                                    .build()
+                            )
+                        )
+                    )
                 )
         }
 
@@ -237,7 +263,7 @@ internal class PostControllerTest @Autowired constructor(
                     status().isNotFound,
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.errors.length()").value(1),
-                    jsonPath("$.errors[0].message").value("post not found with slug fail-slug"),
+                    jsonPath("$.errors[0].message").value("post not found with slug fail-slug")
                 )
                 .andDo(
                     MockMvcRestDocumentationWrapper.document(
@@ -245,14 +271,18 @@ internal class PostControllerTest @Autowired constructor(
                         snippets = arrayOf(
                             ResourceDocumentation.resource(
                                 ResourceSnippetParameters.builder()
-                                    .pathParameters(ResourceDocumentation.parameterWithName("slug").description("Short and friendly textual post identifier"))
+                                    .pathParameters(
+                                        ResourceDocumentation.parameterWithName("slug").description(
+                                            "Short and friendly textual post identifier"
+                                        )
+                                    )
                                     .responseSchema(ErrorSchema().Response().schema())
                                     .responseFields(ErrorSchema().Response().documentedFields())
                                     .tag("Posts")
-                                    .build(),
-                            ),
-                        ),
-                    ),
+                                    .build()
+                            )
+                        )
+                    )
                 )
         }
     }
@@ -270,7 +300,7 @@ internal class PostControllerTest @Autowired constructor(
             mockMvc.perform(
                 post("/posts/new")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(testPost)),
+                    .content(objectMapper.writeValueAsString(testPost))
             )
                 .andExpectAll(
                     status().isOk,
@@ -280,7 +310,7 @@ internal class PostControllerTest @Autowired constructor(
                     jsonPath("$.thumbnailPath").value(testPost.thumbnailPath),
                     jsonPath("$.publishDate").exists(),
                     jsonPath("$.lastUpdatedAt").exists(),
-                    jsonPath("$.slug").value(testPost.slug),
+                    jsonPath("$.slug").value(testPost.slug)
                 )
                 .andDo(
                     MockMvcRestDocumentationWrapper.document(
@@ -290,17 +320,19 @@ internal class PostControllerTest @Autowired constructor(
                                 ResourceSnippetParameters.builder()
                                     .summary("Create new posts")
                                     .description(
-                                        """This endpoint operation creates new posts.""".trimIndent(),
+                                        """This endpoint operation creates new posts.""".trimIndent()
                                     )
                                     .requestSchema(postPayloadSchema.Request().schema())
                                     .requestFields(postPayloadSchema.Request().documentedFields())
                                     .responseSchema(postPayloadSchema.Response().schema())
-                                    .responseFields(postPayloadSchema.Response().documentedFields(responseOnlyPostFields))
+                                    .responseFields(
+                                        postPayloadSchema.Response().documentedFields(responseOnlyPostFields)
+                                    )
                                     .tag("Posts")
-                                    .build(),
-                            ),
-                        ),
-                    ),
+                                    .build()
+                            )
+                        )
+                    )
                 )
         }
 
@@ -314,13 +346,13 @@ internal class PostControllerTest @Autowired constructor(
             mockMvc.perform(
                 post("/posts/new")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(testPost)),
+                    .content(objectMapper.writeValueAsString(testPost))
             )
                 .andExpectAll(
                     status().isUnprocessableEntity,
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.errors.length()").value(1),
-                    jsonPath("$.errors[0].message").value("slug already exists"),
+                    jsonPath("$.errors[0].message").value("slug already exists")
                 )
                 .andDo(
                     MockMvcRestDocumentationWrapper.document(
@@ -332,10 +364,10 @@ internal class PostControllerTest @Autowired constructor(
                                     .responseSchema(ErrorSchema().Response().schema())
                                     .responseFields(ErrorSchema().Response().documentedFields())
                                     .tag("Posts")
-                                    .build(),
-                            ),
-                        ),
-                    ),
+                                    .build()
+                            )
+                        )
+                    )
                 )
         }
 
@@ -347,7 +379,7 @@ internal class PostControllerTest @Autowired constructor(
                     mockMvc.perform(
                         post("/posts/new")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(params)),
+                            .content(objectMapper.writeValueAsString(params))
                     )
                         .andDo(
                             MockMvcRestDocumentationWrapper.document(
@@ -359,17 +391,17 @@ internal class PostControllerTest @Autowired constructor(
                                             .responseSchema(ErrorSchema().Response().schema())
                                             .responseFields(ErrorSchema().Response().documentedFields())
                                             .tag("Posts")
-                                            .build(),
-                                    ),
-                                ),
-                            ),
+                                            .build()
+                                    )
+                                )
+                            )
                         )
                 },
                 requiredFields = mapOf(
                     "title" to testPost.title,
                     "body" to testPost.body,
-                    "thumbnailPath" to testPost.thumbnailPath,
-                ),
+                    "thumbnailPath" to testPost.thumbnailPath
+                )
             )
 
             @NestedTest
@@ -448,7 +480,7 @@ internal class PostControllerTest @Autowired constructor(
                 .andExpectAll(
                     status().isOk,
                     content().contentType(MediaType.APPLICATION_JSON),
-                    jsonPath("$").isEmpty,
+                    jsonPath("$").isEmpty
                 )
                 .andDo(
                     MockMvcRestDocumentationWrapper.document(
@@ -460,15 +492,19 @@ internal class PostControllerTest @Autowired constructor(
                                     .description(
                                         """
                                         This operation deletes an event using its ID.
-                                        """.trimIndent(),
+                                        """.trimIndent()
                                     )
-                                    .pathParameters(ResourceDocumentation.parameterWithName("id").description("ID of the post to delete"))
+                                    .pathParameters(
+                                        ResourceDocumentation.parameterWithName("id").description(
+                                            "ID of the post to delete"
+                                        )
+                                    )
                                     .responseSchema(EmptyObjectSchema().Response().schema())
                                     .tag("Posts")
-                                    .build(),
-                            ),
-                        ),
-                    ),
+                                    .build()
+                            )
+                        )
+                    )
                 )
 
             assert(repository.findById(testPost.id!!).isEmpty)
@@ -481,7 +517,7 @@ internal class PostControllerTest @Autowired constructor(
                     status().isNotFound,
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.errors.length()").value(1),
-                    jsonPath("$.errors[0].message").value("post not found with id 1234"),
+                    jsonPath("$.errors[0].message").value("post not found with id 1234")
                 )
                 .andDo(
                     MockMvcRestDocumentationWrapper.document(
@@ -489,14 +525,18 @@ internal class PostControllerTest @Autowired constructor(
                         snippets = arrayOf(
                             ResourceDocumentation.resource(
                                 ResourceSnippetParameters.builder()
-                                    .pathParameters(ResourceDocumentation.parameterWithName("id").description("ID of the post to delete"))
+                                    .pathParameters(
+                                        ResourceDocumentation.parameterWithName("id").description(
+                                            "ID of the post to delete"
+                                        )
+                                    )
                                     .responseSchema(ErrorSchema().Response().schema())
                                     .responseFields(ErrorSchema().Response().documentedFields())
                                     .tag("Posts")
-                                    .build(),
-                            ),
-                        ),
-                    ),
+                                    .build()
+                            )
+                        )
+                    )
                 )
         }
     }
@@ -512,8 +552,8 @@ internal class PostControllerTest @Autowired constructor(
                     "New test released",
                     "this is a test post",
                     "https://thumbnails/test.png",
-                    slug = "duplicated-slug",
-                ),
+                    slug = "duplicated-slug"
+                )
             )
         }
 
@@ -531,10 +571,10 @@ internal class PostControllerTest @Autowired constructor(
                             mapOf(
                                 "title" to newTitle,
                                 "body" to newBody,
-                                "thumbnailPath" to newThumbnailPath,
-                            ),
-                        ),
-                    ),
+                                "thumbnailPath" to newThumbnailPath
+                            )
+                        )
+                    )
             )
                 .andExpectAll(
                     status().isOk,
@@ -544,7 +584,7 @@ internal class PostControllerTest @Autowired constructor(
                     jsonPath("$.thumbnailPath").value(newThumbnailPath),
                     jsonPath("$.publishDate").value(testPost.publishDate.toJson()),
                     jsonPath("$.lastUpdatedAt").exists(),
-                    jsonPath("$.slug").value(testPost.slug),
+                    jsonPath("$.slug").value(testPost.slug)
                 )
                 .andDo(
                     MockMvcRestDocumentationWrapper.document(
@@ -554,18 +594,24 @@ internal class PostControllerTest @Autowired constructor(
                                 ResourceSnippetParameters.builder()
                                     .summary("Update posts")
                                     .description(
-                                        """Update previously created posts, using their ID.""",
+                                        """Update previously created posts, using their ID."""
                                     )
-                                    .pathParameters(ResourceDocumentation.parameterWithName("id").description("ID of the post to update"))
+                                    .pathParameters(
+                                        ResourceDocumentation.parameterWithName("id").description(
+                                            "ID of the post to update"
+                                        )
+                                    )
                                     .requestSchema(postPayloadSchema.Request().schema())
                                     .requestFields(postPayloadSchema.Request().documentedFields())
                                     .responseSchema(postPayloadSchema.Response().schema())
-                                    .responseFields(postPayloadSchema.Response().documentedFields(responseOnlyPostFields))
+                                    .responseFields(
+                                        postPayloadSchema.Response().documentedFields(responseOnlyPostFields)
+                                    )
                                     .tag("Posts")
-                                    .build(),
-                            ),
-                        ),
-                    ),
+                                    .build()
+                            )
+                        )
+                    )
                 )
 
             val updatedPost = repository.findById(testPost.id!!).get()
@@ -591,10 +637,10 @@ internal class PostControllerTest @Autowired constructor(
                                 "title" to newTitle,
                                 "body" to newBody,
                                 "thumbnailPath" to newThumbnailPath,
-                                "slug" to newSlug,
-                            ),
-                        ),
-                    ),
+                                "slug" to newSlug
+                            )
+                        )
+                    )
             )
                 .andExpectAll(
                     status().isOk,
@@ -604,7 +650,7 @@ internal class PostControllerTest @Autowired constructor(
                     jsonPath("$.thumbnailPath").value(newThumbnailPath),
                     jsonPath("$.publishDate").value(testPost.publishDate.toJson()),
                     jsonPath("$.lastUpdatedAt").exists(),
-                    jsonPath("$.slug").value(newSlug),
+                    jsonPath("$.slug").value(newSlug)
                 )
                 .andDo(
                     MockMvcRestDocumentationWrapper.document(
@@ -612,15 +658,21 @@ internal class PostControllerTest @Autowired constructor(
                         snippets = arrayOf(
                             ResourceDocumentation.resource(
                                 ResourceSnippetParameters.builder()
-                                    .pathParameters(ResourceDocumentation.parameterWithName("id").description("ID of the post to update"))
+                                    .pathParameters(
+                                        ResourceDocumentation.parameterWithName("id").description(
+                                            "ID of the post to update"
+                                        )
+                                    )
                                     .requestSchema(postPayloadSchema.Request().schema())
                                     .responseSchema(postPayloadSchema.Response().schema())
-                                    .responseFields(postPayloadSchema.Response().documentedFields(responseOnlyPostFields))
+                                    .responseFields(
+                                        postPayloadSchema.Response().documentedFields(responseOnlyPostFields)
+                                    )
                                     .tag("Posts")
-                                    .build(),
-                            ),
-                        ),
-                    ),
+                                    .build()
+                            )
+                        )
+                    )
                 )
 
             val updatedPost = repository.findById(testPost.id!!).get()
@@ -642,16 +694,16 @@ internal class PostControllerTest @Autowired constructor(
                             mapOf(
                                 "title" to "New Title",
                                 "body" to "New Body of the post",
-                                "thumbnailPath" to "thumbnails/new.png",
-                            ),
-                        ),
-                    ),
+                                "thumbnailPath" to "thumbnails/new.png"
+                            )
+                        )
+                    )
             )
                 .andExpectAll(
                     status().isNotFound,
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.errors.length()").value(1),
-                    jsonPath("$.errors[0].message").value("post not found with id 1234"),
+                    jsonPath("$.errors[0].message").value("post not found with id 1234")
                 )
                 .andDo(
                     MockMvcRestDocumentationWrapper.document(
@@ -659,15 +711,19 @@ internal class PostControllerTest @Autowired constructor(
                         snippets = arrayOf(
                             ResourceDocumentation.resource(
                                 ResourceSnippetParameters.builder()
-                                    .pathParameters(ResourceDocumentation.parameterWithName("id").description("ID of the post to update"))
+                                    .pathParameters(
+                                        ResourceDocumentation.parameterWithName("id").description(
+                                            "ID of the post to update"
+                                        )
+                                    )
                                     .requestSchema(postPayloadSchema.Request().schema())
                                     .responseSchema(ErrorSchema().Response().schema())
                                     .responseFields(ErrorSchema().Response().documentedFields())
                                     .tag("Posts")
-                                    .build(),
-                            ),
-                        ),
-                    ),
+                                    .build()
+                            )
+                        )
+                    )
                 )
         }
 
@@ -687,16 +743,16 @@ internal class PostControllerTest @Autowired constructor(
                                 "title" to newTitle,
                                 "body" to newBody,
                                 "thumbnailPath" to newThumbnailPath,
-                                "slug" to newSlug,
-                            ),
-                        ),
-                    ),
+                                "slug" to newSlug
+                            )
+                        )
+                    )
             )
                 .andExpectAll(
                     status().isUnprocessableEntity,
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.errors.length()").value(1),
-                    jsonPath("$.errors[0].message").value("slug already exists"),
+                    jsonPath("$.errors[0].message").value("slug already exists")
                 )
                 .andDo(
                     MockMvcRestDocumentationWrapper.document(
@@ -704,16 +760,20 @@ internal class PostControllerTest @Autowired constructor(
                         snippets = arrayOf(
                             ResourceDocumentation.resource(
                                 ResourceSnippetParameters.builder()
-                                    .pathParameters(ResourceDocumentation.parameterWithName("id").description("ID of the post to update"))
+                                    .pathParameters(
+                                        ResourceDocumentation.parameterWithName("id").description(
+                                            "ID of the post to update"
+                                        )
+                                    )
                                     .requestSchema(postPayloadSchema.Request().schema())
                                     .requestFields(postPayloadSchema.Request().documentedFields())
                                     .responseSchema(ErrorSchema().Response().schema())
                                     .responseFields(ErrorSchema().Response().documentedFields())
                                     .tag("Posts")
-                                    .build(),
-                            ),
-                        ),
-                    ),
+                                    .build()
+                            )
+                        )
+                    )
                 )
         }
 
@@ -725,7 +785,7 @@ internal class PostControllerTest @Autowired constructor(
                     mockMvc.perform(
                         put("/posts/{id}", testPost.id)
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(params)),
+                            .content(objectMapper.writeValueAsString(params))
                     )
                         .andDo(
                             MockMvcRestDocumentationWrapper.document(
@@ -733,22 +793,26 @@ internal class PostControllerTest @Autowired constructor(
                                 snippets = arrayOf(
                                     ResourceDocumentation.resource(
                                         ResourceSnippetParameters.builder()
-                                            .pathParameters(ResourceDocumentation.parameterWithName("id").description("ID of the post to update"))
+                                            .pathParameters(
+                                                ResourceDocumentation.parameterWithName("id").description(
+                                                    "ID of the post to update"
+                                                )
+                                            )
                                             .requestSchema(postPayloadSchema.Request().schema())
                                             .responseSchema(ErrorSchema().Response().schema())
                                             .responseFields(ErrorSchema().Response().documentedFields())
                                             .tag("Posts")
-                                            .build(),
-                                    ),
-                                ),
-                            ),
+                                            .build()
+                                    )
+                                )
+                            )
                         )
                 },
                 requiredFields = mapOf(
                     "title" to testPost.title,
                     "body" to testPost.body,
-                    "thumbnailPath" to testPost.thumbnailPath,
-                ),
+                    "thumbnailPath" to testPost.thumbnailPath
+                )
             )
 
             @NestedTest
