@@ -86,9 +86,13 @@ configure<com.epages.restdocs.apispec.gradle.PostmanExtension> {
     baseUrl = "https://localhost:8080"
 }
 
-tasks.register<Copy>("copyToDocs") {
+tasks.register<Copy>("generateDocs") {
     dependsOn(tasks.named("openapi3"))
+    dependsOn(tasks.named("postman"))
 
     from("${project.buildDir}/api-spec/openapi3.json")
+    into(File("docs"))
+
+    from("${project.buildDir}/api-spec/postman-collection.json")
     into(File("docs"))
 }

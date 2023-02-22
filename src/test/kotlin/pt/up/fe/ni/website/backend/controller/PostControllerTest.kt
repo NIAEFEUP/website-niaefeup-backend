@@ -1,6 +1,5 @@
 package pt.up.fe.ni.website.backend.controller
 
-import pt.up.fe.ni.website.backend.model.constants.PostConstants as Constants
 import com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper
 import com.epages.restdocs.apispec.ResourceDocumentation
 import com.epages.restdocs.apispec.ResourceSnippetParameters
@@ -29,6 +28,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import pt.up.fe.ni.website.backend.model.Post
+import pt.up.fe.ni.website.backend.model.constants.PostConstants as Constants
 import pt.up.fe.ni.website.backend.repository.PostRepository
 import pt.up.fe.ni.website.backend.utils.ValidationTester
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest

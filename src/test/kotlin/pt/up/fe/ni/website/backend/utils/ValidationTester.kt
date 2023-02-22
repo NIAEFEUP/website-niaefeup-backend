@@ -8,7 +8,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 class ValidationTester(
     private val req: (Map<String, Any?>) -> ResultActions,
-    private val requiredFields: Map<String, Any?> = mapOf(),
+    private val requiredFields: Map<String, Any?> = mapOf()
 ) {
     lateinit var param: String
     var parameterName: String? = null
@@ -24,7 +24,7 @@ class ValidationTester(
             .expectValidationError()
             .andExpectAll(
                 jsonPath("$.errors[0].message").value("required"),
-                jsonPath("$.errors[0].param").value(getParamName()),
+                jsonPath("$.errors[0].param").value(getParamName())
             )
     }
 
@@ -36,7 +36,7 @@ class ValidationTester(
             .andExpectAll(
                 jsonPath("$.errors[0].message").value("must not be empty"),
                 jsonPath("$.errors[0].param").value(getParamName()),
-                jsonPath("$.errors[0].value").value(""),
+                jsonPath("$.errors[0].value").value("")
             )
     }
 
@@ -48,7 +48,7 @@ class ValidationTester(
             .andExpectAll(
                 jsonPath("$.errors[0].message").value("must be null or not blank"),
                 jsonPath("$.errors[0].param").value(getParamName()),
-                jsonPath("$.errors[0].value").value(""),
+                jsonPath("$.errors[0].value").value("")
             )
     }
 
@@ -60,7 +60,7 @@ class ValidationTester(
             .andExpectAll(
                 jsonPath("$.errors[0].message").value("must be a valid URL"),
                 jsonPath("$.errors[0].param").value(getParamName()),
-                jsonPath("$.errors[0].value").value("invalid.com"),
+                jsonPath("$.errors[0].value").value("invalid.com")
             )
     }
 
@@ -73,7 +73,7 @@ class ValidationTester(
             .andExpectAll(
                 jsonPath("$.errors[0].message").value("size must be between $min and $max"),
                 jsonPath("$.errors[0].param").value(getParamName()),
-                jsonPath("$.errors[0].value").value(smallValue),
+                jsonPath("$.errors[0].value").value(smallValue)
             )
 
         val bigValue = "a".repeat(max + 1)
@@ -83,7 +83,7 @@ class ValidationTester(
             .andExpectAll(
                 jsonPath("$.errors[0].message").value("size must be between $min and $max"),
                 jsonPath("$.errors[0].param").value(getParamName()),
-                jsonPath("$.errors[0].value").value(bigValue),
+                jsonPath("$.errors[0].value").value(bigValue)
             )
     }
 
@@ -96,7 +96,7 @@ class ValidationTester(
             .andExpectAll(
                 jsonPath("$.errors[0].message").value("size must be greater or equal to $min"),
                 jsonPath("$.errors[0].param").value(getParamName()),
-                jsonPath("$.errors[0].value").value(smallValue),
+                jsonPath("$.errors[0].value").value(smallValue)
             )
     }
 
@@ -107,7 +107,7 @@ class ValidationTester(
             .expectValidationError()
             .andExpectAll(
                 jsonPath("$.errors[0].message").value("must be date"),
-                jsonPath("$.errors[0].value").value("invalid"),
+                jsonPath("$.errors[0].value").value("invalid")
             )
     }
 
@@ -118,7 +118,7 @@ class ValidationTester(
             .expectValidationError()
             .andExpectAll(
                 jsonPath("$.errors[0].message").value("must be a past date"),
-                jsonPath("$.errors[0].value").value("01-01-3000"),
+                jsonPath("$.errors[0].value").value("01-01-3000")
             )
     }
 
@@ -128,18 +128,18 @@ class ValidationTester(
         req(params)
             .expectValidationError()
             .andExpectAll(
-                jsonPath("$.errors[0].message").value("must be dateinterval"),
+                jsonPath("$.errors[0].message").value("must be dateinterval")
             )
 
         params[param] = mapOf(
             "startDate" to "09-01-2023",
-            "endDate" to "08-01-2023",
+            "endDate" to "08-01-2023"
         )
         req(params)
             .expectValidationError()
             .andExpectAll(
                 jsonPath("$.errors[0].message").value("endDate must be after startDate"),
-                jsonPath("$.errors[0].value").value(params[param]),
+                jsonPath("$.errors[0].value").value(params[param])
             )
     }
 
@@ -151,7 +151,7 @@ class ValidationTester(
             .andExpectAll(
                 jsonPath("$.errors[0].message").value("must be a well-formed email address"),
                 jsonPath("$.errors[0].value").value("not-an-email"),
-                jsonPath("$.errors[0].param").value(getParamName()),
+                jsonPath("$.errors[0].param").value(getParamName())
             )
     }
 
@@ -159,7 +159,7 @@ class ValidationTester(
         andExpectAll(
             status().isBadRequest,
             content().contentType(MediaType.APPLICATION_JSON),
-            jsonPath("$.errors.length()").value(1),
+            jsonPath("$.errors.length()").value(1)
         )
         return this
     }

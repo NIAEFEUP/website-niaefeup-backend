@@ -9,12 +9,12 @@ class DocumentationHelper {
             path: String,
             documentedJsonFields: List<FieldDescriptor>,
             optional: Boolean = false,
-            ignored: Boolean = false,
+            ignored: Boolean = false
         ): MutableList<FieldDescriptor> {
             documentedJsonFields.forEach {
                 val field = fieldWithPath(
                     path +
-                        (if (it.path.startsWith("[") || it.path.startsWith(".")) "" else ".") + it.path,
+                        (if (it.path.startsWith("[") || it.path.startsWith(".")) "" else ".") + it.path
                 )
                     .type(it.type).description(it.description)
 

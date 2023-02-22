@@ -6,6 +6,6 @@ import org.springframework.restdocs.payload.PayloadDocumentation
 class EmptyObjectSchema : PayloadSchema(
     "empty",
     listOf(
-        PayloadDocumentation.fieldWithPath("").type(JsonFieldType.OBJECT).description("Empty object"),
-    ),
+        PayloadDocumentation.fieldWithPath("").type(JsonFieldType.OBJECT).description("Empty object")
+    )
 )

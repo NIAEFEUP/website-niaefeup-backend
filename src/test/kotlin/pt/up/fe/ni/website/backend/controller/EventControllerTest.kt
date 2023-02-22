@@ -84,16 +84,19 @@ internal class EventControllerTest @Autowired constructor(
         fieldWithPath("title").type(JsonFieldType.STRING).description("Event title"),
         fieldWithPath("description").type(JsonFieldType.STRING).description("Event description"),
         fieldWithPath("thumbnailPath").type(JsonFieldType.STRING).description("Thumbnail of the event"),
-        fieldWithPath("registerUrl").type(JsonFieldType.STRING).description("Link to the event registration").optional(),
+        fieldWithPath("registerUrl").type(JsonFieldType.STRING)
+            .description("Link to the event registration").optional(),
         fieldWithPath("dateInterval.startDate").type(JsonFieldType.STRING).description("Event beginning date"),
-        fieldWithPath("dateInterval.endDate").type(JsonFieldType.STRING).description("Event finishing date").optional(),
+        fieldWithPath("dateInterval.endDate").type(JsonFieldType.STRING)
+            .description("Event finishing date").optional(),
         fieldWithPath("location").type(JsonFieldType.STRING).description("Location for the event").optional(),
         fieldWithPath("category").type(JsonFieldType.STRING).description("Event category").optional()
     )
     private val eventPayloadSchema = PayloadSchema("event", eventFields)
     private val responseOnlyEventFields = mutableListOf<FieldDescriptor>(
         fieldWithPath("id").type(JsonFieldType.NUMBER).description("Event ID"),
-        fieldWithPath("teamMembers").type(JsonFieldType.ARRAY).description("Array of members associated with the event"),
+        fieldWithPath("teamMembers").type(JsonFieldType.ARRAY)
+            .description("Array of members associated with the event"),
         fieldWithPath("associatedRoles[]").description("Array of Roles/Activity associations"),
         fieldWithPath("associatedRoles[].*.role").type(JsonFieldType.OBJECT).description(
             "Roles associated with the activity"
@@ -706,7 +709,8 @@ internal class EventControllerTest @Autowired constructor(
                                         """.trimIndent()
                                     )
                                     .pathParameters(
-                                        parameterWithName("eventId").description("ID of the event to add the member to"),
+                                        parameterWithName("eventId")
+                                            .description("ID of the event to add the member to"),
                                         parameterWithName("accountId").description("ID of the account to add")
                                     )
                                     .responseSchema(eventPayloadSchema.Response().schema())
@@ -737,7 +741,8 @@ internal class EventControllerTest @Autowired constructor(
                             resource(
                                 builder()
                                     .pathParameters(
-                                        parameterWithName("eventId").description("ID of the event to add the member to"),
+                                        parameterWithName("eventId")
+                                            .description("ID of the event to add the member to"),
                                         parameterWithName("accountId").description("ID of the account to add")
                                     )
                                     .responseSchema(ErrorSchema().Response().schema())
