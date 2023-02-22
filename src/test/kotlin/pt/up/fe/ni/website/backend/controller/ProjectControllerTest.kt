@@ -22,10 +22,6 @@ import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.delete
-import org.springframework.test.web.servlet.get
-import org.springframework.test.web.servlet.post
-import org.springframework.test.web.servlet.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -708,7 +704,6 @@ internal class ProjectControllerTest @Autowired constructor(
         }
     }
 
-    // TODO: Document this endpoint
     @NestedTest
     @DisplayName("PUT /projects/{projectId}/addTeamMember/{accountId}")
     inner class AddTeamMember {
@@ -736,46 +731,89 @@ internal class ProjectControllerTest @Autowired constructor(
 
         @Test
         fun `should add a team member`() {
-            mockMvc.put("/projects/${testProject.id}/addTeamMember/${newAccount.id}")
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.teamMembers.length()") { value(2) }
-                    jsonPath("$.teamMembers[0].name") { value(testAccount.name) }
-                    jsonPath("$.teamMembers[0].email") { value(testAccount.email) }
-                    jsonPath("$.teamMembers[0].bio") { value(testAccount.bio) }
-                    jsonPath("$.teamMembers[0].birthDate") { value(testAccount.birthDate.toJson()) }
-                    jsonPath("$.teamMembers[0].photoPath") { value(testAccount.photoPath) }
-                    jsonPath("$.teamMembers[0].linkedin") { value(testAccount.linkedin) }
-                    jsonPath("$.teamMembers[0].github") { value(testAccount.github) }
-                    jsonPath("$.teamMembers[0].websites.length()") { value(1) }
-                    jsonPath("$.teamMembers[0].websites[0].url") { value(testAccount.websites[0].url) }
-                    jsonPath("$.teamMembers[0].websites[0].iconPath") { value(testAccount.websites[0].iconPath) }
-                    jsonPath("$.teamMembers[1].name") { value(newAccount.name) }
-                    jsonPath("$.teamMembers[1].email") { value(newAccount.email) }
-                    jsonPath("$.teamMembers[1].bio") { value(newAccount.bio) }
-                    jsonPath("$.teamMembers[1].birthDate") { value(newAccount.birthDate.toJson()) }
-                    jsonPath("$.teamMembers[1].photoPath") { value(newAccount.photoPath) }
-                    jsonPath("$.teamMembers[1].linkedin") { value(newAccount.linkedin) }
-                    jsonPath("$.teamMembers[1].github") { value(newAccount.github) }
-                    jsonPath("$.teamMembers[1].websites.length()") { value(1) }
-                    jsonPath("$.teamMembers[1].websites[0].url") { value(newAccount.websites[0].url) }
-                    jsonPath("$.teamMembers[1].websites[0].iconPath") { value(newAccount.websites[0].iconPath) }
-                }
+            mockMvc.perform(
+                put("/projects/{projectId}/addTeamMember/{accountId}", testProject.id, newAccount.id),
+            )
+                .andExpectAll(
+                    status().isOk, content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.teamMembers.length()").value(2),
+                    jsonPath("$.teamMembers[0].name").value(testAccount.name),
+                    jsonPath("$.teamMembers[0].email").value(testAccount.email),
+                    jsonPath("$.teamMembers[0].bio").value(testAccount.bio),
+                    jsonPath("$.teamMembers[0].birthDate").value(testAccount.birthDate.toJson()),
+                    jsonPath("$.teamMembers[0].photoPath").value(testAccount.photoPath),
+                    jsonPath("$.teamMembers[0].linkedin").value(testAccount.linkedin),
+                    jsonPath("$.teamMembers[0].github").value(testAccount.github),
+                    jsonPath("$.teamMembers[0].websites.length()").value(1),
+                    jsonPath("$.teamMembers[0].websites[0].url").value(testAccount.websites[0].url),
+                    jsonPath("$.teamMembers[0].websites[0].iconPath").value(testAccount.websites[0].iconPath),
+                    jsonPath("$.teamMembers[1].name").value(newAccount.name),
+                    jsonPath("$.teamMembers[1].email").value(newAccount.email),
+                    jsonPath("$.teamMembers[1].bio").value(newAccount.bio),
+                    jsonPath("$.teamMembers[1].birthDate").value(newAccount.birthDate.toJson()),
+                    jsonPath("$.teamMembers[1].photoPath").value(newAccount.photoPath),
+                    jsonPath("$.teamMembers[1].linkedin").value(newAccount.linkedin),
+                    jsonPath("$.teamMembers[1].github").value(newAccount.github),
+                    jsonPath("$.teamMembers[1].websites.length()").value(1),
+                    jsonPath("$.teamMembers[1].websites[0].url").value(newAccount.websites[0].url),
+                    jsonPath("$.teamMembers[1].websites[0].iconPath").value(newAccount.websites[0].iconPath),
+                )
+                .andDo(
+                    MockMvcRestDocumentationWrapper.document(
+                        "projects/{ClassName}/{methodName}",
+                        snippets = arrayOf(
+                            ResourceDocumentation.resource(
+                                ResourceSnippetParameters.builder()
+                                    .summary("Add member to Project")
+                                    .description(
+                                        """
+                                        This operation add a member to a given project.
+                                        """.trimIndent(),
+                                    )
+                                    .pathParameters(
+                                        parameterWithName("projectId").description("ID of the project to add the member to"),
+                                        parameterWithName("accountId").description("ID of the account to add"),
+                                    )
+                                    .responseSchema(projectPayloadSchema.Response().schema())
+                                    .responseFields(projectPayloadSchema.Response().documentedFields(responseOnlyProjectFields))
+                                    .tag("Projects")
+                                    .build(),
+                            ),
+                        ),
+                    ),
+                )
         }
 
         @Test
         fun `should fail if the team member does not exist`() {
-            mockMvc.put("/projects/${testProject.id}/addTeamMember/1234").andExpect {
-                status { isNotFound() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.errors.length()") { value(1) }
-                jsonPath("$.errors[0].message") { value("account not found with id 1234") }
-            }
+            mockMvc.perform(put("/projects/{projectId}/addTeamMember/{accountId}", testProject.id, 1234))
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("account not found with id 1234"),
+                )
+                .andDo(
+                    MockMvcRestDocumentationWrapper.document(
+                        "projects/{ClassName}/{methodName}",
+                        snippets = arrayOf(
+                            ResourceDocumentation.resource(
+                                ResourceSnippetParameters.builder()
+                                    .pathParameters(
+                                        parameterWithName("projectId").description("ID of the project to add the member to"),
+                                        parameterWithName("accountId").description("ID of the account to add"),
+                                    )
+                                    .responseSchema(ErrorSchema().Response().schema())
+                                    .responseFields(ErrorSchema().Response().documentedFields())
+                                    .tag("Projects")
+                                    .build(),
+                            ),
+                        ),
+                    ),
+                )
         }
     }
 
-    // TODO: Document this endpoint
     @NestedTest
     @DisplayName("PUT /projects/{projectId}/removeTeamMember/{accountId}")
     inner class RemoveTeamMember {
@@ -788,22 +826,65 @@ internal class ProjectControllerTest @Autowired constructor(
 
         @Test
         fun `should remove a team member`() {
-            mockMvc.put("/projects/${testProject.id}/removeTeamMember/${testAccount.id}")
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.teamMembers.length()") { value(0) }
-                }
+            mockMvc.perform(put("/projects/{projectId}/removeTeamMember/{accountId}", testProject.id, testAccount.id))
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.teamMembers.length()").value(0),
+                )
+                .andDo(
+                    MockMvcRestDocumentationWrapper.document(
+                        "projects/{ClassName}/{methodName}",
+                        snippets = arrayOf(
+                            ResourceDocumentation.resource(
+                                ResourceSnippetParameters.builder()
+                                    .summary("Remove member from Project")
+                                    .description(
+                                        """
+                                        This operation removes a member of a given project.
+                                        """.trimIndent(),
+                                    )
+                                    .pathParameters(
+                                        parameterWithName("projectId").description("ID of the project to remove the member from"),
+                                        parameterWithName("accountId").description("ID of the account to remove"),
+                                    )
+                                    .responseSchema(projectPayloadSchema.Response().schema())
+                                    .responseFields(projectPayloadSchema.Response().documentedFields(responseOnlyProjectFields))
+                                    .tag("Projects")
+                                    .build(),
+                            ),
+                        ),
+                    ),
+                )
         }
 
         @Test
         fun `should fail if the team member does not exist`() {
-            mockMvc.put("/projects/${testProject.id}/removeTeamMember/1234").andExpect {
-                status { isNotFound() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.errors.length()") { value(1) }
-                jsonPath("$.errors[0].message") { value("account not found with id 1234") }
-            }
+            mockMvc.perform(put("/projects/{projectId}/removeTeamMember/{accountId}", testProject.id, 1234))
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("account not found with id 1234"),
+                )
+                .andDo(
+                    MockMvcRestDocumentationWrapper.document(
+                        "projects/{ClassName}/{methodName}",
+                        snippets = arrayOf(
+                            ResourceDocumentation.resource(
+                                ResourceSnippetParameters.builder()
+                                    .pathParameters(
+                                        parameterWithName("projectId").description("ID of the project to remove the member from"),
+                                        parameterWithName("accountId").description("ID of the account to remove"),
+                                    )
+                                    .responseSchema(ErrorSchema().Response().schema())
+                                    .responseFields(ErrorSchema().Response().documentedFields())
+                                    .tag("Projects")
+                                    .build(),
+                            ),
+                        ),
+                    ),
+                )
         }
     }
 
