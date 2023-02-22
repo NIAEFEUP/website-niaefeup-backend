@@ -6,7 +6,7 @@ import org.springframework.restdocs.payload.PayloadDocumentation
 
 open class PayloadSchema(
     private val schemaName: String,
-    val documentedJsonFields: List<FieldDescriptor>,
+    val documentedJsonFields: List<FieldDescriptor>
 ) {
     open inner class Request {
         fun schema(): Schema {

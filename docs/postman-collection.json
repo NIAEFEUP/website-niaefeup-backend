@@ -1,0 +1,3779 @@
+{
+  "info" : {
+    "name" : "NIAEFEUP Website - Backend API specification",
+    "version" : "0.0.1-SNAPSHOT",
+    "schema" : "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item" : [ {
+    "id" : "account/GetAllAccounts/should return all accounts",
+    "name" : "/accounts",
+    "description" : "The operation returns an array of accounts, allowing to easily retrieve all the created accounts.",
+    "variable" : [ ],
+    "event" : [ ],
+    "request" : {
+      "url" : {
+        "protocol" : "https",
+        "host" : "localhost",
+        "path" : "/accounts",
+        "port" : "8080"
+      },
+      "method" : "GET"
+    },
+    "response" : [ {
+      "id" : "account/GetAllAccounts/should return all accounts",
+      "name" : "account/GetAllAccounts/should return all accounts",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/accounts",
+          "port" : "8080"
+        },
+        "method" : "GET"
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "[{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"bio\":\"This is a test account\",\"birthDate\":\"28-07-2001\",\"photoPath\":\"https://test-photo.com\",\"linkedin\":\"https://linkedin.com\",\"github\":\"https://github.com\",\"websites\":[{\"url\":\"https://test-website.com\",\"iconPath\":\"https://test-website.com/logo.png\",\"id\":1}],\"roles\":[],\"id\":1},{\"name\":\"Test Account 2\",\"email\":\"test_account2@test.com\",\"websites\":[],\"roles\":[],\"id\":2}]",
+      "code" : 200
+    } ]
+  }, {
+    "id" : "accounts/BioValidation/size",
+    "name" : "/accounts/new",
+    "variable" : [ ],
+    "event" : [ ],
+    "request" : {
+      "url" : {
+        "protocol" : "https",
+        "host" : "localhost",
+        "path" : "/accounts/new",
+        "port" : "8080"
+      },
+      "method" : "POST",
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json;charset=UTF-8",
+        "disabled" : false
+      } ],
+      "body" : {
+        "mode" : "raw",
+        "raw" : "{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"password\":\"test_password\",\"websites\":[],\"bio\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}",
+        "urlencoded" : [ ]
+      }
+    },
+    "response" : [ {
+      "id" : "accounts/BioValidation/size",
+      "name" : "accounts/BioValidation/size",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/accounts/new",
+          "port" : "8080"
+        },
+        "method" : "POST",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"password\":\"test_password\",\"websites\":[],\"bio\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"size must be between 5 and 500\",\"param\":\"bio\",\"value\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}]}",
+      "code" : 400
+    }, {
+      "id" : "accounts/BirthDateValidation/should be a valid date",
+      "name" : "accounts/BirthDateValidation/should be a valid date",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/accounts/new",
+          "port" : "8080"
+        },
+        "method" : "POST",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"password\":\"test_password\",\"websites\":[],\"birthDate\":\"invalid\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"must be date\",\"value\":\"invalid\"}]}",
+      "code" : 400
+    }, {
+      "id" : "accounts/BirthDateValidation/should be in the past",
+      "name" : "accounts/BirthDateValidation/should be in the past",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/accounts/new",
+          "port" : "8080"
+        },
+        "method" : "POST",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"password\":\"test_password\",\"websites\":[],\"birthDate\":\"01-01-3000\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"must be a past date\",\"param\":\"birthDate\",\"value\":\"01-01-3000\"}]}",
+      "code" : 400
+    }, {
+      "id" : "accounts/CreateAccount/should create an account with an empty website list",
+      "name" : "accounts/CreateAccount/should create an account with an empty website list",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/accounts/new",
+          "port" : "8080"
+        },
+        "method" : "POST",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"name\":\"Test Account\",\"email\":\"no_website@email.com\",\"password\":\"test_password\",\"bio\":\"This is a test account\",\"birthDate\":\"28-07-2001\",\"photoPath\":\"https://test-photo.com\",\"linkedin\":\"https://linkedin.com\",\"github\":\"https://github.com\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"name\":\"Test Account\",\"email\":\"no_website@email.com\",\"bio\":\"This is a test account\",\"birthDate\":\"28-07-2001\",\"photoPath\":\"https://test-photo.com\",\"linkedin\":\"https://linkedin.com\",\"github\":\"https://github.com\",\"websites\":[],\"roles\":[],\"id\":1}",
+      "code" : 200
+    }, {
+      "id" : "accounts/CreateAccount/should create the account",
+      "name" : "accounts/CreateAccount/should create the account",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/accounts/new",
+          "port" : "8080"
+        },
+        "method" : "POST",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"bio\":\"This is a test account\",\"birthDate\":\"28-07-2001\",\"photoPath\":\"https://test-photo.com\",\"linkedin\":\"https://linkedin.com\",\"github\":\"https://github.com\",\"websites\":[{\"url\":\"https://test-website.com\",\"iconPath\":\"https://test-website.com/logo.png\"}],\"roles\":[],\"password\":\"test_password\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"bio\":\"This is a test account\",\"birthDate\":\"28-07-2001\",\"photoPath\":\"https://test-photo.com\",\"linkedin\":\"https://linkedin.com\",\"github\":\"https://github.com\",\"websites\":[{\"url\":\"https://test-website.com\",\"iconPath\":\"https://test-website.com/logo.png\",\"id\":1}],\"roles\":[],\"id\":1}",
+      "code" : 200
+    }, {
+      "id" : "accounts/CreateAccount/should fail to create account with existing email",
+      "name" : "accounts/CreateAccount/should fail to create account with existing email",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/accounts/new",
+          "port" : "8080"
+        },
+        "method" : "POST",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"bio\":\"This is a test account\",\"birthDate\":\"28-07-2001\",\"photoPath\":\"https://test-photo.com\",\"linkedin\":\"https://linkedin.com\",\"github\":\"https://github.com\",\"websites\":[{\"url\":\"https://test-website.com\",\"iconPath\":\"https://test-website.com/logo.png\"}],\"roles\":[],\"password\":\"test_password\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"email already exists\"}]}",
+      "code" : 422
+    }, {
+      "id" : "accounts/EmailValidation/should be a valid email",
+      "name" : "accounts/EmailValidation/should be a valid email",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/accounts/new",
+          "port" : "8080"
+        },
+        "method" : "POST",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"name\":\"Test Account\",\"email\":\"not-an-email\",\"password\":\"test_password\",\"websites\":[]}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"must be a well-formed email address\",\"param\":\"email\",\"value\":\"not-an-email\"}]}",
+      "code" : 400
+    }, {
+      "id" : "accounts/EmailValidation/should be required",
+      "name" : "accounts/EmailValidation/should be required",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/accounts/new",
+          "port" : "8080"
+        },
+        "method" : "POST",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"name\":\"Test Account\",\"password\":\"test_password\",\"websites\":[]}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"required\",\"param\":\"email\"}]}",
+      "code" : 400
+    }, {
+      "id" : "accounts/EmailValidation/should not be empty",
+      "name" : "accounts/EmailValidation/should not be empty",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/accounts/new",
+          "port" : "8080"
+        },
+        "method" : "POST",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"name\":\"Test Account\",\"email\":\"\",\"password\":\"test_password\",\"websites\":[]}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"must not be empty\",\"param\":\"email\",\"value\":\"\"}]}",
+      "code" : 400
+    }, {
+      "id" : "accounts/GithubValidation/should be null or not blank",
+      "name" : "accounts/GithubValidation/should be null or not blank",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/accounts/new",
+          "port" : "8080"
+        },
+        "method" : "POST",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"password\":\"test_password\",\"websites\":[],\"github\":\"\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"must be null or not blank\",\"param\":\"github\",\"value\":\"\"}]}",
+      "code" : 400
+    }, {
+      "id" : "accounts/GithubValidation/should be URL",
+      "name" : "accounts/GithubValidation/should be URL",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/accounts/new",
+          "port" : "8080"
+        },
+        "method" : "POST",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"password\":\"test_password\",\"websites\":[],\"github\":\"invalid.com\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"must be a valid URL\",\"param\":\"github\",\"value\":\"invalid.com\"}]}",
+      "code" : 400
+    }, {
+      "id" : "accounts/IconPathValidation/should be bull or not blank",
+      "name" : "accounts/IconPathValidation/should be bull or not blank",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/accounts/new",
+          "port" : "8080"
+        },
+        "method" : "POST",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"password\":\"test_password\",\"websites\":[{\"url\":\"https://www.google.com\",\"iconPath\":\"\"}]}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"must be null or not blank\",\"param\":\"websites[0].iconPath\",\"value\":\"\"}]}",
+      "code" : 400
+    }, {
+      "id" : "accounts/IconPathValidation/should be URL",
+      "name" : "accounts/IconPathValidation/should be URL",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/accounts/new",
+          "port" : "8080"
+        },
+        "method" : "POST",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"password\":\"test_password\",\"websites\":[{\"url\":\"https://www.google.com\",\"iconPath\":\"invalid.com\"}]}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"must be a valid URL\",\"param\":\"websites[0].iconPath\",\"value\":\"invalid.com\"}]}",
+      "code" : 400
+    }, {
+      "id" : "accounts/LinkedinValidation/should be null or not blank",
+      "name" : "accounts/LinkedinValidation/should be null or not blank",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/accounts/new",
+          "port" : "8080"
+        },
+        "method" : "POST",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"password\":\"test_password\",\"websites\":[],\"linkedin\":\"\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"must be null or not blank\",\"param\":\"linkedin\",\"value\":\"\"}]}",
+      "code" : 400
+    }, {
+      "id" : "accounts/LinkedinValidation/should be URL",
+      "name" : "accounts/LinkedinValidation/should be URL",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/accounts/new",
+          "port" : "8080"
+        },
+        "method" : "POST",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"password\":\"test_password\",\"websites\":[],\"linkedin\":\"invalid.com\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"must be a valid URL\",\"param\":\"linkedin\",\"value\":\"invalid.com\"}]}",
+      "code" : 400
+    }, {
+      "id" : "accounts/NameValidation/should be required",
+      "name" : "accounts/NameValidation/should be required",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/accounts/new",
+          "port" : "8080"
+        },
+        "method" : "POST",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"email\":\"test_account@test.com\",\"password\":\"test_password\",\"websites\":[]}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"required\",\"param\":\"name\"}]}",
+      "code" : 400
+    }, {
+      "id" : "accounts/NameValidation/size",
+      "name" : "accounts/NameValidation/size",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/accounts/new",
+          "port" : "8080"
+        },
+        "method" : "POST",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"name\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"email\":\"test_account@test.com\",\"password\":\"test_password\",\"websites\":[]}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"size must be between 2 and 100\",\"param\":\"name\",\"value\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}]}",
+      "code" : 400
+    }, {
+      "id" : "accounts/PasswordValidation/should be required",
+      "name" : "accounts/PasswordValidation/should be required",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/accounts/new",
+          "port" : "8080"
+        },
+        "method" : "POST",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"websites\":[]}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"required\",\"param\":\"password\"}]}",
+      "code" : 400
+    }, {
+      "id" : "accounts/PasswordValidation/size",
+      "name" : "accounts/PasswordValidation/size",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/accounts/new",
+          "port" : "8080"
+        },
+        "method" : "POST",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"password\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"websites\":[]}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"size must be between 8 and 100\",\"param\":\"password\",\"value\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}]}",
+      "code" : 400
+    }, {
+      "id" : "accounts/PhotoPathValidation/should be null or not blank",
+      "name" : "accounts/PhotoPathValidation/should be null or not blank",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/accounts/new",
+          "port" : "8080"
+        },
+        "method" : "POST",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"password\":\"test_password\",\"websites\":[],\"photoPath\":\"\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"must be null or not blank\",\"param\":\"photoPath\",\"value\":\"\"}]}",
+      "code" : 400
+    }, {
+      "id" : "accounts/PhotoPathValidation/should be URL",
+      "name" : "accounts/PhotoPathValidation/should be URL",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/accounts/new",
+          "port" : "8080"
+        },
+        "method" : "POST",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"password\":\"test_password\",\"websites\":[],\"photoPath\":\"invalid.com\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"must be a valid URL\",\"param\":\"photoPath\",\"value\":\"invalid.com\"}]}",
+      "code" : 400
+    }, {
+      "id" : "accounts/UrlValidation/should be required",
+      "name" : "accounts/UrlValidation/should be required",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/accounts/new",
+          "port" : "8080"
+        },
+        "method" : "POST",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"password\":\"test_password\",\"websites\":[{}]}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"required\",\"param\":\"url\"}]}",
+      "code" : 400
+    }, {
+      "id" : "accounts/UrlValidation/should be URL",
+      "name" : "accounts/UrlValidation/should be URL",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/accounts/new",
+          "port" : "8080"
+        },
+        "method" : "POST",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"password\":\"test_password\",\"websites\":[{\"url\":\"invalid.com\"}]}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"must be a valid URL\",\"param\":\"websites[0].url\",\"value\":\"invalid.com\"}]}",
+      "code" : 400
+    }, {
+      "id" : "accounts/UrlValidation/should not be empty",
+      "name" : "accounts/UrlValidation/should not be empty",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/accounts/new",
+          "port" : "8080"
+        },
+        "method" : "POST",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"password\":\"test_password\",\"websites\":[{\"url\":\"\"}]}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"must not be empty\",\"param\":\"websites[0].url\",\"value\":\"\"}]}",
+      "code" : 400
+    } ]
+  }, {
+    "id" : "accounts/GetAccount/should fail if the account does not exist",
+    "name" : "/accounts/{id}",
+    "variable" : [ ],
+    "event" : [ ],
+    "request" : {
+      "url" : {
+        "protocol" : "https",
+        "host" : "localhost",
+        "path" : "/accounts/:id",
+        "port" : "8080",
+        "variable" : [ {
+          "key" : "id",
+          "description" : "ID of the account to retrieve",
+          "system" : false,
+          "disabled" : false
+        } ]
+      },
+      "method" : "GET"
+    },
+    "response" : [ {
+      "id" : "accounts/GetAccount/should fail if the account does not exist",
+      "name" : "accounts/GetAccount/should fail if the account does not exist",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/accounts/:id",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the account to retrieve",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "GET"
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"account not found with id 1234\"}]}",
+      "code" : 404
+    }, {
+      "id" : "accounts/GetAccount/should return the account",
+      "name" : "accounts/GetAccount/should return the account",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/accounts/:id",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the account to retrieve",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "GET"
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"bio\":\"This is a test account\",\"birthDate\":\"28-07-2001\",\"photoPath\":\"https://test-photo.com\",\"linkedin\":\"https://linkedin.com\",\"github\":\"https://github.com\",\"websites\":[{\"url\":\"https://test-website.com\",\"iconPath\":\"https://test-website.com/logo.png\",\"id\":1}],\"roles\":[],\"id\":1}",
+      "code" : 200
+    } ]
+  }, {
+    "id" : "auth/CheckToken/should fail when access token is invalid",
+    "name" : "/auth",
+    "variable" : [ ],
+    "event" : [ ],
+    "request" : {
+      "url" : {
+        "protocol" : "https",
+        "host" : "localhost",
+        "path" : "/auth",
+        "port" : "8080"
+      },
+      "method" : "GET",
+      "header" : [ {
+        "key" : "Authorization",
+        "value" : "Bearer eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJzZWxmIiwic3ViIjoidGVzdF9hY2NvdW50QHRlc3QuY29tIiwiZXhwIjoxNjc3MTgzNjk1LCJpYXQiOjE2NzcxODAwOTUsInNjb3BlIjoiQk9BUkQgTUVNQkVSIn0.Y4xs3CoHIOw-ETHX1LBkaJu16mT59aAWkgyVmxT5usm1OoS_vQrd6MZNDnQLqv30WiOlbwSYHYhT23deSlau-Ew-2va_aZzjh1krpNP2mWbYK8vP1beV9eDFsZh1UZ6VUS8E-siMG_b6DzhIs0MoMjNUzZ9h4quANKOD_YsEg_REZj3mhI9e7Gg9jSdM97M6189CFATTRpWV77g7bnMlNbXltcVyw755iRmMb2y-5dJWixAsKrOu4KZYISqgOSxqXC861Q9EVa17scYTnf8abh2L8BJVh1PG0S96qHBQ2ApPUQv_paOXX4lIdZC3jPyESGHgxHmOQnv0jXG11p1EBA",
+        "disabled" : false,
+        "description" : "Bearer authentication token"
+      } ]
+    },
+    "response" : [ {
+      "id" : "auth/CheckToken/should fail when access token is invalid",
+      "name" : "auth/CheckToken/should fail when access token is invalid",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/auth",
+          "port" : "8080"
+        },
+        "method" : "GET"
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"An error occurred while attempting to decode the Jwt: Invalid JWT serialization: Missing dot delimiter(s)\"}]}",
+      "code" : 401
+    }, {
+      "id" : "auth/CheckToken/should fail when no access token is provided",
+      "name" : "auth/CheckToken/should fail when no access token is provided",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/auth",
+          "port" : "8080"
+        },
+        "method" : "GET"
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"Access Denied\"}]}",
+      "code" : 403
+    }, {
+      "id" : "auth/CheckToken/should return authenticated user",
+      "name" : "auth/CheckToken/should return authenticated user",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/auth",
+          "port" : "8080"
+        },
+        "method" : "GET",
+        "header" : [ {
+          "key" : "Authorization",
+          "value" : "Bearer eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJzZWxmIiwic3ViIjoidGVzdF9hY2NvdW50QHRlc3QuY29tIiwiZXhwIjoxNjc3MTgzNjk1LCJpYXQiOjE2NzcxODAwOTUsInNjb3BlIjoiQk9BUkQgTUVNQkVSIn0.Y4xs3CoHIOw-ETHX1LBkaJu16mT59aAWkgyVmxT5usm1OoS_vQrd6MZNDnQLqv30WiOlbwSYHYhT23deSlau-Ew-2va_aZzjh1krpNP2mWbYK8vP1beV9eDFsZh1UZ6VUS8E-siMG_b6DzhIs0MoMjNUzZ9h4quANKOD_YsEg_REZj3mhI9e7Gg9jSdM97M6189CFATTRpWV77g7bnMlNbXltcVyw755iRmMb2y-5dJWixAsKrOu4KZYISqgOSxqXC861Q9EVa17scYTnf8abh2L8BJVh1PG0S96qHBQ2ApPUQv_paOXX4lIdZC3jPyESGHgxHmOQnv0jXG11p1EBA",
+          "disabled" : false,
+          "description" : "Bearer authentication token"
+        } ]
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"authenticated_user\":\"test_account@test.com\"}",
+      "code" : 200
+    } ]
+  }, {
+    "id" : "auth/GetNewToken/should fail when email is not registered",
+    "name" : "/auth/new",
+    "variable" : [ ],
+    "event" : [ ],
+    "request" : {
+      "url" : {
+        "protocol" : "https",
+        "host" : "localhost",
+        "path" : "/auth/new",
+        "port" : "8080"
+      },
+      "method" : "POST",
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json;charset=UTF-8",
+        "disabled" : false
+      } ],
+      "body" : {
+        "mode" : "raw",
+        "raw" : "{\"email\":\"president@niaefeup.pt\",\"password\":\"testPassword\"}",
+        "urlencoded" : [ ]
+      }
+    },
+    "response" : [ {
+      "id" : "auth/GetNewToken/should fail when email is not registered",
+      "name" : "auth/GetNewToken/should fail when email is not registered",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/auth/new",
+          "port" : "8080"
+        },
+        "method" : "POST",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"email\":\"president@niaefeup.pt\",\"password\":\"testPassword\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"account not found with email president@niaefeup.pt\"}]}",
+      "code" : 404
+    }, {
+      "id" : "auth/GetNewToken/should fail when password is incorrect",
+      "name" : "auth/GetNewToken/should fail when password is incorrect",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/auth/new",
+          "port" : "8080"
+        },
+        "method" : "POST",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"email\":\"test_account@test.com\",\"password\":\"wrong_password\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"invalid credentials\"}]}",
+      "code" : 401
+    }, {
+      "id" : "auth/GetNewToken/should return access and refresh tokens",
+      "name" : "auth/GetNewToken/should return access and refresh tokens",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/auth/new",
+          "port" : "8080"
+        },
+        "method" : "POST",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"email\":\"test_account@test.com\",\"password\":\"testPassword\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"access_token\":\"eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJzZWxmIiwic3ViIjoidGVzdF9hY2NvdW50QHRlc3QuY29tIiwiZXhwIjoxNjc3MTgzNjk0LCJpYXQiOjE2NzcxODAwOTQsInNjb3BlIjoiQk9BUkQgTUVNQkVSIn0.VXy3xC0vP7elA9UEvOpSCC-FI5izkRLAiG-1EUsj9mtl1foTtKnupIkra17GVZ4hvi4lhRi-tqj9smIvSvGFl0ZKwTrtg5X8Y2M-nbXbLy-6STPhNPHbPR9wJoSb2xl5_L254WXHczGFqIy8raghdPzEmqwRG0dkBmZtV-A4P_F7b8ddzAarr87Y8MdcWCp9z-VXzQpf-TfgDNL4x547cWS3XoC8fMUrx_buxocG0smsUziYOzQsAKIBvMMbacHKoENpM_l5dJy93cI5Nk4_tO3KgL2ELT0-pYjRLAf43K1gZi4ovygPw5WcPm-bacceBks-zDJlnqMTN8j9L69GEg\",\"refresh_token\":\"eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJzZWxmIiwic3ViIjoidGVzdF9hY2NvdW50QHRlc3QuY29tIiwiZXhwIjoxNjc3Nzg0ODk0LCJpYXQiOjE2NzcxODAwOTQsInNjb3BlIjoiIn0.DLAH3wP1YqUMc0Jb4iaGzig86yXrNxFkvQIxGI3uOt-yca6tu09Ac2zpX4f2OU1KtxyLOQ61ElPFzfrSZFyAs_RoqNVuZt5a_pptBubAKvWKYr9L3qmEaZD_EDKwR9rHdse9xWRFBVnSBDTwkuhSY1zj4jASwze9eXcqh0wAOWNLO-K8pLrzyR0AlaeOeNG3XufFHd3us1oCrlwc2IxY9osg72cHrcfj36iJrbbzaPXaLLTkEHqHSqyU35xZ7Sz22-hmBdcH2WvGRLuMXstwTSgar0N8epI0oUMQPVSVCMEFGQC7WUFxA7Ir7LFi9PWR6-JuKRt_4aBPMjHwiujlKQ\"}",
+      "code" : 200
+    } ]
+  }, {
+    "id" : "auth/RefreshToken/should fail when refresh token is invalid",
+    "name" : "/auth/refresh",
+    "variable" : [ ],
+    "event" : [ ],
+    "request" : {
+      "url" : {
+        "protocol" : "https",
+        "host" : "localhost",
+        "path" : "/auth/refresh",
+        "port" : "8080"
+      },
+      "method" : "POST",
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json;charset=UTF-8",
+        "disabled" : false
+      } ],
+      "body" : {
+        "mode" : "raw",
+        "raw" : "{\"token\":\"invalid_refresh_token\"}",
+        "urlencoded" : [ ]
+      }
+    },
+    "response" : [ {
+      "id" : "auth/RefreshToken/should fail when refresh token is invalid",
+      "name" : "auth/RefreshToken/should fail when refresh token is invalid",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/auth/refresh",
+          "port" : "8080"
+        },
+        "method" : "POST",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"token\":\"invalid_refresh_token\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"invalid refresh token\"}]}",
+      "code" : 401
+    }, {
+      "id" : "auth/RefreshToken/should return new access token",
+      "name" : "auth/RefreshToken/should return new access token",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/auth/refresh",
+          "port" : "8080"
+        },
+        "method" : "POST",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"token\":\"eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJzZWxmIiwic3ViIjoidGVzdF9hY2NvdW50QHRlc3QuY29tIiwiZXhwIjoxNjc3Nzg0ODk1LCJpYXQiOjE2NzcxODAwOTUsInNjb3BlIjoiIn0.lYJ7tSn-SfTmEapwBm0xy75tPI-qxFDU3b4TPF6tukx6oKzNjq2HyPPHnJLBnufDDdRot0z2MEEENUuXekiNFDVc5ApyBYuSIXeRTnuhtpJkoIexIpHjlc8iSrj4ZQwaJ_BjrVcE5f4fOKRmbz-LAfxQPNT-FuxXB3Bqc0ui-fwDEB2dN_ayLoO7Z9bB0dIsQuvRPIfjUyT80VAkmiW0JYLS0tQmoLxOew0KFn24rbpHhQ31xOfn7w5ReJf62Zu4S7SSHgweDwPYCy-Ir4tdwteBD_-lNAQMTOgdwnbY2m_8u4PQFHeNk9aSpsXUjsbM92IfD31sAQJmMAwoFk9hrA\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"access_token\":\"eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJzZWxmIiwic3ViIjoidGVzdF9hY2NvdW50QHRlc3QuY29tIiwiZXhwIjoxNjc3MTgzNjk1LCJpYXQiOjE2NzcxODAwOTUsInNjb3BlIjoiQk9BUkQgTUVNQkVSIn0.Y4xs3CoHIOw-ETHX1LBkaJu16mT59aAWkgyVmxT5usm1OoS_vQrd6MZNDnQLqv30WiOlbwSYHYhT23deSlau-Ew-2va_aZzjh1krpNP2mWbYK8vP1beV9eDFsZh1UZ6VUS8E-siMG_b6DzhIs0MoMjNUzZ9h4quANKOD_YsEg_REZj3mhI9e7Gg9jSdM97M6189CFATTRpWV77g7bnMlNbXltcVyw755iRmMb2y-5dJWixAsKrOu4KZYISqgOSxqXC861Q9EVa17scYTnf8abh2L8BJVh1PG0S96qHBQ2ApPUQv_paOXX4lIdZC3jPyESGHgxHmOQnv0jXG11p1EBA\"}",
+      "code" : 200
+    } ]
+  }, {
+    "id" : "events/GetAllEvents/should return all events",
+    "name" : "/events",
+    "description" : "The operation returns an array of events, allowing to easily retrieve all the created events.\nThis is useful for example in the frontend's event page, where events are displayed.",
+    "variable" : [ ],
+    "event" : [ ],
+    "request" : {
+      "url" : {
+        "protocol" : "https",
+        "host" : "localhost",
+        "path" : "/events",
+        "port" : "8080"
+      },
+      "method" : "GET"
+    },
+    "response" : [ {
+      "id" : "events/GetAllEvents/should return all events",
+      "name" : "events/GetAllEvents/should return all events",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/events",
+          "port" : "8080"
+        },
+        "method" : "GET"
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "[{\"title\":\"Great event\",\"description\":\"This was a nice and iconic event\",\"teamMembers\":[{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"bio\":\"This is a test account\",\"birthDate\":\"28-07-2001\",\"photoPath\":\"https://test-photo.com\",\"linkedin\":\"https://linkedin.com\",\"github\":\"https://github.com\",\"websites\":[{\"url\":\"https://test-website.com\",\"iconPath\":\"https://test-website.com/logo.png\",\"id\":1}],\"roles\":[],\"id\":1}],\"registerUrl\":\"https://docs.google.com/forms\",\"dateInterval\":{\"startDate\":\"28-07-2022\",\"endDate\":\"30-07-2022\"},\"location\":\"FEUP\",\"category\":\"Great Events\",\"thumbnailPath\":\"https://example.com/exampleThumbnail\",\"associatedRoles\":[],\"id\":1},{\"title\":\"Bad event\",\"description\":\"This event was a failure\",\"teamMembers\":[],\"dateInterval\":{\"startDate\":\"27-10-2021\"},\"thumbnailPath\":\"https://example.com/exampleThumbnail2\",\"associatedRoles\":[],\"id\":2}]",
+      "code" : 200
+    } ]
+  }, {
+    "id" : "events/CreateEvent/should create a new event",
+    "name" : "/events/new",
+    "description" : "This endpoint operation creates new events.",
+    "variable" : [ ],
+    "event" : [ ],
+    "request" : {
+      "url" : {
+        "protocol" : "https",
+        "host" : "localhost",
+        "path" : "/events/new",
+        "port" : "8080"
+      },
+      "method" : "POST",
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json;charset=UTF-8",
+        "disabled" : false
+      } ],
+      "body" : {
+        "mode" : "raw",
+        "raw" : "{\"title\":\"Great event\",\"description\":\"This was a nice and iconic event\",\"dateInterval\":{\"startDate\":\"28-07-2022\",\"endDate\":\"30-07-2022\"},\"teamMembersIds\":[1],\"registerUrl\":\"https://docs.google.com/forms\",\"location\":\"FEUP\",\"category\":\"Great Events\",\"thumbnailPath\":\"https://example.com/exampleThumbnail\"}",
+        "urlencoded" : [ ]
+      }
+    },
+    "response" : [ {
+      "id" : "events/CreateEvent/should create a new event",
+      "name" : "events/CreateEvent/should create a new event",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/events/new",
+          "port" : "8080"
+        },
+        "method" : "POST",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"title\":\"Great event\",\"description\":\"This was a nice and iconic event\",\"dateInterval\":{\"startDate\":\"28-07-2022\",\"endDate\":\"30-07-2022\"},\"teamMembersIds\":[1],\"registerUrl\":\"https://docs.google.com/forms\",\"location\":\"FEUP\",\"category\":\"Great Events\",\"thumbnailPath\":\"https://example.com/exampleThumbnail\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"title\":\"Great event\",\"description\":\"This was a nice and iconic event\",\"teamMembers\":[{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"bio\":\"This is a test account\",\"birthDate\":\"28-07-2001\",\"photoPath\":\"https://test-photo.com\",\"linkedin\":\"https://linkedin.com\",\"github\":\"https://github.com\",\"websites\":[{\"url\":\"https://test-website.com\",\"iconPath\":\"https://test-website.com/logo.png\",\"id\":1}],\"roles\":[],\"id\":1}],\"registerUrl\":\"https://docs.google.com/forms\",\"dateInterval\":{\"startDate\":\"28-07-2022\",\"endDate\":\"30-07-2022\"},\"location\":\"FEUP\",\"category\":\"Great Events\",\"thumbnailPath\":\"https://example.com/exampleThumbnail\",\"associatedRoles\":[],\"id\":1}",
+      "code" : 200
+    }, {
+      "id" : "events/RegisterUrlValidation/should be a URL",
+      "name" : "events/RegisterUrlValidation/should be a URL",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/events/new",
+          "port" : "8080"
+        },
+        "method" : "POST",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"title\":\"Great event\",\"description\":\"This was a nice and iconic event\",\"dateInterval\":{\"startDate\":\"28-07-2022\",\"endDate\":\"30-07-2022\"},\"thumbnailPath\":\"https://example.com/exampleThumbnail\",\"registerUrl\":\"invalid.com\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"must be a valid URL\",\"param\":\"registerUrl\",\"value\":\"invalid.com\"}]}",
+      "code" : 400
+    }, {
+      "id" : "events/RegisterUrlValidation/should be null or not blank",
+      "name" : "events/RegisterUrlValidation/should be null or not blank",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/events/new",
+          "port" : "8080"
+        },
+        "method" : "POST",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"title\":\"Great event\",\"description\":\"This was a nice and iconic event\",\"dateInterval\":{\"startDate\":\"28-07-2022\",\"endDate\":\"30-07-2022\"},\"thumbnailPath\":\"https://example.com/exampleThumbnail\",\"registerUrl\":\"\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"must be null or not blank\",\"param\":\"registerUrl\",\"value\":\"\"}]}",
+      "code" : 400
+    }, {
+      "id" : "events/ThumbnailPathValidation/should not be empty",
+      "name" : "events/ThumbnailPathValidation/should not be empty",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/events/new",
+          "port" : "8080"
+        },
+        "method" : "POST",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"title\":\"Great event\",\"description\":\"This was a nice and iconic event\",\"dateInterval\":{\"startDate\":\"28-07-2022\",\"endDate\":\"30-07-2022\"},\"thumbnailPath\":\"\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"must not be empty\",\"param\":\"thumbnailPath\",\"value\":\"\"}]}",
+      "code" : 400
+    } ]
+  }, {
+    "id" : "events/CategoryValidation/size",
+    "name" : "/events/{id}",
+    "variable" : [ ],
+    "event" : [ ],
+    "request" : {
+      "url" : {
+        "protocol" : "https",
+        "host" : "localhost",
+        "path" : "/events/:id",
+        "port" : "8080",
+        "variable" : [ {
+          "key" : "id",
+          "description" : "ID of the events to update",
+          "system" : false,
+          "disabled" : false
+        } ]
+      },
+      "method" : "PUT",
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json;charset=UTF-8",
+        "disabled" : false
+      } ],
+      "body" : {
+        "mode" : "raw",
+        "raw" : "{\"title\":\"Great event\",\"description\":\"This was a nice and iconic event\",\"dateInterval\":{\"startDate\":\"28-07-2022\",\"endDate\":\"30-07-2022\"},\"thumbnailPath\":\"https://example.com/exampleThumbnail\",\"category\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}",
+        "urlencoded" : [ ]
+      }
+    },
+    "response" : [ {
+      "id" : "events/CategoryValidation/size",
+      "name" : "events/CategoryValidation/size",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/events/:id",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the events to update",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "PUT",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"title\":\"Great event\",\"description\":\"This was a nice and iconic event\",\"dateInterval\":{\"startDate\":\"28-07-2022\",\"endDate\":\"30-07-2022\"},\"thumbnailPath\":\"https://example.com/exampleThumbnail\",\"category\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"size must be between 2 and 50\",\"param\":\"category\",\"value\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}]}",
+      "code" : 400
+    }, {
+      "id" : "events/DateIntervalValidation/should be a DateInterval",
+      "name" : "events/DateIntervalValidation/should be a DateInterval",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/events/:id",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the events to update",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "PUT",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"title\":\"Great event\",\"description\":\"This was a nice and iconic event\",\"dateInterval\":{\"startDate\":\"09-01-2023\",\"endDate\":\"08-01-2023\"},\"thumbnailPath\":\"https://example.com/exampleThumbnail\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"endDate must be after startDate\",\"param\":\"dateInterval\",\"value\":{\"startDate\":\"09-01-2023\",\"endDate\":\"08-01-2023\"}}]}",
+      "code" : 400
+    }, {
+      "id" : "events/DateIntervalValidation/should be required",
+      "name" : "events/DateIntervalValidation/should be required",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/events/:id",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the events to update",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "PUT",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"title\":\"Great event\",\"description\":\"This was a nice and iconic event\",\"thumbnailPath\":\"https://example.com/exampleThumbnail\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"required\",\"param\":\"dateInterval\"}]}",
+      "code" : 400
+    }, {
+      "id" : "events/LocationValidation/size",
+      "name" : "events/LocationValidation/size",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/events/:id",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the events to update",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "PUT",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"title\":\"Great event\",\"description\":\"This was a nice and iconic event\",\"dateInterval\":{\"startDate\":\"28-07-2022\",\"endDate\":\"30-07-2022\"},\"thumbnailPath\":\"https://example.com/exampleThumbnail\",\"location\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"size must be between 2 and 500\",\"param\":\"location\",\"value\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}]}",
+      "code" : 400
+    }, {
+      "id" : "events/ThumbnailPathValidation/should be a URL",
+      "name" : "events/ThumbnailPathValidation/should be a URL",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/events/:id",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the events to update",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "PUT",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"title\":\"Great event\",\"description\":\"This was a nice and iconic event\",\"dateInterval\":{\"startDate\":\"28-07-2022\",\"endDate\":\"30-07-2022\"},\"thumbnailPath\":\"invalid.com\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"must be a valid URL\",\"param\":\"thumbnailPath\",\"value\":\"invalid.com\"}]}",
+      "code" : 400
+    }, {
+      "id" : "events/ThumbnailPathValidation/should be required",
+      "name" : "events/ThumbnailPathValidation/should be required",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/events/:id",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the events to update",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "PUT",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"title\":\"Great event\",\"description\":\"This was a nice and iconic event\",\"dateInterval\":{\"startDate\":\"28-07-2022\",\"endDate\":\"30-07-2022\"}}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"required\",\"param\":\"thumbnailPath\"}]}",
+      "code" : 400
+    }, {
+      "id" : "events/UpdateEvent/should fail if the event does not exist",
+      "name" : "events/UpdateEvent/should fail if the event does not exist",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/events/:id",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the event to update",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "PUT",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"title\":\"New Title\",\"description\":\"New Description\",\"dateInterval\":{\"startDate\":\"01-12-2022\"},\"thumbnailPath\":\"http://test.com/thumbnail/1\",\"associatedRoles\":[]}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"event not found with id 1234\"}]}",
+      "code" : 404
+    }, {
+      "id" : "events/UpdateEvent/should update the event",
+      "name" : "events/UpdateEvent/should update the event",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/events/:id",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the event to update",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "PUT",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"title\":\"New event title\",\"description\":\"New event description\",\"teamMembersIds\":[],\"registerUrl\":\"https://example.com/newUrl\",\"dateInterval\":{\"startDate\":\"01-12-2022\",\"endDate\":\"02-12-2022\"},\"location\":\"FLUP\",\"category\":\"Greatest Events\",\"thumbnailPath\":\"https://thumbnails/new.png\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"title\":\"New event title\",\"description\":\"New event description\",\"teamMembers\":[],\"registerUrl\":\"https://example.com/newUrl\",\"dateInterval\":{\"startDate\":\"01-12-2022\",\"endDate\":\"02-12-2022\"},\"location\":\"FLUP\",\"category\":\"Greatest Events\",\"thumbnailPath\":\"https://thumbnails/new.png\",\"associatedRoles\":[],\"id\":1}",
+      "code" : 200
+    }, {
+      "id" : "events/UrlValidation/should be a URL",
+      "name" : "events/UrlValidation/should be a URL",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/events/:id",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the events to update",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "PUT",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"title\":\"Great event\",\"description\":\"This was a nice and iconic event\",\"dateInterval\":{\"startDate\":\"28-07-2022\",\"endDate\":\"30-07-2022\"},\"thumbnailPath\":\"https://example.com/exampleThumbnail\",\"registerUrl\":\"invalid.com\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"must be a valid URL\",\"param\":\"registerUrl\",\"value\":\"invalid.com\"}]}",
+      "code" : 400
+    }, {
+      "id" : "events/UrlValidation/should be null or not blank",
+      "name" : "events/UrlValidation/should be null or not blank",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/events/:id",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the events to update",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "PUT",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"title\":\"Great event\",\"description\":\"This was a nice and iconic event\",\"dateInterval\":{\"startDate\":\"28-07-2022\",\"endDate\":\"30-07-2022\"},\"thumbnailPath\":\"https://example.com/exampleThumbnail\",\"registerUrl\":\"\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"must be null or not blank\",\"param\":\"registerUrl\",\"value\":\"\"}]}",
+      "code" : 400
+    } ]
+  }, {
+    "id" : "events/DeleteEvent/should delete the event",
+    "name" : "/events/{id}",
+    "description" : "This operation deletes an event using its ID.",
+    "variable" : [ ],
+    "event" : [ ],
+    "request" : {
+      "url" : {
+        "protocol" : "https",
+        "host" : "localhost",
+        "path" : "/events/:id",
+        "port" : "8080",
+        "variable" : [ {
+          "key" : "id",
+          "description" : "ID of the event to delete",
+          "system" : false,
+          "disabled" : false
+        } ]
+      },
+      "method" : "DELETE"
+    },
+    "response" : [ {
+      "id" : "events/DeleteEvent/should delete the event",
+      "name" : "events/DeleteEvent/should delete the event",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/events/:id",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the event to delete",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "DELETE"
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{}",
+      "code" : 200
+    }, {
+      "id" : "events/DeleteEvent/should fail if the event does not exist",
+      "name" : "events/DeleteEvent/should fail if the event does not exist",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/events/:id",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the event to delete",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "DELETE"
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"event not found with id 1234\"}]}",
+      "code" : 404
+    } ]
+  }, {
+    "id" : "events/GetEvent/should fail if the event does not exist",
+    "name" : "/events/{id}",
+    "description" : "This endpoint allows the retrieval of a single event using its ID.\nIt might be used to generate the specific event page.",
+    "variable" : [ ],
+    "event" : [ ],
+    "request" : {
+      "url" : {
+        "protocol" : "https",
+        "host" : "localhost",
+        "path" : "/events/:id",
+        "port" : "8080",
+        "variable" : [ {
+          "key" : "id",
+          "description" : "ID of the event to retrieve",
+          "system" : false,
+          "disabled" : false
+        } ]
+      },
+      "method" : "GET"
+    },
+    "response" : [ {
+      "id" : "events/GetEvent/should fail if the event does not exist",
+      "name" : "events/GetEvent/should fail if the event does not exist",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/events/:id",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the event to retrieve",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "GET"
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"event not found with id 1234\"}]}",
+      "code" : 404
+    }, {
+      "id" : "events/GetEvent/should return the event",
+      "name" : "events/GetEvent/should return the event",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/events/:id",
+          "port" : "8080"
+        },
+        "method" : "GET"
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"title\":\"Great event\",\"description\":\"This was a nice and iconic event\",\"teamMembers\":[{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"bio\":\"This is a test account\",\"birthDate\":\"28-07-2001\",\"photoPath\":\"https://test-photo.com\",\"linkedin\":\"https://linkedin.com\",\"github\":\"https://github.com\",\"websites\":[{\"url\":\"https://test-website.com\",\"iconPath\":\"https://test-website.com/logo.png\",\"id\":1}],\"roles\":[],\"id\":1}],\"registerUrl\":\"https://docs.google.com/forms\",\"dateInterval\":{\"startDate\":\"28-07-2022\",\"endDate\":\"30-07-2022\"},\"location\":\"FEUP\",\"category\":\"Great Events\",\"thumbnailPath\":\"https://example.com/exampleThumbnail\",\"associatedRoles\":[],\"id\":1}",
+      "code" : 200
+    } ]
+  }, {
+    "id" : "events/GetEventsByCategory/should return all events of the category",
+    "name" : "/events/category/{category}",
+    "description" : "This endpoint allows the retrieval of events labeled with a given category.\nIt might be used to filter events in the event page.",
+    "variable" : [ ],
+    "event" : [ ],
+    "request" : {
+      "url" : {
+        "protocol" : "https",
+        "host" : "localhost",
+        "path" : "/events/category/:category",
+        "port" : "8080",
+        "variable" : [ {
+          "key" : "category",
+          "description" : "Category of the events to retrieve",
+          "system" : false,
+          "disabled" : false
+        } ]
+      },
+      "method" : "GET"
+    },
+    "response" : [ {
+      "id" : "events/GetEventsByCategory/should return all events of the category",
+      "name" : "events/GetEventsByCategory/should return all events of the category",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/events/category/:category",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "category",
+            "description" : "Category of the events to retrieve",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "GET"
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "[{\"title\":\"Great event\",\"description\":\"This was a nice and iconic event\",\"teamMembers\":[],\"registerUrl\":\"https://docs.google.com/forms\",\"dateInterval\":{\"startDate\":\"28-07-2022\",\"endDate\":\"30-07-2022\"},\"location\":\"FEUP\",\"category\":\"Great Events\",\"thumbnailPath\":\"https://example.com/exampleThumbnail\",\"associatedRoles\":[],\"id\":1},{\"title\":\"Cool event\",\"description\":\"This event was a awesome\",\"teamMembers\":[{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"bio\":\"This is a test account\",\"birthDate\":\"28-07-2001\",\"photoPath\":\"https://test-photo.com\",\"linkedin\":\"https://linkedin.com\",\"github\":\"https://github.com\",\"websites\":[{\"url\":\"https://test-website.com\",\"iconPath\":\"https://test-website.com/logo.png\",\"id\":1}],\"roles\":[],\"id\":1}],\"dateInterval\":{\"startDate\":\"11-09-2022\"},\"category\":\"Great Events\",\"thumbnailPath\":\"https://example.com/exampleThumbnail2\",\"associatedRoles\":[],\"id\":4}]",
+      "code" : 200
+    } ]
+  }, {
+    "id" : "events/AddTeamMember/should add a team member",
+    "name" : "/events/{eventId}/addTeamMember/{accountId}",
+    "description" : "This operation adds a member to a given event.",
+    "variable" : [ ],
+    "event" : [ ],
+    "request" : {
+      "url" : {
+        "protocol" : "https",
+        "host" : "localhost",
+        "path" : "/events/:eventId/addTeamMember/:accountId",
+        "port" : "8080",
+        "variable" : [ {
+          "key" : "eventId",
+          "description" : "ID of the event to add the member to",
+          "system" : false,
+          "disabled" : false
+        }, {
+          "key" : "accountId",
+          "description" : "ID of the account to add",
+          "system" : false,
+          "disabled" : false
+        } ]
+      },
+      "method" : "PUT"
+    },
+    "response" : [ {
+      "id" : "events/AddTeamMember/should add a team member",
+      "name" : "events/AddTeamMember/should add a team member",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/events/:eventId/addTeamMember/:accountId",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "eventId",
+            "description" : "ID of the event to add the member to",
+            "system" : false,
+            "disabled" : false
+          }, {
+            "key" : "accountId",
+            "description" : "ID of the account to add",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "PUT"
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"title\":\"Great event\",\"description\":\"This was a nice and iconic event\",\"teamMembers\":[{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"bio\":\"This is a test account\",\"birthDate\":\"28-07-2001\",\"photoPath\":\"https://test-photo.com\",\"linkedin\":\"https://linkedin.com\",\"github\":\"https://github.com\",\"websites\":[{\"url\":\"https://test-website.com\",\"iconPath\":\"https://test-website.com/logo.png\",\"id\":1}],\"roles\":[],\"id\":1},{\"name\":\"Another test Account\",\"email\":\"test2_account@test.com\",\"bio\":\"This is another test account\",\"birthDate\":\"04-04-2003\",\"photoPath\":\"https://test-photo.com\",\"linkedin\":\"https://linkedin.com\",\"github\":\"https://github.com\",\"websites\":[{\"url\":\"https://test-website.com\",\"iconPath\":\"https://test-website.com/logo.png\",\"id\":2}],\"roles\":[],\"id\":2}],\"registerUrl\":\"https://docs.google.com/forms\",\"dateInterval\":{\"startDate\":\"28-07-2022\",\"endDate\":\"30-07-2022\"},\"location\":\"FEUP\",\"category\":\"Great Events\",\"thumbnailPath\":\"https://example.com/exampleThumbnail\",\"associatedRoles\":[],\"id\":1}",
+      "code" : 200
+    }, {
+      "id" : "events/AddTeamMember/should fail if the team member does not exist",
+      "name" : "events/AddTeamMember/should fail if the team member does not exist",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/events/:eventId/addTeamMember/:accountId",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "eventId",
+            "description" : "ID of the event to add the member to",
+            "system" : false,
+            "disabled" : false
+          }, {
+            "key" : "accountId",
+            "description" : "ID of the account to add",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "PUT"
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"account not found with id 1234\"}]}",
+      "code" : 404
+    } ]
+  }, {
+    "id" : "events/RemoveTeamMember/should fail if the team member does not exist",
+    "name" : "/events/{eventId}/removeTeamMember/{accountId}",
+    "variable" : [ ],
+    "event" : [ ],
+    "request" : {
+      "url" : {
+        "protocol" : "https",
+        "host" : "localhost",
+        "path" : "/events/:eventId/removeTeamMember/:accountId",
+        "port" : "8080",
+        "variable" : [ {
+          "key" : "eventId",
+          "description" : "ID of the event to remove the member from",
+          "system" : false,
+          "disabled" : false
+        }, {
+          "key" : "accountId",
+          "description" : "ID of the account to remove",
+          "system" : false,
+          "disabled" : false
+        } ]
+      },
+      "method" : "PUT"
+    },
+    "response" : [ {
+      "id" : "events/RemoveTeamMember/should fail if the team member does not exist",
+      "name" : "events/RemoveTeamMember/should fail if the team member does not exist",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/events/:eventId/removeTeamMember/:accountId",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "eventId",
+            "description" : "ID of the event to remove the member from",
+            "system" : false,
+            "disabled" : false
+          }, {
+            "key" : "accountId",
+            "description" : "ID of the account to remove",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "PUT"
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"account not found with id 1234\"}]}",
+      "code" : 404
+    }, {
+      "id" : "events/RemoveTeamMember/should remove a team member",
+      "name" : "events/RemoveTeamMember/should remove a team member",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/events/:eventId/removeTeamMember/:accountId",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "eventId",
+            "description" : "ID of the event to remove the member from",
+            "system" : false,
+            "disabled" : false
+          }, {
+            "key" : "accountId",
+            "description" : "ID of the account to remove",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "PUT"
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"title\":\"Great event\",\"description\":\"This was a nice and iconic event\",\"teamMembers\":[],\"registerUrl\":\"https://docs.google.com/forms\",\"dateInterval\":{\"startDate\":\"28-07-2022\",\"endDate\":\"30-07-2022\"},\"location\":\"FEUP\",\"category\":\"Great Events\",\"thumbnailPath\":\"https://example.com/exampleThumbnail\",\"associatedRoles\":[],\"id\":1}",
+      "code" : 200
+    } ]
+  }, {
+    "id" : "posts/GetAllPosts/should return all posts",
+    "name" : "/posts",
+    "description" : "The operation returns an array of posts, allowing to easily retrieve all the created posts.",
+    "variable" : [ ],
+    "event" : [ ],
+    "request" : {
+      "url" : {
+        "protocol" : "https",
+        "host" : "localhost",
+        "path" : "/posts",
+        "port" : "8080"
+      },
+      "method" : "GET"
+    },
+    "response" : [ {
+      "id" : "posts/GetAllPosts/should return all posts",
+      "name" : "posts/GetAllPosts/should return all posts",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/posts",
+          "port" : "8080"
+        },
+        "method" : "GET"
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "[{\"title\":\"New test released\",\"body\":\"this is a test post\",\"thumbnailPath\":\"https://thumbnails/test.png\",\"publishDate\":\"23-02-2023\",\"lastUpdatedAt\":\"23-02-2023 19:21:38\",\"id\":1,\"slug\":\"new-test-released\"},{\"title\":\"NIAEFEUP gets a new president\",\"body\":\"New president promised to buy new chairs\",\"thumbnailPath\":\"https://thumbnails/pres.png\",\"publishDate\":\"23-02-2023\",\"lastUpdatedAt\":\"23-02-2023 19:21:38\",\"id\":2}]",
+      "code" : 200
+    } ]
+  }, {
+    "id" : "posts/CreatePost/should create a new post",
+    "name" : "/posts/new",
+    "description" : "This endpoint operation creates new posts.",
+    "variable" : [ ],
+    "event" : [ ],
+    "request" : {
+      "url" : {
+        "protocol" : "https",
+        "host" : "localhost",
+        "path" : "/posts/new",
+        "port" : "8080"
+      },
+      "method" : "POST",
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json;charset=UTF-8",
+        "disabled" : false
+      } ],
+      "body" : {
+        "mode" : "raw",
+        "raw" : "{\"title\":\"New test released\",\"body\":\"this is a test post\",\"thumbnailPath\":\"https://thumbnails/test.png\",\"slug\":\"new-test-released\"}",
+        "urlencoded" : [ ]
+      }
+    },
+    "response" : [ {
+      "id" : "posts/CreatePost/should create a new post",
+      "name" : "posts/CreatePost/should create a new post",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/posts/new",
+          "port" : "8080"
+        },
+        "method" : "POST",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"title\":\"New test released\",\"body\":\"this is a test post\",\"thumbnailPath\":\"https://thumbnails/test.png\",\"slug\":\"new-test-released\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"title\":\"New test released\",\"body\":\"this is a test post\",\"thumbnailPath\":\"https://thumbnails/test.png\",\"publishDate\":\"23-02-2023\",\"lastUpdatedAt\":\"23-02-2023 19:21:38\",\"id\":1,\"slug\":\"new-test-released\"}",
+      "code" : 200
+    }, {
+      "id" : "posts/CreatePost/should fail to create post with existing slug",
+      "name" : "posts/CreatePost/should fail to create post with existing slug",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/posts/new",
+          "port" : "8080"
+        },
+        "method" : "POST",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"title\":\"New test released\",\"body\":\"this is a test post\",\"thumbnailPath\":\"https://thumbnails/test.png\",\"slug\":\"new-test-released\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"slug already exists\"}]}",
+      "code" : 422
+    } ]
+  }, {
+    "id" : "posts/BodyValidation/should be required",
+    "name" : "/posts/{id}",
+    "variable" : [ ],
+    "event" : [ ],
+    "request" : {
+      "url" : {
+        "protocol" : "https",
+        "host" : "localhost",
+        "path" : "/posts/:id",
+        "port" : "8080",
+        "variable" : [ {
+          "key" : "id",
+          "description" : "ID of the post to update",
+          "system" : false,
+          "disabled" : false
+        } ]
+      },
+      "method" : "PUT",
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json;charset=UTF-8",
+        "disabled" : false
+      } ],
+      "body" : {
+        "mode" : "raw",
+        "raw" : "{\"title\":\"New test released\",\"thumbnailPath\":\"https://thumbnails/test.png\"}",
+        "urlencoded" : [ ]
+      }
+    },
+    "response" : [ {
+      "id" : "posts/BodyValidation/should be required",
+      "name" : "posts/BodyValidation/should be required",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/posts/:id",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the post to update",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "PUT",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"title\":\"New test released\",\"thumbnailPath\":\"https://thumbnails/test.png\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"required\",\"param\":\"body\"}]}",
+      "code" : 400
+    }, {
+      "id" : "posts/BodyValidation/size",
+      "name" : "posts/BodyValidation/size",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/posts/:id",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the post to update",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "PUT",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"title\":\"New test released\",\"body\":\"aaaaaaaaa\",\"thumbnailPath\":\"https://thumbnails/test.png\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"size must be greater or equal to 10\",\"param\":\"body\",\"value\":\"aaaaaaaaa\"}]}",
+      "code" : 400
+    }, {
+      "id" : "posts/SlugValidation/size",
+      "name" : "posts/SlugValidation/size",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/posts/:id",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the post to update",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "PUT",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"title\":\"New test released\",\"body\":\"this is a test post\",\"thumbnailPath\":\"https://thumbnails/test.png\",\"slug\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"size must be between 2 and 500\",\"param\":\"slug\",\"value\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}]}",
+      "code" : 400
+    }, {
+      "id" : "posts/ThumbnailValidation/should be required",
+      "name" : "posts/ThumbnailValidation/should be required",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/posts/:id",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the post to update",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "PUT",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"title\":\"New test released\",\"body\":\"this is a test post\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"required\",\"param\":\"thumbnailPath\"}]}",
+      "code" : 400
+    }, {
+      "id" : "posts/ThumbnailValidation/should not be empty",
+      "name" : "posts/ThumbnailValidation/should not be empty",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/posts/:id",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the post to update",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "PUT",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"title\":\"New test released\",\"body\":\"this is a test post\",\"thumbnailPath\":\"\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"must not be empty\",\"param\":\"thumbnailPath\",\"value\":\"\"}]}",
+      "code" : 400
+    }, {
+      "id" : "posts/TitleValidation/should be required",
+      "name" : "posts/TitleValidation/should be required",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/posts/:id",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the post to update",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "PUT",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"body\":\"this is a test post\",\"thumbnailPath\":\"https://thumbnails/test.png\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"required\",\"param\":\"title\"}]}",
+      "code" : 400
+    }, {
+      "id" : "posts/TitleValidation/size",
+      "name" : "posts/TitleValidation/size",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/posts/:id",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the post to update",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "PUT",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"title\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"body\":\"this is a test post\",\"thumbnailPath\":\"https://thumbnails/test.png\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"size must be between 2 and 500\",\"param\":\"title\",\"value\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}]}",
+      "code" : 400
+    }, {
+      "id" : "posts/UpdatePost/should fail if the post does not exist",
+      "name" : "posts/UpdatePost/should fail if the post does not exist",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/posts/:id",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the post to update",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "PUT",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"title\":\"New Title\",\"body\":\"New Body of the post\",\"thumbnailPath\":\"thumbnails/new.png\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"post not found with id 1234\"}]}",
+      "code" : 404
+    }, {
+      "id" : "posts/UpdatePost/should fail if the slug already exist",
+      "name" : "posts/UpdatePost/should fail if the slug already exist",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/posts/:id",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the post to update",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "PUT",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"title\":\"New Title\",\"body\":\"New Body of the post\",\"thumbnailPath\":\"https://thumbnails/new.png\",\"slug\":\"duplicated-slug\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"slug already exists\"}]}",
+      "code" : 422
+    }, {
+      "id" : "posts/UpdatePost/should update the post with the slug",
+      "name" : "posts/UpdatePost/should update the post with the slug",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/posts/:id",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the post to update",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "PUT",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"title\":\"New Title\",\"body\":\"New Body of the post\",\"thumbnailPath\":\"https://thumbnails/new.png\",\"slug\":\"new-slug\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"title\":\"New Title\",\"body\":\"New Body of the post\",\"thumbnailPath\":\"https://thumbnails/new.png\",\"publishDate\":\"23-02-2023\",\"lastUpdatedAt\":\"23-02-2023 19:21:38\",\"id\":1,\"slug\":\"new-slug\"}",
+      "code" : 200
+    }, {
+      "id" : "posts/UpdatePost/should update the post without the slug",
+      "name" : "posts/UpdatePost/should update the post without the slug",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/posts/:id",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the post to update",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "PUT",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"title\":\"New Title\",\"body\":\"New Body of the post\",\"thumbnailPath\":\"https://thumbnails/new.png\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"title\":\"New Title\",\"body\":\"New Body of the post\",\"thumbnailPath\":\"https://thumbnails/new.png\",\"publishDate\":\"23-02-2023\",\"lastUpdatedAt\":\"23-02-2023 19:21:38\",\"id\":1,\"slug\":\"new-test-released\"}",
+      "code" : 200
+    } ]
+  }, {
+    "id" : "posts/DeletePost/should delete the post",
+    "name" : "/posts/{id}",
+    "description" : "This operation deletes an event using its ID.",
+    "variable" : [ ],
+    "event" : [ ],
+    "request" : {
+      "url" : {
+        "protocol" : "https",
+        "host" : "localhost",
+        "path" : "/posts/:id",
+        "port" : "8080",
+        "variable" : [ {
+          "key" : "id",
+          "description" : "ID of the post to delete",
+          "system" : false,
+          "disabled" : false
+        } ]
+      },
+      "method" : "DELETE"
+    },
+    "response" : [ {
+      "id" : "posts/DeletePost/should delete the post",
+      "name" : "posts/DeletePost/should delete the post",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/posts/:id",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the post to delete",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "DELETE"
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{}",
+      "code" : 200
+    }, {
+      "id" : "posts/DeletePost/should fail if the post does not exist",
+      "name" : "posts/DeletePost/should fail if the post does not exist",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/posts/:id",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the post to delete",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "DELETE"
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"post not found with id 1234\"}]}",
+      "code" : 404
+    } ]
+  }, {
+    "id" : "posts/GetPostById/should fail if the post does not exist",
+    "name" : "/posts/{id}",
+    "variable" : [ ],
+    "event" : [ ],
+    "request" : {
+      "url" : {
+        "protocol" : "https",
+        "host" : "localhost",
+        "path" : "/posts/:id",
+        "port" : "8080",
+        "variable" : [ {
+          "key" : "id",
+          "description" : "ID of the post to retrieve",
+          "system" : false,
+          "disabled" : false
+        } ]
+      },
+      "method" : "GET"
+    },
+    "response" : [ {
+      "id" : "posts/GetPostById/should fail if the post does not exist",
+      "name" : "posts/GetPostById/should fail if the post does not exist",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/posts/:id",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the post to retrieve",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "GET"
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"post not found with id 1234\"}]}",
+      "code" : 404
+    }, {
+      "id" : "posts/GetPostById/should return the post",
+      "name" : "posts/GetPostById/should return the post",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/posts/:id",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the post to retrieve",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "GET"
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"title\":\"New test released\",\"body\":\"this is a test post\",\"thumbnailPath\":\"https://thumbnails/test.png\",\"publishDate\":\"23-02-2023\",\"lastUpdatedAt\":\"23-02-2023 19:21:38\",\"id\":1,\"slug\":\"new-test-released\"}",
+      "code" : 200
+    } ]
+  }, {
+    "id" : "posts/GetPostBySlang/should fail if the post does not exist",
+    "name" : "/posts/{slug}",
+    "variable" : [ ],
+    "event" : [ ],
+    "request" : {
+      "url" : {
+        "protocol" : "https",
+        "host" : "localhost",
+        "path" : "/posts/:slug",
+        "port" : "8080",
+        "variable" : [ {
+          "key" : "slug",
+          "description" : "Short and friendly textual post identifier",
+          "system" : false,
+          "disabled" : false
+        } ]
+      },
+      "method" : "GET"
+    },
+    "response" : [ {
+      "id" : "posts/GetPostBySlang/should fail if the post does not exist",
+      "name" : "posts/GetPostBySlang/should fail if the post does not exist",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/posts/:slug",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "slug",
+            "description" : "Short and friendly textual post identifier",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "GET"
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"post not found with slug fail-slug\"}]}",
+      "code" : 404
+    }, {
+      "id" : "posts/GetPostBySlang/should return the post",
+      "name" : "posts/GetPostBySlang/should return the post",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/posts/:slug",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "slug",
+            "description" : "Short and friendly textual post identifier",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "GET"
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"title\":\"New test released\",\"body\":\"this is a test post\",\"thumbnailPath\":\"https://thumbnails/test.png\",\"publishDate\":\"23-02-2023\",\"lastUpdatedAt\":\"23-02-2023 19:21:38\",\"id\":1,\"slug\":\"new-test-released\"}",
+      "code" : 200
+    } ]
+  }, {
+    "id" : "projects/GetAllProjects/should return all projects",
+    "name" : "/projects",
+    "description" : "The operation returns an array of projects, allowing to easily retrieve all the created projects.\nThis is useful for example in the frontend project page, where projects are displayed.",
+    "variable" : [ ],
+    "event" : [ ],
+    "request" : {
+      "url" : {
+        "protocol" : "https",
+        "host" : "localhost",
+        "path" : "/projects",
+        "port" : "8080"
+      },
+      "method" : "GET"
+    },
+    "response" : [ {
+      "id" : "projects/GetAllProjects/should return all projects",
+      "name" : "projects/GetAllProjects/should return all projects",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/projects",
+          "port" : "8080"
+        },
+        "method" : "GET"
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "[{\"title\":\"Awesome project\",\"description\":\"this is a test project\",\"teamMembers\":[{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"bio\":\"This is a test account\",\"birthDate\":\"28-07-2001\",\"photoPath\":\"https://test-photo.com\",\"linkedin\":\"https://linkedin.com\",\"github\":\"https://github.com\",\"websites\":[{\"url\":\"https://test-website.com\",\"iconPath\":\"https://test-website.com/logo.png\",\"id\":1}],\"roles\":[],\"id\":1}],\"isArchived\":false,\"technologies\":[\"Java\",\"Kotlin\",\"Spring\"],\"associatedRoles\":[],\"id\":1},{\"title\":\"NIJobs\",\"description\":\"Job platform for students\",\"teamMembers\":[],\"isArchived\":false,\"technologies\":[\"ExpressJS\",\"React\"],\"associatedRoles\":[],\"id\":2}]",
+      "code" : 200
+    } ]
+  }, {
+    "id" : "events/CreateProject/should create a new project",
+    "name" : "/projects/new",
+    "description" : "This endpoint operation creates new projects.",
+    "variable" : [ ],
+    "event" : [ ],
+    "request" : {
+      "url" : {
+        "protocol" : "https",
+        "host" : "localhost",
+        "path" : "/projects/new",
+        "port" : "8080"
+      },
+      "method" : "POST",
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json;charset=UTF-8",
+        "disabled" : false
+      } ],
+      "body" : {
+        "mode" : "raw",
+        "raw" : "{\"title\":\"Awesome project\",\"description\":\"this is a test project\",\"teamMembersIds\":[1],\"isArchived\":false,\"technologies\":[\"Java\",\"Kotlin\",\"Spring\"]}",
+        "urlencoded" : [ ]
+      }
+    },
+    "response" : [ {
+      "id" : "events/CreateProject/should create a new project",
+      "name" : "events/CreateProject/should create a new project",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/projects/new",
+          "port" : "8080"
+        },
+        "method" : "POST",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"title\":\"Awesome project\",\"description\":\"this is a test project\",\"teamMembersIds\":[1],\"isArchived\":false,\"technologies\":[\"Java\",\"Kotlin\",\"Spring\"]}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"title\":\"Awesome project\",\"description\":\"this is a test project\",\"teamMembers\":[{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"bio\":\"This is a test account\",\"birthDate\":\"28-07-2001\",\"photoPath\":\"https://test-photo.com\",\"linkedin\":\"https://linkedin.com\",\"github\":\"https://github.com\",\"websites\":[{\"url\":\"https://test-website.com\",\"iconPath\":\"https://test-website.com/logo.png\",\"id\":1}],\"roles\":[],\"id\":1}],\"isArchived\":false,\"technologies\":[\"Java\",\"Kotlin\",\"Spring\"],\"associatedRoles\":[],\"id\":2}",
+      "code" : 200
+    }, {
+      "id" : "events/DescriptionValidation/should be required",
+      "name" : "events/DescriptionValidation/should be required",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/projects/new",
+          "port" : "8080"
+        },
+        "method" : "POST",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"title\":\"Awesome project\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"required\",\"param\":\"description\"}]}",
+      "code" : 400
+    }, {
+      "id" : "events/DescriptionValidation/size",
+      "name" : "events/DescriptionValidation/size",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/projects/new",
+          "port" : "8080"
+        },
+        "method" : "POST",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"title\":\"Awesome project\",\"description\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"size must be between 10 and 10000\",\"param\":\"description\",\"value\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}]}",
+      "code" : 400
+    }, {
+      "id" : "events/TitleValidation/should be required",
+      "name" : "events/TitleValidation/should be required",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/projects/new",
+          "port" : "8080"
+        },
+        "method" : "POST",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"description\":\"this is a test project\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"required\",\"param\":\"title\"}]}",
+      "code" : 400
+    }, {
+      "id" : "events/TitleValidation/size",
+      "name" : "events/TitleValidation/size",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/projects/new",
+          "port" : "8080"
+        },
+        "method" : "POST",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"title\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"description\":\"this is a test project\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"size must be between 2 and 500\",\"param\":\"title\",\"value\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}]}",
+      "code" : 400
+    } ]
+  }, {
+    "id" : "projects/BodyValidation/should be required",
+    "name" : "/projects/{id}",
+    "variable" : [ ],
+    "event" : [ ],
+    "request" : {
+      "url" : {
+        "protocol" : "https",
+        "host" : "localhost",
+        "path" : "/projects/:id",
+        "port" : "8080",
+        "variable" : [ {
+          "key" : "id",
+          "description" : "ID of the project to update",
+          "system" : false,
+          "disabled" : false
+        } ]
+      },
+      "method" : "PUT",
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json;charset=UTF-8",
+        "disabled" : false
+      } ],
+      "body" : {
+        "mode" : "raw",
+        "raw" : "{\"title\":\"Awesome project\"}",
+        "urlencoded" : [ ]
+      }
+    },
+    "response" : [ {
+      "id" : "projects/BodyValidation/should be required",
+      "name" : "projects/BodyValidation/should be required",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/projects/:id",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the project to update",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "PUT",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"title\":\"Awesome project\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"required\",\"param\":\"description\"}]}",
+      "code" : 400
+    }, {
+      "id" : "projects/BodyValidation/size",
+      "name" : "projects/BodyValidation/size",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/projects/:id",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the project to update",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "PUT",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"title\":\"Awesome project\",\"description\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"size must be between 10 and 10000\",\"param\":\"description\",\"value\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}]}",
+      "code" : 400
+    }, {
+      "id" : "projects/TitleValidation/should be required",
+      "name" : "projects/TitleValidation/should be required",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/projects/:id",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the project to update",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "PUT",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"description\":\"this is a test project\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"required\",\"param\":\"title\"}]}",
+      "code" : 400
+    }, {
+      "id" : "projects/TitleValidation/size",
+      "name" : "projects/TitleValidation/size",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/projects/:id",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the project to update",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "PUT",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"title\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"description\":\"this is a test project\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"size must be between 2 and 500\",\"param\":\"title\",\"value\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}]}",
+      "code" : 400
+    }, {
+      "id" : "projects/UpdateProject/should fail if the project does not exist",
+      "name" : "projects/UpdateProject/should fail if the project does not exist",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/projects/:id",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the project to update",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "PUT",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"title\":\"New Title\",\"description\":\"New description of the project\"}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"project not found with id 1234\"}]}",
+      "code" : 404
+    }, {
+      "id" : "projects/UpdateProject/should update the project",
+      "name" : "projects/UpdateProject/should update the project",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/projects/:id",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the project to update",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "PUT",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"title\":\"New Title\",\"description\":\"New description of the project\",\"teamMembersIds\":[],\"isArchived\":true}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"title\":\"New Title\",\"description\":\"New description of the project\",\"teamMembers\":[],\"isArchived\":true,\"technologies\":[],\"associatedRoles\":[],\"id\":1}",
+      "code" : 200
+    } ]
+  }, {
+    "id" : "projects/DeleteProject/should delete the project",
+    "name" : "/projects/{id}",
+    "description" : "This operation deletes an projects using its ID.",
+    "variable" : [ ],
+    "event" : [ ],
+    "request" : {
+      "url" : {
+        "protocol" : "https",
+        "host" : "localhost",
+        "path" : "/projects/:id",
+        "port" : "8080",
+        "variable" : [ {
+          "key" : "id",
+          "description" : "ID of the project to delete",
+          "system" : false,
+          "disabled" : false
+        } ]
+      },
+      "method" : "DELETE"
+    },
+    "response" : [ {
+      "id" : "projects/DeleteProject/should delete the project",
+      "name" : "projects/DeleteProject/should delete the project",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/projects/:id",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the project to delete",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "DELETE"
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{}",
+      "code" : 200
+    }, {
+      "id" : "projects/DeleteProject/should fail if the project does not exist",
+      "name" : "projects/DeleteProject/should fail if the project does not exist",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/projects/:id",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the project to delete",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "DELETE"
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"project not found with id 1234\"}]}",
+      "code" : 404
+    } ]
+  }, {
+    "id" : "projects/GetProject/should fail if the project does not exist",
+    "name" : "/projects/{id}",
+    "variable" : [ ],
+    "event" : [ ],
+    "request" : {
+      "url" : {
+        "protocol" : "https",
+        "host" : "localhost",
+        "path" : "/projects/:id",
+        "port" : "8080",
+        "variable" : [ {
+          "key" : "id",
+          "description" : "ID of the project to retrieve",
+          "system" : false,
+          "disabled" : false
+        } ]
+      },
+      "method" : "GET"
+    },
+    "response" : [ {
+      "id" : "projects/GetProject/should fail if the project does not exist",
+      "name" : "projects/GetProject/should fail if the project does not exist",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/projects/:id",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the project to retrieve",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "GET"
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"project not found with id 1234\"}]}",
+      "code" : 404
+    }, {
+      "id" : "projects/GetProject/should return the project",
+      "name" : "projects/GetProject/should return the project",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/projects/:id",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the project to retrieve",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "GET"
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"title\":\"Awesome project\",\"description\":\"this is a test project\",\"teamMembers\":[{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"bio\":\"This is a test account\",\"birthDate\":\"28-07-2001\",\"photoPath\":\"https://test-photo.com\",\"linkedin\":\"https://linkedin.com\",\"github\":\"https://github.com\",\"websites\":[{\"url\":\"https://test-website.com\",\"iconPath\":\"https://test-website.com/logo.png\",\"id\":1}],\"roles\":[],\"id\":1}],\"isArchived\":false,\"technologies\":[\"Java\",\"Kotlin\",\"Spring\"],\"associatedRoles\":[],\"id\":1}",
+      "code" : 200
+    } ]
+  }, {
+    "id" : "projects/ArchiveProject/should archive the project",
+    "name" : "/projects/{id}/archive",
+    "description" : "This endpoint updates projects as archived. This is useful to mark no longer\nmaintained or complete projects of the Nucleus.",
+    "variable" : [ ],
+    "event" : [ ],
+    "request" : {
+      "url" : {
+        "protocol" : "https",
+        "host" : "localhost",
+        "path" : "/projects/:id/archive",
+        "port" : "8080",
+        "variable" : [ {
+          "key" : "id",
+          "description" : "ID of the project to archive",
+          "system" : false,
+          "disabled" : false
+        } ]
+      },
+      "method" : "PUT",
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json;charset=UTF-8",
+        "disabled" : false
+      } ],
+      "body" : {
+        "mode" : "raw",
+        "raw" : "{\"first\":\"isArchived\",\"second\":true}",
+        "urlencoded" : [ ]
+      }
+    },
+    "response" : [ {
+      "id" : "projects/ArchiveProject/should archive the project",
+      "name" : "projects/ArchiveProject/should archive the project",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/projects/:id/archive",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the project to archive",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "PUT",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"first\":\"isArchived\",\"second\":true}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"title\":\"Awesome project\",\"description\":\"this is a test project\",\"teamMembers\":[{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"bio\":\"This is a test account\",\"birthDate\":\"28-07-2001\",\"photoPath\":\"https://test-photo.com\",\"linkedin\":\"https://linkedin.com\",\"github\":\"https://github.com\",\"websites\":[{\"url\":\"https://test-website.com\",\"iconPath\":\"https://test-website.com/logo.png\",\"id\":1}],\"roles\":[],\"id\":1}],\"isArchived\":true,\"technologies\":[\"Java\",\"Kotlin\",\"Spring\"],\"associatedRoles\":[],\"id\":1}",
+      "code" : 200
+    } ]
+  }, {
+    "id" : "projects/UnarchiveProject/should unarchive the project",
+    "name" : "/projects/{id}/unarchive",
+    "description" : "This endpoint updates projects as unarchived.\nThis is useful to mark previously unarchived projects as active.",
+    "variable" : [ ],
+    "event" : [ ],
+    "request" : {
+      "url" : {
+        "protocol" : "https",
+        "host" : "localhost",
+        "path" : "/projects/:id/unarchive",
+        "port" : "8080",
+        "variable" : [ {
+          "key" : "id",
+          "description" : "ID of the project to unarchive",
+          "system" : false,
+          "disabled" : false
+        } ]
+      },
+      "method" : "PUT",
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json;charset=UTF-8",
+        "disabled" : false
+      } ],
+      "body" : {
+        "mode" : "raw",
+        "raw" : "{\"first\":\"isArchived\",\"second\":false}",
+        "urlencoded" : [ ]
+      }
+    },
+    "response" : [ {
+      "id" : "projects/UnarchiveProject/should unarchive the project",
+      "name" : "projects/UnarchiveProject/should unarchive the project",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/projects/:id/unarchive",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "id",
+            "description" : "ID of the project to unarchive",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "PUT",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json;charset=UTF-8",
+          "disabled" : false
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"first\":\"isArchived\",\"second\":false}",
+          "urlencoded" : [ ]
+        }
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"title\":\"proj1\",\"description\":\"very cool project\",\"teamMembers\":[],\"isArchived\":false,\"technologies\":[\"React\",\"TailwindCSS\"],\"associatedRoles\":[],\"id\":1}",
+      "code" : 200
+    } ]
+  }, {
+    "id" : "projects/AddTeamMember/should add a team member",
+    "name" : "/projects/{projectId}/addTeamMember/{accountId}",
+    "description" : "This operation add a member to a given project.",
+    "variable" : [ ],
+    "event" : [ ],
+    "request" : {
+      "url" : {
+        "protocol" : "https",
+        "host" : "localhost",
+        "path" : "/projects/:projectId/addTeamMember/:accountId",
+        "port" : "8080",
+        "variable" : [ {
+          "key" : "projectId",
+          "description" : "ID of the project to add the member to",
+          "system" : false,
+          "disabled" : false
+        }, {
+          "key" : "accountId",
+          "description" : "ID of the account to add",
+          "system" : false,
+          "disabled" : false
+        } ]
+      },
+      "method" : "PUT"
+    },
+    "response" : [ {
+      "id" : "projects/AddTeamMember/should add a team member",
+      "name" : "projects/AddTeamMember/should add a team member",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/projects/:projectId/addTeamMember/:accountId",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "projectId",
+            "description" : "ID of the project to add the member to",
+            "system" : false,
+            "disabled" : false
+          }, {
+            "key" : "accountId",
+            "description" : "ID of the account to add",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "PUT"
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"title\":\"Awesome project\",\"description\":\"this is a test project\",\"teamMembers\":[{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"bio\":\"This is a test account\",\"birthDate\":\"28-07-2001\",\"photoPath\":\"https://test-photo.com\",\"linkedin\":\"https://linkedin.com\",\"github\":\"https://github.com\",\"websites\":[{\"url\":\"https://test-website.com\",\"iconPath\":\"https://test-website.com/logo.png\",\"id\":1}],\"roles\":[],\"id\":1},{\"name\":\"Another test Account\",\"email\":\"test2_account@test.com\",\"bio\":\"This is another test account\",\"birthDate\":\"04-04-2003\",\"photoPath\":\"https://test-photo.com\",\"linkedin\":\"https://linkedin.com\",\"github\":\"https://github.com\",\"websites\":[{\"url\":\"https://test-website.com\",\"iconPath\":\"https://test-website.com/logo.png\",\"id\":2}],\"roles\":[],\"id\":2}],\"isArchived\":false,\"technologies\":[\"Java\",\"Kotlin\",\"Spring\"],\"associatedRoles\":[],\"id\":1}",
+      "code" : 200
+    }, {
+      "id" : "projects/AddTeamMember/should fail if the team member does not exist",
+      "name" : "projects/AddTeamMember/should fail if the team member does not exist",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/projects/:projectId/addTeamMember/:accountId",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "projectId",
+            "description" : "ID of the project to add the member to",
+            "system" : false,
+            "disabled" : false
+          }, {
+            "key" : "accountId",
+            "description" : "ID of the account to add",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "PUT"
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"account not found with id 1234\"}]}",
+      "code" : 404
+    } ]
+  }, {
+    "id" : "projects/RemoveTeamMember/should fail if the team member does not exist",
+    "name" : "/projects/{projectId}/removeTeamMember/{accountId}",
+    "variable" : [ ],
+    "event" : [ ],
+    "request" : {
+      "url" : {
+        "protocol" : "https",
+        "host" : "localhost",
+        "path" : "/projects/:projectId/removeTeamMember/:accountId",
+        "port" : "8080",
+        "variable" : [ {
+          "key" : "projectId",
+          "description" : "ID of the project to remove the member from",
+          "system" : false,
+          "disabled" : false
+        }, {
+          "key" : "accountId",
+          "description" : "ID of the account to remove",
+          "system" : false,
+          "disabled" : false
+        } ]
+      },
+      "method" : "PUT"
+    },
+    "response" : [ {
+      "id" : "projects/RemoveTeamMember/should fail if the team member does not exist",
+      "name" : "projects/RemoveTeamMember/should fail if the team member does not exist",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/projects/:projectId/removeTeamMember/:accountId",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "projectId",
+            "description" : "ID of the project to remove the member from",
+            "system" : false,
+            "disabled" : false
+          }, {
+            "key" : "accountId",
+            "description" : "ID of the account to remove",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "PUT"
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"errors\":[{\"message\":\"account not found with id 1234\"}]}",
+      "code" : 404
+    }, {
+      "id" : "projects/RemoveTeamMember/should remove a team member",
+      "name" : "projects/RemoveTeamMember/should remove a team member",
+      "originalRequest" : {
+        "url" : {
+          "protocol" : "https",
+          "host" : "localhost",
+          "path" : "/projects/:projectId/removeTeamMember/:accountId",
+          "port" : "8080",
+          "variable" : [ {
+            "key" : "projectId",
+            "description" : "ID of the project to remove the member from",
+            "system" : false,
+            "disabled" : false
+          }, {
+            "key" : "accountId",
+            "description" : "ID of the account to remove",
+            "system" : false,
+            "disabled" : false
+          } ]
+        },
+        "method" : "PUT"
+      },
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "disabled" : false
+      } ],
+      "cookie" : [ ],
+      "body" : "{\"title\":\"Awesome project\",\"description\":\"this is a test project\",\"teamMembers\":[],\"isArchived\":false,\"technologies\":[\"Java\",\"Kotlin\",\"Spring\"],\"associatedRoles\":[],\"id\":1}",
+      "code" : 200
+    } ]
+  } ],
+  "event" : [ ],
+  "variable" : [ ]
+}

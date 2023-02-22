@@ -1,0 +1,2982 @@
+{
+  "openapi" : "3.0.1",
+  "info" : {
+    "title" : "NIAEFEUP Website - Backend API specification",
+    "description" : "This specification documents the available endpoints and possible operations on the website's backend.\nFor each of the operations, its purpose, security, requests and possible responses are documented.",
+    "version" : "0.0.1-SNAPSHOT"
+  },
+  "servers" : [ {
+    "url" : "http://localhost:8080"
+  } ],
+  "tags" : [ {
+    "name" : "Authentication",
+    "description" : "Endpoints and operations for authentication management."
+  }, {
+    "name" : "Accounts",
+    "description" : "Endpoints and operations for account management."
+  }, {
+    "name" : "Events",
+    "description" : "Endpoints and operations for event management."
+  }, {
+    "name" : "Posts",
+    "description" : "Endpoints and operations for post management."
+  }, {
+    "name" : "Projects",
+    "description" : "Endpoints and operations for project management."
+  } ],
+  "paths" : {
+    "/accounts" : {
+      "get" : {
+        "tags" : [ "Accounts" ],
+        "summary" : "Get all the accounts",
+        "description" : "The operation returns an array of accounts, allowing to easily retrieve all the created accounts.",
+        "operationId" : "account/GetAllAccounts/should return all accounts",
+        "responses" : {
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/account-response-array"
+                },
+                "examples" : {
+                  "account/GetAllAccounts/should return all accounts" : {
+                    "value" : "[{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"bio\":\"This is a test account\",\"birthDate\":\"28-07-2001\",\"photoPath\":\"https://test-photo.com\",\"linkedin\":\"https://linkedin.com\",\"github\":\"https://github.com\",\"websites\":[{\"url\":\"https://test-website.com\",\"iconPath\":\"https://test-website.com/logo.png\",\"id\":1}],\"roles\":[],\"id\":1},{\"name\":\"Test Account 2\",\"email\":\"test_account2@test.com\",\"websites\":[],\"roles\":[],\"id\":2}]"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/accounts/new" : {
+      "post" : {
+        "tags" : [ "Accounts" ],
+        "summary" : "Create new accounts",
+        "description" : "This endpoint operation creates new accounts.",
+        "operationId" : "accounts/",
+        "requestBody" : {
+          "content" : {
+            "application/json;charset=UTF-8" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/account-request"
+              },
+              "examples" : {
+                "accounts/BioValidation/size" : {
+                  "value" : "{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"password\":\"test_password\",\"websites\":[],\"bio\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}"
+                },
+                "accounts/BirthDateValidation/should be a valid date" : {
+                  "value" : "{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"password\":\"test_password\",\"websites\":[],\"birthDate\":\"invalid\"}"
+                },
+                "accounts/BirthDateValidation/should be in the past" : {
+                  "value" : "{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"password\":\"test_password\",\"websites\":[],\"birthDate\":\"01-01-3000\"}"
+                },
+                "accounts/CreateAccount/should create an account with an empty website list" : {
+                  "value" : "{\"name\":\"Test Account\",\"email\":\"no_website@email.com\",\"password\":\"test_password\",\"bio\":\"This is a test account\",\"birthDate\":\"28-07-2001\",\"photoPath\":\"https://test-photo.com\",\"linkedin\":\"https://linkedin.com\",\"github\":\"https://github.com\"}"
+                },
+                "accounts/CreateAccount/should create the account" : {
+                  "value" : "{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"bio\":\"This is a test account\",\"birthDate\":\"28-07-2001\",\"photoPath\":\"https://test-photo.com\",\"linkedin\":\"https://linkedin.com\",\"github\":\"https://github.com\",\"websites\":[{\"url\":\"https://test-website.com\",\"iconPath\":\"https://test-website.com/logo.png\"}],\"roles\":[],\"password\":\"test_password\"}"
+                },
+                "accounts/CreateAccount/should fail to create account with existing email" : {
+                  "value" : "{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"bio\":\"This is a test account\",\"birthDate\":\"28-07-2001\",\"photoPath\":\"https://test-photo.com\",\"linkedin\":\"https://linkedin.com\",\"github\":\"https://github.com\",\"websites\":[{\"url\":\"https://test-website.com\",\"iconPath\":\"https://test-website.com/logo.png\"}],\"roles\":[],\"password\":\"test_password\"}"
+                },
+                "accounts/EmailValidation/should be a valid email" : {
+                  "value" : "{\"name\":\"Test Account\",\"email\":\"not-an-email\",\"password\":\"test_password\",\"websites\":[]}"
+                },
+                "accounts/EmailValidation/should be required" : {
+                  "value" : "{\"name\":\"Test Account\",\"password\":\"test_password\",\"websites\":[]}"
+                },
+                "accounts/EmailValidation/should not be empty" : {
+                  "value" : "{\"name\":\"Test Account\",\"email\":\"\",\"password\":\"test_password\",\"websites\":[]}"
+                },
+                "accounts/GithubValidation/should be null or not blank" : {
+                  "value" : "{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"password\":\"test_password\",\"websites\":[],\"github\":\"\"}"
+                },
+                "accounts/GithubValidation/should be URL" : {
+                  "value" : "{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"password\":\"test_password\",\"websites\":[],\"github\":\"invalid.com\"}"
+                },
+                "accounts/IconPathValidation/should be bull or not blank" : {
+                  "value" : "{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"password\":\"test_password\",\"websites\":[{\"url\":\"https://www.google.com\",\"iconPath\":\"\"}]}"
+                },
+                "accounts/IconPathValidation/should be URL" : {
+                  "value" : "{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"password\":\"test_password\",\"websites\":[{\"url\":\"https://www.google.com\",\"iconPath\":\"invalid.com\"}]}"
+                },
+                "accounts/LinkedinValidation/should be null or not blank" : {
+                  "value" : "{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"password\":\"test_password\",\"websites\":[],\"linkedin\":\"\"}"
+                },
+                "accounts/LinkedinValidation/should be URL" : {
+                  "value" : "{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"password\":\"test_password\",\"websites\":[],\"linkedin\":\"invalid.com\"}"
+                },
+                "accounts/NameValidation/should be required" : {
+                  "value" : "{\"email\":\"test_account@test.com\",\"password\":\"test_password\",\"websites\":[]}"
+                },
+                "accounts/NameValidation/size" : {
+                  "value" : "{\"name\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"email\":\"test_account@test.com\",\"password\":\"test_password\",\"websites\":[]}"
+                },
+                "accounts/PasswordValidation/should be required" : {
+                  "value" : "{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"websites\":[]}"
+                },
+                "accounts/PasswordValidation/size" : {
+                  "value" : "{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"password\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"websites\":[]}"
+                },
+                "accounts/PhotoPathValidation/should be null or not blank" : {
+                  "value" : "{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"password\":\"test_password\",\"websites\":[],\"photoPath\":\"\"}"
+                },
+                "accounts/PhotoPathValidation/should be URL" : {
+                  "value" : "{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"password\":\"test_password\",\"websites\":[],\"photoPath\":\"invalid.com\"}"
+                },
+                "accounts/UrlValidation/should be required" : {
+                  "value" : "{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"password\":\"test_password\",\"websites\":[{}]}"
+                },
+                "accounts/UrlValidation/should be URL" : {
+                  "value" : "{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"password\":\"test_password\",\"websites\":[{\"url\":\"invalid.com\"}]}"
+                },
+                "accounts/UrlValidation/should not be empty" : {
+                  "value" : "{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"password\":\"test_password\",\"websites\":[{\"url\":\"\"}]}"
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "400" : {
+            "description" : "400",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/error-response"
+                },
+                "examples" : {
+                  "accounts/BioValidation/size" : {
+                    "value" : "{\"errors\":[{\"message\":\"size must be between 5 and 500\",\"param\":\"bio\",\"value\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}]}"
+                  },
+                  "accounts/BirthDateValidation/should be a valid date" : {
+                    "value" : "{\"errors\":[{\"message\":\"must be date\",\"value\":\"invalid\"}]}"
+                  },
+                  "accounts/BirthDateValidation/should be in the past" : {
+                    "value" : "{\"errors\":[{\"message\":\"must be a past date\",\"param\":\"birthDate\",\"value\":\"01-01-3000\"}]}"
+                  },
+                  "accounts/EmailValidation/should be a valid email" : {
+                    "value" : "{\"errors\":[{\"message\":\"must be a well-formed email address\",\"param\":\"email\",\"value\":\"not-an-email\"}]}"
+                  },
+                  "accounts/EmailValidation/should be required" : {
+                    "value" : "{\"errors\":[{\"message\":\"required\",\"param\":\"email\"}]}"
+                  },
+                  "accounts/EmailValidation/should not be empty" : {
+                    "value" : "{\"errors\":[{\"message\":\"must not be empty\",\"param\":\"email\",\"value\":\"\"}]}"
+                  },
+                  "accounts/GithubValidation/should be null or not blank" : {
+                    "value" : "{\"errors\":[{\"message\":\"must be null or not blank\",\"param\":\"github\",\"value\":\"\"}]}"
+                  },
+                  "accounts/GithubValidation/should be URL" : {
+                    "value" : "{\"errors\":[{\"message\":\"must be a valid URL\",\"param\":\"github\",\"value\":\"invalid.com\"}]}"
+                  },
+                  "accounts/IconPathValidation/should be bull or not blank" : {
+                    "value" : "{\"errors\":[{\"message\":\"must be null or not blank\",\"param\":\"websites[0].iconPath\",\"value\":\"\"}]}"
+                  },
+                  "accounts/IconPathValidation/should be URL" : {
+                    "value" : "{\"errors\":[{\"message\":\"must be a valid URL\",\"param\":\"websites[0].iconPath\",\"value\":\"invalid.com\"}]}"
+                  },
+                  "accounts/LinkedinValidation/should be null or not blank" : {
+                    "value" : "{\"errors\":[{\"message\":\"must be null or not blank\",\"param\":\"linkedin\",\"value\":\"\"}]}"
+                  },
+                  "accounts/LinkedinValidation/should be URL" : {
+                    "value" : "{\"errors\":[{\"message\":\"must be a valid URL\",\"param\":\"linkedin\",\"value\":\"invalid.com\"}]}"
+                  },
+                  "accounts/NameValidation/should be required" : {
+                    "value" : "{\"errors\":[{\"message\":\"required\",\"param\":\"name\"}]}"
+                  },
+                  "accounts/NameValidation/size" : {
+                    "value" : "{\"errors\":[{\"message\":\"size must be between 2 and 100\",\"param\":\"name\",\"value\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}]}"
+                  },
+                  "accounts/PasswordValidation/should be required" : {
+                    "value" : "{\"errors\":[{\"message\":\"required\",\"param\":\"password\"}]}"
+                  },
+                  "accounts/PasswordValidation/size" : {
+                    "value" : "{\"errors\":[{\"message\":\"size must be between 8 and 100\",\"param\":\"password\",\"value\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}]}"
+                  },
+                  "accounts/PhotoPathValidation/should be null or not blank" : {
+                    "value" : "{\"errors\":[{\"message\":\"must be null or not blank\",\"param\":\"photoPath\",\"value\":\"\"}]}"
+                  },
+                  "accounts/PhotoPathValidation/should be URL" : {
+                    "value" : "{\"errors\":[{\"message\":\"must be a valid URL\",\"param\":\"photoPath\",\"value\":\"invalid.com\"}]}"
+                  },
+                  "accounts/UrlValidation/should be required" : {
+                    "value" : "{\"errors\":[{\"message\":\"required\",\"param\":\"url\"}]}"
+                  },
+                  "accounts/UrlValidation/should be URL" : {
+                    "value" : "{\"errors\":[{\"message\":\"must be a valid URL\",\"param\":\"websites[0].url\",\"value\":\"invalid.com\"}]}"
+                  },
+                  "accounts/UrlValidation/should not be empty" : {
+                    "value" : "{\"errors\":[{\"message\":\"must not be empty\",\"param\":\"websites[0].url\",\"value\":\"\"}]}"
+                  }
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/account-response"
+                },
+                "examples" : {
+                  "accounts/CreateAccount/should create an account with an empty website list" : {
+                    "value" : "{\"name\":\"Test Account\",\"email\":\"no_website@email.com\",\"bio\":\"This is a test account\",\"birthDate\":\"28-07-2001\",\"photoPath\":\"https://test-photo.com\",\"linkedin\":\"https://linkedin.com\",\"github\":\"https://github.com\",\"websites\":[],\"roles\":[],\"id\":1}"
+                  },
+                  "accounts/CreateAccount/should create the account" : {
+                    "value" : "{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"bio\":\"This is a test account\",\"birthDate\":\"28-07-2001\",\"photoPath\":\"https://test-photo.com\",\"linkedin\":\"https://linkedin.com\",\"github\":\"https://github.com\",\"websites\":[{\"url\":\"https://test-website.com\",\"iconPath\":\"https://test-website.com/logo.png\",\"id\":1}],\"roles\":[],\"id\":1}"
+                  }
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "422",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/error-response"
+                },
+                "examples" : {
+                  "accounts/CreateAccount/should fail to create account with existing email" : {
+                    "value" : "{\"errors\":[{\"message\":\"email already exists\"}]}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/accounts/{id}" : {
+      "get" : {
+        "tags" : [ "Accounts" ],
+        "summary" : "Get accounts by ID",
+        "description" : "This endpoint allows the retrieval of a single account using its ID.",
+        "operationId" : "accounts/GetAccount/should ",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "ID of the account to retrieve",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "404" : {
+            "description" : "404",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/error-response"
+                },
+                "examples" : {
+                  "accounts/GetAccount/should fail if the account does not exist" : {
+                    "value" : "{\"errors\":[{\"message\":\"account not found with id 1234\"}]}"
+                  }
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/account-response"
+                },
+                "examples" : {
+                  "accounts/GetAccount/should return the account" : {
+                    "value" : "{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"bio\":\"This is a test account\",\"birthDate\":\"28-07-2001\",\"photoPath\":\"https://test-photo.com\",\"linkedin\":\"https://linkedin.com\",\"github\":\"https://github.com\",\"websites\":[{\"url\":\"https://test-website.com\",\"iconPath\":\"https://test-website.com/logo.png\",\"id\":1}],\"roles\":[],\"id\":1}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth" : {
+      "get" : {
+        "tags" : [ "Authentication" ],
+        "summary" : "Check access token",
+        "description" : "This endpoint operation allows to check if a given access token is valid, returning the associated account's email.",
+        "operationId" : "auth/CheckToken/should ",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer authentication token",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Bearer eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJzZWxmIiwic3ViIjoidGVzdF9hY2NvdW50QHRlc3QuY29tIiwiZXhwIjoxNjc3MTgzNjk1LCJpYXQiOjE2NzcxODAwOTUsInNjb3BlIjoiQk9BUkQgTUVNQkVSIn0.Y4xs3CoHIOw-ETHX1LBkaJu16mT59aAWkgyVmxT5usm1OoS_vQrd6MZNDnQLqv30WiOlbwSYHYhT23deSlau-Ew-2va_aZzjh1krpNP2mWbYK8vP1beV9eDFsZh1UZ6VUS8E-siMG_b6DzhIs0MoMjNUzZ9h4quANKOD_YsEg_REZj3mhI9e7Gg9jSdM97M6189CFATTRpWV77g7bnMlNbXltcVyw755iRmMb2y-5dJWixAsKrOu4KZYISqgOSxqXC861Q9EVa17scYTnf8abh2L8BJVh1PG0S96qHBQ2ApPUQv_paOXX4lIdZC3jPyESGHgxHmOQnv0jXG11p1EBA"
+        } ],
+        "responses" : {
+          "401" : {
+            "description" : "401",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/error-response"
+                },
+                "examples" : {
+                  "auth/CheckToken/should fail when access token is invalid" : {
+                    "value" : "{\"errors\":[{\"message\":\"An error occurred while attempting to decode the Jwt: Invalid JWT serialization: Missing dot delimiter(s)\"}]}"
+                  }
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "403",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/error-response"
+                },
+                "examples" : {
+                  "auth/CheckToken/should fail when no access token is provided" : {
+                    "value" : "{\"errors\":[{\"message\":\"Access Denied\"}]}"
+                  }
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/auth-check-response"
+                },
+                "examples" : {
+                  "auth/CheckToken/should return authenticated user" : {
+                    "value" : "{\"authenticated_user\":\"test_account@test.com\"}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/new" : {
+      "post" : {
+        "tags" : [ "Authentication" ],
+        "summary" : "Authenticate account",
+        "description" : "This endpoint operation allows authentication using user's password and email, generating new access and refresh tokens to be used in later communication.",
+        "operationId" : "auth/GetNewToken/should ",
+        "requestBody" : {
+          "content" : {
+            "application/json;charset=UTF-8" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/auth-new-request"
+              },
+              "examples" : {
+                "auth/GetNewToken/should fail when email is not registered" : {
+                  "value" : "{\"email\":\"president@niaefeup.pt\",\"password\":\"testPassword\"}"
+                },
+                "auth/GetNewToken/should fail when password is incorrect" : {
+                  "value" : "{\"email\":\"test_account@test.com\",\"password\":\"wrong_password\"}"
+                },
+                "auth/GetNewToken/should return access and refresh tokens" : {
+                  "value" : "{\"email\":\"test_account@test.com\",\"password\":\"testPassword\"}"
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "404" : {
+            "description" : "404",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/error-response"
+                },
+                "examples" : {
+                  "auth/GetNewToken/should fail when email is not registered" : {
+                    "value" : "{\"errors\":[{\"message\":\"account not found with email president@niaefeup.pt\"}]}"
+                  }
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "401",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/error-response"
+                },
+                "examples" : {
+                  "auth/GetNewToken/should fail when password is incorrect" : {
+                    "value" : "{\"errors\":[{\"message\":\"invalid credentials\"}]}"
+                  }
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/auth-new-response"
+                },
+                "examples" : {
+                  "auth/GetNewToken/should return access and refresh tokens" : {
+                    "value" : "{\"access_token\":\"eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJzZWxmIiwic3ViIjoidGVzdF9hY2NvdW50QHRlc3QuY29tIiwiZXhwIjoxNjc3MTgzNjk0LCJpYXQiOjE2NzcxODAwOTQsInNjb3BlIjoiQk9BUkQgTUVNQkVSIn0.VXy3xC0vP7elA9UEvOpSCC-FI5izkRLAiG-1EUsj9mtl1foTtKnupIkra17GVZ4hvi4lhRi-tqj9smIvSvGFl0ZKwTrtg5X8Y2M-nbXbLy-6STPhNPHbPR9wJoSb2xl5_L254WXHczGFqIy8raghdPzEmqwRG0dkBmZtV-A4P_F7b8ddzAarr87Y8MdcWCp9z-VXzQpf-TfgDNL4x547cWS3XoC8fMUrx_buxocG0smsUziYOzQsAKIBvMMbacHKoENpM_l5dJy93cI5Nk4_tO3KgL2ELT0-pYjRLAf43K1gZi4ovygPw5WcPm-bacceBks-zDJlnqMTN8j9L69GEg\",\"refresh_token\":\"eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJzZWxmIiwic3ViIjoidGVzdF9hY2NvdW50QHRlc3QuY29tIiwiZXhwIjoxNjc3Nzg0ODk0LCJpYXQiOjE2NzcxODAwOTQsInNjb3BlIjoiIn0.DLAH3wP1YqUMc0Jb4iaGzig86yXrNxFkvQIxGI3uOt-yca6tu09Ac2zpX4f2OU1KtxyLOQ61ElPFzfrSZFyAs_RoqNVuZt5a_pptBubAKvWKYr9L3qmEaZD_EDKwR9rHdse9xWRFBVnSBDTwkuhSY1zj4jASwze9eXcqh0wAOWNLO-K8pLrzyR0AlaeOeNG3XufFHd3us1oCrlwc2IxY9osg72cHrcfj36iJrbbzaPXaLLTkEHqHSqyU35xZ7Sz22-hmBdcH2WvGRLuMXstwTSgar0N8epI0oUMQPVSVCMEFGQC7WUFxA7Ir7LFi9PWR6-JuKRt_4aBPMjHwiujlKQ\"}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/refresh" : {
+      "post" : {
+        "tags" : [ "Authentication" ],
+        "summary" : "Refresh access token",
+        "description" : "This endpoint operation allows the renewal of access tokens when expiring, using the appropriate refresh token.",
+        "operationId" : "auth/RefreshToken/should ",
+        "requestBody" : {
+          "content" : {
+            "application/json;charset=UTF-8" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/auth-refresh-request"
+              },
+              "examples" : {
+                "auth/RefreshToken/should fail when refresh token is invalid" : {
+                  "value" : "{\"token\":\"invalid_refresh_token\"}"
+                },
+                "auth/RefreshToken/should return new access token" : {
+                  "value" : "{\"token\":\"eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJzZWxmIiwic3ViIjoidGVzdF9hY2NvdW50QHRlc3QuY29tIiwiZXhwIjoxNjc3Nzg0ODk1LCJpYXQiOjE2NzcxODAwOTUsInNjb3BlIjoiIn0.lYJ7tSn-SfTmEapwBm0xy75tPI-qxFDU3b4TPF6tukx6oKzNjq2HyPPHnJLBnufDDdRot0z2MEEENUuXekiNFDVc5ApyBYuSIXeRTnuhtpJkoIexIpHjlc8iSrj4ZQwaJ_BjrVcE5f4fOKRmbz-LAfxQPNT-FuxXB3Bqc0ui-fwDEB2dN_ayLoO7Z9bB0dIsQuvRPIfjUyT80VAkmiW0JYLS0tQmoLxOew0KFn24rbpHhQ31xOfn7w5ReJf62Zu4S7SSHgweDwPYCy-Ir4tdwteBD_-lNAQMTOgdwnbY2m_8u4PQFHeNk9aSpsXUjsbM92IfD31sAQJmMAwoFk9hrA\"}"
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "401" : {
+            "description" : "401",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/error-response"
+                },
+                "examples" : {
+                  "auth/RefreshToken/should fail when refresh token is invalid" : {
+                    "value" : "{\"errors\":[{\"message\":\"invalid refresh token\"}]}"
+                  }
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/auth-refresh-response"
+                },
+                "examples" : {
+                  "auth/RefreshToken/should return new access token" : {
+                    "value" : "{\"access_token\":\"eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJzZWxmIiwic3ViIjoidGVzdF9hY2NvdW50QHRlc3QuY29tIiwiZXhwIjoxNjc3MTgzNjk1LCJpYXQiOjE2NzcxODAwOTUsInNjb3BlIjoiQk9BUkQgTUVNQkVSIn0.Y4xs3CoHIOw-ETHX1LBkaJu16mT59aAWkgyVmxT5usm1OoS_vQrd6MZNDnQLqv30WiOlbwSYHYhT23deSlau-Ew-2va_aZzjh1krpNP2mWbYK8vP1beV9eDFsZh1UZ6VUS8E-siMG_b6DzhIs0MoMjNUzZ9h4quANKOD_YsEg_REZj3mhI9e7Gg9jSdM97M6189CFATTRpWV77g7bnMlNbXltcVyw755iRmMb2y-5dJWixAsKrOu4KZYISqgOSxqXC861Q9EVa17scYTnf8abh2L8BJVh1PG0S96qHBQ2ApPUQv_paOXX4lIdZC3jPyESGHgxHmOQnv0jXG11p1EBA\"}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/events" : {
+      "get" : {
+        "tags" : [ "Events" ],
+        "summary" : "Get all the events",
+        "description" : "The operation returns an array of events, allowing to easily retrieve all the created events.\nThis is useful for example in the frontend's event page, where events are displayed.",
+        "operationId" : "events/GetAllEvents/should return all events",
+        "responses" : {
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/event-response-array"
+                },
+                "examples" : {
+                  "events/GetAllEvents/should return all events" : {
+                    "value" : "[{\"title\":\"Great event\",\"description\":\"This was a nice and iconic event\",\"teamMembers\":[{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"bio\":\"This is a test account\",\"birthDate\":\"28-07-2001\",\"photoPath\":\"https://test-photo.com\",\"linkedin\":\"https://linkedin.com\",\"github\":\"https://github.com\",\"websites\":[{\"url\":\"https://test-website.com\",\"iconPath\":\"https://test-website.com/logo.png\",\"id\":1}],\"roles\":[],\"id\":1}],\"registerUrl\":\"https://docs.google.com/forms\",\"dateInterval\":{\"startDate\":\"28-07-2022\",\"endDate\":\"30-07-2022\"},\"location\":\"FEUP\",\"category\":\"Great Events\",\"thumbnailPath\":\"https://example.com/exampleThumbnail\",\"associatedRoles\":[],\"id\":1},{\"title\":\"Bad event\",\"description\":\"This event was a failure\",\"teamMembers\":[],\"dateInterval\":{\"startDate\":\"27-10-2021\"},\"thumbnailPath\":\"https://example.com/exampleThumbnail2\",\"associatedRoles\":[],\"id\":2}]"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/events/new" : {
+      "post" : {
+        "tags" : [ "Events" ],
+        "summary" : "Create new events",
+        "description" : "This endpoint operation creates new events.",
+        "operationId" : "events/",
+        "requestBody" : {
+          "content" : {
+            "application/json;charset=UTF-8" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/event-request"
+              },
+              "examples" : {
+                "events/CreateEvent/should create a new event" : {
+                  "value" : "{\"title\":\"Great event\",\"description\":\"This was a nice and iconic event\",\"dateInterval\":{\"startDate\":\"28-07-2022\",\"endDate\":\"30-07-2022\"},\"teamMembersIds\":[1],\"registerUrl\":\"https://docs.google.com/forms\",\"location\":\"FEUP\",\"category\":\"Great Events\",\"thumbnailPath\":\"https://example.com/exampleThumbnail\"}"
+                },
+                "events/RegisterUrlValidation/should be a URL" : {
+                  "value" : "{\"title\":\"Great event\",\"description\":\"This was a nice and iconic event\",\"dateInterval\":{\"startDate\":\"28-07-2022\",\"endDate\":\"30-07-2022\"},\"thumbnailPath\":\"https://example.com/exampleThumbnail\",\"registerUrl\":\"invalid.com\"}"
+                },
+                "events/RegisterUrlValidation/should be null or not blank" : {
+                  "value" : "{\"title\":\"Great event\",\"description\":\"This was a nice and iconic event\",\"dateInterval\":{\"startDate\":\"28-07-2022\",\"endDate\":\"30-07-2022\"},\"thumbnailPath\":\"https://example.com/exampleThumbnail\",\"registerUrl\":\"\"}"
+                },
+                "events/ThumbnailPathValidation/should not be empty" : {
+                  "value" : "{\"title\":\"Great event\",\"description\":\"This was a nice and iconic event\",\"dateInterval\":{\"startDate\":\"28-07-2022\",\"endDate\":\"30-07-2022\"},\"thumbnailPath\":\"\"}"
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/event-response"
+                },
+                "examples" : {
+                  "events/CreateEvent/should create a new event" : {
+                    "value" : "{\"title\":\"Great event\",\"description\":\"This was a nice and iconic event\",\"teamMembers\":[{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"bio\":\"This is a test account\",\"birthDate\":\"28-07-2001\",\"photoPath\":\"https://test-photo.com\",\"linkedin\":\"https://linkedin.com\",\"github\":\"https://github.com\",\"websites\":[{\"url\":\"https://test-website.com\",\"iconPath\":\"https://test-website.com/logo.png\",\"id\":1}],\"roles\":[],\"id\":1}],\"registerUrl\":\"https://docs.google.com/forms\",\"dateInterval\":{\"startDate\":\"28-07-2022\",\"endDate\":\"30-07-2022\"},\"location\":\"FEUP\",\"category\":\"Great Events\",\"thumbnailPath\":\"https://example.com/exampleThumbnail\",\"associatedRoles\":[],\"id\":1}"
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "400",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/error-response"
+                },
+                "examples" : {
+                  "events/RegisterUrlValidation/should be a URL" : {
+                    "value" : "{\"errors\":[{\"message\":\"must be a valid URL\",\"param\":\"registerUrl\",\"value\":\"invalid.com\"}]}"
+                  },
+                  "events/RegisterUrlValidation/should be null or not blank" : {
+                    "value" : "{\"errors\":[{\"message\":\"must be null or not blank\",\"param\":\"registerUrl\",\"value\":\"\"}]}"
+                  },
+                  "events/ThumbnailPathValidation/should not be empty" : {
+                    "value" : "{\"errors\":[{\"message\":\"must not be empty\",\"param\":\"thumbnailPath\",\"value\":\"\"}]}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/events/{id}" : {
+      "get" : {
+        "tags" : [ "Events" ],
+        "summary" : "Get events by ID",
+        "description" : "This endpoint allows the retrieval of a single event using its ID.\nIt might be used to generate the specific event page.",
+        "operationId" : "events/GetEvent/should ",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "ID of the event to retrieve",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "404" : {
+            "description" : "404",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/error-response"
+                },
+                "examples" : {
+                  "events/GetEvent/should fail if the event does not exist" : {
+                    "value" : "{\"errors\":[{\"message\":\"event not found with id 1234\"}]}"
+                  }
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/event-response"
+                },
+                "examples" : {
+                  "events/GetEvent/should return the event" : {
+                    "value" : "{\"title\":\"Great event\",\"description\":\"This was a nice and iconic event\",\"teamMembers\":[{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"bio\":\"This is a test account\",\"birthDate\":\"28-07-2001\",\"photoPath\":\"https://test-photo.com\",\"linkedin\":\"https://linkedin.com\",\"github\":\"https://github.com\",\"websites\":[{\"url\":\"https://test-website.com\",\"iconPath\":\"https://test-website.com/logo.png\",\"id\":1}],\"roles\":[],\"id\":1}],\"registerUrl\":\"https://docs.google.com/forms\",\"dateInterval\":{\"startDate\":\"28-07-2022\",\"endDate\":\"30-07-2022\"},\"location\":\"FEUP\",\"category\":\"Great Events\",\"thumbnailPath\":\"https://example.com/exampleThumbnail\",\"associatedRoles\":[],\"id\":1}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "Events" ],
+        "summary" : "Update events",
+        "description" : "Update previously created events, using their ID.",
+        "operationId" : "events/",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "ID of the events to update",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json;charset=UTF-8" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/event-request"
+              },
+              "examples" : {
+                "events/CategoryValidation/size" : {
+                  "value" : "{\"title\":\"Great event\",\"description\":\"This was a nice and iconic event\",\"dateInterval\":{\"startDate\":\"28-07-2022\",\"endDate\":\"30-07-2022\"},\"thumbnailPath\":\"https://example.com/exampleThumbnail\",\"category\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}"
+                },
+                "events/DateIntervalValidation/should be a DateInterval" : {
+                  "value" : "{\"title\":\"Great event\",\"description\":\"This was a nice and iconic event\",\"dateInterval\":{\"startDate\":\"09-01-2023\",\"endDate\":\"08-01-2023\"},\"thumbnailPath\":\"https://example.com/exampleThumbnail\"}"
+                },
+                "events/DateIntervalValidation/should be required" : {
+                  "value" : "{\"title\":\"Great event\",\"description\":\"This was a nice and iconic event\",\"thumbnailPath\":\"https://example.com/exampleThumbnail\"}"
+                },
+                "events/LocationValidation/size" : {
+                  "value" : "{\"title\":\"Great event\",\"description\":\"This was a nice and iconic event\",\"dateInterval\":{\"startDate\":\"28-07-2022\",\"endDate\":\"30-07-2022\"},\"thumbnailPath\":\"https://example.com/exampleThumbnail\",\"location\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}"
+                },
+                "events/ThumbnailPathValidation/should be a URL" : {
+                  "value" : "{\"title\":\"Great event\",\"description\":\"This was a nice and iconic event\",\"dateInterval\":{\"startDate\":\"28-07-2022\",\"endDate\":\"30-07-2022\"},\"thumbnailPath\":\"invalid.com\"}"
+                },
+                "events/ThumbnailPathValidation/should be required" : {
+                  "value" : "{\"title\":\"Great event\",\"description\":\"This was a nice and iconic event\",\"dateInterval\":{\"startDate\":\"28-07-2022\",\"endDate\":\"30-07-2022\"}}"
+                },
+                "events/UpdateEvent/should fail if the event does not exist" : {
+                  "value" : "{\"title\":\"New Title\",\"description\":\"New Description\",\"dateInterval\":{\"startDate\":\"01-12-2022\"},\"thumbnailPath\":\"http://test.com/thumbnail/1\",\"associatedRoles\":[]}"
+                },
+                "events/UpdateEvent/should update the event" : {
+                  "value" : "{\"title\":\"New event title\",\"description\":\"New event description\",\"teamMembersIds\":[],\"registerUrl\":\"https://example.com/newUrl\",\"dateInterval\":{\"startDate\":\"01-12-2022\",\"endDate\":\"02-12-2022\"},\"location\":\"FLUP\",\"category\":\"Greatest Events\",\"thumbnailPath\":\"https://thumbnails/new.png\"}"
+                },
+                "events/UrlValidation/should be a URL" : {
+                  "value" : "{\"title\":\"Great event\",\"description\":\"This was a nice and iconic event\",\"dateInterval\":{\"startDate\":\"28-07-2022\",\"endDate\":\"30-07-2022\"},\"thumbnailPath\":\"https://example.com/exampleThumbnail\",\"registerUrl\":\"invalid.com\"}"
+                },
+                "events/UrlValidation/should be null or not blank" : {
+                  "value" : "{\"title\":\"Great event\",\"description\":\"This was a nice and iconic event\",\"dateInterval\":{\"startDate\":\"28-07-2022\",\"endDate\":\"30-07-2022\"},\"thumbnailPath\":\"https://example.com/exampleThumbnail\",\"registerUrl\":\"\"}"
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "400" : {
+            "description" : "400",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/error-response"
+                },
+                "examples" : {
+                  "events/CategoryValidation/size" : {
+                    "value" : "{\"errors\":[{\"message\":\"size must be between 2 and 50\",\"param\":\"category\",\"value\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}]}"
+                  },
+                  "events/DateIntervalValidation/should be a DateInterval" : {
+                    "value" : "{\"errors\":[{\"message\":\"endDate must be after startDate\",\"param\":\"dateInterval\",\"value\":{\"startDate\":\"09-01-2023\",\"endDate\":\"08-01-2023\"}}]}"
+                  },
+                  "events/DateIntervalValidation/should be required" : {
+                    "value" : "{\"errors\":[{\"message\":\"required\",\"param\":\"dateInterval\"}]}"
+                  },
+                  "events/LocationValidation/size" : {
+                    "value" : "{\"errors\":[{\"message\":\"size must be between 2 and 500\",\"param\":\"location\",\"value\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}]}"
+                  },
+                  "events/ThumbnailPathValidation/should be a URL" : {
+                    "value" : "{\"errors\":[{\"message\":\"must be a valid URL\",\"param\":\"thumbnailPath\",\"value\":\"invalid.com\"}]}"
+                  },
+                  "events/ThumbnailPathValidation/should be required" : {
+                    "value" : "{\"errors\":[{\"message\":\"required\",\"param\":\"thumbnailPath\"}]}"
+                  },
+                  "events/UrlValidation/should be a URL" : {
+                    "value" : "{\"errors\":[{\"message\":\"must be a valid URL\",\"param\":\"registerUrl\",\"value\":\"invalid.com\"}]}"
+                  },
+                  "events/UrlValidation/should be null or not blank" : {
+                    "value" : "{\"errors\":[{\"message\":\"must be null or not blank\",\"param\":\"registerUrl\",\"value\":\"\"}]}"
+                  }
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "404",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/error-response"
+                },
+                "examples" : {
+                  "events/UpdateEvent/should fail if the event does not exist" : {
+                    "value" : "{\"errors\":[{\"message\":\"event not found with id 1234\"}]}"
+                  }
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/event-response"
+                },
+                "examples" : {
+                  "events/UpdateEvent/should update the event" : {
+                    "value" : "{\"title\":\"New event title\",\"description\":\"New event description\",\"teamMembers\":[],\"registerUrl\":\"https://example.com/newUrl\",\"dateInterval\":{\"startDate\":\"01-12-2022\",\"endDate\":\"02-12-2022\"},\"location\":\"FLUP\",\"category\":\"Greatest Events\",\"thumbnailPath\":\"https://thumbnails/new.png\",\"associatedRoles\":[],\"id\":1}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "Events" ],
+        "summary" : "Delete events",
+        "description" : "This operation deletes an event using its ID.",
+        "operationId" : "events/DeleteEvent/should ",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "ID of the event to delete",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/empty-response"
+                },
+                "examples" : {
+                  "events/DeleteEvent/should delete the event" : {
+                    "value" : "{}"
+                  }
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "404",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/error-response"
+                },
+                "examples" : {
+                  "events/DeleteEvent/should fail if the event does not exist" : {
+                    "value" : "{\"errors\":[{\"message\":\"event not found with id 1234\"}]}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/events/category/{category}" : {
+      "get" : {
+        "tags" : [ "Events" ],
+        "summary" : "Get events by category",
+        "description" : "This endpoint allows the retrieval of events labeled with a given category.\nIt might be used to filter events in the event page.",
+        "operationId" : "events/GetEventsByCategory/should return all events of the category",
+        "parameters" : [ {
+          "name" : "category",
+          "in" : "path",
+          "description" : "Category of the events to retrieve",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/event-response-array"
+                },
+                "examples" : {
+                  "events/GetEventsByCategory/should return all events of the category" : {
+                    "value" : "[{\"title\":\"Great event\",\"description\":\"This was a nice and iconic event\",\"teamMembers\":[],\"registerUrl\":\"https://docs.google.com/forms\",\"dateInterval\":{\"startDate\":\"28-07-2022\",\"endDate\":\"30-07-2022\"},\"location\":\"FEUP\",\"category\":\"Great Events\",\"thumbnailPath\":\"https://example.com/exampleThumbnail\",\"associatedRoles\":[],\"id\":1},{\"title\":\"Cool event\",\"description\":\"This event was a awesome\",\"teamMembers\":[{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"bio\":\"This is a test account\",\"birthDate\":\"28-07-2001\",\"photoPath\":\"https://test-photo.com\",\"linkedin\":\"https://linkedin.com\",\"github\":\"https://github.com\",\"websites\":[{\"url\":\"https://test-website.com\",\"iconPath\":\"https://test-website.com/logo.png\",\"id\":1}],\"roles\":[],\"id\":1}],\"dateInterval\":{\"startDate\":\"11-09-2022\"},\"category\":\"Great Events\",\"thumbnailPath\":\"https://example.com/exampleThumbnail2\",\"associatedRoles\":[],\"id\":4}]"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/events/{eventId}/addTeamMember/{accountId}" : {
+      "put" : {
+        "tags" : [ "Events" ],
+        "summary" : "Add member to event",
+        "description" : "This operation adds a member to a given event.",
+        "operationId" : "events/AddTeamMember/should ",
+        "parameters" : [ {
+          "name" : "eventId",
+          "in" : "path",
+          "description" : "ID of the event to add the member to",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "accountId",
+          "in" : "path",
+          "description" : "ID of the account to add",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/event-response"
+                },
+                "examples" : {
+                  "events/AddTeamMember/should add a team member" : {
+                    "value" : "{\"title\":\"Great event\",\"description\":\"This was a nice and iconic event\",\"teamMembers\":[{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"bio\":\"This is a test account\",\"birthDate\":\"28-07-2001\",\"photoPath\":\"https://test-photo.com\",\"linkedin\":\"https://linkedin.com\",\"github\":\"https://github.com\",\"websites\":[{\"url\":\"https://test-website.com\",\"iconPath\":\"https://test-website.com/logo.png\",\"id\":1}],\"roles\":[],\"id\":1},{\"name\":\"Another test Account\",\"email\":\"test2_account@test.com\",\"bio\":\"This is another test account\",\"birthDate\":\"04-04-2003\",\"photoPath\":\"https://test-photo.com\",\"linkedin\":\"https://linkedin.com\",\"github\":\"https://github.com\",\"websites\":[{\"url\":\"https://test-website.com\",\"iconPath\":\"https://test-website.com/logo.png\",\"id\":2}],\"roles\":[],\"id\":2}],\"registerUrl\":\"https://docs.google.com/forms\",\"dateInterval\":{\"startDate\":\"28-07-2022\",\"endDate\":\"30-07-2022\"},\"location\":\"FEUP\",\"category\":\"Great Events\",\"thumbnailPath\":\"https://example.com/exampleThumbnail\",\"associatedRoles\":[],\"id\":1}"
+                  }
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "404",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/error-response"
+                },
+                "examples" : {
+                  "events/AddTeamMember/should fail if the team member does not exist" : {
+                    "value" : "{\"errors\":[{\"message\":\"account not found with id 1234\"}]}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/events/{eventId}/removeTeamMember/{accountId}" : {
+      "put" : {
+        "tags" : [ "Events" ],
+        "summary" : "Remove member from event",
+        "description" : "This operation removes a member of a given event.",
+        "operationId" : "events/RemoveTeamMember/should ",
+        "parameters" : [ {
+          "name" : "eventId",
+          "in" : "path",
+          "description" : "ID of the event to remove the member from",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "accountId",
+          "in" : "path",
+          "description" : "ID of the account to remove",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "404" : {
+            "description" : "404",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/error-response"
+                },
+                "examples" : {
+                  "events/RemoveTeamMember/should fail if the team member does not exist" : {
+                    "value" : "{\"errors\":[{\"message\":\"account not found with id 1234\"}]}"
+                  }
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/event-response"
+                },
+                "examples" : {
+                  "events/RemoveTeamMember/should remove a team member" : {
+                    "value" : "{\"title\":\"Great event\",\"description\":\"This was a nice and iconic event\",\"teamMembers\":[],\"registerUrl\":\"https://docs.google.com/forms\",\"dateInterval\":{\"startDate\":\"28-07-2022\",\"endDate\":\"30-07-2022\"},\"location\":\"FEUP\",\"category\":\"Great Events\",\"thumbnailPath\":\"https://example.com/exampleThumbnail\",\"associatedRoles\":[],\"id\":1}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/posts" : {
+      "get" : {
+        "tags" : [ "Posts" ],
+        "summary" : "Get all the posts",
+        "description" : "The operation returns an array of posts, allowing to easily retrieve all the created posts.",
+        "operationId" : "posts/GetAllPosts/should return all posts",
+        "responses" : {
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/post-response-array"
+                },
+                "examples" : {
+                  "posts/GetAllPosts/should return all posts" : {
+                    "value" : "[{\"title\":\"New test released\",\"body\":\"this is a test post\",\"thumbnailPath\":\"https://thumbnails/test.png\",\"publishDate\":\"23-02-2023\",\"lastUpdatedAt\":\"23-02-2023 19:21:38\",\"id\":1,\"slug\":\"new-test-released\"},{\"title\":\"NIAEFEUP gets a new president\",\"body\":\"New president promised to buy new chairs\",\"thumbnailPath\":\"https://thumbnails/pres.png\",\"publishDate\":\"23-02-2023\",\"lastUpdatedAt\":\"23-02-2023 19:21:38\",\"id\":2}]"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/posts/new" : {
+      "post" : {
+        "tags" : [ "Posts" ],
+        "summary" : "Create new posts",
+        "description" : "This endpoint operation creates new posts.",
+        "operationId" : "posts/CreatePost/should ",
+        "requestBody" : {
+          "content" : {
+            "application/json;charset=UTF-8" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/post-request"
+              },
+              "examples" : {
+                "posts/CreatePost/should create a new post" : {
+                  "value" : "{\"title\":\"New test released\",\"body\":\"this is a test post\",\"thumbnailPath\":\"https://thumbnails/test.png\",\"slug\":\"new-test-released\"}"
+                },
+                "posts/CreatePost/should fail to create post with existing slug" : {
+                  "value" : "{\"title\":\"New test released\",\"body\":\"this is a test post\",\"thumbnailPath\":\"https://thumbnails/test.png\",\"slug\":\"new-test-released\"}"
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/post-response"
+                },
+                "examples" : {
+                  "posts/CreatePost/should create a new post" : {
+                    "value" : "{\"title\":\"New test released\",\"body\":\"this is a test post\",\"thumbnailPath\":\"https://thumbnails/test.png\",\"publishDate\":\"23-02-2023\",\"lastUpdatedAt\":\"23-02-2023 19:21:38\",\"id\":1,\"slug\":\"new-test-released\"}"
+                  }
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "422",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/error-response"
+                },
+                "examples" : {
+                  "posts/CreatePost/should fail to create post with existing slug" : {
+                    "value" : "{\"errors\":[{\"message\":\"slug already exists\"}]}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/posts/{id}" : {
+      "get" : {
+        "tags" : [ "Posts" ],
+        "summary" : "Get posts by ID",
+        "description" : "This endpoint allows the retrieval of a single post using its ID.\nIt might be used to generate the specific post page.",
+        "operationId" : "posts/GetPostById/should ",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "ID of the post to retrieve",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "404" : {
+            "description" : "404",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/error-response"
+                },
+                "examples" : {
+                  "posts/GetPostById/should fail if the post does not exist" : {
+                    "value" : "{\"errors\":[{\"message\":\"post not found with id 1234\"}]}"
+                  }
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/post-response"
+                },
+                "examples" : {
+                  "posts/GetPostById/should return the post" : {
+                    "value" : "{\"title\":\"New test released\",\"body\":\"this is a test post\",\"thumbnailPath\":\"https://thumbnails/test.png\",\"publishDate\":\"23-02-2023\",\"lastUpdatedAt\":\"23-02-2023 19:21:38\",\"id\":1,\"slug\":\"new-test-released\"}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "Posts" ],
+        "summary" : "Update posts",
+        "description" : "Update previously created posts, using their ID.",
+        "operationId" : "posts/",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "ID of the post to update",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json;charset=UTF-8" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/post-request"
+              },
+              "examples" : {
+                "posts/BodyValidation/should be required" : {
+                  "value" : "{\"title\":\"New test released\",\"thumbnailPath\":\"https://thumbnails/test.png\"}"
+                },
+                "posts/BodyValidation/size" : {
+                  "value" : "{\"title\":\"New test released\",\"body\":\"aaaaaaaaa\",\"thumbnailPath\":\"https://thumbnails/test.png\"}"
+                },
+                "posts/SlugValidation/size" : {
+                  "value" : "{\"title\":\"New test released\",\"body\":\"this is a test post\",\"thumbnailPath\":\"https://thumbnails/test.png\",\"slug\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}"
+                },
+                "posts/ThumbnailValidation/should be required" : {
+                  "value" : "{\"title\":\"New test released\",\"body\":\"this is a test post\"}"
+                },
+                "posts/ThumbnailValidation/should not be empty" : {
+                  "value" : "{\"title\":\"New test released\",\"body\":\"this is a test post\",\"thumbnailPath\":\"\"}"
+                },
+                "posts/TitleValidation/should be required" : {
+                  "value" : "{\"body\":\"this is a test post\",\"thumbnailPath\":\"https://thumbnails/test.png\"}"
+                },
+                "posts/TitleValidation/size" : {
+                  "value" : "{\"title\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"body\":\"this is a test post\",\"thumbnailPath\":\"https://thumbnails/test.png\"}"
+                },
+                "posts/UpdatePost/should fail if the post does not exist" : {
+                  "value" : "{\"title\":\"New Title\",\"body\":\"New Body of the post\",\"thumbnailPath\":\"thumbnails/new.png\"}"
+                },
+                "posts/UpdatePost/should fail if the slug already exist" : {
+                  "value" : "{\"title\":\"New Title\",\"body\":\"New Body of the post\",\"thumbnailPath\":\"https://thumbnails/new.png\",\"slug\":\"duplicated-slug\"}"
+                },
+                "posts/UpdatePost/should update the post with the slug" : {
+                  "value" : "{\"title\":\"New Title\",\"body\":\"New Body of the post\",\"thumbnailPath\":\"https://thumbnails/new.png\",\"slug\":\"new-slug\"}"
+                },
+                "posts/UpdatePost/should update the post without the slug" : {
+                  "value" : "{\"title\":\"New Title\",\"body\":\"New Body of the post\",\"thumbnailPath\":\"https://thumbnails/new.png\"}"
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "400" : {
+            "description" : "400",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/error-response"
+                },
+                "examples" : {
+                  "posts/BodyValidation/should be required" : {
+                    "value" : "{\"errors\":[{\"message\":\"required\",\"param\":\"body\"}]}"
+                  },
+                  "posts/BodyValidation/size" : {
+                    "value" : "{\"errors\":[{\"message\":\"size must be greater or equal to 10\",\"param\":\"body\",\"value\":\"aaaaaaaaa\"}]}"
+                  },
+                  "posts/SlugValidation/size" : {
+                    "value" : "{\"errors\":[{\"message\":\"size must be between 2 and 500\",\"param\":\"slug\",\"value\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}]}"
+                  },
+                  "posts/ThumbnailValidation/should be required" : {
+                    "value" : "{\"errors\":[{\"message\":\"required\",\"param\":\"thumbnailPath\"}]}"
+                  },
+                  "posts/ThumbnailValidation/should not be empty" : {
+                    "value" : "{\"errors\":[{\"message\":\"must not be empty\",\"param\":\"thumbnailPath\",\"value\":\"\"}]}"
+                  },
+                  "posts/TitleValidation/should be required" : {
+                    "value" : "{\"errors\":[{\"message\":\"required\",\"param\":\"title\"}]}"
+                  },
+                  "posts/TitleValidation/size" : {
+                    "value" : "{\"errors\":[{\"message\":\"size must be between 2 and 500\",\"param\":\"title\",\"value\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}]}"
+                  }
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "404",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/error-response"
+                },
+                "examples" : {
+                  "posts/UpdatePost/should fail if the post does not exist" : {
+                    "value" : "{\"errors\":[{\"message\":\"post not found with id 1234\"}]}"
+                  }
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "422",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/error-response"
+                },
+                "examples" : {
+                  "posts/UpdatePost/should fail if the slug already exist" : {
+                    "value" : "{\"errors\":[{\"message\":\"slug already exists\"}]}"
+                  }
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/post-response"
+                },
+                "examples" : {
+                  "posts/UpdatePost/should update the post with the slug" : {
+                    "value" : "{\"title\":\"New Title\",\"body\":\"New Body of the post\",\"thumbnailPath\":\"https://thumbnails/new.png\",\"publishDate\":\"23-02-2023\",\"lastUpdatedAt\":\"23-02-2023 19:21:38\",\"id\":1,\"slug\":\"new-slug\"}"
+                  },
+                  "posts/UpdatePost/should update the post without the slug" : {
+                    "value" : "{\"title\":\"New Title\",\"body\":\"New Body of the post\",\"thumbnailPath\":\"https://thumbnails/new.png\",\"publishDate\":\"23-02-2023\",\"lastUpdatedAt\":\"23-02-2023 19:21:38\",\"id\":1,\"slug\":\"new-test-released\"}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "Posts" ],
+        "summary" : "Delete posts",
+        "description" : "This operation deletes an event using its ID.",
+        "operationId" : "posts/DeletePost/should ",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "ID of the post to delete",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/empty-response"
+                },
+                "examples" : {
+                  "posts/DeletePost/should delete the post" : {
+                    "value" : "{}"
+                  }
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "404",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/error-response"
+                },
+                "examples" : {
+                  "posts/DeletePost/should fail if the post does not exist" : {
+                    "value" : "{\"errors\":[{\"message\":\"post not found with id 1234\"}]}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/posts/{slug}" : {
+      "get" : {
+        "tags" : [ "Posts" ],
+        "summary" : "Get posts by slug",
+        "description" : "This endpoint allows the retrieval of a single post using its slug.\nIt might be used to generate the specific post page.",
+        "operationId" : "posts/GetPostBySlang/should ",
+        "parameters" : [ {
+          "name" : "slug",
+          "in" : "path",
+          "description" : "Short and friendly textual post identifier",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "404" : {
+            "description" : "404",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/error-response"
+                },
+                "examples" : {
+                  "posts/GetPostBySlang/should fail if the post does not exist" : {
+                    "value" : "{\"errors\":[{\"message\":\"post not found with slug fail-slug\"}]}"
+                  }
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/post-response"
+                },
+                "examples" : {
+                  "posts/GetPostBySlang/should return the post" : {
+                    "value" : "{\"title\":\"New test released\",\"body\":\"this is a test post\",\"thumbnailPath\":\"https://thumbnails/test.png\",\"publishDate\":\"23-02-2023\",\"lastUpdatedAt\":\"23-02-2023 19:21:38\",\"id\":1,\"slug\":\"new-test-released\"}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/projects" : {
+      "get" : {
+        "tags" : [ "Projects" ],
+        "summary" : "Get all the events",
+        "description" : "The operation returns an array of projects, allowing to easily retrieve all the created projects.\nThis is useful for example in the frontend project page, where projects are displayed.",
+        "operationId" : "projects/GetAllProjects/should return all projects",
+        "responses" : {
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/project-response-array"
+                },
+                "examples" : {
+                  "projects/GetAllProjects/should return all projects" : {
+                    "value" : "[{\"title\":\"Awesome project\",\"description\":\"this is a test project\",\"teamMembers\":[{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"bio\":\"This is a test account\",\"birthDate\":\"28-07-2001\",\"photoPath\":\"https://test-photo.com\",\"linkedin\":\"https://linkedin.com\",\"github\":\"https://github.com\",\"websites\":[{\"url\":\"https://test-website.com\",\"iconPath\":\"https://test-website.com/logo.png\",\"id\":1}],\"roles\":[],\"id\":1}],\"isArchived\":false,\"technologies\":[\"Java\",\"Kotlin\",\"Spring\"],\"associatedRoles\":[],\"id\":1},{\"title\":\"NIJobs\",\"description\":\"Job platform for students\",\"teamMembers\":[],\"isArchived\":false,\"technologies\":[\"ExpressJS\",\"React\"],\"associatedRoles\":[],\"id\":2}]"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/projects/new" : {
+      "post" : {
+        "tags" : [ "Projects" ],
+        "summary" : "Create new projects",
+        "description" : "This endpoint operation creates new projects.",
+        "operationId" : "events/",
+        "requestBody" : {
+          "content" : {
+            "application/json;charset=UTF-8" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/project-request"
+              },
+              "examples" : {
+                "events/CreateProject/should create a new project" : {
+                  "value" : "{\"title\":\"Awesome project\",\"description\":\"this is a test project\",\"teamMembersIds\":[1],\"isArchived\":false,\"technologies\":[\"Java\",\"Kotlin\",\"Spring\"]}"
+                },
+                "events/DescriptionValidation/should be required" : {
+                  "value" : "{\"title\":\"Awesome project\"}"
+                },
+                "events/DescriptionValidation/size" : {
+                  "value" : "{\"title\":\"Awesome project\",\"description\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}"
+                },
+                "events/TitleValidation/should be required" : {
+                  "value" : "{\"description\":\"this is a test project\"}"
+                },
+                "events/TitleValidation/size" : {
+                  "value" : "{\"title\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"description\":\"this is a test project\"}"
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/project-response"
+                },
+                "examples" : {
+                  "events/CreateProject/should create a new project" : {
+                    "value" : "{\"title\":\"Awesome project\",\"description\":\"this is a test project\",\"teamMembers\":[{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"bio\":\"This is a test account\",\"birthDate\":\"28-07-2001\",\"photoPath\":\"https://test-photo.com\",\"linkedin\":\"https://linkedin.com\",\"github\":\"https://github.com\",\"websites\":[{\"url\":\"https://test-website.com\",\"iconPath\":\"https://test-website.com/logo.png\",\"id\":1}],\"roles\":[],\"id\":1}],\"isArchived\":false,\"technologies\":[\"Java\",\"Kotlin\",\"Spring\"],\"associatedRoles\":[],\"id\":2}"
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "400",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/error-response"
+                },
+                "examples" : {
+                  "events/DescriptionValidation/should be required" : {
+                    "value" : "{\"errors\":[{\"message\":\"required\",\"param\":\"description\"}]}"
+                  },
+                  "events/DescriptionValidation/size" : {
+                    "value" : "{\"errors\":[{\"message\":\"size must be between 10 and 10000\",\"param\":\"description\",\"value\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}]}"
+                  },
+                  "events/TitleValidation/should be required" : {
+                    "value" : "{\"errors\":[{\"message\":\"required\",\"param\":\"title\"}]}"
+                  },
+                  "events/TitleValidation/size" : {
+                    "value" : "{\"errors\":[{\"message\":\"size must be between 2 and 500\",\"param\":\"title\",\"value\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}]}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/projects/{id}" : {
+      "get" : {
+        "tags" : [ "Projects" ],
+        "summary" : "Get projects by ID",
+        "description" : "This endpoint allows the retrieval of a single project using its ID.\nIt might be used to generate the specific project page.",
+        "operationId" : "projects/GetProject/should ",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "ID of the project to retrieve",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "404" : {
+            "description" : "404",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/error-response"
+                },
+                "examples" : {
+                  "projects/GetProject/should fail if the project does not exist" : {
+                    "value" : "{\"errors\":[{\"message\":\"project not found with id 1234\"}]}"
+                  }
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/project-response"
+                },
+                "examples" : {
+                  "projects/GetProject/should return the project" : {
+                    "value" : "{\"title\":\"Awesome project\",\"description\":\"this is a test project\",\"teamMembers\":[{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"bio\":\"This is a test account\",\"birthDate\":\"28-07-2001\",\"photoPath\":\"https://test-photo.com\",\"linkedin\":\"https://linkedin.com\",\"github\":\"https://github.com\",\"websites\":[{\"url\":\"https://test-website.com\",\"iconPath\":\"https://test-website.com/logo.png\",\"id\":1}],\"roles\":[],\"id\":1}],\"isArchived\":false,\"technologies\":[\"Java\",\"Kotlin\",\"Spring\"],\"associatedRoles\":[],\"id\":1}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "Projects" ],
+        "summary" : "Update projects",
+        "description" : "Update previously created projects, using their ID.",
+        "operationId" : "projects/",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "ID of the project to update",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json;charset=UTF-8" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/project-request"
+              },
+              "examples" : {
+                "projects/BodyValidation/should be required" : {
+                  "value" : "{\"title\":\"Awesome project\"}"
+                },
+                "projects/BodyValidation/size" : {
+                  "value" : "{\"title\":\"Awesome project\",\"description\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}"
+                },
+                "projects/TitleValidation/should be required" : {
+                  "value" : "{\"description\":\"this is a test project\"}"
+                },
+                "projects/TitleValidation/size" : {
+                  "value" : "{\"title\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"description\":\"this is a test project\"}"
+                },
+                "projects/UpdateProject/should fail if the project does not exist" : {
+                  "value" : "{\"title\":\"New Title\",\"description\":\"New description of the project\"}"
+                },
+                "projects/UpdateProject/should update the project" : {
+                  "value" : "{\"title\":\"New Title\",\"description\":\"New description of the project\",\"teamMembersIds\":[],\"isArchived\":true}"
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "400" : {
+            "description" : "400",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/error-response"
+                },
+                "examples" : {
+                  "projects/BodyValidation/should be required" : {
+                    "value" : "{\"errors\":[{\"message\":\"required\",\"param\":\"description\"}]}"
+                  },
+                  "projects/BodyValidation/size" : {
+                    "value" : "{\"errors\":[{\"message\":\"size must be between 10 and 10000\",\"param\":\"description\",\"value\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}]}"
+                  },
+                  "projects/TitleValidation/should be required" : {
+                    "value" : "{\"errors\":[{\"message\":\"required\",\"param\":\"title\"}]}"
+                  },
+                  "projects/TitleValidation/size" : {
+                    "value" : "{\"errors\":[{\"message\":\"size must be between 2 and 500\",\"param\":\"title\",\"value\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}]}"
+                  }
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "404",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/error-response"
+                },
+                "examples" : {
+                  "projects/UpdateProject/should fail if the project does not exist" : {
+                    "value" : "{\"errors\":[{\"message\":\"project not found with id 1234\"}]}"
+                  }
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/project-response"
+                },
+                "examples" : {
+                  "projects/UpdateProject/should update the project" : {
+                    "value" : "{\"title\":\"New Title\",\"description\":\"New description of the project\",\"teamMembers\":[],\"isArchived\":true,\"technologies\":[],\"associatedRoles\":[],\"id\":1}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "Projects" ],
+        "summary" : "Delete projects",
+        "description" : "This operation deletes an projects using its ID.",
+        "operationId" : "projects/DeleteProject/should ",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "ID of the project to delete",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/empty-response"
+                },
+                "examples" : {
+                  "projects/DeleteProject/should delete the project" : {
+                    "value" : "{}"
+                  }
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "404",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/error-response"
+                },
+                "examples" : {
+                  "projects/DeleteProject/should fail if the project does not exist" : {
+                    "value" : "{\"errors\":[{\"message\":\"project not found with id 1234\"}]}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/projects/{id}/archive" : {
+      "put" : {
+        "tags" : [ "Projects" ],
+        "summary" : "Archive projects",
+        "description" : "This endpoint updates projects as archived. This is useful to mark no longer\nmaintained or complete projects of the Nucleus.",
+        "operationId" : "projects/ArchiveProject/should archive the project",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "ID of the project to archive",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json;charset=UTF-8" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/project-archive-request"
+              },
+              "examples" : {
+                "projects/ArchiveProject/should archive the project" : {
+                  "value" : "{\"first\":\"isArchived\",\"second\":true}"
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/project-response"
+                },
+                "examples" : {
+                  "projects/ArchiveProject/should archive the project" : {
+                    "value" : "{\"title\":\"Awesome project\",\"description\":\"this is a test project\",\"teamMembers\":[{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"bio\":\"This is a test account\",\"birthDate\":\"28-07-2001\",\"photoPath\":\"https://test-photo.com\",\"linkedin\":\"https://linkedin.com\",\"github\":\"https://github.com\",\"websites\":[{\"url\":\"https://test-website.com\",\"iconPath\":\"https://test-website.com/logo.png\",\"id\":1}],\"roles\":[],\"id\":1}],\"isArchived\":true,\"technologies\":[\"Java\",\"Kotlin\",\"Spring\"],\"associatedRoles\":[],\"id\":1}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/projects/{id}/unarchive" : {
+      "put" : {
+        "tags" : [ "Projects" ],
+        "summary" : "Unarchive projects",
+        "description" : "This endpoint updates projects as unarchived.\nThis is useful to mark previously unarchived projects as active.",
+        "operationId" : "projects/UnarchiveProject/should unarchive the project",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "ID of the project to unarchive",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json;charset=UTF-8" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/project-unarchive-request"
+              },
+              "examples" : {
+                "projects/UnarchiveProject/should unarchive the project" : {
+                  "value" : "{\"first\":\"isArchived\",\"second\":false}"
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/project-response"
+                },
+                "examples" : {
+                  "projects/UnarchiveProject/should unarchive the project" : {
+                    "value" : "{\"title\":\"proj1\",\"description\":\"very cool project\",\"teamMembers\":[],\"isArchived\":false,\"technologies\":[\"React\",\"TailwindCSS\"],\"associatedRoles\":[],\"id\":1}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/projects/{projectId}/addTeamMember/{accountId}" : {
+      "put" : {
+        "tags" : [ "Projects" ],
+        "summary" : "Add member to Project",
+        "description" : "This operation add a member to a given project.",
+        "operationId" : "projects/AddTeamMember/should ",
+        "parameters" : [ {
+          "name" : "projectId",
+          "in" : "path",
+          "description" : "ID of the project to add the member to",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "accountId",
+          "in" : "path",
+          "description" : "ID of the account to add",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/project-response"
+                },
+                "examples" : {
+                  "projects/AddTeamMember/should add a team member" : {
+                    "value" : "{\"title\":\"Awesome project\",\"description\":\"this is a test project\",\"teamMembers\":[{\"name\":\"Test Account\",\"email\":\"test_account@test.com\",\"bio\":\"This is a test account\",\"birthDate\":\"28-07-2001\",\"photoPath\":\"https://test-photo.com\",\"linkedin\":\"https://linkedin.com\",\"github\":\"https://github.com\",\"websites\":[{\"url\":\"https://test-website.com\",\"iconPath\":\"https://test-website.com/logo.png\",\"id\":1}],\"roles\":[],\"id\":1},{\"name\":\"Another test Account\",\"email\":\"test2_account@test.com\",\"bio\":\"This is another test account\",\"birthDate\":\"04-04-2003\",\"photoPath\":\"https://test-photo.com\",\"linkedin\":\"https://linkedin.com\",\"github\":\"https://github.com\",\"websites\":[{\"url\":\"https://test-website.com\",\"iconPath\":\"https://test-website.com/logo.png\",\"id\":2}],\"roles\":[],\"id\":2}],\"isArchived\":false,\"technologies\":[\"Java\",\"Kotlin\",\"Spring\"],\"associatedRoles\":[],\"id\":1}"
+                  }
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "404",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/error-response"
+                },
+                "examples" : {
+                  "projects/AddTeamMember/should fail if the team member does not exist" : {
+                    "value" : "{\"errors\":[{\"message\":\"account not found with id 1234\"}]}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/projects/{projectId}/removeTeamMember/{accountId}" : {
+      "put" : {
+        "tags" : [ "Projects" ],
+        "summary" : "Remove member from Project",
+        "description" : "This operation removes a member of a given project.",
+        "operationId" : "projects/RemoveTeamMember/should ",
+        "parameters" : [ {
+          "name" : "projectId",
+          "in" : "path",
+          "description" : "ID of the project to remove the member from",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "accountId",
+          "in" : "path",
+          "description" : "ID of the account to remove",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "404" : {
+            "description" : "404",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/error-response"
+                },
+                "examples" : {
+                  "projects/RemoveTeamMember/should fail if the team member does not exist" : {
+                    "value" : "{\"errors\":[{\"message\":\"account not found with id 1234\"}]}"
+                  }
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/project-response"
+                },
+                "examples" : {
+                  "projects/RemoveTeamMember/should remove a team member" : {
+                    "value" : "{\"title\":\"Awesome project\",\"description\":\"this is a test project\",\"teamMembers\":[],\"isArchived\":false,\"technologies\":[\"Java\",\"Kotlin\",\"Spring\"],\"associatedRoles\":[],\"id\":1}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "auth-refresh-response" : {
+        "title" : "auth-refresh-response",
+        "type" : "object",
+        "properties" : {
+          "access_token" : {
+            "type" : "string",
+            "description" : "Access token, used to identify the user"
+          }
+        }
+      },
+      "event-response" : {
+        "title" : "event-response",
+        "type" : "object",
+        "properties" : {
+          "registerUrl" : {
+            "type" : "string",
+            "description" : "Link to the event registration"
+          },
+          "associatedRoles" : {
+            "type" : "array",
+            "description" : "Array of Roles/Activity associations",
+            "items" : {
+              "type" : "object",
+              "properties" : {
+                "*" : {
+                  "type" : "object",
+                  "properties" : {
+                    "role" : {
+                      "type" : "object",
+                      "description" : "Roles associated with the activity"
+                    },
+                    "activity" : {
+                      "type" : "object",
+                      "description" : "An activity that aggregates members with different roles"
+                    },
+                    "permissions" : {
+                      "type" : "object",
+                      "description" : "Permissions of someone with a given role for this activity"
+                    },
+                    "id" : {
+                      "type" : "number",
+                      "description" : "Id of the role/activity association"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "thumbnailPath" : {
+            "type" : "string",
+            "description" : "Thumbnail of the event"
+          },
+          "description" : {
+            "type" : "string",
+            "description" : "Event description"
+          },
+          "location" : {
+            "type" : "string",
+            "description" : "Location for the event"
+          },
+          "id" : {
+            "type" : "number",
+            "description" : "Event ID"
+          },
+          "teamMembers" : {
+            "type" : "array",
+            "description" : "Array of members associated with the event",
+            "items" : {
+              "type" : "object",
+              "properties" : {
+                "github" : {
+                  "type" : "string",
+                  "description" : "Handle/link to the owner's LinkedIn profile"
+                },
+                "photoPath" : {
+                  "type" : "string",
+                  "description" : "Path to the photo resource on the backend server"
+                },
+                "roles" : {
+                  "type" : "array",
+                  "description" : "Array with the roles of the account",
+                  "items" : {
+                    "oneOf" : [ {
+                      "type" : "object"
+                    }, {
+                      "type" : "boolean"
+                    }, {
+                      "type" : "string"
+                    }, {
+                      "type" : "number"
+                    } ]
+                  }
+                },
+                "name" : {
+                  "type" : "string",
+                  "description" : "Name of the account owner"
+                },
+                "bio" : {
+                  "type" : "string",
+                  "description" : "Short profile description"
+                },
+                "websites" : {
+                  "type" : "array",
+                  "description" : "Array with relevant websites about the owner",
+                  "items" : {
+                    "type" : "object",
+                    "properties" : {
+                      "id" : {
+                        "type" : "number",
+                        "description" : "Related website ID"
+                      },
+                      "iconPath" : {
+                        "type" : "string",
+                        "description" : "URL to the website's icon"
+                      },
+                      "url" : {
+                        "type" : "string",
+                        "description" : "URL to the website"
+                      }
+                    }
+                  }
+                },
+                "id" : {
+                  "type" : "number",
+                  "description" : "Account ID"
+                },
+                "linkedin" : {
+                  "type" : "string",
+                  "description" : "Handle/link to the owner's LinkedIn profile"
+                },
+                "birthDate" : {
+                  "type" : "string",
+                  "description" : "Birth date of the owner"
+                },
+                "email" : {
+                  "type" : "string",
+                  "description" : "Email associated to the account"
+                }
+              }
+            }
+          },
+          "category" : {
+            "type" : "string",
+            "description" : "Event category"
+          },
+          "title" : {
+            "type" : "string",
+            "description" : "Event title"
+          },
+          "dateInterval" : {
+            "type" : "object",
+            "properties" : {
+              "endDate" : {
+                "type" : "string",
+                "description" : "Event finishing date"
+              },
+              "startDate" : {
+                "type" : "string",
+                "description" : "Event beginning date"
+              }
+            }
+          }
+        }
+      },
+      "post-request" : {
+        "title" : "post-request",
+        "type" : "object",
+        "properties" : {
+          "thumbnailPath" : {
+            "type" : "string",
+            "description" : "Path for the post thumbnail image"
+          },
+          "body" : {
+            "type" : "string",
+            "description" : "Post body"
+          },
+          "title" : {
+            "type" : "string",
+            "description" : "Post title"
+          },
+          "slug" : {
+            "type" : "string",
+            "description" : "Short and friendly textual post identifier"
+          }
+        }
+      },
+      "auth-refresh-request" : {
+        "title" : "auth-refresh-request",
+        "type" : "object",
+        "properties" : {
+          "token" : {
+            "type" : "string",
+            "description" : "Refresh token, used to refresh the access token"
+          }
+        }
+      },
+      "post-response-array" : {
+        "title" : "post-response-array",
+        "type" : "array",
+        "items" : {
+          "type" : "object",
+          "properties" : {
+            "lastUpdatedAt" : {
+              "type" : "string",
+              "description" : "Date of the last update of the post"
+            },
+            "publishDate" : {
+              "type" : "string",
+              "description" : "Date of publication of the post"
+            },
+            "thumbnailPath" : {
+              "type" : "string",
+              "description" : "Path for the post thumbnail image"
+            },
+            "id" : {
+              "type" : "number",
+              "description" : "Post ID"
+            },
+            "body" : {
+              "type" : "string",
+              "description" : "Post body"
+            },
+            "title" : {
+              "type" : "string",
+              "description" : "Post title"
+            },
+            "slug" : {
+              "type" : "string",
+              "description" : "Short and friendly textual post identifier"
+            }
+          }
+        }
+      },
+      "auth-new-response" : {
+        "title" : "auth-new-response",
+        "type" : "object",
+        "properties" : {
+          "access_token" : {
+            "type" : "string",
+            "description" : "Access token, used to identify the user"
+          },
+          "refresh_token" : {
+            "type" : "string",
+            "description" : "Refresh token, used to refresh the access token"
+          }
+        }
+      },
+      "project-response" : {
+        "title" : "project-response",
+        "type" : "object",
+        "properties" : {
+          "technologies" : {
+            "type" : "array",
+            "description" : "Array of technologies used in the project",
+            "items" : {
+              "oneOf" : [ {
+                "type" : "object"
+              }, {
+                "type" : "boolean"
+              }, {
+                "type" : "string"
+              }, {
+                "type" : "number"
+              } ]
+            }
+          },
+          "isArchived" : {
+            "type" : "boolean",
+            "description" : "Whether this project is being actively maintained"
+          },
+          "associatedRoles" : {
+            "type" : "array",
+            "description" : "An activity that aggregates members with different roles",
+            "items" : {
+              "type" : "object",
+              "properties" : {
+                "*" : {
+                  "type" : "object",
+                  "properties" : {
+                    "permissions" : {
+                      "type" : "object",
+                      "description" : "Permissions of someone with a given role for this activity"
+                    },
+                    "id" : {
+                      "type" : "number",
+                      "description" : "Id of the role/activity association"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "description" : {
+            "type" : "string",
+            "description" : "Project description"
+          },
+          "id" : {
+            "type" : "number",
+            "description" : "Project ID"
+          },
+          "teamMembers" : {
+            "type" : "array",
+            "description" : "Array of members associated with the project",
+            "items" : {
+              "type" : "object",
+              "properties" : {
+                "github" : {
+                  "type" : "string",
+                  "description" : "Handle/link to the owner's LinkedIn profile"
+                },
+                "photoPath" : {
+                  "type" : "string",
+                  "description" : "Path to the photo resource on the backend server"
+                },
+                "roles" : {
+                  "type" : "array",
+                  "description" : "Array with the roles of the account",
+                  "items" : {
+                    "oneOf" : [ {
+                      "type" : "object"
+                    }, {
+                      "type" : "boolean"
+                    }, {
+                      "type" : "string"
+                    }, {
+                      "type" : "number"
+                    } ]
+                  }
+                },
+                "name" : {
+                  "type" : "string",
+                  "description" : "Name of the account owner"
+                },
+                "bio" : {
+                  "type" : "string",
+                  "description" : "Short profile description"
+                },
+                "websites" : {
+                  "type" : "array",
+                  "description" : "Array with relevant websites about the owner",
+                  "items" : {
+                    "type" : "object",
+                    "properties" : {
+                      "id" : {
+                        "type" : "number",
+                        "description" : "Related website ID"
+                      },
+                      "iconPath" : {
+                        "type" : "string",
+                        "description" : "URL to the website's icon"
+                      },
+                      "url" : {
+                        "type" : "string",
+                        "description" : "URL to the website"
+                      }
+                    }
+                  }
+                },
+                "id" : {
+                  "type" : "number",
+                  "description" : "Account ID"
+                },
+                "linkedin" : {
+                  "type" : "string",
+                  "description" : "Handle/link to the owner's LinkedIn profile"
+                },
+                "birthDate" : {
+                  "type" : "string",
+                  "description" : "Birth date of the owner"
+                },
+                "email" : {
+                  "type" : "string",
+                  "description" : "Email associated to the account"
+                }
+              }
+            }
+          },
+          "title" : {
+            "type" : "string",
+            "description" : "Project title"
+          }
+        }
+      },
+      "error-response" : {
+        "title" : "error-response",
+        "type" : "object",
+        "properties" : {
+          "errors" : {
+            "type" : "array",
+            "description" : "Array of detected errors",
+            "items" : {
+              "type" : "object",
+              "properties" : {
+                "param" : {
+                  "type" : "string",
+                  "description" : "Parameter associated with the error"
+                },
+                "message" : {
+                  "type" : "string",
+                  "description" : "Error message of a given error"
+                },
+                "value" : {
+                  "type" : "object",
+                  "description" : "Value that caused the error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "account-response" : {
+        "title" : "account-response",
+        "type" : "object",
+        "properties" : {
+          "github" : {
+            "type" : "string",
+            "description" : "Handle/link to the owner's LinkedIn profile"
+          },
+          "photoPath" : {
+            "type" : "string",
+            "description" : "Path to the photo resource on the backend server"
+          },
+          "roles" : {
+            "type" : "array",
+            "description" : "Array with the roles of the account",
+            "items" : {
+              "oneOf" : [ {
+                "type" : "object"
+              }, {
+                "type" : "boolean"
+              }, {
+                "type" : "string"
+              }, {
+                "type" : "number"
+              } ]
+            }
+          },
+          "name" : {
+            "type" : "string",
+            "description" : "Name of the account owner"
+          },
+          "bio" : {
+            "type" : "string",
+            "description" : "Short profile description"
+          },
+          "websites" : {
+            "type" : "array",
+            "description" : "Array with relevant websites about the owner",
+            "items" : {
+              "type" : "object",
+              "properties" : {
+                "id" : {
+                  "type" : "number",
+                  "description" : "Related website ID"
+                },
+                "iconPath" : {
+                  "type" : "string",
+                  "description" : "URL to the website's icon"
+                },
+                "url" : {
+                  "type" : "string",
+                  "description" : "URL to the website"
+                }
+              }
+            }
+          },
+          "id" : {
+            "type" : "number",
+            "description" : "Account ID"
+          },
+          "linkedin" : {
+            "type" : "string",
+            "description" : "Handle/link to the owner's LinkedIn profile"
+          },
+          "birthDate" : {
+            "type" : "string",
+            "description" : "Birth date of the owner"
+          },
+          "email" : {
+            "type" : "string",
+            "description" : "Email associated to the account"
+          }
+        }
+      },
+      "account-request" : {
+        "title" : "account-request",
+        "type" : "object",
+        "properties" : {
+          "password" : {
+            "type" : "string",
+            "description" : "Account password"
+          },
+          "github" : {
+            "type" : "string",
+            "description" : "Handle/link to the owner's LinkedIn profile"
+          },
+          "photoPath" : {
+            "type" : "string",
+            "description" : "Path to the photo resource on the backend server"
+          },
+          "roles" : {
+            "type" : "array",
+            "description" : "Array with the roles of the account",
+            "items" : {
+              "oneOf" : [ {
+                "type" : "object"
+              }, {
+                "type" : "boolean"
+              }, {
+                "type" : "string"
+              }, {
+                "type" : "number"
+              } ]
+            }
+          },
+          "name" : {
+            "type" : "string",
+            "description" : "Name of the account owner"
+          },
+          "bio" : {
+            "type" : "string",
+            "description" : "Short profile description"
+          },
+          "websites" : {
+            "type" : "array",
+            "description" : "Array with relevant websites about the owner",
+            "items" : {
+              "type" : "object",
+              "properties" : {
+                "iconPath" : {
+                  "type" : "string",
+                  "description" : "URL to the website's icon"
+                },
+                "url" : {
+                  "type" : "string",
+                  "description" : "URL to the website"
+                }
+              }
+            }
+          },
+          "linkedin" : {
+            "type" : "string",
+            "description" : "Handle/link to the owner's LinkedIn profile"
+          },
+          "birthDate" : {
+            "type" : "string",
+            "description" : "Birth date of the owner"
+          },
+          "email" : {
+            "type" : "string",
+            "description" : "Email associated to the account"
+          }
+        }
+      },
+      "auth-new-request" : {
+        "title" : "auth-new-request",
+        "type" : "object",
+        "properties" : {
+          "password" : {
+            "type" : "string",
+            "description" : "Password of the account"
+          },
+          "email" : {
+            "type" : "string",
+            "description" : "Email of the account"
+          }
+        }
+      },
+      "project-archive-request" : {
+        "title" : "project-archive-request",
+        "type" : "object",
+        "properties" : {
+          "first" : {
+            "type" : "string",
+            "description" : "String with property name (\"isArchived\")"
+          },
+          "second" : {
+            "type" : "boolean",
+            "description" : "Whether the project is archived"
+          }
+        }
+      },
+      "event-response-array" : {
+        "title" : "event-response-array",
+        "type" : "array",
+        "items" : {
+          "type" : "object",
+          "properties" : {
+            "registerUrl" : {
+              "type" : "string",
+              "description" : "Link to the event registration"
+            },
+            "associatedRoles" : {
+              "type" : "array",
+              "description" : "Array of Roles/Activity associations",
+              "items" : {
+                "type" : "object",
+                "properties" : {
+                  "*" : {
+                    "type" : "object",
+                    "properties" : {
+                      "role" : {
+                        "type" : "object",
+                        "description" : "Roles associated with the activity"
+                      },
+                      "activity" : {
+                        "type" : "object",
+                        "description" : "An activity that aggregates members with different roles"
+                      },
+                      "permissions" : {
+                        "type" : "object",
+                        "description" : "Permissions of someone with a given role for this activity"
+                      },
+                      "id" : {
+                        "type" : "number",
+                        "description" : "Id of the role/activity association"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "thumbnailPath" : {
+              "type" : "string",
+              "description" : "Thumbnail of the event"
+            },
+            "description" : {
+              "type" : "string",
+              "description" : "Event description"
+            },
+            "location" : {
+              "type" : "string",
+              "description" : "Location for the event"
+            },
+            "id" : {
+              "type" : "number",
+              "description" : "Event ID"
+            },
+            "teamMembers" : {
+              "type" : "array",
+              "description" : "Array of members associated with the event",
+              "items" : {
+                "type" : "object",
+                "properties" : {
+                  "github" : {
+                    "type" : "string",
+                    "description" : "Handle/link to the owner's LinkedIn profile"
+                  },
+                  "photoPath" : {
+                    "type" : "string",
+                    "description" : "Path to the photo resource on the backend server"
+                  },
+                  "roles" : {
+                    "type" : "array",
+                    "description" : "Array with the roles of the account",
+                    "items" : {
+                      "oneOf" : [ {
+                        "type" : "object"
+                      }, {
+                        "type" : "boolean"
+                      }, {
+                        "type" : "string"
+                      }, {
+                        "type" : "number"
+                      } ]
+                    }
+                  },
+                  "name" : {
+                    "type" : "string",
+                    "description" : "Name of the account owner"
+                  },
+                  "bio" : {
+                    "type" : "string",
+                    "description" : "Short profile description"
+                  },
+                  "websites" : {
+                    "type" : "array",
+                    "description" : "Array with relevant websites about the owner",
+                    "items" : {
+                      "type" : "object",
+                      "properties" : {
+                        "id" : {
+                          "type" : "number",
+                          "description" : "Related website ID"
+                        },
+                        "iconPath" : {
+                          "type" : "string",
+                          "description" : "URL to the website's icon"
+                        },
+                        "url" : {
+                          "type" : "string",
+                          "description" : "URL to the website"
+                        }
+                      }
+                    }
+                  },
+                  "id" : {
+                    "type" : "number",
+                    "description" : "Account ID"
+                  },
+                  "linkedin" : {
+                    "type" : "string",
+                    "description" : "Handle/link to the owner's LinkedIn profile"
+                  },
+                  "birthDate" : {
+                    "type" : "string",
+                    "description" : "Birth date of the owner"
+                  },
+                  "email" : {
+                    "type" : "string",
+                    "description" : "Email associated to the account"
+                  }
+                }
+              }
+            },
+            "category" : {
+              "type" : "string",
+              "description" : "Event category"
+            },
+            "title" : {
+              "type" : "string",
+              "description" : "Event title"
+            },
+            "dateInterval" : {
+              "type" : "object",
+              "properties" : {
+                "endDate" : {
+                  "type" : "string",
+                  "description" : "Event finishing date"
+                },
+                "startDate" : {
+                  "type" : "string",
+                  "description" : "Event beginning date"
+                }
+              }
+            }
+          }
+        }
+      },
+      "project-unarchive-request" : {
+        "title" : "project-unarchive-request",
+        "type" : "object",
+        "properties" : {
+          "first" : {
+            "type" : "string",
+            "description" : "String with property name (\"isArchived\")"
+          },
+          "second" : {
+            "type" : "boolean",
+            "description" : "Whether the project is archived"
+          }
+        }
+      },
+      "account-response-array" : {
+        "title" : "account-response-array",
+        "type" : "array",
+        "items" : {
+          "type" : "object",
+          "properties" : {
+            "github" : {
+              "type" : "string",
+              "description" : "Handle/link to the owner's LinkedIn profile"
+            },
+            "photoPath" : {
+              "type" : "string",
+              "description" : "Path to the photo resource on the backend server"
+            },
+            "roles" : {
+              "type" : "array",
+              "description" : "Array with the roles of the account",
+              "items" : {
+                "oneOf" : [ {
+                  "type" : "object"
+                }, {
+                  "type" : "boolean"
+                }, {
+                  "type" : "string"
+                }, {
+                  "type" : "number"
+                } ]
+              }
+            },
+            "name" : {
+              "type" : "string",
+              "description" : "Name of the account owner"
+            },
+            "bio" : {
+              "type" : "string",
+              "description" : "Short profile description"
+            },
+            "websites" : {
+              "type" : "array",
+              "description" : "Array with relevant websites about the owner",
+              "items" : {
+                "type" : "object",
+                "properties" : {
+                  "id" : {
+                    "type" : "number",
+                    "description" : "Related website ID"
+                  },
+                  "iconPath" : {
+                    "type" : "string",
+                    "description" : "URL to the website's icon"
+                  },
+                  "url" : {
+                    "type" : "string",
+                    "description" : "URL to the website"
+                  }
+                }
+              }
+            },
+            "id" : {
+              "type" : "number",
+              "description" : "Account ID"
+            },
+            "linkedin" : {
+              "type" : "string",
+              "description" : "Handle/link to the owner's LinkedIn profile"
+            },
+            "birthDate" : {
+              "type" : "string",
+              "description" : "Birth date of the owner"
+            },
+            "email" : {
+              "type" : "string",
+              "description" : "Email associated to the account"
+            }
+          }
+        }
+      },
+      "post-response" : {
+        "title" : "post-response",
+        "type" : "object",
+        "properties" : {
+          "lastUpdatedAt" : {
+            "type" : "string",
+            "description" : "Date of the last update of the post"
+          },
+          "publishDate" : {
+            "type" : "string",
+            "description" : "Date of publication of the post"
+          },
+          "thumbnailPath" : {
+            "type" : "string",
+            "description" : "Path for the post thumbnail image"
+          },
+          "id" : {
+            "type" : "number",
+            "description" : "Post ID"
+          },
+          "body" : {
+            "type" : "string",
+            "description" : "Post body"
+          },
+          "title" : {
+            "type" : "string",
+            "description" : "Post title"
+          },
+          "slug" : {
+            "type" : "string",
+            "description" : "Short and friendly textual post identifier"
+          }
+        }
+      },
+      "event-request" : {
+        "title" : "event-request",
+        "type" : "object",
+        "properties" : {
+          "teamMembersIds" : {
+            "type" : "array",
+            "description" : "Team member IDs",
+            "items" : {
+              "oneOf" : [ {
+                "type" : "object"
+              }, {
+                "type" : "boolean"
+              }, {
+                "type" : "string"
+              }, {
+                "type" : "number"
+              } ]
+            }
+          },
+          "registerUrl" : {
+            "type" : "string",
+            "description" : "Link to the event registration"
+          },
+          "thumbnailPath" : {
+            "type" : "string",
+            "description" : "Thumbnail of the event"
+          },
+          "description" : {
+            "type" : "string",
+            "description" : "Event description"
+          },
+          "location" : {
+            "type" : "string",
+            "description" : "Location for the event"
+          },
+          "category" : {
+            "type" : "string",
+            "description" : "Event category"
+          },
+          "title" : {
+            "type" : "string",
+            "description" : "Event title"
+          },
+          "dateInterval" : {
+            "type" : "object",
+            "properties" : {
+              "endDate" : {
+                "type" : "string",
+                "description" : "Event finishing date"
+              },
+              "startDate" : {
+                "type" : "string",
+                "description" : "Event beginning date"
+              }
+            }
+          }
+        }
+      },
+      "auth-check-response" : {
+        "title" : "auth-check-response",
+        "type" : "object",
+        "properties" : {
+          "authenticated_user" : {
+            "type" : "string",
+            "description" : "Email of the authenticated user."
+          }
+        }
+      },
+      "project-request" : {
+        "title" : "project-request",
+        "type" : "object",
+        "properties" : {
+          "technologies" : {
+            "type" : "array",
+            "description" : "Array of technologies used in the project",
+            "items" : {
+              "oneOf" : [ {
+                "type" : "object"
+              }, {
+                "type" : "boolean"
+              }, {
+                "type" : "string"
+              }, {
+                "type" : "number"
+              } ]
+            }
+          },
+          "teamMembersIds" : {
+            "type" : "object",
+            "properties" : {
+              "*" : {
+                "type" : "number",
+                "description" : "Account ID"
+              }
+            },
+            "description" : "Array with IDs of members associated with the project"
+          },
+          "isArchived" : {
+            "type" : "boolean",
+            "description" : "Whether this project is being actively maintained"
+          },
+          "associatedRoles" : {
+            "type" : "array",
+            "description" : "An activity that aggregates members with different roles",
+            "items" : {
+              "type" : "object",
+              "properties" : {
+                "*" : {
+                  "type" : "object",
+                  "properties" : {
+                    "permissions" : {
+                      "type" : "object",
+                      "description" : "Permissions of someone with a given role for this activity"
+                    },
+                    "id" : {
+                      "type" : "number",
+                      "description" : "Id of the role/activity association"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "description" : {
+            "type" : "string",
+            "description" : "Project description"
+          },
+          "title" : {
+            "type" : "string",
+            "description" : "Project title"
+          }
+        }
+      },
+      "empty-response" : {
+        "title" : "empty-response",
+        "type" : "object"
+      },
+      "project-response-array" : {
+        "title" : "project-response-array",
+        "type" : "array",
+        "items" : {
+          "type" : "object",
+          "properties" : {
+            "technologies" : {
+              "type" : "array",
+              "description" : "Array of technologies used in the project",
+              "items" : {
+                "oneOf" : [ {
+                  "type" : "object"
+                }, {
+                  "type" : "boolean"
+                }, {
+                  "type" : "string"
+                }, {
+                  "type" : "number"
+                } ]
+              }
+            },
+            "isArchived" : {
+              "type" : "boolean",
+              "description" : "Whether this project is being actively maintained"
+            },
+            "associatedRoles" : {
+              "type" : "array",
+              "description" : "An activity that aggregates members with different roles",
+              "items" : {
+                "type" : "object",
+                "properties" : {
+                  "*" : {
+                    "type" : "object",
+                    "properties" : {
+                      "permissions" : {
+                        "type" : "object",
+                        "description" : "Permissions of someone with a given role for this activity"
+                      },
+                      "id" : {
+                        "type" : "number",
+                        "description" : "Id of the role/activity association"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description" : {
+              "type" : "string",
+              "description" : "Project description"
+            },
+            "id" : {
+              "type" : "number",
+              "description" : "Project ID"
+            },
+            "teamMembers" : {
+              "type" : "array",
+              "description" : "Array of members associated with the project",
+              "items" : {
+                "type" : "object",
+                "properties" : {
+                  "github" : {
+                    "type" : "string",
+                    "description" : "Handle/link to the owner's LinkedIn profile"
+                  },
+                  "photoPath" : {
+                    "type" : "string",
+                    "description" : "Path to the photo resource on the backend server"
+                  },
+                  "roles" : {
+                    "type" : "array",
+                    "description" : "Array with the roles of the account",
+                    "items" : {
+                      "oneOf" : [ {
+                        "type" : "object"
+                      }, {
+                        "type" : "boolean"
+                      }, {
+                        "type" : "string"
+                      }, {
+                        "type" : "number"
+                      } ]
+                    }
+                  },
+                  "name" : {
+                    "type" : "string",
+                    "description" : "Name of the account owner"
+                  },
+                  "bio" : {
+                    "type" : "string",
+                    "description" : "Short profile description"
+                  },
+                  "websites" : {
+                    "type" : "array",
+                    "description" : "Array with relevant websites about the owner",
+                    "items" : {
+                      "type" : "object",
+                      "properties" : {
+                        "id" : {
+                          "type" : "number",
+                          "description" : "Related website ID"
+                        },
+                        "iconPath" : {
+                          "type" : "string",
+                          "description" : "URL to the website's icon"
+                        },
+                        "url" : {
+                          "type" : "string",
+                          "description" : "URL to the website"
+                        }
+                      }
+                    }
+                  },
+                  "id" : {
+                    "type" : "number",
+                    "description" : "Account ID"
+                  },
+                  "linkedin" : {
+                    "type" : "string",
+                    "description" : "Handle/link to the owner's LinkedIn profile"
+                  },
+                  "birthDate" : {
+                    "type" : "string",
+                    "description" : "Birth date of the owner"
+                  },
+                  "email" : {
+                    "type" : "string",
+                    "description" : "Email associated to the account"
+                  }
+                }
+              }
+            },
+            "title" : {
+              "type" : "string",
+              "description" : "Project title"
+            }
+          }
+        }
+      }
+    }
+  }
+}
