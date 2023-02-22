@@ -471,8 +471,13 @@ internal class EventControllerTest @Autowired constructor(
                 }
 
                 @Test
-                @DisplayName("size should be between ${ActivityConstants.Slug.minSize} and ${ActivityConstants.Slug.maxSize}()")
-                fun size() = validationTester.hasSizeBetween(ActivityConstants.Slug.minSize, ActivityConstants.Slug.maxSize)
+                @DisplayName(
+                    "size should be between ${ActivityConstants.Slug.minSize} and ${ActivityConstants.Slug.maxSize}()"
+                )
+                fun size() = validationTester.hasSizeBetween(
+                    ActivityConstants.Slug.minSize,
+                    ActivityConstants.Slug.maxSize
+                )
             }
         }
     }
