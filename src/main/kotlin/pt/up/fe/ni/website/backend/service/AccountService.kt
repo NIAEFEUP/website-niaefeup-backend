@@ -35,8 +35,9 @@ class AccountService(private val repository: AccountRepository, private val enco
         if (encoder.matches(dto.oldPassword, account.password)) {
             account.password = encoder.encode(dto.newPassword)
             repository.save(account)
-        } else
+        } else {
             throw IllegalArgumentException(ErrorMessages.incorrectPassword)
+        }
         return emptyMap()
     }
 }

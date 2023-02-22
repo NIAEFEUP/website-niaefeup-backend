@@ -11,6 +11,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
+import org.springframework.test.context.NestedTestConfiguration
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.get
@@ -176,6 +177,7 @@ internal class PostControllerTest @Autowired constructor(
 
         @NestedTest
         @DisplayName("Input Validation")
+        @NestedTestConfiguration(NestedTestConfiguration.EnclosingConfiguration.OVERRIDE)
         inner class InputValidation {
             private val validationTester = ValidationTester(
                 req = { params: Map<String, Any?> ->
@@ -419,6 +421,7 @@ internal class PostControllerTest @Autowired constructor(
 
         @NestedTest
         @DisplayName("Input Validation")
+        @NestedTestConfiguration(NestedTestConfiguration.EnclosingConfiguration.OVERRIDE)
         inner class InputValidation {
             private val validationTester = ValidationTester(
                 req = { params: Map<String, Any?> ->

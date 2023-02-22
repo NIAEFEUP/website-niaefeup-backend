@@ -11,8 +11,10 @@ import pt.up.fe.ni.website.backend.utils.listeners.DbCleanupListener
 @SpringBootTest
 @AutoConfigureMockMvc
 @AutoConfigureTestDatabase
+
 @TestExecutionListeners(
     listeners = [DbCleanupListener::class],
     mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS
 )
+
 internal annotation class ControllerTest
