@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import pt.up.fe.ni.website.backend.config.Logging
+import pt.up.fe.ni.website.backend.config.logger
 
 data class SimpleError(
     val message: String,
@@ -25,7 +27,7 @@ data class CustomError(val errors: List<SimpleError>)
 
 @RestController
 @RestControllerAdvice
-class ErrorController : ErrorController {
+class ErrorController : ErrorController, Logging {
 
     @RequestMapping("/**")
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -92,7 +94,7 @@ class ErrorController : ErrorController {
     @ExceptionHandler(Exception::class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     fun unexpectedError(e: Exception): CustomError {
-        System.err.println(e)
+        logger().error(e.message)
         return wrapSimpleError("unexpected error: " + e.message)
     }
 
