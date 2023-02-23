@@ -431,9 +431,12 @@ class AccountControllerTest @Autowired constructor(
             Account::class.java
         )
 
+        init {
+            changePasswordAccount.password = encoder.encode(changePasswordAccount.password)
+        }
+
         @BeforeEach
         fun addAccount() {
-            changePasswordAccount.password = encoder.encode(changePasswordAccount.password)
             repository.save(changePasswordAccount)
         }
 
