@@ -6,7 +6,7 @@ on:
       - master
       - develop
   pull_request:
-    branches: 
+    branches:
       - master
       - develop
 
@@ -42,6 +42,7 @@ jobs:
         with:
           name: lint-reports
           path: build/reports/ktlint
+        if: always()
 
   test:
     name: 'Test'
@@ -75,3 +76,4 @@ jobs:
           path: |
             build/reports/tests/test
             build/reports/jacoco/test
+        if: always()
