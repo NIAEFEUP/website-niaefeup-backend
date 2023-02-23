@@ -459,6 +459,19 @@ class AccountControllerTest @Autowired constructor(
                 )
             }.andExpect { status { isOk() } }
         }
+
+        @Test
+        fun `should fail due to wrong password`() {
+            mockMvc.post("/accounts/changePassword/${changePasswordAccount.id}") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(
+                    mapOf(
+                        "oldPassword" to "wrong_password",
+                        "newPassword" to "test_password2"
+                    )
+                )
+            }.andExpect { status { isUnprocessableEntity() } }
+        }
     }
 
     fun Date?.toJson(): String {
