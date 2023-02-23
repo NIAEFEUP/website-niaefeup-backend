@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import pt.up.fe.ni.website.backend.dto.auth.LoginDto
 import pt.up.fe.ni.website.backend.dto.auth.TokenDto
+import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.service.AuthService
 
 @RestController
@@ -29,8 +30,8 @@ class AuthController(val authService: AuthService) {
 
     @GetMapping
     @PreAuthorize("hasRole('MEMBER')")
-    fun checkAuthentication(): Map<String, String> {
+    fun checkAuthentication(): Map<String, Account> {
         val account = authService.getAuthenticatedAccount()
-        return mapOf("authenticated_user" to account.email)
+        return mapOf("authenticated_user" to account)
     }
 }
