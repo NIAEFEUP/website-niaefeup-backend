@@ -122,5 +122,5 @@ jobs:
 
       - uses: mshick/add-pr-comment@v2
         with:
-        message: |
-          Check the documentation preview: ${{ env.deploy_url }}
+          message: |
+            Check the documentation preview: ${{ env.deploy_url }}
