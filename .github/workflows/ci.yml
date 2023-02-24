@@ -42,6 +42,7 @@ jobs:
         with:
           name: lint-reports
           path: build/reports/ktlint
+        if: always()
 
   test:
     name: 'Test'
@@ -75,50 +76,51 @@ jobs:
           path: |
             build/reports/tests/test
             build/reports/jacoco/test
+        if: always()
+
 
   docs:
-      name: 'Docs'
-      needs: test
-      runs-on: ubuntu-latest
-      permissions:
-          pull-requests: write
-      env:
-        NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-        NETLIFY_SITE_ID: ${{ vars.NETLIFY_SITE_ID }}
-      steps:
-        - name: Fetch sources
-          uses: actions/checkout@v3
+    name: 'Docs'
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    env:
+      NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+      NETLIFY_SITE_ID: ${{ vars.NETLIFY_SITE_ID }}
+    steps:
+      - name: Fetch sources
+        uses: actions/checkout@v3
 
-        - name: Setup Java
-          uses: actions/setup-java@v3
-          with:
-            java-version: ${{ env.JAVA_VERSION }}
-            distribution: ${{ env.JAVA_DISTRIBUTION }}
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
 
-        - name: Generate documentation
-          run: ./gradlew generateDocs
+      - name: Generate documentation
+        run: ./gradlew generateDocs
 
-        - name: Generate redoc file
-          run: npx redoc-cli build docs/openapi3.json -o docs/index.html
+      - name: Generate redoc file
+        run: npx redoc-cli build docs/openapi3.json -o docs/index.html
 
-        - name: Deploy to netlify (main)
-          if: github.ref == 'refs/heads/main'
-          run: |
-            npx netlify-cli deploy --dir=docs --prod
+      - name: Deploy to netlify (main)
+        if: github.ref == 'refs/heads/main'
+        run: |
+          npx netlify-cli deploy --dir=docs --prod
 
-        - name: Deploy to netlify (develop)
-          if: github.ref == 'refs/heads/develop'
-          run: |
-            npx netlify-cli deploy --dir=docs --alias develop
+      - name: Deploy to netlify (develop)
+        if: github.ref == 'refs/heads/develop'
+        run: |
+          npx netlify-cli deploy --dir=docs --alias develop
 
-        - name: Deploy to netlify (preview)
-          if: github.event_name == 'pull_request'
-          run: |
-            npx netlify-cli deploy --json --dir=docs > deployment_data
-            echo 'deploy_url='$(grep -oP '(?<="deploy_url": ")[^"]*' deployment_data) >> $GITHUB_ENV
+      - name: Deploy to netlify (preview)
+        if: github.event_name == 'pull_request'
+        run: |
+          npx netlify-cli deploy --json --dir=docs > deployment_data
+          echo 'deploy_url='$(grep -oP '(?<="deploy_url": ")[^"]*' deployment_data) >> $GITHUB_ENV
 
-        - uses: mshick/add-pr-comment@v2
-          with:
-          message: |
-            Check the documentation preview: ${{ env.deploy_url }}
-
+      - uses: mshick/add-pr-comment@v2
+        with:
+        message: |
+          Check the documentation preview: ${{ env.deploy_url }}

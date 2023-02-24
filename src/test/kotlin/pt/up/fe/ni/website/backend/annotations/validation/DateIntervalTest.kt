@@ -52,13 +52,14 @@ internal class DateIntervalTest {
 
     @Test
     fun `should fail when endDate is equal to startDate`() {
+        val date = TestUtils.createDate(2022, 12, 6)
         val validator = DateIntervalValidator()
         validator.initialize(ValidDateInterval())
         assert(
             !validator.isValid(
                 DateInterval(
-                    TestUtils.createDate(2022, 12, 6),
-                    TestUtils.createDate(2022, 12, 6)
+                    date,
+                    date
                 ),
                 null
             )
