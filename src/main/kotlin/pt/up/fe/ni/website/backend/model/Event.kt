@@ -37,6 +37,7 @@ class Event(
     val thumbnailPath: String,
 
     associatedRoles: List<PerActivityRole> = emptyList(),
-    id: Long? = null
+    id: Long? = null,
 
-) : Activity(title, description, teamMembers, associatedRoles, id)
+    slug: String? = null
+) : Activity(title, description, teamMembers, associatedRoles, id, slug)

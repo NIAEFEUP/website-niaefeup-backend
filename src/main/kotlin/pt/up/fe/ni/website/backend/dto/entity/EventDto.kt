@@ -11,5 +11,6 @@ class EventDto(
     val dateInterval: DateInterval,
     val location: String?,
     val category: String?,
-    val thumbnailPath: String
+    val thumbnailPath: String,
+    val slug: String?
 ) : EntityDto<Event>()

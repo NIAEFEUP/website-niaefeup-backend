@@ -7,5 +7,6 @@ class ProjectDto(
     val description: String,
     val teamMembersIds: List<Long>?,
     val isArchived: Boolean = false,
-    val technologies: List<String> = emptyList()
+    val technologies: List<String> = emptyList(),
+    val slug: String?
 ) : EntityDto<Project>()

@@ -10,6 +10,6 @@ class Project(
     var isArchived: Boolean = false,
     val technologies: List<String> = emptyList(),
     associatedRoles: List<PerActivityRole> = emptyList(),
-    id: Long? = null
-
-) : Activity(title, description, teamMembers, associatedRoles, id)
+    id: Long? = null,
+    slug: String? = null
+) : Activity(title, description, teamMembers, associatedRoles, id, slug)

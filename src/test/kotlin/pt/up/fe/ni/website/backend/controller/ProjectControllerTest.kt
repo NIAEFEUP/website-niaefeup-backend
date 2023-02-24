@@ -53,7 +53,8 @@ internal class ProjectControllerTest @Autowired constructor(
         "this is a test project",
         mutableListOf(testAccount),
         false,
-        listOf("Java", "Kotlin", "Spring")
+        listOf("Java", "Kotlin", "Spring"),
+        slug = "awesome-project"
     )
 
     @NestedTest
@@ -88,7 +89,7 @@ internal class ProjectControllerTest @Autowired constructor(
 
     @NestedTest
     @DisplayName("GET /projects/{projectId}")
-    inner class GetProject {
+    inner class GetProjectById {
         @BeforeEach
         fun addToRepositories() {
             accountRepository.save(testAccount)
@@ -104,6 +105,7 @@ internal class ProjectControllerTest @Autowired constructor(
                 jsonPath("$.description") { value(testProject.description) }
                 jsonPath("$.technologies.length()") { value(testProject.technologies.size) }
                 jsonPath("$.technologies[0]") { value(testProject.technologies[0]) }
+                jsonPath("$.slug") { value(testProject.slug) }
             }
         }
 
@@ -119,12 +121,44 @@ internal class ProjectControllerTest @Autowired constructor(
     }
 
     @NestedTest
+    @DisplayName("GET /projects/{projectSlug}")
+    inner class GetProjectBySlug {
+        @BeforeEach
+        fun addToRepositories() {
+            accountRepository.save(testAccount)
+            repository.save(testProject)
+        }
+
+        @Test
+        fun `should return the project`() {
+            mockMvc.get("/projects/${testProject.slug}").andExpect {
+                status { isOk() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                jsonPath("$.title") { value(testProject.title) }
+                jsonPath("$.description") { value(testProject.description) }
+                jsonPath("$.technologies.length()") { value(testProject.technologies.size) }
+                jsonPath("$.technologies[0]") { value(testProject.technologies[0]) }
+                jsonPath("$.slug") { value(testProject.slug) }
+            }
+        }
+
+        @Test
+        fun `should fail if the project does not exist`() {
+            mockMvc.get("/projects/does-not-exist").andExpect {
+                status { isNotFound() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                jsonPath("$.errors.length()") { value(1) }
+                jsonPath("$.errors[0].message") { value("project not found with slug does-not-exist") }
+            }
+        }
+    }
+
+    @NestedTest
     @DisplayName("POST /projects/new")
     inner class CreateProject {
         @BeforeEach
         fun addToRepositories() {
             accountRepository.save(testAccount)
-            repository.save(testProject)
         }
 
         @Test
@@ -137,7 +171,8 @@ internal class ProjectControllerTest @Autowired constructor(
                         "description" to testProject.description,
                         "teamMembersIds" to mutableListOf(testAccount.id!!),
                         "isArchived" to testProject.isArchived,
-                        "technologies" to testProject.technologies
+                        "technologies" to testProject.technologies,
+                        "slug" to testProject.slug
                     )
                 )
             }
@@ -151,6 +186,35 @@ internal class ProjectControllerTest @Autowired constructor(
                     jsonPath("$.teamMembers[0].name") { value(testAccount.name) }
                     jsonPath("$.technologies.length()") { value(testProject.technologies.size) }
                     jsonPath("$.technologies[0]") { value(testProject.technologies[0]) }
+                    jsonPath("$.slug") { value(testProject.slug) }
+                }
+        }
+
+        @Test
+        fun `should fail if slug already exists`() {
+            val duplicatedSlugProject = Project(
+                "Duplicated Slug",
+                "this is a test project with a duplicated slug",
+                mutableListOf(testAccount),
+                false,
+                listOf("Java", "Kotlin", "Spring"),
+                slug = testProject.slug
+            )
+
+            mockMvc.post("/projects/new") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(testProject)
+            }.andExpect { status { isOk() } }
+
+            mockMvc.post("/projects/new") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(duplicatedSlugProject)
+            }
+                .andExpect {
+                    status { isUnprocessableEntity() }
+                    content { MediaType.APPLICATION_JSON }
+                    jsonPath("$.errors.length()") { value(1) }
+                    jsonPath("$.errors[0].message") { value("slug already exists") }
                 }
         }
 
@@ -205,6 +269,19 @@ internal class ProjectControllerTest @Autowired constructor(
                 fun size() =
                     validationTester.hasSizeBetween(Constants.Description.minSize, Constants.Description.maxSize)
             }
+
+            @NestedTest
+            @DisplayName("slug")
+            inner class SlugValidation {
+                @BeforeAll
+                fun setParam() {
+                    validationTester.param = "slug"
+                }
+
+                @Test
+                @DisplayName("size should be between ${Constants.Slug.minSize} and ${Constants.Slug.maxSize}()")
+                fun size() = validationTester.hasSizeBetween(Constants.Slug.minSize, Constants.Slug.maxSize)
+            }
         }
     }
 
@@ -250,7 +327,7 @@ internal class ProjectControllerTest @Autowired constructor(
         }
 
         @Test
-        fun `should update the project`() {
+        fun `should update the project without the slug`() {
             val newTitle = "New Title"
             val newDescription = "New description of the project"
             val newTeamMembers = mutableListOf<Long>()
@@ -283,6 +360,40 @@ internal class ProjectControllerTest @Autowired constructor(
         }
 
         @Test
+        fun `should update the project with the slug`() {
+            val newTitle = "New Title"
+            val newDescription = "New description of the project"
+            val newIsArchived = true
+            val newSlug = "new-title"
+
+            mockMvc.put("/projects/${testProject.id}") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(
+                    mapOf(
+                        "title" to newTitle,
+                        "description" to newDescription,
+                        "isArchived" to newIsArchived,
+                        "slug" to newSlug
+                    )
+                )
+            }
+                .andExpect {
+                    status { isOk() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$.title") { value(newTitle) }
+                    jsonPath("$.description") { value(newDescription) }
+                    jsonPath("$.isArchived") { value(newIsArchived) }
+                    jsonPath("$.slug") { value(newSlug) }
+                }
+
+            val updatedProject = repository.findById(testProject.id!!).get()
+            assertEquals(newTitle, updatedProject.title)
+            assertEquals(newDescription, updatedProject.description)
+            assertEquals(newIsArchived, updatedProject.isArchived)
+            assertEquals(newSlug, updatedProject.slug)
+        }
+
+        @Test
         fun `should fail if the project does not exist`() {
             mockMvc.put("/projects/1234") {
                 contentType = MediaType.APPLICATION_JSON
@@ -298,6 +409,46 @@ internal class ProjectControllerTest @Autowired constructor(
                     content { contentType(MediaType.APPLICATION_JSON) }
                     jsonPath("$.errors.length()") { value(1) }
                     jsonPath("$.errors[0].message") { value("project not found with id 1234") }
+                }
+        }
+
+        @Test
+        fun `should fail if the slug already exists`() {
+            val newTitle = "New Title"
+            val newDescription = "New description of the project"
+            val newIsArchived = true
+            val newSlug = "new-title"
+
+            mockMvc.post("/projects/new") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(
+                    Project(
+                        "Duplicated Slug",
+                        "this is a test project with a duplicated slug",
+                        mutableListOf(testAccount),
+                        false,
+                        listOf("Java", "Kotlin", "Spring"),
+                        slug = newSlug
+                    )
+                )
+            }.andExpect { status { isOk() } }
+
+            mockMvc.put("/projects/${testProject.id}") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(
+                    mapOf(
+                        "title" to newTitle,
+                        "description" to newDescription,
+                        "isArchived" to newIsArchived,
+                        "slug" to newSlug
+                    )
+                )
+            }
+                .andExpect {
+                    status { isUnprocessableEntity() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$.errors.length()") { value(1) }
+                    jsonPath("$.errors[0].message") { value("slug already exists") }
                 }
         }
 
@@ -351,6 +502,19 @@ internal class ProjectControllerTest @Autowired constructor(
                 )
                 fun size() =
                     validationTester.hasSizeBetween(Constants.Description.minSize, Constants.Description.maxSize)
+            }
+
+            @NestedTest
+            @DisplayName("slug")
+            inner class SlugValidation {
+                @BeforeAll
+                fun setParam() {
+                    validationTester.param = "slug"
+                }
+
+                @Test
+                @DisplayName("size should be between ${Constants.Slug.minSize} and ${Constants.Slug.maxSize}()")
+                fun size() = validationTester.hasSizeBetween(Constants.Slug.minSize, Constants.Slug.maxSize)
             }
         }
     }
