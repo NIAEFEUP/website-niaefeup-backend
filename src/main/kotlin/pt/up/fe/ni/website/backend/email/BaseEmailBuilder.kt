@@ -13,12 +13,9 @@ abstract class BaseEmailBuilder : EmailBuilder {
     private var cc: MutableSet<String> = mutableSetOf()
     private var bcc: MutableSet<String> = mutableSetOf()
 
-    fun from(@Email email: String) = apply {
+    fun from(@Email email: String, personal: String = email) = apply {
         from = email
-    }
-
-    fun fromPersonal(name: String) = apply {
-        fromPersonal = name
+        fromPersonal = personal
     }
 
     fun to(@Email vararg emails: String) = apply {
@@ -46,13 +43,7 @@ abstract class BaseEmailBuilder : EmailBuilder {
     }
 
     override fun build(helper: MimeMessageHelper, emailConfigProperties: EmailConfigProperties) {
-        if (from == null) {
-            helper.setFrom(emailConfigProperties.from, emailConfigProperties.fromPersonal ?: emailConfigProperties.from)
-        } else if (fromPersonal == null) {
-            helper.setFrom(from!!)
-        } else {
-            helper.setFrom(from!!, fromPersonal!!)
-        }
+        helper.setFrom(from ?: emailConfigProperties.from, fromPersonal ?: emailConfigProperties.fromPersonal)
 
         to.forEach(helper::setTo)
         cc.forEach(helper::setCc)

@@ -23,7 +23,7 @@ abstract class TemplateEmailBuilder<T> : BaseEmailBuilder() {
         helper.setSubject(subject(data))
 
         val mustache = Mustache.compiler().withLoader(
-            MustacheResourceTemplateLoader("classpath:/templates/email/", ".mustache")
+            MustacheResourceTemplateLoader(emailConfigProperties.templatePrefix, emailConfigProperties.templateSuffix)
         )
         var text: String? = null
         var html: String? = null
