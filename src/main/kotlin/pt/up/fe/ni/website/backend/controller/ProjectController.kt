@@ -18,8 +18,11 @@ class ProjectController(private val service: ProjectService) {
     @GetMapping
     fun getAllProjects() = service.getAllProjects()
 
-    @GetMapping("/{id}")
+    @GetMapping("/{id:\\d+}")
     fun getProjectById(@PathVariable id: Long) = service.getProjectById(id)
+
+    @GetMapping("/{projectSlug}**")
+    fun getProjectBySlug(@PathVariable projectSlug: String) = service.getProjectBySlug(projectSlug)
 
     @PostMapping("/new")
     fun createNewProject(@RequestBody dto: ProjectDto) = service.createProject(dto)
