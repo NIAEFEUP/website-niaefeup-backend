@@ -23,9 +23,7 @@ import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
-import org.springframework.test.web.servlet.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -277,33 +275,80 @@ internal class EventControllerTest @Autowired constructor(
 
         @Test
         fun `should return the event`() {
-            mockMvc.get("/events/${testEvent.slug}")
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.title") { value(testEvent.title) }
-                    jsonPath("$.description") { value(testEvent.description) }
-                    jsonPath("$.teamMembers.length()") { value(1) }
-                    jsonPath("$.teamMembers[0].email") { value(testAccount.email) }
-                    jsonPath("$.teamMembers[0].name") { value(testAccount.name) }
-                    jsonPath("$.registerUrl") { value(testEvent.registerUrl) }
-                    jsonPath("$.dateInterval.startDate") { value(testEvent.dateInterval.startDate.toJson()) }
-                    jsonPath("$.dateInterval.endDate") { value(testEvent.dateInterval.endDate.toJson()) }
-                    jsonPath("$.location") { value(testEvent.location) }
-                    jsonPath("$.category") { value(testEvent.category) }
-                    jsonPath("$.thumbnailPath") { value(testEvent.thumbnailPath) }
-                    jsonPath("$.slug") { value(testEvent.slug) }
-                }
+            mockMvc.perform(get("/events/{slug}", testEvent.slug))
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.title").value(testEvent.title),
+                    jsonPath("$.description").value(testEvent.description),
+                    jsonPath("$.teamMembers.length()").value(1),
+                    jsonPath("$.teamMembers[0].email").value(testAccount.email),
+                    jsonPath("$.teamMembers[0].name").value(testAccount.name),
+                    jsonPath("$.registerUrl").value(testEvent.registerUrl),
+                    jsonPath("$.dateInterval.startDate").value(testEvent.dateInterval.startDate.toJson()),
+                    jsonPath("$.dateInterval.endDate").value(testEvent.dateInterval.endDate.toJson()),
+                    jsonPath("$.location").value(testEvent.location),
+                    jsonPath("$.category").value(testEvent.category),
+                    jsonPath("$.thumbnailPath").value(testEvent.thumbnailPath),
+                    jsonPath("$.slug").value(testEvent.slug)
+                )
+                .andDo(
+                    document(
+                        "events/{ClassName}/{methodName}",
+                        snippets = arrayOf(
+                            resource(
+                                builder()
+                                    .summary("Get events by slug")
+                                    .description(
+                                        """
+                                        This endpoint allows the retrieval of a single event using its slug.
+                                        """.trimIndent()
+                                    )
+                                    .pathParameters(
+                                        parameterWithName("slug").description(
+                                            "Short and friendly textual event identifier"
+                                        )
+                                    )
+                                    .responseSchema(eventPayloadSchema.Response().schema())
+                                    .responseFields(
+                                        eventPayloadSchema.Response().documentedFields(responseOnlyEventFields)
+                                    )
+                                    .tag("Events")
+                                    .build()
+                            )
+                        )
+                    )
+                )
         }
 
         @Test
         fun `should fail if the event slug does not exist`() {
-            mockMvc.get("/events/fail-slug").andExpect {
-                status { isNotFound() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.errors.length()") { value(1) }
-                jsonPath("$.errors[0].message") { value("event not found with slug fail-slug") }
-            }
+            mockMvc.perform(get("/events/{slug}", "fail-slug"))
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("event not found with slug fail-slug")
+                )
+                .andDo(
+                    document(
+                        "events/{ClassName}/{methodName}",
+                        snippets = arrayOf(
+                            resource(
+                                builder()
+                                    .pathParameters(
+                                        parameterWithName("slug").description(
+                                            "Short and friendly textual event identifier"
+                                        )
+                                    )
+                                    .responseSchema(ErrorSchema().Response().schema())
+                                    .responseFields(ErrorSchema().Response().documentedFields())
+                                    .tag("Events")
+                                    .build()
+                            )
+                        )
+                    )
+                )
         }
     }
 
@@ -492,16 +537,32 @@ internal class EventControllerTest @Autowired constructor(
                 content = objectMapper.writeValueAsString(testEvent)
             }.andExpect { status { isOk() } }
 
-            mockMvc.post("/events/new") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(duplicatedSlugEvent)
-            }
-                .andExpect {
-                    status { isUnprocessableEntity() }
-                    content { MediaType.APPLICATION_JSON }
-                    jsonPath("$.errors.length()") { value(1) }
-                    jsonPath("$.errors[0].message") { value("slug already exists") }
-                }
+            mockMvc.perform(
+                post("/events/new")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(duplicatedSlugEvent))
+            )
+                .andExpectAll(
+                    status().isUnprocessableEntity,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("slug already exists")
+                )
+                .andDo(
+                    document(
+                        "events/{ClassName}/{methodName}",
+                        snippets = arrayOf(
+                            resource(
+                                builder()
+                                    .requestSchema(eventPayloadSchema.Request().schema())
+                                    .responseSchema(ErrorSchema().Response().schema())
+                                    .responseFields(ErrorSchema().Response().documentedFields())
+                                    .tag("Events")
+                                    .build()
+                            )
+                        )
+                    )
+                )
         }
 
         @NestedTest
@@ -513,21 +574,22 @@ internal class EventControllerTest @Autowired constructor(
                         post("/events/new")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(params))
-                    ).andDo(
-                        document(
-                            "events/{ClassName}/{methodName}",
-                            snippets = arrayOf(
-                                resource(
-                                    builder()
-                                        .requestSchema(eventPayloadSchema.Request().schema())
-                                        .responseSchema(ErrorSchema().Response().schema())
-                                        .responseFields(ErrorSchema().Response().documentedFields())
-                                        .tag("Events")
-                                        .build()
+                    )
+                        .andDo(
+                            document(
+                                "events/{ClassName}/{methodName}",
+                                snippets = arrayOf(
+                                    resource(
+                                        builder()
+                                            .requestSchema(eventPayloadSchema.Request().schema())
+                                            .responseSchema(ErrorSchema().Response().schema())
+                                            .responseFields(ErrorSchema().Response().documentedFields())
+                                            .tag("Events")
+                                            .build()
+                                    )
                                 )
                             )
                         )
-                    )
                 },
                 requiredFields = mapOf(
                     "title" to testEvent.title,

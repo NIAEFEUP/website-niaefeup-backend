@@ -1,9 +1,10 @@
 package pt.up.fe.ni.website.backend.controller
 
-import com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper
-import com.epages.restdocs.apispec.ResourceDocumentation
+import pt.up.fe.ni.website.backend.model.constants.ActivityConstants as Constants
+import com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document
 import com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName
-import com.epages.restdocs.apispec.ResourceSnippetParameters
+import com.epages.restdocs.apispec.ResourceDocumentation.resource
+import com.epages.restdocs.apispec.ResourceSnippetParameters.Companion.builder
 import com.epages.restdocs.apispec.Schema
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.util.Calendar
@@ -24,16 +25,13 @@ import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
-import org.springframework.test.web.servlet.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.CustomWebsite
 import pt.up.fe.ni.website.backend.model.Project
-import pt.up.fe.ni.website.backend.model.constants.ActivityConstants as Constants
 import pt.up.fe.ni.website.backend.repository.AccountRepository
 import pt.up.fe.ni.website.backend.repository.ProjectRepository
 import pt.up.fe.ni.website.backend.utils.TestUtils
@@ -114,7 +112,7 @@ internal class ProjectControllerTest @Autowired constructor(
     private val requestOnlyProjectFields = listOf<FieldDescriptor>(
         fieldWithPath("teamMembersIds").type(JsonFieldType.ARRAY).description(
             "Array with IDs of members associated with the project"
-        ),
+        ).optional(),
         fieldWithPath("teamMembersIds.*").type(JsonFieldType.NUMBER).description("Account ID").optional()
     )
 
@@ -147,11 +145,11 @@ internal class ProjectControllerTest @Autowired constructor(
                     content().json(objectMapper.writeValueAsString(testProjects))
                 )
                 .andDo(
-                    MockMvcRestDocumentationWrapper.document(
+                    document(
                         "projects/{ClassName}/{methodName}",
                         snippets = arrayOf(
-                            ResourceDocumentation.resource(
-                                ResourceSnippetParameters.builder()
+                            resource(
+                                builder()
                                     .summary("Get all the events")
                                     .description(
                                         """
@@ -194,11 +192,11 @@ internal class ProjectControllerTest @Autowired constructor(
                     jsonPath("$.slug").value(testProject.slug)
                 )
                 .andDo(
-                    MockMvcRestDocumentationWrapper.document(
+                    document(
                         "projects/{ClassName}/{methodName}",
                         snippets = arrayOf(
-                            ResourceDocumentation.resource(
-                                ResourceSnippetParameters.builder()
+                            resource(
+                                builder()
                                     .summary("Get projects by ID")
                                     .description(
                                         """
@@ -231,11 +229,11 @@ internal class ProjectControllerTest @Autowired constructor(
                     jsonPath("$.errors[0].message").value("project not found with id 1234")
                 )
                 .andDo(
-                    MockMvcRestDocumentationWrapper.document(
+                    document(
                         "projects/{ClassName}/{methodName}",
                         snippets = arrayOf(
-                            ResourceDocumentation.resource(
-                                ResourceSnippetParameters.builder()
+                            resource(
+                                builder()
                                     .pathParameters(
                                         parameterWithName("id").description("ID of the project to retrieve")
                                     )
@@ -261,25 +259,74 @@ internal class ProjectControllerTest @Autowired constructor(
 
         @Test
         fun `should return the project`() {
-            mockMvc.get("/projects/${testProject.slug}").andExpect {
-                status { isOk() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.title") { value(testProject.title) }
-                jsonPath("$.description") { value(testProject.description) }
-                jsonPath("$.technologies.length()") { value(testProject.technologies.size) }
-                jsonPath("$.technologies[0]") { value(testProject.technologies[0]) }
-                jsonPath("$.slug") { value(testProject.slug) }
-            }
+            mockMvc.perform(get("/projects/{slug}", testProject.slug))
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.title").value(testProject.title),
+                    jsonPath("$.description").value(testProject.description),
+                    jsonPath("$.technologies.length()").value(testProject.technologies.size),
+                    jsonPath("$.technologies[0]").value(testProject.technologies[0]),
+                    jsonPath("$.slug").value(testProject.slug)
+                )
+                .andDo(
+                    document(
+                        "projects/{ClassName}/{methodName}",
+                        snippets = arrayOf(
+                            resource(
+                                builder()
+                                    .summary("Get projects by slug")
+                                    .description(
+                                        """
+                                        This endpoint allows the retrieval of a single project using its slug.
+                                        """.trimIndent()
+                                    )
+                                    .pathParameters(
+                                        parameterWithName("slug").description(
+                                            "Short and friendly textual project identifier"
+                                        )
+                                    )
+                                    .responseSchema(projectPayloadSchema.Response().schema())
+                                    .responseFields(
+                                        projectPayloadSchema.Response().documentedFields(responseOnlyProjectFields)
+                                    )
+                                    .tag("Projects")
+                                    .build()
+                            )
+                        )
+                    )
+                )
         }
 
         @Test
         fun `should fail if the project does not exist`() {
-            mockMvc.get("/projects/does-not-exist").andExpect {
-                status { isNotFound() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.errors.length()") { value(1) }
-                jsonPath("$.errors[0].message") { value("project not found with slug does-not-exist") }
-            }
+            mockMvc.perform(get("/projects/{slug}", "does-not-exist"))
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message")
+                        .value("project not found with slug does-not-exist")
+                )//.anDocumentError()
+                .andDo(
+                    document(
+                        "projects/{ClassName}/{methodName}",
+                        snippets = arrayOf(
+                            resource(
+                                builder()
+                                    .pathParameters(
+                                        parameterWithName("slug").description(
+                                            "Short and friendly textual project identifier"
+                                        )
+                                    )
+                                    .responseSchema(ErrorSchema().Response().schema())
+                                    .responseFields(ErrorSchema().Response().documentedFields())
+                                    .tag("Projects")
+                                    .build()
+                            )
+                        )
+                    )
+                )
         }
     }
 
@@ -322,11 +369,11 @@ internal class ProjectControllerTest @Autowired constructor(
                     jsonPath("$.slug").value(testProject.slug)
                 )
                 .andDo(
-                    MockMvcRestDocumentationWrapper.document(
+                    document(
                         "events/{ClassName}/{methodName}",
                         snippets = arrayOf(
-                            ResourceDocumentation.resource(
-                                ResourceSnippetParameters.builder()
+                            resource(
+                                builder()
                                     .summary("Create new projects")
                                     .description(
                                         """
@@ -365,16 +412,32 @@ internal class ProjectControllerTest @Autowired constructor(
                 content = objectMapper.writeValueAsString(testProject)
             }.andExpect { status { isOk() } }
 
-            mockMvc.post("/projects/new") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(duplicatedSlugProject)
-            }
-                .andExpect {
-                    status { isUnprocessableEntity() }
-                    content { MediaType.APPLICATION_JSON }
-                    jsonPath("$.errors.length()") { value(1) }
-                    jsonPath("$.errors[0].message") { value("slug already exists") }
-                }
+            mockMvc.perform(
+                post("/projects/new")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(duplicatedSlugProject))
+            )
+                .andExpectAll(
+                    status().isUnprocessableEntity,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("slug already exists")
+                )
+                .andDo(
+                    document(
+                        "projects/{ClassName}/{methodName}",
+                        snippets = arrayOf(
+                            resource(
+                                builder()
+                                    .requestSchema(projectPayloadSchema.Request().schema())
+                                    .responseSchema(ErrorSchema().Response().schema())
+                                    .responseFields(ErrorSchema().Response().documentedFields())
+                                    .tag("Projects")
+                                    .build()
+                            )
+                        )
+                    )
+                )
         }
 
         @NestedTest
@@ -388,11 +451,11 @@ internal class ProjectControllerTest @Autowired constructor(
                             .content(objectMapper.writeValueAsString(params))
                     )
                         .andDo(
-                            MockMvcRestDocumentationWrapper.document(
-                                "events/{ClassName}/{methodName}",
+                            document(
+                                "projects/{ClassName}/{methodName}",
                                 snippets = arrayOf(
-                                    ResourceDocumentation.resource(
-                                        ResourceSnippetParameters.builder()
+                                    resource(
+                                        builder()
                                             .requestSchema(projectPayloadSchema.Request().schema())
                                             .responseSchema(ErrorSchema().Response().schema())
                                             .responseFields(ErrorSchema().Response().documentedFields())
@@ -478,11 +541,11 @@ internal class ProjectControllerTest @Autowired constructor(
                     jsonPath("$").isEmpty
                 )
                 .andDo(
-                    MockMvcRestDocumentationWrapper.document(
+                    document(
                         "projects/{ClassName}/{methodName}",
                         snippets = arrayOf(
-                            ResourceDocumentation.resource(
-                                ResourceSnippetParameters.builder()
+                            resource(
+                                builder()
                                     .summary("Delete projects")
                                     .description(
                                         """
@@ -510,11 +573,11 @@ internal class ProjectControllerTest @Autowired constructor(
                     jsonPath("$.errors[0].message").value("project not found with id 1234")
                 )
                 .andDo(
-                    MockMvcRestDocumentationWrapper.document(
+                    document(
                         "projects/{ClassName}/{methodName}",
                         snippets = arrayOf(
-                            ResourceDocumentation.resource(
-                                ResourceSnippetParameters.builder()
+                            resource(
+                                builder()
                                     .pathParameters(parameterWithName("id").description("ID of the project to delete"))
                                     .responseSchema(ErrorSchema().Response().schema())
                                     .responseFields(ErrorSchema().Response().documentedFields())
@@ -567,11 +630,11 @@ internal class ProjectControllerTest @Autowired constructor(
                     jsonPath("$.isArchived").value(newIsArchived)
                 )
                 .andDo(
-                    MockMvcRestDocumentationWrapper.document(
+                    document(
                         "projects/{ClassName}/{methodName}",
                         snippets = arrayOf(
-                            ResourceDocumentation.resource(
-                                ResourceSnippetParameters.builder()
+                            resource(
+                                builder()
                                     .summary("Update projects")
                                     .description(
                                         """Update previously created projects, using their ID."""
@@ -605,25 +668,53 @@ internal class ProjectControllerTest @Autowired constructor(
             val newIsArchived = true
             val newSlug = "new-title"
 
-            mockMvc.put("/projects/${testProject.id}") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(
-                    mapOf(
-                        "title" to newTitle,
-                        "description" to newDescription,
-                        "isArchived" to newIsArchived,
-                        "slug" to newSlug
+            mockMvc.perform(
+                put("/projects/{id}", testProject.id)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf(
+                                "title" to newTitle,
+                                "description" to newDescription,
+                                "isArchived" to newIsArchived,
+                                "slug" to newSlug
+                            )
+                        )
+                    )
+            )
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.title").value(newTitle),
+                    jsonPath("$.description").value(newDescription),
+                    jsonPath("$.isArchived").value(newIsArchived),
+                    jsonPath("$.slug").value(newSlug)
+                )
+                .andDo(
+                    document(
+                        "projects/{ClassName}/{methodName}",
+                        snippets = arrayOf(
+                            resource(
+                                builder()
+                                    .summary("Update projects")
+                                    .description(
+                                        """Update previously created projects, using their ID."""
+                                    )
+                                    .pathParameters(parameterWithName("id").description("ID of the project to update"))
+                                    .requestSchema(projectPayloadSchema.Request().schema())
+                                    .requestFields(
+                                        projectPayloadSchema.Request().documentedFields(requestOnlyProjectFields)
+                                    )
+                                    .responseSchema(projectPayloadSchema.Response().schema())
+                                    .responseFields(
+                                        projectPayloadSchema.Response().documentedFields(responseOnlyProjectFields)
+                                    )
+                                    .tag("Projects")
+                                    .build()
+                            )
+                        )
                     )
                 )
-            }
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.title") { value(newTitle) }
-                    jsonPath("$.description") { value(newDescription) }
-                    jsonPath("$.isArchived") { value(newIsArchived) }
-                    jsonPath("$.slug") { value(newSlug) }
-                }
 
             val updatedProject = repository.findById(testProject.id!!).get()
             assertEquals(newTitle, updatedProject.title)
@@ -653,11 +744,11 @@ internal class ProjectControllerTest @Autowired constructor(
                     jsonPath("$.errors[0].message").value("project not found with id 1234")
                 )
                 .andDo(
-                    MockMvcRestDocumentationWrapper.document(
+                    document(
                         "projects/{ClassName}/{methodName}",
                         snippets = arrayOf(
-                            ResourceDocumentation.resource(
-                                ResourceSnippetParameters.builder()
+                            resource(
+                                builder()
                                     .pathParameters(parameterWithName("id").description("ID of the project to update"))
                                     .requestSchema(projectPayloadSchema.Request().schema())
                                     .responseSchema(ErrorSchema().Response().schema())
@@ -691,23 +782,42 @@ internal class ProjectControllerTest @Autowired constructor(
                 )
             }.andExpect { status { isOk() } }
 
-            mockMvc.put("/projects/${testProject.id}") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(
-                    mapOf(
-                        "title" to newTitle,
-                        "description" to newDescription,
-                        "isArchived" to newIsArchived,
-                        "slug" to newSlug
+            mockMvc.perform(
+                put("/projects/{id}", testProject.id)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf(
+                                "title" to newTitle,
+                                "description" to newDescription,
+                                "isArchived" to newIsArchived,
+                                "slug" to newSlug
+                            )
+                        )
+                    )
+            )
+                .andExpectAll(
+                    status().isUnprocessableEntity,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("slug already exists")
+                )
+                .andDo(
+                    document(
+                        "projects/{ClassName}/{methodName}",
+                        snippets = arrayOf(
+                            resource(
+                                builder()
+                                    .pathParameters(parameterWithName("id").description("ID of the project to update"))
+                                    .requestSchema(projectPayloadSchema.Request().schema())
+                                    .responseSchema(ErrorSchema().Response().schema())
+                                    .responseFields(ErrorSchema().Response().documentedFields())
+                                    .tag("Projects")
+                                    .build()
+                            )
+                        )
                     )
                 )
-            }
-                .andExpect {
-                    status { isUnprocessableEntity() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.errors.length()") { value(1) }
-                    jsonPath("$.errors[0].message") { value("slug already exists") }
-                }
         }
 
         @NestedTest
@@ -721,11 +831,11 @@ internal class ProjectControllerTest @Autowired constructor(
                             .content(objectMapper.writeValueAsString(params))
                     )
                         .andDo(
-                            MockMvcRestDocumentationWrapper.document(
+                            document(
                                 "projects/{ClassName}/{methodName}",
                                 snippets = arrayOf(
-                                    ResourceDocumentation.resource(
-                                        ResourceSnippetParameters.builder()
+                                    resource(
+                                        builder()
                                             .pathParameters(
                                                 parameterWithName("id").description("ID of the project to update")
                                             )
@@ -820,11 +930,11 @@ internal class ProjectControllerTest @Autowired constructor(
                     jsonPath("$.isArchived").value(newIsArchived)
                 )
                 .andDo(
-                    MockMvcRestDocumentationWrapper.document(
+                    document(
                         "projects/{ClassName}/{methodName}",
                         snippets = arrayOf(
-                            ResourceDocumentation.resource(
-                                ResourceSnippetParameters.builder()
+                            resource(
+                                builder()
                                     .summary("Archive projects")
                                     .description(
                                         """This endpoint updates projects as archived. This is useful to mark no longer
@@ -892,11 +1002,11 @@ internal class ProjectControllerTest @Autowired constructor(
                     jsonPath("$.isArchived").value(newIsArchived)
                 )
                 .andDo(
-                    MockMvcRestDocumentationWrapper.document(
+                    document(
                         "projects/{ClassName}/{methodName}",
                         snippets = arrayOf(
-                            ResourceDocumentation.resource(
-                                ResourceSnippetParameters.builder()
+                            resource(
+                                builder()
                                     .summary("Unarchive projects")
                                     .description(
                                         """This endpoint updates projects as unarchived.
@@ -986,11 +1096,11 @@ internal class ProjectControllerTest @Autowired constructor(
                     jsonPath("$.teamMembers[1].websites[0].iconPath").value(newAccount.websites[0].iconPath)
                 )
                 .andDo(
-                    MockMvcRestDocumentationWrapper.document(
+                    document(
                         "projects/{ClassName}/{methodName}",
                         snippets = arrayOf(
-                            ResourceDocumentation.resource(
-                                ResourceSnippetParameters.builder()
+                            resource(
+                                builder()
                                     .summary("Add member to Project")
                                     .description(
                                         """
@@ -1025,11 +1135,11 @@ internal class ProjectControllerTest @Autowired constructor(
                     jsonPath("$.errors[0].message").value("account not found with id 1234")
                 )
                 .andDo(
-                    MockMvcRestDocumentationWrapper.document(
+                    document(
                         "projects/{ClassName}/{methodName}",
                         snippets = arrayOf(
-                            ResourceDocumentation.resource(
-                                ResourceSnippetParameters.builder()
+                            resource(
+                                builder()
                                     .pathParameters(
                                         parameterWithName("projectId").description(
                                             "ID of the project to add the member to"
@@ -1066,11 +1176,11 @@ internal class ProjectControllerTest @Autowired constructor(
                     jsonPath("$.teamMembers.length()").value(0)
                 )
                 .andDo(
-                    MockMvcRestDocumentationWrapper.document(
+                    document(
                         "projects/{ClassName}/{methodName}",
                         snippets = arrayOf(
-                            ResourceDocumentation.resource(
-                                ResourceSnippetParameters.builder()
+                            resource(
+                                builder()
                                     .summary("Remove member from Project")
                                     .description(
                                         """
@@ -1105,11 +1215,11 @@ internal class ProjectControllerTest @Autowired constructor(
                     jsonPath("$.errors[0].message").value("account not found with id 1234")
                 )
                 .andDo(
-                    MockMvcRestDocumentationWrapper.document(
+                    document(
                         "projects/{ClassName}/{methodName}",
                         snippets = arrayOf(
-                            ResourceDocumentation.resource(
-                                ResourceSnippetParameters.builder()
+                            resource(
+                                builder()
                                     .pathParameters(
                                         parameterWithName("projectId").description(
                                             "ID of the project to remove the member from"
