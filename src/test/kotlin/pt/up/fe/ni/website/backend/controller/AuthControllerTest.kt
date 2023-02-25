@@ -33,6 +33,7 @@ import pt.up.fe.ni.website.backend.repository.AccountRepository
 import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
 import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
+import pt.up.fe.ni.website.backend.utils.documentation.DocumentationHelper.Companion.addFieldsToPayloadBeneathPath
 import pt.up.fe.ni.website.backend.utils.documentation.ErrorSchema
 import pt.up.fe.ni.website.backend.utils.documentation.PayloadSchema
 
@@ -83,13 +84,17 @@ class AuthControllerTest @Autowired constructor(
     )
     private val refreshAuthPayloadSchema = PayloadSchema("auth-refresh", emptyList())
 
-    private val responseOnlyCheckAuthFields = listOf<FieldDescriptor>(
-        fieldWithPath("authenticated_user").type(JsonFieldType.STRING).description("Email of the authenticated user.")
-    )
     private val checkAuthHeaders = listOf<HeaderDescriptorWithType>(
         headerWithName(HttpHeaders.AUTHORIZATION).description("Bearer authentication token")
     )
-    private val checkAuthPayloadSchema = PayloadSchema("auth-check", emptyList())
+    private val checkAuthPayloadSchema = PayloadSchema(
+        "auth-check",
+        listOf<FieldDescriptor>(
+            fieldWithPath("authenticated_user").type(JsonFieldType.OBJECT).description(
+                "Authenticated account's information."
+            )
+        )
+    )
 
     @NestedTest
     @DisplayName("POST /auth/new")
@@ -290,7 +295,7 @@ class AuthControllerTest @Autowired constructor(
     }
 
     @NestedTest
-    @DisplayName("GET /auth/check")
+    @DisplayName("GET /auth")
     inner class CheckToken {
         @BeforeEach
         fun setup() {
@@ -354,12 +359,13 @@ class AuthControllerTest @Autowired constructor(
                 content = objectMapper.writeValueAsString(LoginDto(testAccount.email, testPassword))
             }.andReturn().response.let { response ->
                 val accessToken = objectMapper.readTree(response.contentAsString)["access_token"].asText()
+
                 mockMvc.perform(
                     get("/auth")
                         .header("Authorization", "Bearer $accessToken")
                 ).andExpectAll(
                     status().isOk,
-                    jsonPath("$.authenticated_user").value(testAccount.email)
+                    jsonPath("$.authenticated_user.email").value(testAccount.email)
                 )
                     .andDo(
                         MockMvcRestDocumentationWrapper.document(
@@ -370,15 +376,20 @@ class AuthControllerTest @Autowired constructor(
                                         .summary("Check access token")
                                         .description(
                                             """
-                                        This endpoint operation allows to check if a given access token is valid, returning the associated account's email.
+                                        This endpoint operation allows to check if a given access token is valid, returning the associated account's information.
                                             """.trimIndent()
                                         )
                                         .requestHeaders(checkAuthHeaders)
                                         .responseSchema(checkAuthPayloadSchema.Response().schema())
                                         .responseFields(
-                                            checkAuthPayloadSchema.Response().documentedFields(
-                                                responseOnlyCheckAuthFields
-                                            )
+                                            checkAuthPayloadSchema.Response().documentedFields()
+                                                .addFieldsToPayloadBeneathPath(
+                                                    "authenticated_user",
+                                                    AccountControllerTest.accountPayloadSchema.Response()
+                                                        .documentedFields(
+                                                            AccountControllerTest.responseOnlyAccountFields
+                                                        )
+                                                )
                                         )
                                         .tag("Authentication")
                                         .build()
