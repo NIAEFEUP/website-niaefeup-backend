@@ -132,7 +132,7 @@ class AuthControllerTest @Autowired constructor(
     }
 
     @NestedTest
-    @DisplayName("GET /auth/check")
+    @DisplayName("GET /auth")
     inner class CheckToken {
         @BeforeEach
         fun setup() {
@@ -168,7 +168,7 @@ class AuthControllerTest @Autowired constructor(
                     header("Authorization", "Bearer $accessToken")
                 }.andExpect {
                     status { isOk() }
-                    jsonPath("$.authenticated_user") { value(testAccount.email) }
+                    jsonPath("$.authenticated_user.email") { value(testAccount.email) }
                 }
             }
         }
