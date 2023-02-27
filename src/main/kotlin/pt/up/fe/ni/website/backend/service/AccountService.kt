@@ -3,6 +3,7 @@ package pt.up.fe.ni.website.backend.service
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
+import pt.up.fe.ni.website.backend.dto.auth.ChangePasswordDto
 import pt.up.fe.ni.website.backend.dto.entity.AccountDto
 import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.repository.AccountRepository
@@ -28,4 +29,13 @@ class AccountService(private val repository: AccountRepository, private val enco
 
     fun getAccountByEmail(email: String): Account = repository.findByEmail(email)
         ?: throw NoSuchElementException(ErrorMessages.emailNotFound(email))
+
+    fun changePassword(id: Long, dto: ChangePasswordDto) {
+        val account = getAccountById(id)
+        if (!encoder.matches(dto.oldPassword, account.password)) {
+            throw IllegalArgumentException(ErrorMessages.invalidCredentials)
+        }
+        account.password = encoder.encode(dto.newPassword)
+        repository.save(account)
+    }
 }
