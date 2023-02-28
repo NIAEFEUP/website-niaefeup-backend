@@ -42,7 +42,7 @@ class AuthRefresh : ModelDocumentation(
     mutableListOf(
         DocumentedJSONField(
             "token",
-            "Access token, used to identify the user",
+            "Refresh token, used to refresh the access token",
             JsonFieldType.STRING,
             isInResponse = false
         ),

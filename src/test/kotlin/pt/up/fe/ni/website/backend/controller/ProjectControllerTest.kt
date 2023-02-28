@@ -105,7 +105,7 @@ internal class ProjectControllerTest @Autowired constructor(
                 )
                 .andDocument(
                     documentation.getModelDocumentationArray(),
-                    "Get all the events",
+                    "Get all the projects",
                     "The operation returns an array of projects, allowing to easily retrieve all the created " +
                         "projects. This is useful for example in the frontend project page, " +
                         "where projects are displayed."

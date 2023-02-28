@@ -14,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDoc
 import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
@@ -37,7 +38,8 @@ import pt.up.fe.ni.website.backend.utils.documentation.ModelDocumentation
 class AccountControllerTest @Autowired constructor(
     val mockMvc: MockMvc,
     val objectMapper: ObjectMapper,
-    val repository: AccountRepository
+    val repository: AccountRepository,
+    val encoder: PasswordEncoder
 ) {
     val documentation: ModelDocumentation = PayloadAccount()
 
@@ -476,6 +478,61 @@ class AccountControllerTest @Autowired constructor(
                     jsonPath("$.errors[0].message").value("email already exists")
                 )
                 .andDocumentErrorResponse(documentation, hasRequestPayload = true)
+        }
+    }
+
+    @NestedTest
+    @DisplayName("POST /accounts/changePassword/{id}")
+    inner class ChangePassword {
+        private val password = "test_password"
+        private val changePasswordAccount: Account = ObjectMapper().readValue(
+            ObjectMapper().writeValueAsString(testAccount),
+            Account::class.java
+        )
+
+        init {
+            changePasswordAccount.password = encoder.encode(changePasswordAccount.password)
+        }
+
+        @BeforeEach
+        fun addAccount() {
+            repository.save(changePasswordAccount)
+        }
+
+        @Test
+        fun `should change password`() {
+            mockMvc.post("/accounts/changePassword/${changePasswordAccount.id}") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(
+                    mapOf(
+                        "oldPassword" to password,
+                        "newPassword" to "test_password2"
+                    )
+                )
+            }.andExpect { status { isOk() } }
+
+            mockMvc.post("/auth/new") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(
+                    mapOf(
+                        "email" to changePasswordAccount.email,
+                        "password" to "test_password2"
+                    )
+                )
+            }.andExpect { status { isOk() } }
+        }
+
+        @Test
+        fun `should fail due to wrong password`() {
+            mockMvc.post("/accounts/changePassword/${changePasswordAccount.id}") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(
+                    mapOf(
+                        "oldPassword" to "wrong_password",
+                        "newPassword" to "test_password2"
+                    )
+                )
+            }.andExpect { status { isUnprocessableEntity() } }
         }
     }
 
