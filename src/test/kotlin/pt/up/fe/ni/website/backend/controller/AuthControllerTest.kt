@@ -132,6 +132,34 @@ class AuthControllerTest @Autowired constructor(
     }
 
     @NestedTest
+    @DisplayName("POST /auth/recoverPassword/{id}")
+    inner class RecoverPassword {
+        @BeforeEach
+        fun setup() {
+            repository.save(testAccount)
+        }
+
+        @Test
+        fun `should fail if id is not found`() {
+            mockMvc.post("/auth/recoverPassword/1234")
+                .andExpect {
+                    status { isNotFound() }
+                    jsonPath("$.errors.length()") { value(1) }
+                    jsonPath("$.errors[0].message") { value("account not found with id 1234") }
+                }
+        }
+
+        @Test
+        fun `should return password recovery link`() {
+            mockMvc.post("/auth/recoverPassword/${testAccount.id}")
+                .andExpect {
+                    status { isOk() }
+                    jsonPath("$.recovery_url") { exists() }
+                }
+        }
+    }
+
+    @NestedTest
     @DisplayName("GET /auth/check")
     inner class CheckToken {
         @BeforeEach

@@ -11,6 +11,7 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
+import org.springframework.test.web.servlet.put
 import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.CustomWebsite
 import pt.up.fe.ni.website.backend.repository.AccountRepository
@@ -415,6 +416,52 @@ class AccountControllerTest @Autowired constructor(
                 content { contentType(MediaType.APPLICATION_JSON) }
                 jsonPath("$.errors.length()") { value(1) }
                 jsonPath("$.errors[0].message") { value("email already exists") }
+            }
+        }
+    }
+
+    @NestedTest
+    @DisplayName("PUT /recoverPassword/{recoveryToken}")
+    inner class RecoverPassword {
+        private val newPassword = "new-password"
+
+        @BeforeEach
+        fun setup() {
+            repository.save(testAccount)
+        }
+
+        @Test
+        fun `should update the password`() {
+            mockMvc.post("/auth/recoverPassword/${testAccount.id}")
+                .andReturn().response.let { authResponse ->
+                    val recoveryLink = objectMapper.readTree(authResponse.contentAsString)["recovery_url"].asText()
+                        .removePrefix("localhost:8080")
+                    mockMvc.put(recoveryLink) {
+                        contentType = MediaType.APPLICATION_JSON
+                        content = objectMapper.writeValueAsString(
+                            mapOf(
+                                "password" to newPassword
+                            )
+                        )
+                    }.andExpect {
+                        status { isOk() }
+                    }
+                }
+        }
+
+        @Test
+        fun `should fail when token is invalid`() {
+            mockMvc.put("/accounts/recoverPassword/invalid_token") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(
+                    mapOf(
+                        "password" to newPassword
+                    )
+                )
+            }.andExpect {
+                status { isUnauthorized() }
+                jsonPath("$.errors.length()") { value(1) }
+                jsonPath("$.errors[0].message") { value("invalid password recovery token") }
             }
         }
     }
