@@ -1,9 +1,6 @@
 package pt.up.fe.ni.website.backend.controller
 
-import com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document
-import com.epages.restdocs.apispec.ResourceDocumentation
-import com.epages.restdocs.apispec.ResourceDocumentation.resource
-import com.epages.restdocs.apispec.ResourceSnippetParameters.Companion.builder
+import com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.util.Calendar
 import java.util.Date
@@ -17,14 +14,12 @@ import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDoc
 import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
-import org.springframework.restdocs.payload.FieldDescriptor
-import org.springframework.restdocs.payload.JsonFieldType
-import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import pt.up.fe.ni.website.backend.documentation.payloadschemas.model.Account as PayloadAccount
 import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.CustomWebsite
 import pt.up.fe.ni.website.backend.model.constants.AccountConstants as Constants
@@ -33,8 +28,9 @@ import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.ValidationTester
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
 import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
-import pt.up.fe.ni.website.backend.utils.documentation.ErrorSchema
-import pt.up.fe.ni.website.backend.utils.documentation.PayloadSchema
+import pt.up.fe.ni.website.backend.utils.documentation.MockMVCExtension.Companion.andDocument
+import pt.up.fe.ni.website.backend.utils.documentation.MockMVCExtension.Companion.andDocumentErrorResponse
+import pt.up.fe.ni.website.backend.utils.documentation.ModelDocumentation
 
 @ControllerTest
 @AutoConfigureRestDocs
@@ -43,6 +39,8 @@ class AccountControllerTest @Autowired constructor(
     val objectMapper: ObjectMapper,
     val repository: AccountRepository
 ) {
+    val documentation: ModelDocumentation = PayloadAccount()
+
     val testAccount = Account(
         "Test Account",
         "test_account@test.com",
@@ -57,40 +55,6 @@ class AccountControllerTest @Autowired constructor(
         ),
         emptyList()
     )
-
-    companion object {
-        val accountFields = listOf<FieldDescriptor>(
-            fieldWithPath("name").type(JsonFieldType.STRING).description("Name of the account owner"),
-            fieldWithPath("email").type(JsonFieldType.STRING).description("Email associated to the account"),
-            fieldWithPath("bio").type(JsonFieldType.STRING).description("Short profile description").optional(),
-            fieldWithPath("birthDate").type(JsonFieldType.STRING).description("Birth date of the owner").optional(),
-            fieldWithPath("photoPath").type(JsonFieldType.STRING).description(
-                "Path to the photo resource on the backend server"
-            ).optional(),
-            fieldWithPath("linkedin").type(JsonFieldType.STRING).description(
-                "Handle/link to the owner's LinkedIn profile"
-            ).optional(),
-            fieldWithPath("github").type(JsonFieldType.STRING).description(
-                "Handle/link to the owner's LinkedIn profile"
-            ).optional(),
-            fieldWithPath("websites[]").type(JsonFieldType.ARRAY).description(
-                "Array with relevant websites about the owner"
-            ).optional(),
-            fieldWithPath("websites[].url").type(JsonFieldType.STRING).description("URL to the website").optional(),
-            fieldWithPath("websites[].iconPath").type(JsonFieldType.STRING)
-                .description("URL to the website's icon").optional(),
-            fieldWithPath("roles[]").type(JsonFieldType.ARRAY)
-                .description("Array with the roles of the account").optional()
-        )
-        val accountPayloadSchema = PayloadSchema("account", accountFields)
-        val requestOnlyAccountFields = listOf<FieldDescriptor>(
-            fieldWithPath("password").type(JsonFieldType.STRING).description("Account password")
-        )
-        val responseOnlyAccountFields = listOf<FieldDescriptor>(
-            fieldWithPath("id").type(JsonFieldType.NUMBER).description("Account ID"),
-            fieldWithPath("websites[].id").type(JsonFieldType.NUMBER).description("Related website ID").optional()
-        )
-    }
 
     @NestedTest
     @DisplayName("GET /accounts")
@@ -124,27 +88,11 @@ class AccountControllerTest @Autowired constructor(
                     content().contentType(MediaType.APPLICATION_JSON),
                     content().json(objectMapper.writeValueAsString(testAccounts))
                 )
-                .andDo(
-                    document(
-                        "account/{ClassName}/{methodName}",
-                        snippets = arrayOf(
-                            resource(
-                                builder()
-                                    .summary("Get all the accounts")
-                                    .description(
-                                        """
-                                        The operation returns an array of accounts, allowing to easily retrieve all the created accounts.
-                                        """.trimIndent()
-                                    )
-                                    .responseSchema(accountPayloadSchema.Response().arraySchema())
-                                    .responseFields(
-                                        accountPayloadSchema.Response().arrayDocumentedFields(responseOnlyAccountFields)
-                                    )
-                                    .tag("Accounts")
-                                    .build()
-                            )
-                        )
-                    )
+                .andDocument(
+                    documentation.getModelDocumentationArray(),
+                    "Get all the accounts",
+                    "The operation returns an array of accounts, allowing to easily retrieve all " +
+                        "the created accounts."
                 )
         }
     }
@@ -156,6 +104,12 @@ class AccountControllerTest @Autowired constructor(
         fun addAccount() {
             repository.save(testAccount)
         }
+
+        val parameters = listOf(
+            parameterWithName("id").description(
+                "ID of the account to retrieve"
+            )
+        )
 
         @Test
         fun `should return the account`() {
@@ -174,32 +128,11 @@ class AccountControllerTest @Autowired constructor(
                     jsonPath("$.websites[0].url").value(testAccount.websites[0].url),
                     jsonPath("$.websites[0].iconPath").value(testAccount.websites[0].iconPath)
                 )
-                .andDo(
-                    document(
-                        "accounts/{ClassName}/{methodName}",
-                        snippets = arrayOf(
-                            resource(
-                                builder()
-                                    .summary("Get accounts by ID")
-                                    .description(
-                                        """
-                                        This endpoint allows the retrieval of a single account using its ID.
-                                        """.trimIndent()
-                                    )
-                                    .pathParameters(
-                                        ResourceDocumentation.parameterWithName("id").description(
-                                            "ID of the account to retrieve"
-                                        )
-                                    )
-                                    .responseSchema(accountPayloadSchema.Response().schema())
-                                    .responseFields(
-                                        accountPayloadSchema.Response().documentedFields(responseOnlyAccountFields)
-                                    )
-                                    .tag("Accounts")
-                                    .build()
-                            )
-                        )
-                    )
+                .andDocument(
+                    documentation,
+                    "Get accounts by ID",
+                    "This endpoint allows the retrieval of a single account using its ID.",
+                    urlParameters = parameters
                 )
         }
 
@@ -212,24 +145,9 @@ class AccountControllerTest @Autowired constructor(
                     jsonPath("$.errors.length()").value(1),
                     jsonPath("$.errors[0].message").value("account not found with id 1234")
                 )
-                .andDo(
-                    document(
-                        "accounts/{ClassName}/{methodName}",
-                        snippets = arrayOf(
-                            resource(
-                                builder()
-                                    .pathParameters(
-                                        ResourceDocumentation.parameterWithName("id").description(
-                                            "ID of the account to retrieve"
-                                        )
-                                    )
-                                    .responseSchema(ErrorSchema().Response().schema())
-                                    .responseFields(ErrorSchema().Response().documentedFields())
-                                    .tag("Accounts")
-                                    .build()
-                            )
-                        )
-                    )
+                .andDocumentErrorResponse(
+                    documentation,
+                    urlParameters = parameters
                 )
         }
     }
@@ -264,31 +182,11 @@ class AccountControllerTest @Autowired constructor(
                     jsonPath("$.websites[0].iconPath").value(testAccount.websites[0].iconPath)
 
                 )
-                .andDo(
-                    document(
-                        "accounts/{ClassName}/{methodName}",
-                        snippets = arrayOf(
-                            resource(
-                                builder()
-                                    .summary("Create new accounts")
-                                    .description(
-                                        """
-                                        This endpoint operation creates new accounts.
-                                        """.trimIndent()
-                                    )
-                                    .requestSchema(accountPayloadSchema.Request().schema())
-                                    .requestFields(
-                                        accountPayloadSchema.Request().documentedFields(requestOnlyAccountFields)
-                                    )
-                                    .responseSchema(accountPayloadSchema.Response().schema())
-                                    .responseFields(
-                                        accountPayloadSchema.Response().documentedFields(responseOnlyAccountFields)
-                                    )
-                                    .tag("Accounts")
-                                    .build()
-                            )
-                        )
-                    )
+                .andDocument(
+                    documentation,
+                    "Create new accounts",
+                    "This endpoint operation creates new accounts.",
+                    documentRequestPayload = true
                 )
         }
 
@@ -335,26 +233,7 @@ class AccountControllerTest @Autowired constructor(
                     jsonPath("$.github").value(noWebsite.github),
                     jsonPath("$.websites.length()").value(0)
                 )
-                .andDo(
-                    document(
-                        "accounts/{ClassName}/{methodName}",
-                        snippets = arrayOf(
-                            resource(
-                                builder()
-                                    .requestSchema(accountPayloadSchema.Request().schema())
-                                    .requestFields(
-                                        accountPayloadSchema.Request().documentedFields(requestOnlyAccountFields)
-                                    )
-                                    .responseSchema(accountPayloadSchema.Response().schema())
-                                    .responseFields(
-                                        accountPayloadSchema.Response().documentedFields(responseOnlyAccountFields)
-                                    )
-                                    .tag("Accounts")
-                                    .build()
-                            )
-                        )
-                    )
-                )
+                .andDocument(documentation, documentRequestPayload = true)
         }
 
         @NestedTest
@@ -367,21 +246,7 @@ class AccountControllerTest @Autowired constructor(
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(params))
                     )
-                        .andDo(
-                            document(
-                                "accounts/{ClassName}/{methodName}",
-                                snippets = arrayOf(
-                                    resource(
-                                        builder()
-                                            .requestSchema(accountPayloadSchema.Request().schema())
-                                            .responseSchema(ErrorSchema().Response().schema())
-                                            .responseFields(ErrorSchema().Response().documentedFields())
-                                            .tag("Accounts")
-                                            .build()
-                                    )
-                                )
-                            )
-                        )
+                        .andDocumentErrorResponse(documentation, hasRequestPayload = true)
                 },
                 requiredFields = mapOf(
                     "name" to testAccount.name,
@@ -534,21 +399,7 @@ class AccountControllerTest @Autowired constructor(
                                     )
                                 )
                         )
-                            .andDo(
-                                document(
-                                    "accounts/{ClassName}/{methodName}",
-                                    snippets = arrayOf(
-                                        resource(
-                                            builder()
-                                                .requestSchema(accountPayloadSchema.Request().schema())
-                                                .responseSchema(ErrorSchema().Response().schema())
-                                                .responseFields(ErrorSchema().Response().documentedFields())
-                                                .tag("Accounts")
-                                                .build()
-                                        )
-                                    )
-                                )
-                            )
+                            .andDocumentErrorResponse(documentation, hasRequestPayload = true)
                     },
                     requiredFields = mapOf(
                         "url" to "https://www.google.com"
@@ -624,21 +475,7 @@ class AccountControllerTest @Autowired constructor(
                     jsonPath("$.errors.length()").value(1),
                     jsonPath("$.errors[0].message").value("email already exists")
                 )
-                .andDo(
-                    document(
-                        "accounts/{ClassName}/{methodName}",
-                        snippets = arrayOf(
-                            resource(
-                                builder()
-                                    .requestSchema(accountPayloadSchema.Request().schema())
-                                    .responseSchema(ErrorSchema().Response().schema())
-                                    .responseFields(ErrorSchema().Response().documentedFields())
-                                    .tag("Accounts")
-                                    .build()
-                            )
-                        )
-                    )
-                )
+                .andDocumentErrorResponse(documentation, hasRequestPayload = true)
         }
     }
 

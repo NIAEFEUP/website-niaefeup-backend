@@ -77,7 +77,7 @@ configure<com.epages.restdocs.apispec.gradle.OpenApi3Extension> {
     description = apiSpecDescription
     version = "${project.version}"
     format = "json"
-    tagDescriptionsPropertiesFile = "src/docs/tag-descriptions.yaml"
+    tagDescriptionsPropertiesFile = "src/test/kotlin/pt/up/fe/ni/website/backend/documentation/tag-descriptions.yaml"
 }
 
 configure<com.epages.restdocs.apispec.gradle.PostmanExtension> {

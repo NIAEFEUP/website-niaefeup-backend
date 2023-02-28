@@ -2,65 +2,57 @@ package pt.up.fe.ni.website.backend.utils.documentation
 
 import com.epages.restdocs.apispec.Schema
 import org.springframework.restdocs.payload.FieldDescriptor
-import org.springframework.restdocs.payload.PayloadDocumentation
+import pt.up.fe.ni.website.backend.utils.documentation.DocumentedJSONField.Companion.addFieldsBeneathPath
 
 open class PayloadSchema(
-    private val schemaName: String,
-    val documentedJsonFields: List<FieldDescriptor>
+    open val schemaName: String,
+    val documentedJSONFields: MutableList<DocumentedJSONField>
 ) {
-    open inner class Request {
-        fun schema(): Schema {
-            return Schema("$schemaName-request")
-        }
-
-        open fun documentedFields(requestOnlyFields: List<FieldDescriptor>? = null): MutableList<FieldDescriptor> {
-            requestOnlyFields?.let {
-                val requestFields = documentedJsonFields.toMutableList()
-                requestFields.addAll(it)
-                return requestFields
-            }
-            return documentedJsonFields.toMutableList()
+    companion object {
+        enum class MessageType(val type: String) {
+            REQUEST("request"), RESPONSE("response")
         }
     }
 
-    open inner class Response {
+    open fun getPayloadArraySchema(): PayloadSchema {
+        val newPayload = PayloadSchema("arrayOf-$schemaName", mutableListOf())
+        newPayload.addBeneathPath("[]", documentedJSONFields)
+        return newPayload
+    }
+
+    abstract inner class Message(private val type: MessageType) {
         fun schema(): Schema {
-            return Schema("$schemaName-response")
+            return Schema("$schemaName-${type.type}")
         }
 
-        open fun documentedFields(responseOnlyFields: List<FieldDescriptor>? = null): MutableList<FieldDescriptor> {
-            val fieldsList = documentedJsonFields.toMutableList()
-            responseOnlyFields?.let {
-                fieldsList.addAll(it)
-            }
-            return fieldsList
-        }
+        fun getSchemaFieldDescriptors(): MutableList<FieldDescriptor> {
+            val fields = mutableListOf<FieldDescriptor>()
 
-        fun arraySchema(): Schema {
-            return Schema("$schemaName-response-array")
-        }
-
-        fun arrayDocumentedFields(responseOnlyFields: List<FieldDescriptor>? = null): MutableList<FieldDescriptor> {
-            val fieldsList = documentedFields(responseOnlyFields)
-
-            val arrayFieldsList = mutableListOf<FieldDescriptor>()
-            for (field in fieldsList) {
-                val arrayField = PayloadDocumentation.fieldWithPath("[].${field.path}").type(field.type)
-                    .description(field.description)
-
-                if (field.isOptional) {
-                    arrayField.optional()
+            documentedJSONFields.forEach { field ->
+                if ((field.isInRequest && type == MessageType.REQUEST) ||
+                    (field.isInResponse && type == MessageType.RESPONSE)
+                ) {
+                    fields.add(field.getFieldDescriptor())
                 }
-                if (field.isIgnored) {
-                    arrayField.ignored()
-                }
-
-                arrayField.attributes.putAll(field.attributes)
-
-                arrayFieldsList.add(arrayField)
             }
 
-            return arrayFieldsList
+            return fields
         }
+    }
+
+    inner class Request : Message(MessageType.REQUEST)
+
+    inner class Response : Message(MessageType.RESPONSE)
+
+    private fun addBeneathPath(
+        path: String,
+        documentedJSONFields: MutableList<DocumentedJSONField>
+    ) {
+        this.documentedJSONFields.addFieldsBeneathPath(
+            path,
+            documentedJSONFields,
+            addRequest = true,
+            addResponse = true
+        )
     }
 }

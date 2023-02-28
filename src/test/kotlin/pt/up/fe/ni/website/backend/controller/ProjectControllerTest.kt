@@ -1,11 +1,6 @@
 package pt.up.fe.ni.website.backend.controller
 
-import pt.up.fe.ni.website.backend.model.constants.ActivityConstants as Constants
-import com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document
 import com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName
-import com.epages.restdocs.apispec.ResourceDocumentation.resource
-import com.epages.restdocs.apispec.ResourceSnippetParameters.Companion.builder
-import com.epages.restdocs.apispec.Schema
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.util.Calendar
 import java.util.Date
@@ -21,26 +16,29 @@ import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.del
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put
-import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
-import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import pt.up.fe.ni.website.backend.documentation.payloadschemas.model.Project as PayloadProject
 import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.CustomWebsite
 import pt.up.fe.ni.website.backend.model.Project
+import pt.up.fe.ni.website.backend.model.constants.ActivityConstants as Constants
 import pt.up.fe.ni.website.backend.repository.AccountRepository
 import pt.up.fe.ni.website.backend.repository.ProjectRepository
 import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.ValidationTester
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
 import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
-import pt.up.fe.ni.website.backend.utils.documentation.DocumentationHelper.Companion.addFieldsToPayloadBeneathPath
-import pt.up.fe.ni.website.backend.utils.documentation.EmptyObjectSchema
-import pt.up.fe.ni.website.backend.utils.documentation.ErrorSchema
+import pt.up.fe.ni.website.backend.utils.documentation.DocumentedJSONField
+import pt.up.fe.ni.website.backend.utils.documentation.MockMVCExtension.Companion.andDocument
+import pt.up.fe.ni.website.backend.utils.documentation.MockMVCExtension.Companion.andDocumentCustomRequestSchema
+import pt.up.fe.ni.website.backend.utils.documentation.MockMVCExtension.Companion.andDocumentEmptyObjectResponse
+import pt.up.fe.ni.website.backend.utils.documentation.MockMVCExtension.Companion.andDocumentErrorResponse
+import pt.up.fe.ni.website.backend.utils.documentation.ModelDocumentation
 import pt.up.fe.ni.website.backend.utils.documentation.PayloadSchema
 
 @ControllerTest
@@ -75,46 +73,7 @@ internal class ProjectControllerTest @Autowired constructor(
         slug = "awesome-project"
     )
 
-    private val projectFields = listOf<FieldDescriptor>(
-        fieldWithPath("title").type(JsonFieldType.STRING).description("Project title"),
-        fieldWithPath("description").type(JsonFieldType.STRING).description("Project description"),
-        fieldWithPath("isArchived").type(JsonFieldType.BOOLEAN).description(
-            "Whether this project is being actively maintained"
-        ),
-        fieldWithPath("technologies").type(JsonFieldType.ARRAY)
-            .description("Array of technologies used in the project").optional(),
-        fieldWithPath("associatedRoles[]").type(JsonFieldType.ARRAY).description(
-            "An activity that aggregates members with different roles"
-        ).optional(),
-        fieldWithPath("associatedRoles[].*.permissions").type(JsonFieldType.OBJECT).description(
-            "Permissions of someone with a given role for this activity"
-        ).optional(),
-        fieldWithPath("associatedRoles[].*.id").type(JsonFieldType.NUMBER).description(
-            "Id of the role/activity association"
-        ).optional(),
-        fieldWithPath("slug").type(JsonFieldType.STRING)
-            .description("Short and friendly textual event identifier").optional()
-    )
-    private val projectPayloadSchema = PayloadSchema("project", projectFields)
-    private val responseOnlyProjectFields = mutableListOf<FieldDescriptor>(
-        fieldWithPath("id").type(JsonFieldType.NUMBER).description("Project ID"),
-        fieldWithPath("teamMembers").type(JsonFieldType.ARRAY).description(
-            "Array of members associated with the project"
-        )
-    ).addFieldsToPayloadBeneathPath(
-        "teamMembers",
-        AccountControllerTest.accountPayloadSchema.Response().arrayDocumentedFields(
-            AccountControllerTest.responseOnlyAccountFields
-        ),
-        optional = true
-    )
-
-    private val requestOnlyProjectFields = listOf<FieldDescriptor>(
-        fieldWithPath("teamMembersIds").type(JsonFieldType.ARRAY).description(
-            "Array with IDs of members associated with the project"
-        ).optional(),
-        fieldWithPath("teamMembersIds.*").type(JsonFieldType.NUMBER).description("Account ID").optional()
-    )
+    val documentation: ModelDocumentation = PayloadProject()
 
     @NestedTest
     @DisplayName("GET /projects")
@@ -144,28 +103,12 @@ internal class ProjectControllerTest @Autowired constructor(
                     content().contentType(MediaType.APPLICATION_JSON),
                     content().json(objectMapper.writeValueAsString(testProjects))
                 )
-                .andDo(
-                    document(
-                        "projects/{ClassName}/{methodName}",
-                        snippets = arrayOf(
-                            resource(
-                                builder()
-                                    .summary("Get all the events")
-                                    .description(
-                                        """
-                                        The operation returns an array of projects, allowing to easily retrieve all the created projects.
-                                        This is useful for example in the frontend project page, where projects are displayed.
-                                        """.trimIndent()
-                                    )
-                                    .responseSchema(projectPayloadSchema.Response().arraySchema())
-                                    .responseFields(
-                                        projectPayloadSchema.Response().arrayDocumentedFields(responseOnlyProjectFields)
-                                    )
-                                    .tag("Projects")
-                                    .build()
-                            )
-                        )
-                    )
+                .andDocument(
+                    documentation.getModelDocumentationArray(),
+                    "Get all the events",
+                    "The operation returns an array of projects, allowing to easily retrieve all the created " +
+                        "projects. This is useful for example in the frontend project page, " +
+                        "where projects are displayed."
                 )
         }
     }
@@ -179,6 +122,8 @@ internal class ProjectControllerTest @Autowired constructor(
             repository.save(testProject)
         }
 
+        private val parameters = listOf(parameterWithName("id").description("ID of the project to retrieve"))
+
         @Test
         fun `should return the project`() {
             mockMvc.perform(get("/projects/{id}", testProject.id))
@@ -191,31 +136,12 @@ internal class ProjectControllerTest @Autowired constructor(
                     jsonPath("$.technologies[0]").value(testProject.technologies[0]),
                     jsonPath("$.slug").value(testProject.slug)
                 )
-                .andDo(
-                    document(
-                        "projects/{ClassName}/{methodName}",
-                        snippets = arrayOf(
-                            resource(
-                                builder()
-                                    .summary("Get projects by ID")
-                                    .description(
-                                        """
-                                        This endpoint allows the retrieval of a single project using its ID.
-                                        It might be used to generate the specific project page.
-                                        """.trimIndent()
-                                    )
-                                    .pathParameters(
-                                        parameterWithName("id").description("ID of the project to retrieve")
-                                    )
-                                    .responseSchema(projectPayloadSchema.Response().schema())
-                                    .responseFields(
-                                        projectPayloadSchema.Response().documentedFields(responseOnlyProjectFields)
-                                    )
-                                    .tag("Projects")
-                                    .build()
-                            )
-                        )
-                    )
+                .andDocument(
+                    documentation,
+                    "Get projects by ID",
+                    "This endpoint allows the retrieval of a single project using its ID. " +
+                        "It might be used to generate the specific project page.",
+                    urlParameters = parameters
                 )
         }
 
@@ -228,22 +154,9 @@ internal class ProjectControllerTest @Autowired constructor(
                     jsonPath("$.errors.length()").value(1),
                     jsonPath("$.errors[0].message").value("project not found with id 1234")
                 )
-                .andDo(
-                    document(
-                        "projects/{ClassName}/{methodName}",
-                        snippets = arrayOf(
-                            resource(
-                                builder()
-                                    .pathParameters(
-                                        parameterWithName("id").description("ID of the project to retrieve")
-                                    )
-                                    .responseSchema(ErrorSchema().Response().schema())
-                                    .responseFields(ErrorSchema().Response().documentedFields())
-                                    .tag("Projects")
-                                    .build()
-                            )
-                        )
-                    )
+                .andDocumentErrorResponse(
+                    documentation,
+                    urlParameters = parameters
                 )
         }
     }
@@ -257,6 +170,12 @@ internal class ProjectControllerTest @Autowired constructor(
             repository.save(testProject)
         }
 
+        private val parameters = listOf(
+            parameterWithName("slug").description(
+                "Short and friendly textual project identifier"
+            )
+        )
+
         @Test
         fun `should return the project`() {
             mockMvc.perform(get("/projects/{slug}", testProject.slug))
@@ -269,32 +188,11 @@ internal class ProjectControllerTest @Autowired constructor(
                     jsonPath("$.technologies[0]").value(testProject.technologies[0]),
                     jsonPath("$.slug").value(testProject.slug)
                 )
-                .andDo(
-                    document(
-                        "projects/{ClassName}/{methodName}",
-                        snippets = arrayOf(
-                            resource(
-                                builder()
-                                    .summary("Get projects by slug")
-                                    .description(
-                                        """
-                                        This endpoint allows the retrieval of a single project using its slug.
-                                        """.trimIndent()
-                                    )
-                                    .pathParameters(
-                                        parameterWithName("slug").description(
-                                            "Short and friendly textual project identifier"
-                                        )
-                                    )
-                                    .responseSchema(projectPayloadSchema.Response().schema())
-                                    .responseFields(
-                                        projectPayloadSchema.Response().documentedFields(responseOnlyProjectFields)
-                                    )
-                                    .tag("Projects")
-                                    .build()
-                            )
-                        )
-                    )
+                .andDocument(
+                    documentation,
+                    "Get projects by slug",
+                    "This endpoint allows the retrieval of a single project using its slug.",
+                    urlParameters = parameters
                 )
         }
 
@@ -307,25 +205,10 @@ internal class ProjectControllerTest @Autowired constructor(
                     jsonPath("$.errors.length()").value(1),
                     jsonPath("$.errors[0].message")
                         .value("project not found with slug does-not-exist")
-                )//.anDocumentError()
-                .andDo(
-                    document(
-                        "projects/{ClassName}/{methodName}",
-                        snippets = arrayOf(
-                            resource(
-                                builder()
-                                    .pathParameters(
-                                        parameterWithName("slug").description(
-                                            "Short and friendly textual project identifier"
-                                        )
-                                    )
-                                    .responseSchema(ErrorSchema().Response().schema())
-                                    .responseFields(ErrorSchema().Response().documentedFields())
-                                    .tag("Projects")
-                                    .build()
-                            )
-                        )
-                    )
+                )
+                .andDocumentErrorResponse(
+                    documentation,
+                    urlParameters = parameters
                 )
         }
     }
@@ -368,31 +251,11 @@ internal class ProjectControllerTest @Autowired constructor(
                     jsonPath("$.technologies[0]").value(testProject.technologies[0]),
                     jsonPath("$.slug").value(testProject.slug)
                 )
-                .andDo(
-                    document(
-                        "events/{ClassName}/{methodName}",
-                        snippets = arrayOf(
-                            resource(
-                                builder()
-                                    .summary("Create new projects")
-                                    .description(
-                                        """
-                                        This endpoint operation creates new projects.
-                                        """.trimIndent()
-                                    )
-                                    .requestSchema(projectPayloadSchema.Request().schema())
-                                    .requestFields(
-                                        projectPayloadSchema.Request().documentedFields(requestOnlyProjectFields)
-                                    )
-                                    .responseSchema(projectPayloadSchema.Response().schema())
-                                    .responseFields(
-                                        projectPayloadSchema.Response().documentedFields(responseOnlyProjectFields)
-                                    )
-                                    .tag("Projects")
-                                    .build()
-                            )
-                        )
-                    )
+                .andDocument(
+                    documentation,
+                    "Create new projects",
+                    "This endpoint operation creates new projects.",
+                    documentRequestPayload = true
                 )
         }
 
@@ -423,21 +286,7 @@ internal class ProjectControllerTest @Autowired constructor(
                     jsonPath("$.errors.length()").value(1),
                     jsonPath("$.errors[0].message").value("slug already exists")
                 )
-                .andDo(
-                    document(
-                        "projects/{ClassName}/{methodName}",
-                        snippets = arrayOf(
-                            resource(
-                                builder()
-                                    .requestSchema(projectPayloadSchema.Request().schema())
-                                    .responseSchema(ErrorSchema().Response().schema())
-                                    .responseFields(ErrorSchema().Response().documentedFields())
-                                    .tag("Projects")
-                                    .build()
-                            )
-                        )
-                    )
-                )
+                .andDocumentErrorResponse(documentation, hasRequestPayload = true)
         }
 
         @NestedTest
@@ -450,21 +299,7 @@ internal class ProjectControllerTest @Autowired constructor(
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(params))
                     )
-                        .andDo(
-                            document(
-                                "projects/{ClassName}/{methodName}",
-                                snippets = arrayOf(
-                                    resource(
-                                        builder()
-                                            .requestSchema(projectPayloadSchema.Request().schema())
-                                            .responseSchema(ErrorSchema().Response().schema())
-                                            .responseFields(ErrorSchema().Response().documentedFields())
-                                            .tag("Projects")
-                                            .build()
-                                    )
-                                )
-                            )
-                        )
+                        .andDocumentErrorResponse(documentation, hasRequestPayload = true)
                 },
                 requiredFields = mapOf(
                     "title" to testProject.title,
@@ -532,6 +367,8 @@ internal class ProjectControllerTest @Autowired constructor(
             repository.save(testProject)
         }
 
+        private val parameters = listOf(parameterWithName("id").description("ID of the project to delete"))
+
         @Test
         fun `should delete the project`() {
             mockMvc.perform(delete("/projects/{id}", testProject.id))
@@ -540,26 +377,13 @@ internal class ProjectControllerTest @Autowired constructor(
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$").isEmpty
                 )
-                .andDo(
-                    document(
-                        "projects/{ClassName}/{methodName}",
-                        snippets = arrayOf(
-                            resource(
-                                builder()
-                                    .summary("Delete projects")
-                                    .description(
-                                        """
-                                        This operation deletes an projects using its ID.
-                                        """.trimIndent()
-                                    )
-                                    .pathParameters(parameterWithName("id").description("ID of the project to delete"))
-                                    .responseSchema(EmptyObjectSchema().Response().schema())
-                                    .tag("Projects")
-                                    .build()
-                            )
-                        )
-                    )
+                .andDocumentEmptyObjectResponse(
+                    documentation,
+                    "Delete projects",
+                    "This operation deletes an projects using its ID.",
+                    urlParameters = parameters
                 )
+
             assert(repository.findById(testProject.id!!).isEmpty)
         }
 
@@ -572,20 +396,9 @@ internal class ProjectControllerTest @Autowired constructor(
                     jsonPath("$.errors.length()").value(1),
                     jsonPath("$.errors[0].message").value("project not found with id 1234")
                 )
-                .andDo(
-                    document(
-                        "projects/{ClassName}/{methodName}",
-                        snippets = arrayOf(
-                            resource(
-                                builder()
-                                    .pathParameters(parameterWithName("id").description("ID of the project to delete"))
-                                    .responseSchema(ErrorSchema().Response().schema())
-                                    .responseFields(ErrorSchema().Response().documentedFields())
-                                    .tag("Projects")
-                                    .build()
-                            )
-                        )
-                    )
+                .andDocumentErrorResponse(
+                    documentation,
+                    urlParameters = parameters
                 )
         }
     }
@@ -599,6 +412,8 @@ internal class ProjectControllerTest @Autowired constructor(
             accountRepository.save(testAccount)
             repository.save(testProject)
         }
+
+        val parameters = listOf(parameterWithName("id").description("ID of the project to update"))
 
         @Test
         fun `should update the project without the slug`() {
@@ -629,30 +444,12 @@ internal class ProjectControllerTest @Autowired constructor(
                     jsonPath("$.teamMembers.length()").value(0),
                     jsonPath("$.isArchived").value(newIsArchived)
                 )
-                .andDo(
-                    document(
-                        "projects/{ClassName}/{methodName}",
-                        snippets = arrayOf(
-                            resource(
-                                builder()
-                                    .summary("Update projects")
-                                    .description(
-                                        """Update previously created projects, using their ID."""
-                                    )
-                                    .pathParameters(parameterWithName("id").description("ID of the project to update"))
-                                    .requestSchema(projectPayloadSchema.Request().schema())
-                                    .requestFields(
-                                        projectPayloadSchema.Request().documentedFields(requestOnlyProjectFields)
-                                    )
-                                    .responseSchema(projectPayloadSchema.Response().schema())
-                                    .responseFields(
-                                        projectPayloadSchema.Response().documentedFields(responseOnlyProjectFields)
-                                    )
-                                    .tag("Projects")
-                                    .build()
-                            )
-                        )
-                    )
+                .andDocument(
+                    documentation,
+                    "Update projects",
+                    "Update previously created projects, using their ID.",
+                    urlParameters = parameters,
+                    documentRequestPayload = true
                 )
 
             val updatedProject = repository.findById(testProject.id!!).get()
@@ -690,30 +487,10 @@ internal class ProjectControllerTest @Autowired constructor(
                     jsonPath("$.isArchived").value(newIsArchived),
                     jsonPath("$.slug").value(newSlug)
                 )
-                .andDo(
-                    document(
-                        "projects/{ClassName}/{methodName}",
-                        snippets = arrayOf(
-                            resource(
-                                builder()
-                                    .summary("Update projects")
-                                    .description(
-                                        """Update previously created projects, using their ID."""
-                                    )
-                                    .pathParameters(parameterWithName("id").description("ID of the project to update"))
-                                    .requestSchema(projectPayloadSchema.Request().schema())
-                                    .requestFields(
-                                        projectPayloadSchema.Request().documentedFields(requestOnlyProjectFields)
-                                    )
-                                    .responseSchema(projectPayloadSchema.Response().schema())
-                                    .responseFields(
-                                        projectPayloadSchema.Response().documentedFields(responseOnlyProjectFields)
-                                    )
-                                    .tag("Projects")
-                                    .build()
-                            )
-                        )
-                    )
+                .andDocument(
+                    documentation,
+                    urlParameters = parameters,
+                    documentRequestPayload = true
                 )
 
             val updatedProject = repository.findById(testProject.id!!).get()
@@ -743,21 +520,10 @@ internal class ProjectControllerTest @Autowired constructor(
                     jsonPath("$.errors.length()").value(1),
                     jsonPath("$.errors[0].message").value("project not found with id 1234")
                 )
-                .andDo(
-                    document(
-                        "projects/{ClassName}/{methodName}",
-                        snippets = arrayOf(
-                            resource(
-                                builder()
-                                    .pathParameters(parameterWithName("id").description("ID of the project to update"))
-                                    .requestSchema(projectPayloadSchema.Request().schema())
-                                    .responseSchema(ErrorSchema().Response().schema())
-                                    .responseFields(ErrorSchema().Response().documentedFields())
-                                    .tag("Projects")
-                                    .build()
-                            )
-                        )
-                    )
+                .andDocumentErrorResponse(
+                    documentation,
+                    urlParameters = parameters,
+                    hasRequestPayload = true
                 )
         }
 
@@ -802,21 +568,10 @@ internal class ProjectControllerTest @Autowired constructor(
                     jsonPath("$.errors.length()").value(1),
                     jsonPath("$.errors[0].message").value("slug already exists")
                 )
-                .andDo(
-                    document(
-                        "projects/{ClassName}/{methodName}",
-                        snippets = arrayOf(
-                            resource(
-                                builder()
-                                    .pathParameters(parameterWithName("id").description("ID of the project to update"))
-                                    .requestSchema(projectPayloadSchema.Request().schema())
-                                    .responseSchema(ErrorSchema().Response().schema())
-                                    .responseFields(ErrorSchema().Response().documentedFields())
-                                    .tag("Projects")
-                                    .build()
-                            )
-                        )
-                    )
+                .andDocumentErrorResponse(
+                    documentation,
+                    urlParameters = parameters,
+                    hasRequestPayload = true
                 )
         }
 
@@ -830,23 +585,10 @@ internal class ProjectControllerTest @Autowired constructor(
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(params))
                     )
-                        .andDo(
-                            document(
-                                "projects/{ClassName}/{methodName}",
-                                snippets = arrayOf(
-                                    resource(
-                                        builder()
-                                            .pathParameters(
-                                                parameterWithName("id").description("ID of the project to update")
-                                            )
-                                            .requestSchema(projectPayloadSchema.Request().schema())
-                                            .responseSchema(ErrorSchema().Response().schema())
-                                            .responseFields(ErrorSchema().Response().documentedFields())
-                                            .tag("Projects")
-                                            .build()
-                                    )
-                                )
-                            )
+                        .andDocumentErrorResponse(
+                            documentation,
+                            urlParameters = parameters,
+                            hasRequestPayload = true
                         )
                 },
                 requiredFields = mapOf(
@@ -906,6 +648,14 @@ internal class ProjectControllerTest @Autowired constructor(
         }
     }
 
+    val archivalPayload = PayloadSchema(
+        "project-archival",
+        mutableListOf(
+            DocumentedJSONField("first", "String with property name (\"isArchived\")", JsonFieldType.STRING),
+            DocumentedJSONField("second", "Whether the project is archived", JsonFieldType.BOOLEAN)
+        )
+    )
+
     @NestedTest
     @DisplayName("PUT /projects/{projectId}/archive")
     inner class ArchiveProject {
@@ -914,6 +664,11 @@ internal class ProjectControllerTest @Autowired constructor(
             accountRepository.save(testAccount)
             repository.save(testProject)
         }
+
+        private val parameters = listOf(
+            parameterWithName("id")
+                .description("ID of the project to archive")
+        )
 
         @Test
         fun `should archive the project`() {
@@ -929,40 +684,14 @@ internal class ProjectControllerTest @Autowired constructor(
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.isArchived").value(newIsArchived)
                 )
-                .andDo(
-                    document(
-                        "projects/{ClassName}/{methodName}",
-                        snippets = arrayOf(
-                            resource(
-                                builder()
-                                    .summary("Archive projects")
-                                    .description(
-                                        """This endpoint updates projects as archived. This is useful to mark no longer
-                                            |maintained or complete projects of the Nucleus.
-                                        """.trimMargin()
-                                    )
-                                    .pathParameters(
-                                        parameterWithName("id")
-                                            .description("ID of the project to archive")
-                                    )
-                                    .requestSchema(Schema("project-archive-request"))
-                                    .requestFields(
-                                        fieldWithPath("first").type(JsonFieldType.STRING).description(
-                                            "String with property name (\"isArchived\")"
-                                        ),
-                                        fieldWithPath("second").type(JsonFieldType.BOOLEAN).description(
-                                            "Whether the project is archived"
-                                        )
-                                    )
-                                    .responseSchema(projectPayloadSchema.Response().schema())
-                                    .responseFields(
-                                        projectPayloadSchema.Response().documentedFields(responseOnlyProjectFields)
-                                    )
-                                    .tag("Projects")
-                                    .build()
-                            )
-                        )
-                    )
+                .andDocumentCustomRequestSchema(
+                    documentation,
+                    archivalPayload,
+                    "Archive projects",
+                    "This endpoint updates projects as archived. This is useful to mark no longer " +
+                        "maintained or complete projects of the Nucleus.",
+                    urlParameters = parameters,
+                    documentRequestPayload = true
                 )
 
             val archivedProject = repository.findById(testProject.id!!).get()
@@ -987,6 +716,8 @@ internal class ProjectControllerTest @Autowired constructor(
             repository.save(project)
         }
 
+        private val parameters = listOf(parameterWithName("id").description("ID of the project to unarchive"))
+
         @Test
         fun `should unarchive the project`() {
             val newIsArchived = false
@@ -1001,39 +732,14 @@ internal class ProjectControllerTest @Autowired constructor(
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.isArchived").value(newIsArchived)
                 )
-                .andDo(
-                    document(
-                        "projects/{ClassName}/{methodName}",
-                        snippets = arrayOf(
-                            resource(
-                                builder()
-                                    .summary("Unarchive projects")
-                                    .description(
-                                        """This endpoint updates projects as unarchived.
-                                            |This is useful to mark previously unarchived projects as active.
-                                        """.trimMargin()
-                                    )
-                                    .pathParameters(
-                                        parameterWithName("id").description("ID of the project to unarchive")
-                                    )
-                                    .requestSchema(Schema("project-unarchive-request"))
-                                    .requestFields(
-                                        fieldWithPath("first").type(JsonFieldType.STRING).description(
-                                            "String with property name (\"isArchived\")"
-                                        ),
-                                        fieldWithPath("second").type(JsonFieldType.BOOLEAN).description(
-                                            "Whether the project is archived"
-                                        )
-                                    )
-                                    .responseSchema(projectPayloadSchema.Response().schema())
-                                    .responseFields(
-                                        projectPayloadSchema.Response().documentedFields(responseOnlyProjectFields)
-                                    )
-                                    .tag("Projects")
-                                    .build()
-                            )
-                        )
-                    )
+                .andDocumentCustomRequestSchema(
+                    documentation,
+                    archivalPayload,
+                    "Unarchive projects",
+                    "This endpoint updates projects as unarchived. " +
+                        "This is useful to mark previously unarchived projects as active.",
+                    urlParameters = parameters,
+                    documentRequestPayload = true
                 )
 
             val unarchivedProject = repository.findById(project.id!!).get()
@@ -1066,6 +772,13 @@ internal class ProjectControllerTest @Autowired constructor(
             repository.save(testProject)
         }
 
+        private val parameters = listOf(
+            parameterWithName("projectId").description(
+                "ID of the project to add the member to"
+            ),
+            parameterWithName("accountId").description("ID of the account to add")
+        )
+
         @Test
         fun `should add a team member`() {
             mockMvc.perform(
@@ -1095,33 +808,11 @@ internal class ProjectControllerTest @Autowired constructor(
                     jsonPath("$.teamMembers[1].websites[0].url").value(newAccount.websites[0].url),
                     jsonPath("$.teamMembers[1].websites[0].iconPath").value(newAccount.websites[0].iconPath)
                 )
-                .andDo(
-                    document(
-                        "projects/{ClassName}/{methodName}",
-                        snippets = arrayOf(
-                            resource(
-                                builder()
-                                    .summary("Add member to Project")
-                                    .description(
-                                        """
-                                        This operation add a member to a given project.
-                                        """.trimIndent()
-                                    )
-                                    .pathParameters(
-                                        parameterWithName("projectId").description(
-                                            "ID of the project to add the member to"
-                                        ),
-                                        parameterWithName("accountId").description("ID of the account to add")
-                                    )
-                                    .responseSchema(projectPayloadSchema.Response().schema())
-                                    .responseFields(
-                                        projectPayloadSchema.Response().documentedFields(responseOnlyProjectFields)
-                                    )
-                                    .tag("Projects")
-                                    .build()
-                            )
-                        )
-                    )
+                .andDocument(
+                    documentation,
+                    "Add member to Project",
+                    "This operation add a member to a given project.",
+                    urlParameters = parameters
                 )
         }
 
@@ -1134,25 +825,9 @@ internal class ProjectControllerTest @Autowired constructor(
                     jsonPath("$.errors.length()").value(1),
                     jsonPath("$.errors[0].message").value("account not found with id 1234")
                 )
-                .andDo(
-                    document(
-                        "projects/{ClassName}/{methodName}",
-                        snippets = arrayOf(
-                            resource(
-                                builder()
-                                    .pathParameters(
-                                        parameterWithName("projectId").description(
-                                            "ID of the project to add the member to"
-                                        ),
-                                        parameterWithName("accountId").description("ID of the account to add")
-                                    )
-                                    .responseSchema(ErrorSchema().Response().schema())
-                                    .responseFields(ErrorSchema().Response().documentedFields())
-                                    .tag("Projects")
-                                    .build()
-                            )
-                        )
-                    )
+                .andDocumentErrorResponse(
+                    documentation,
+                    urlParameters = parameters
                 )
         }
     }
@@ -1167,6 +842,13 @@ internal class ProjectControllerTest @Autowired constructor(
             repository.save(testProject)
         }
 
+        private val parameters = listOf(
+            parameterWithName("projectId").description(
+                "ID of the project to remove the member from"
+            ),
+            parameterWithName("accountId").description("ID of the account to remove")
+        )
+
         @Test
         fun `should remove a team member`() {
             mockMvc.perform(put("/projects/{projectId}/removeTeamMember/{accountId}", testProject.id, testAccount.id))
@@ -1175,33 +857,11 @@ internal class ProjectControllerTest @Autowired constructor(
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.teamMembers.length()").value(0)
                 )
-                .andDo(
-                    document(
-                        "projects/{ClassName}/{methodName}",
-                        snippets = arrayOf(
-                            resource(
-                                builder()
-                                    .summary("Remove member from Project")
-                                    .description(
-                                        """
-                                        This operation removes a member of a given project.
-                                        """.trimIndent()
-                                    )
-                                    .pathParameters(
-                                        parameterWithName("projectId").description(
-                                            "ID of the project to remove the member from"
-                                        ),
-                                        parameterWithName("accountId").description("ID of the account to remove")
-                                    )
-                                    .responseSchema(projectPayloadSchema.Response().schema())
-                                    .responseFields(
-                                        projectPayloadSchema.Response().documentedFields(responseOnlyProjectFields)
-                                    )
-                                    .tag("Projects")
-                                    .build()
-                            )
-                        )
-                    )
+                .andDocument(
+                    documentation,
+                    "Remove member from Project",
+                    "This operation removes a member of a given project.",
+                    urlParameters = parameters
                 )
         }
 
@@ -1214,25 +874,9 @@ internal class ProjectControllerTest @Autowired constructor(
                     jsonPath("$.errors.length()").value(1),
                     jsonPath("$.errors[0].message").value("account not found with id 1234")
                 )
-                .andDo(
-                    document(
-                        "projects/{ClassName}/{methodName}",
-                        snippets = arrayOf(
-                            resource(
-                                builder()
-                                    .pathParameters(
-                                        parameterWithName("projectId").description(
-                                            "ID of the project to remove the member from"
-                                        ),
-                                        parameterWithName("accountId").description("ID of the account to remove")
-                                    )
-                                    .responseSchema(ErrorSchema().Response().schema())
-                                    .responseFields(ErrorSchema().Response().documentedFields())
-                                    .tag("Projects")
-                                    .build()
-                            )
-                        )
-                    )
+                .andDocumentErrorResponse(
+                    documentation,
+                    urlParameters = parameters
                 )
         }
     }
