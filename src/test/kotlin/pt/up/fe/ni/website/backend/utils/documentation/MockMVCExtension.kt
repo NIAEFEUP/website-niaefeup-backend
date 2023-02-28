@@ -94,6 +94,32 @@ class MockMVCExtension {
             )
         }
 
+        fun ResultActions.andDocumentCustomRequestSchemaErrorResponse(
+            documentation: ModelDocumentation,
+            requestPayload: PayloadSchema,
+            summary: String? = null,
+            description: String? = null,
+            requestHeaders: List<HeaderDescriptorWithType> = emptyList(),
+            urlParameters: List<ParameterDescriptorWithType> = emptyList(),
+            documentRequestPayload: Boolean = false,
+            hasRequestPayload: Boolean = false
+        ): ResultActions {
+            return documenter(
+                documentation,
+                summary,
+                description,
+                urlParameters,
+                requestPayload.Request().schema(),
+                requestPayload.Request().getSchemaFieldDescriptors(),
+                requestHeaders,
+                errorPayloadSchema.Response().schema(),
+                errorPayloadSchema.Response().getSchemaFieldDescriptors(),
+                emptyList(),
+                documentRequestPayload,
+                hasRequestPayload
+            )
+        }
+
         fun ResultActions.andDocumentEmptyObjectResponse(
             documentation: ModelDocumentation,
             summary: String? = null,
@@ -110,6 +136,32 @@ class MockMVCExtension {
                 urlParameters,
                 documentation.payload.Request().schema(),
                 documentation.payload.Request().getSchemaFieldDescriptors(),
+                requestHeaders,
+                emptyPayload.Response().schema(),
+                emptyPayload.Response().getSchemaFieldDescriptors(),
+                emptyList(),
+                documentRequestPayload,
+                hasRequestPayload
+            )
+        }
+
+        fun ResultActions.andDocumentCustomRequestSchemaEmptyResponse(
+            documentation: ModelDocumentation,
+            requestPayload: PayloadSchema,
+            summary: String? = null,
+            description: String? = null,
+            requestHeaders: List<HeaderDescriptorWithType> = emptyList(),
+            urlParameters: List<ParameterDescriptorWithType> = emptyList(),
+            documentRequestPayload: Boolean = false,
+            hasRequestPayload: Boolean = false
+        ): ResultActions {
+            return documenter(
+                documentation,
+                summary,
+                description,
+                urlParameters,
+                requestPayload.Request().schema(),
+                requestPayload.Request().getSchemaFieldDescriptors(),
                 requestHeaders,
                 emptyPayload.Response().schema(),
                 emptyPayload.Response().getSchemaFieldDescriptors(),

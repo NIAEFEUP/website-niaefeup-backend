@@ -14,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDoc
 import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
+import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.post
@@ -29,9 +30,13 @@ import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.ValidationTester
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
 import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
+import pt.up.fe.ni.website.backend.utils.documentation.DocumentedJSONField
 import pt.up.fe.ni.website.backend.utils.documentation.MockMVCExtension.Companion.andDocument
+import pt.up.fe.ni.website.backend.utils.documentation.MockMVCExtension.Companion.andDocumentCustomRequestSchemaEmptyResponse
+import pt.up.fe.ni.website.backend.utils.documentation.MockMVCExtension.Companion.andDocumentCustomRequestSchemaErrorResponse
 import pt.up.fe.ni.website.backend.utils.documentation.MockMVCExtension.Companion.andDocumentErrorResponse
 import pt.up.fe.ni.website.backend.utils.documentation.ModelDocumentation
+import pt.up.fe.ni.website.backend.utils.documentation.PayloadSchema
 
 @ControllerTest
 @AutoConfigureRestDocs
@@ -107,7 +112,7 @@ class AccountControllerTest @Autowired constructor(
             repository.save(testAccount)
         }
 
-        val parameters = listOf(
+        private val parameters = listOf(
             parameterWithName("id").description(
                 "ID of the account to retrieve"
             )
@@ -494,6 +499,20 @@ class AccountControllerTest @Autowired constructor(
             changePasswordAccount.password = encoder.encode(changePasswordAccount.password)
         }
 
+        private val parameters = listOf(
+            parameterWithName("id").description(
+                "ID of the account to change the password."
+            )
+        )
+
+        private val passwordChangePayload = PayloadSchema(
+            "password-change",
+            mutableListOf(
+                DocumentedJSONField("oldPassword", "Current account password", JsonFieldType.STRING),
+                DocumentedJSONField("newPassword", "New account password", JsonFieldType.STRING)
+            )
+        )
+
         @BeforeEach
         fun addAccount() {
             repository.save(changePasswordAccount)
@@ -501,15 +520,26 @@ class AccountControllerTest @Autowired constructor(
 
         @Test
         fun `should change password`() {
-            mockMvc.post("/accounts/changePassword/${changePasswordAccount.id}") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(
-                    mapOf(
-                        "oldPassword" to password,
-                        "newPassword" to "test_password2"
+            mockMvc.perform(
+                post("/accounts/changePassword/{id}", changePasswordAccount.id)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf(
+                                "oldPassword" to password,
+                                "newPassword" to "test_password2"
+                            )
+                        )
                     )
+            ).andExpectAll(status().isOk)
+                .andDocumentCustomRequestSchemaEmptyResponse(
+                    documentation,
+                    passwordChangePayload,
+                    "Change account password",
+                    "Replaces sets a new account password",
+                    urlParameters = parameters,
+                    documentRequestPayload = true
                 )
-            }.andExpect { status { isOk() } }
 
             mockMvc.post("/auth/new") {
                 contentType = MediaType.APPLICATION_JSON
@@ -524,15 +554,24 @@ class AccountControllerTest @Autowired constructor(
 
         @Test
         fun `should fail due to wrong password`() {
-            mockMvc.post("/accounts/changePassword/${changePasswordAccount.id}") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(
-                    mapOf(
-                        "oldPassword" to "wrong_password",
-                        "newPassword" to "test_password2"
+            mockMvc.perform(
+                post("/accounts/changePassword/{id}", changePasswordAccount.id)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf(
+                                "oldPassword" to "wrong_password",
+                                "newPassword" to "test_password2"
+                            )
+                        )
                     )
+            ).andExpectAll(status().isUnprocessableEntity)
+                .andDocumentCustomRequestSchemaErrorResponse(
+                    documentation,
+                    passwordChangePayload,
+                    urlParameters = parameters,
+                    hasRequestPayload = true
                 )
-            }.andExpect { status { isUnprocessableEntity() } }
         }
     }
 
