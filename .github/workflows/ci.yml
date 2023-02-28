@@ -129,3 +129,4 @@ jobs:
         with:
           message: |
             Check the documentation preview: ${{ env.deploy_url }}
+          allow-repeats: true
