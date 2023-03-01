@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import pt.up.fe.ni.website.backend.config.Logging
-import pt.up.fe.ni.website.backend.config.logger
 
 data class SimpleError(
     val message: String,
@@ -94,7 +93,7 @@ class ErrorController : ErrorController, Logging {
     @ExceptionHandler(Exception::class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     fun unexpectedError(e: Exception): CustomError {
-        logger().error(e.message)
+        logger.error(e.message)
         return wrapSimpleError("unexpected error: " + e.message)
     }
 

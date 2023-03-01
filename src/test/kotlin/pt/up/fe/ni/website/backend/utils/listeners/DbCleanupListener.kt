@@ -11,7 +11,6 @@ import org.hibernate.metamodel.model.domain.internal.MappingMetamodelImpl
 import org.springframework.test.context.TestContext
 import org.springframework.test.context.TestExecutionListener
 import pt.up.fe.ni.website.backend.config.Logging
-import pt.up.fe.ni.website.backend.config.logger
 
 class DbCleanupListener : TestExecutionListener, Logging {
     companion object {
@@ -21,7 +20,7 @@ class DbCleanupListener : TestExecutionListener, Logging {
 
     override fun beforeTestMethod(testContext: TestContext) {
         super.beforeTestMethod(testContext)
-        logger().info("Cleaning up database...")
+        logger.info("Cleaning up database...")
 
         val dataSource = testContext.applicationContext.getBean(DataSource::class.java)
         cleanDataSource(dataSource)
@@ -29,7 +28,7 @@ class DbCleanupListener : TestExecutionListener, Logging {
         val entityManager = testContext.applicationContext.getBean(EntityManager::class.java)
         cleanEntityManager(entityManager)
 
-        logger().info("Done cleaning up database...")
+        logger.info("Done cleaning up database...")
     }
 
     @Transactional(Transactional.TxType.REQUIRES_NEW)
@@ -42,7 +41,7 @@ class DbCleanupListener : TestExecutionListener, Logging {
             resetSequences(statement)
             enableConstraints(statement)
         } else {
-            logger().warn(
+            logger.warn(
                 "Unexpected database type: ${connection.metaData.databaseProductName}" +
                     " (expected: $DB_NAME). Skipping cleanup."
             )
