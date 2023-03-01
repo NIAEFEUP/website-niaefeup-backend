@@ -532,10 +532,7 @@ internal class ProjectControllerTest @Autowired constructor(
         fun `should archive the project`() {
             val newIsArchived = true
 
-            mockMvc.put("/projects/${testProject.id}/archive") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString("isArchived" to newIsArchived)
-            }
+            mockMvc.put("/projects/${testProject.id}/archive")
                 .andExpect {
                     status { isOk() }
                     content { contentType(MediaType.APPLICATION_JSON) }
@@ -568,10 +565,7 @@ internal class ProjectControllerTest @Autowired constructor(
         fun `should unarchive the project`() {
             val newIsArchived = false
 
-            mockMvc.put("/projects/${project.id}/unarchive") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString("isArchived" to newIsArchived)
-            }
+            mockMvc.put("/projects/${project.id}/unarchive")
                 .andExpect {
                     status { isOk() }
                     content { contentType(MediaType.APPLICATION_JSON) }
