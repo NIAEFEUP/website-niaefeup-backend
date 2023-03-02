@@ -16,7 +16,6 @@ import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.del
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put
-import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
@@ -33,13 +32,10 @@ import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.ValidationTester
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
 import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
-import pt.up.fe.ni.website.backend.utils.documentation.DocumentedJSONField
 import pt.up.fe.ni.website.backend.utils.documentation.MockMVCExtension.Companion.andDocument
-import pt.up.fe.ni.website.backend.utils.documentation.MockMVCExtension.Companion.andDocumentCustomRequestSchema
 import pt.up.fe.ni.website.backend.utils.documentation.MockMVCExtension.Companion.andDocumentEmptyObjectResponse
 import pt.up.fe.ni.website.backend.utils.documentation.MockMVCExtension.Companion.andDocumentErrorResponse
 import pt.up.fe.ni.website.backend.utils.documentation.ModelDocumentation
-import pt.up.fe.ni.website.backend.utils.documentation.PayloadSchema
 
 @ControllerTest
 @AutoConfigureRestDocs
@@ -648,14 +644,6 @@ internal class ProjectControllerTest @Autowired constructor(
         }
     }
 
-    val archivalPayload = PayloadSchema(
-        "project-archival",
-        mutableListOf(
-            DocumentedJSONField("first", "String with property name (\"isArchived\")", JsonFieldType.STRING),
-            DocumentedJSONField("second", "Whether the project is archived", JsonFieldType.BOOLEAN)
-        )
-    )
-
     @NestedTest
     @DisplayName("PUT /projects/{projectId}/archive")
     inner class ArchiveProject {
@@ -676,22 +664,18 @@ internal class ProjectControllerTest @Autowired constructor(
 
             mockMvc.perform(
                 put("/projects/{id}/archive", testProject.id)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString("isArchived" to newIsArchived))
             )
                 .andExpectAll(
                     status().isOk,
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.isArchived").value(newIsArchived)
                 )
-                .andDocumentCustomRequestSchema(
+                .andDocument(
                     documentation,
-                    archivalPayload,
                     "Archive projects",
                     "This endpoint updates projects as archived. This is useful to mark no longer " +
                         "maintained or complete projects of the Nucleus.",
-                    urlParameters = parameters,
-                    documentRequestPayload = true
+                    urlParameters = parameters
                 )
 
             val archivedProject = repository.findById(testProject.id!!).get()
@@ -724,22 +708,18 @@ internal class ProjectControllerTest @Autowired constructor(
 
             mockMvc.perform(
                 put("/projects/{id}/unarchive", project.id)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString("isArchived" to newIsArchived))
             )
                 .andExpectAll(
                     status().isOk,
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.isArchived").value(newIsArchived)
                 )
-                .andDocumentCustomRequestSchema(
+                .andDocument(
                     documentation,
-                    archivalPayload,
                     "Unarchive projects",
                     "This endpoint updates projects as unarchived. " +
                         "This is useful to mark previously unarchived projects as active.",
-                    urlParameters = parameters,
-                    documentRequestPayload = true
+                    urlParameters = parameters
                 )
 
             val unarchivedProject = repository.findById(project.id!!).get()
