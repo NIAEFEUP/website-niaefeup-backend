@@ -51,12 +51,11 @@ class EventService(
         return repository.save(newEvent)
     }
 
-    fun deleteEventById(eventId: Long): Map<String, String> {
+    fun deleteEventById(eventId: Long) {
         if (!repository.existsById(eventId)) {
             throw NoSuchElementException(ErrorMessages.eventNotFound(eventId))
         }
 
         repository.deleteById(eventId)
-        return mapOf()
     }
 }

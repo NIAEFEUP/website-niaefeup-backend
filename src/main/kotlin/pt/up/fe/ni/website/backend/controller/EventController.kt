@@ -30,7 +30,10 @@ class EventController(private val service: EventService) {
     fun createEvent(@RequestBody dto: EventDto) = service.createEvent(dto)
 
     @DeleteMapping("/{id}")
-    fun deleteEventById(@PathVariable id: Long) = service.deleteEventById(id)
+    fun deleteEventById(@PathVariable id: Long): Map<String, String> {
+        service.deleteEventById(id)
+        return emptyMap()
+    }
 
     @PutMapping("/{id}")
     fun updateEventById(
