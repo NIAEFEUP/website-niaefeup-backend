@@ -18,7 +18,6 @@ class ValidationTester(
         val params = requiredFields.toMutableMap()
         params.remove(param)
         req(params)
-            .andDo { print() }
             .expectValidationError()
             .andExpect {
                 jsonPath("$.errors[0].message") { value("required") }

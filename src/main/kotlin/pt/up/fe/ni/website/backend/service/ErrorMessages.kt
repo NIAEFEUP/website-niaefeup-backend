@@ -11,6 +11,12 @@ object ErrorMessages {
 
     const val expiredRefreshToken = "refresh token has expired"
 
+    const val noGenerations = "no generations created yet"
+
+    const val noGenerationsToInferYear = "no generations created yet, please specify school year"
+
+    const val generationAlreadyExists = "generation already exists"
+
     fun postNotFound(postId: Long): String = "post not found with id $postId"
 
     fun postNotFound(postSlug: String): String = "post not found with slug $postSlug"
@@ -26,6 +32,10 @@ object ErrorMessages {
     fun activityNotFound(id: Long): String = "activity not found with id $id"
 
     fun accountNotFound(id: Long): String = "account not found with id $id"
+
+    fun generationNotFound(id: Long): String = "generation not found with id $id"
+
+    fun generationNotFound(year: String): String = "generation not found with year $year"
 
     fun emailNotFound(email: String): String = "account not found with email $email"
 }

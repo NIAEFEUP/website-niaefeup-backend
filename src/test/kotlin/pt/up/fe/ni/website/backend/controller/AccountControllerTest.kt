@@ -42,7 +42,7 @@ class AccountControllerTest @Autowired constructor(
         listOf(
             CustomWebsite("https://test-website.com", "https://test-website.com/logo.png")
         ),
-        emptyList()
+        mutableListOf()
     )
 
     @NestedTest
@@ -60,7 +60,7 @@ class AccountControllerTest @Autowired constructor(
                 null,
                 null,
                 emptyList(),
-                emptyList()
+                mutableListOf()
             )
         )
 

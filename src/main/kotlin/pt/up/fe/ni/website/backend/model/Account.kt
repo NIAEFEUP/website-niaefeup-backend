@@ -1,5 +1,6 @@
 package pt.up.fe.ni.website.backend.model
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
@@ -8,8 +9,10 @@ import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
+import jakarta.persistence.JoinTable
 import jakarta.persistence.ManyToMany
 import jakarta.persistence.OneToMany
+import jakarta.persistence.OrderColumn
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotEmpty
@@ -58,9 +61,11 @@ class Account(
     @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
     val websites: List<@Valid CustomWebsite> = emptyList(),
 
-    @JoinColumn
-    @ManyToMany(fetch = FetchType.EAGER)
-    var roles: List<@Valid Role> = emptyList(),
+    @ManyToMany
+    @JoinTable
+    @OrderColumn
+    @JsonIgnore // TODO: Decide if we want to return roles (or IDs) by default
+    val roles: MutableList<@Valid Role> = mutableListOf(),
 
     @Id @GeneratedValue
     val id: Long? = null

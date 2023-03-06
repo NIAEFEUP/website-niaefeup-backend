@@ -16,6 +16,8 @@ class Event(
     title: String,
     description: String,
     teamMembers: MutableList<Account> = mutableListOf(),
+    associatedRoles: MutableList<PerActivityRole> = mutableListOf(),
+    slug: String? = null,
 
     @field:NullOrNotBlank
     @field:URL
@@ -23,7 +25,7 @@ class Event(
 
     @Embedded
     @field:Valid
-    val dateInterval: DateInterval,
+    var dateInterval: DateInterval,
 
     @field:Size(min = Constants.Location.minSize, max = Constants.Location.maxSize)
     val location: String?,
@@ -36,8 +38,5 @@ class Event(
     @field:URL
     val thumbnailPath: String,
 
-    associatedRoles: List<PerActivityRole> = emptyList(),
-    id: Long? = null,
-
-    slug: String? = null
-) : Activity(title, description, teamMembers, associatedRoles, id, slug)
+    id: Long? = null
+) : Activity(title, description, teamMembers, associatedRoles, slug, id)

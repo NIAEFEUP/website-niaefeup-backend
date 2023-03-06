@@ -1,16 +1,18 @@
-package pt.up.fe.ni.website.backend.service
+package pt.up.fe.ni.website.backend.service.activity
 
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import pt.up.fe.ni.website.backend.dto.entity.EventDto
 import pt.up.fe.ni.website.backend.model.Event
 import pt.up.fe.ni.website.backend.repository.EventRepository
+import pt.up.fe.ni.website.backend.service.AccountService
+import pt.up.fe.ni.website.backend.service.ErrorMessages
 
 @Service
 class EventService(
-    private val repository: EventRepository,
-    private val accountService: AccountService
-) : ActivityService<Event>(repository, accountService) {
+    override val repository: EventRepository,
+    accountService: AccountService
+) : AbstractActivityService<Event>(repository, accountService) {
     fun getAllEvents(): List<Event> = repository.findAll().toList()
 
     fun getEventBySlug(eventSlug: String): Event =
@@ -34,7 +36,7 @@ class EventService(
     fun getEventsByCategory(category: String): List<Event> = repository.findAllByCategory(category)
 
     fun getEventById(eventId: Long): Event = repository.findByIdOrNull(eventId)
-        ?: throw NoSuchElementException("event not found with id $eventId")
+        ?: throw NoSuchElementException(ErrorMessages.eventNotFound(eventId))
 
     fun updateEventById(eventId: Long, dto: EventDto): Event {
         val event = getEventById(eventId)
@@ -49,12 +51,11 @@ class EventService(
         return repository.save(newEvent)
     }
 
-    fun deleteEventById(eventId: Long): Map<String, String> {
+    fun deleteEventById(eventId: Long) {
         if (!repository.existsById(eventId)) {
-            throw NoSuchElementException("event not found with id $eventId")
+            throw NoSuchElementException(ErrorMessages.eventNotFound(eventId))
         }
 
         repository.deleteById(eventId)
-        return mapOf()
     }
 }
