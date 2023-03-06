@@ -22,26 +22,26 @@ import pt.up.fe.ni.website.backend.model.constants.ActivityConstants as Constant
 abstract class Activity(
     @JsonProperty(required = true)
     @field:Size(min = Constants.Title.minSize, max = Constants.Title.maxSize)
-    open var title: String,
+    var title: String,
 
     @JsonProperty(required = true)
     @field:Size(min = Constants.Description.minSize, max = Constants.Description.maxSize)
-    open var description: String,
+    var description: String,
 
     @JoinColumn
     @OneToMany(fetch = FetchType.EAGER)
-    open val teamMembers: MutableList<Account>,
+    val teamMembers: MutableList<Account>,
 
     @OneToMany(cascade = [CascadeType.ALL], mappedBy = "activity")
     @OrderColumn
     @JsonIgnore // TODO: Decide if we want to return perRoles (or IDs) by default
-    open val associatedRoles: MutableList<@Valid PerActivityRole> = mutableListOf(),
+    val associatedRoles: MutableList<@Valid PerActivityRole> = mutableListOf(),
 
     @Column(unique = true)
     @field:Size(min = Constants.Slug.minSize, max = Constants.Slug.maxSize)
-    open val slug: String? = null,
+    val slug: String? = null,
 
     @Id
     @GeneratedValue
-    open val id: Long? = null
+    val id: Long? = null
 )
