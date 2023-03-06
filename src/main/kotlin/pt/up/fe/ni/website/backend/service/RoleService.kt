@@ -12,7 +12,7 @@ import pt.up.fe.ni.website.backend.repository.RoleRepository
 @Service
 class RoleService(
     private val roleRepository: RoleRepository,
-    private val perActivityRoleRepository: PerActivityRoleRepository,
+    private val perActivityRoleRepository: PerActivityRoleRepository
 ) {
 
     fun grantPermissionToRole(role: Role, permission: Permission) {

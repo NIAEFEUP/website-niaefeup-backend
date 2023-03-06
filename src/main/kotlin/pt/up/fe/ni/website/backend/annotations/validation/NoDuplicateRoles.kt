@@ -4,8 +4,8 @@ import jakarta.validation.Constraint
 import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
 import jakarta.validation.Payload
-import pt.up.fe.ni.website.backend.model.Role
 import kotlin.reflect.KClass
+import pt.up.fe.ni.website.backend.model.Role
 
 @Target(AnnotationTarget.FIELD)
 @Retention(AnnotationRetention.RUNTIME)

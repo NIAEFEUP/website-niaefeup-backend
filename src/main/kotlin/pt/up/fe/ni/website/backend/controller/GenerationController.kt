@@ -30,21 +30,21 @@ class GenerationController(private val service: GenerationService) {
 
     @PostMapping("/new")
     fun createNewGeneration(
-        @RequestBody dto: GenerationDto,
+        @RequestBody dto: GenerationDto
     ) = service.createNewGeneration(dto)
 
     @PatchMapping("/{id:\\d+}")
     fun updateGenerationById(
         @PathVariable id: Long,
         @RequestBody @Valid
-        dto: UpdateGenerationDto,
+        dto: UpdateGenerationDto
     ) = service.updateGenerationById(id, dto)
 
     @PatchMapping("/{year:\\d{2}-\\d{2}}")
     fun updateGenerationByYear(
         @PathVariable year: String,
         @RequestBody @Valid
-        dto: UpdateGenerationDto,
+        dto: UpdateGenerationDto
     ) = service.updateGenerationByYear(year, dto)
 
     @DeleteMapping("/{id:\\d+}")

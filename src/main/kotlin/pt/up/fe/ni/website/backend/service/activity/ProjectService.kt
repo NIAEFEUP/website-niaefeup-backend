@@ -11,7 +11,7 @@ import pt.up.fe.ni.website.backend.service.ErrorMessages
 @Service
 class ProjectService(
     override val repository: ProjectRepository,
-    accountService: AccountService,
+    accountService: AccountService
 ) : AbstractActivityService<Project>(repository, accountService) {
 
     fun getAllProjects(): List<Project> = repository.findAll().toList()

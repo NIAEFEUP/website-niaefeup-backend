@@ -16,7 +16,7 @@ import pt.up.fe.ni.website.backend.service.activity.ActivityService
 class GenerationService(
     private val repository: GenerationRepository,
     private val accountService: AccountService,
-    private val activityService: ActivityService,
+    private val activityService: ActivityService
 ) {
 
     fun getAllGenerations(): List<String> = repository.findAllSchoolYearOrdered()

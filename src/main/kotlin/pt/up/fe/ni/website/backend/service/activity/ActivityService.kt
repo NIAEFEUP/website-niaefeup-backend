@@ -8,5 +8,5 @@ import pt.up.fe.ni.website.backend.service.AccountService
 @Service
 class ActivityService(
     repository: ActivityRepository<Activity>,
-    accountService: AccountService,
+    accountService: AccountService
 ) : AbstractActivityService<Activity>(repository, accountService)

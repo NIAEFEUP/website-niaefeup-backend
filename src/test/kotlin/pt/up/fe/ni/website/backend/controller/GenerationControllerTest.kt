@@ -43,7 +43,7 @@ class GenerationControllerTest @Autowired constructor(
     val repository: GenerationRepository,
     val accountRepository: AccountRepository,
     val activityRepository: ActivityRepository<Activity>,
-    val roleRepository: RoleRepository,
+    val roleRepository: RoleRepository
 ) {
     private lateinit var testGeneration: Generation
     private lateinit var testGenerations: List<Generation>
@@ -349,16 +349,16 @@ class GenerationControllerTest @Autowired constructor(
                         emptyList(),
                         true,
                         emptyList(),
-                        emptyList(),
+                        emptyList()
                     ),
                     RoleDto(
                         "role2",
                         emptyList(),
                         false,
                         emptyList(),
-                        emptyList(),
-                    ),
-                ),
+                        emptyList()
+                    )
+                )
             )
 
             mockMvc.post("/generations/new") {
@@ -398,9 +398,9 @@ class GenerationControllerTest @Autowired constructor(
                         listOf(0, 1),
                         true,
                         emptyList(),
-                        emptyList(),
-                    ),
-                ),
+                        emptyList()
+                    )
+                )
             )
 
             mockMvc.post("/generations/new") {
@@ -469,9 +469,9 @@ class GenerationControllerTest @Autowired constructor(
                             emptyList(),
                             true,
                             listOf(1, 2),
-                            emptyList(),
-                        ),
-                    ),
+                            emptyList()
+                        )
+                    )
                 )
 
                 mockMvc.post("/generations/new") {
@@ -513,15 +513,15 @@ class GenerationControllerTest @Autowired constructor(
                             listOf(
                                 PerActivityRoleDto(
                                     1,
-                                    listOf(0, 1),
+                                    listOf(0, 1)
                                 ),
                                 PerActivityRoleDto(
                                     2,
-                                    listOf(2),
-                                ),
-                            ),
-                        ),
-                    ),
+                                    listOf(2)
+                                )
+                            )
+                        )
+                    )
                 )
 
                 mockMvc.post("/generations/new") {
@@ -535,10 +535,22 @@ class GenerationControllerTest @Autowired constructor(
                         jsonPath("$.roles.length()") { value(1) }
                         jsonPath("$.roles[0].associatedActivities.length()") { value(2) }
                         jsonPath("$.roles[0].associatedActivities[0].permissions.length()") { value(2) }
-                        jsonPath("$.roles[0].associatedActivities[0].permissions[0]") { value(Permission.values()[0].name) }
-                        jsonPath("$.roles[0].associatedActivities[0].permissions[1]") { value(Permission.values()[1].name) }
+                        jsonPath("$.roles[0].associatedActivities[0].permissions[0]") {
+                            value(
+                                Permission.values()[0].name
+                            )
+                        }
+                        jsonPath("$.roles[0].associatedActivities[0].permissions[1]") {
+                            value(
+                                Permission.values()[1].name
+                            )
+                        }
                         jsonPath("$.roles[0].associatedActivities[1].permissions.length()") { value(1) }
-                        jsonPath("$.roles[0].associatedActivities[1].permissions[0]") { value(Permission.values()[2].name) }
+                        jsonPath("$.roles[0].associatedActivities[1].permissions[0]") {
+                            value(
+                                Permission.values()[2].name
+                            )
+                        }
                     }
 
                 val role = roleRepository.findAll().toList()
@@ -555,13 +567,13 @@ class GenerationControllerTest @Autowired constructor(
                         it.role == role && it.activity == activity1 &&
                             it.permissions.contains(Permission.values()[0]) &&
                             it.permissions.contains(Permission.values()[1])
-                    },
+                    }
                 )
                 assert(
                     activity2.associatedRoles.any {
                         it.role == role && it.activity == activity2 &&
                             it.permissions.contains(Permission.values()[2])
-                    },
+                    }
                 )
             }
 
@@ -594,7 +606,7 @@ class GenerationControllerTest @Autowired constructor(
             mockMvc.patch("/generations/${testGenerations[0].schoolYear}") {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(
-                    mapOf("schoolYear" to "19-20"),
+                    mapOf("schoolYear" to "19-20")
                 )
             }
                 .andExpect {
@@ -609,7 +621,7 @@ class GenerationControllerTest @Autowired constructor(
             mockMvc.patch("/generations/17-18") {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(
-                    mapOf("schoolYear" to "19-20"),
+                    mapOf("schoolYear" to "19-20")
                 )
             }
                 .andExpect {
@@ -625,7 +637,7 @@ class GenerationControllerTest @Autowired constructor(
             mockMvc.patch("/generations/${testGenerations[0].schoolYear}") {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(
-                    mapOf("schoolYear" to "21-22"),
+                    mapOf("schoolYear" to "21-22")
                 )
             }
                 .andExpect {
@@ -641,7 +653,7 @@ class GenerationControllerTest @Autowired constructor(
             mockMvc.patch("/generations/${testGenerations[0].schoolYear}") {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(
-                    mapOf("schoolYear" to "123"),
+                    mapOf("schoolYear" to "123")
                 )
             }
                 .andExpect {
@@ -666,7 +678,7 @@ class GenerationControllerTest @Autowired constructor(
             mockMvc.patch("/generations/${testGenerations[0].id}") {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(
-                    mapOf("schoolYear" to "19-20"),
+                    mapOf("schoolYear" to "19-20")
                 )
             }
                 .andExpect {
@@ -681,7 +693,7 @@ class GenerationControllerTest @Autowired constructor(
             mockMvc.patch("/generations/123") {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(
-                    mapOf("schoolYear" to "19-20"),
+                    mapOf("schoolYear" to "19-20")
                 )
             }
                 .andExpect {
@@ -697,7 +709,7 @@ class GenerationControllerTest @Autowired constructor(
             mockMvc.patch("/generations/${testGenerations[0].id}") {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(
-                    mapOf("schoolYear" to "21-22"),
+                    mapOf("schoolYear" to "21-22")
                 )
             }
                 .andExpect {
@@ -713,7 +725,7 @@ class GenerationControllerTest @Autowired constructor(
             mockMvc.patch("/generations/1") {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(
-                    mapOf("schoolYear" to "123"),
+                    mapOf("schoolYear" to "123")
                 )
             }
                 .andExpect {
@@ -840,7 +852,7 @@ class GenerationControllerTest @Autowired constructor(
             null,
             null,
             null,
-            emptyList(),
+            emptyList()
         )
 
         val testAccount2 = Account(
@@ -852,7 +864,7 @@ class GenerationControllerTest @Autowired constructor(
             null,
             null,
             null,
-            emptyList(),
+            emptyList()
         )
 
         testGeneration = buildTestGeneration(
@@ -864,15 +876,15 @@ class GenerationControllerTest @Autowired constructor(
                     listOf(testAccount),
                     listOf(
                         buildTestPerActivityRole(
-                            Project("NIJobs", "cool project"),
-                        ),
-                    ),
+                            Project("NIJobs", "cool project")
+                        )
+                    )
                 ),
                 buildTestRole(
                     "section-role2",
                     true,
                     listOf(testAccount, testAccount2),
-                    emptyList(),
+                    emptyList()
                 ),
                 buildTestRole(
                     "regular-role1",
@@ -886,18 +898,18 @@ class GenerationControllerTest @Autowired constructor(
                                 dateInterval = DateInterval(TestUtils.createDate(2023, 9, 10)),
                                 location = null,
                                 category = null,
-                                thumbnailPath = "https://www.google.com",
-                            ),
-                        ),
-                    ),
+                                thumbnailPath = "https://www.google.com"
+                            )
+                        )
+                    )
                 ),
                 buildTestRole(
                     "regular-role2",
                     false,
                     listOf(testAccount, testAccount2),
-                    emptyList(),
-                ),
-            ),
+                    emptyList()
+                )
+            )
         )
 
         testGenerations = listOf(
@@ -909,16 +921,16 @@ class GenerationControllerTest @Autowired constructor(
                         "section-role1",
                         true,
                         listOf(testAccount),
-                        emptyList(),
+                        emptyList()
                     ),
                     buildTestRole(
                         "regular-role1",
                         false,
                         listOf(testAccount),
-                        emptyList(),
-                    ),
-                ),
-            ),
+                        emptyList()
+                    )
+                )
+            )
         )
 
         testGenerations.forEach(::saveGeneration)
@@ -950,7 +962,7 @@ class GenerationControllerTest @Autowired constructor(
         name: String,
         isSection: Boolean,
         accounts: List<Account> = emptyList(),
-        associatedActivities: List<PerActivityRole> = emptyList(),
+        associatedActivities: List<PerActivityRole> = emptyList()
     ): Role {
         val role = Role(name, Permissions(emptySet()), isSection)
         role.accounts.addAll(accounts)

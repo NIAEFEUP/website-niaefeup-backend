@@ -26,29 +26,29 @@ class GetGenerationDtoTest {
             buildTestRole(
                 "role2",
                 false,
-                mutableListOf(buildTestAccount("account", mutableListOf())),
-            ),
+                mutableListOf(buildTestAccount("account", mutableListOf()))
+            )
         ),
-        emptyList(),
+        emptyList()
     )
 
     @Test
     fun `generation with a section role and no accounts`() = testBuildGetGenerationDto(
         mutableListOf(buildTestRole("role", true, mutableListOf())),
-        emptyList(),
+        emptyList()
     )
 
     @Test
     fun `generation with a section role and a user with no roles`() = testBuildGetGenerationDto(
         mutableListOf(
-            buildTestRole("role", true, mutableListOf(buildTestAccount("account", mutableListOf()))),
+            buildTestRole("role", true, mutableListOf(buildTestAccount("account", mutableListOf())))
         ),
         listOf(
             GenerationSectionDto(
                 "role",
-                listOf(buildTestGenerationUserDto("account", emptyList())),
-            ),
-        ),
+                listOf(buildTestGenerationUserDto("account", emptyList()))
+            )
+        )
     )
 
     @Test
@@ -60,17 +60,17 @@ class GetGenerationDtoTest {
                 mutableListOf(
                     buildTestAccount(
                         "account",
-                        mutableListOf(buildTestRole("user-role", false)),
-                    ),
-                ),
-            ),
+                        mutableListOf(buildTestRole("user-role", false))
+                    )
+                )
+            )
         ),
         listOf(
             GenerationSectionDto(
                 "section-role",
-                listOf(buildTestGenerationUserDto("account", listOf("user-role"))),
-            ),
-        ),
+                listOf(buildTestGenerationUserDto("account", listOf("user-role")))
+            )
+        )
     )
 
     @Test
@@ -84,18 +84,18 @@ class GetGenerationDtoTest {
                         "account",
                         mutableListOf(
                             buildTestRole("user-role", false),
-                            buildTestRole("user-role2", false),
-                        ),
-                    ),
-                ),
-            ),
+                            buildTestRole("user-role2", false)
+                        )
+                    )
+                )
+            )
         ),
         listOf(
             GenerationSectionDto(
                 "section-role",
-                listOf(buildTestGenerationUserDto("account", listOf("user-role", "user-role2"))),
-            ),
-        ),
+                listOf(buildTestGenerationUserDto("account", listOf("user-role", "user-role2")))
+            )
+        )
     )
 
     @Test
@@ -107,24 +107,24 @@ class GetGenerationDtoTest {
                 mutableListOf(
                     buildTestAccount(
                         "account",
-                        mutableListOf(buildTestRole("user-role", false)),
+                        mutableListOf(buildTestRole("user-role", false))
                     ),
                     buildTestAccount(
                         "account2",
-                        mutableListOf(buildTestRole("user-role2", false)),
-                    ),
-                ),
-            ),
+                        mutableListOf(buildTestRole("user-role2", false))
+                    )
+                )
+            )
         ),
         listOf(
             GenerationSectionDto(
                 "section-role",
                 listOf(
                     buildTestGenerationUserDto("account", listOf("user-role")),
-                    buildTestGenerationUserDto("account2", listOf("user-role2")),
-                ),
-            ),
-        ),
+                    buildTestGenerationUserDto("account2", listOf("user-role2"))
+                )
+            )
+        )
     )
 
     @Test
@@ -136,9 +136,9 @@ class GetGenerationDtoTest {
                 mutableListOf(
                     buildTestAccount(
                         "account",
-                        mutableListOf(buildTestRole("user-role", false)),
-                    ),
-                ),
+                        mutableListOf(buildTestRole("user-role", false))
+                    )
+                )
             ),
             buildTestRole(
                 "section-role2",
@@ -146,21 +146,21 @@ class GetGenerationDtoTest {
                 mutableListOf(
                     buildTestAccount(
                         "account2",
-                        mutableListOf(buildTestRole("user-role2", false)),
-                    ),
-                ),
-            ),
+                        mutableListOf(buildTestRole("user-role2", false))
+                    )
+                )
+            )
         ),
         listOf(
             GenerationSectionDto(
                 "section-role",
-                listOf(buildTestGenerationUserDto("account", listOf("user-role"))),
+                listOf(buildTestGenerationUserDto("account", listOf("user-role")))
             ),
             GenerationSectionDto(
                 "section-role2",
-                listOf(buildTestGenerationUserDto("account2", listOf("user-role2"))),
-            ),
-        ),
+                listOf(buildTestGenerationUserDto("account2", listOf("user-role2")))
+            )
+        )
     )
 
     @Test
@@ -174,10 +174,10 @@ class GetGenerationDtoTest {
                         "account",
                         mutableListOf(
                             buildTestRole("user-role", false),
-                            buildTestRole("user-role2", false),
-                        ),
-                    ),
-                ),
+                            buildTestRole("user-role2", false)
+                        )
+                    )
+                )
             ),
             buildTestRole(
                 "section-role2",
@@ -187,29 +187,29 @@ class GetGenerationDtoTest {
                         "account2",
                         mutableListOf(
                             buildTestRole("user-role3", false),
-                            buildTestRole("user-role4", false),
-                        ),
-                    ),
-                ),
-            ),
+                            buildTestRole("user-role4", false)
+                        )
+                    )
+                )
+            )
         ),
         listOf(
             GenerationSectionDto(
                 "section-role",
-                listOf(buildTestGenerationUserDto("account", listOf("user-role", "user-role2"))),
+                listOf(buildTestGenerationUserDto("account", listOf("user-role", "user-role2")))
             ),
             GenerationSectionDto(
                 "section-role2",
-                listOf(buildTestGenerationUserDto("account2", listOf("user-role3", "user-role4"))),
-            ),
-        ),
+                listOf(buildTestGenerationUserDto("account2", listOf("user-role3", "user-role4")))
+            )
+        )
     )
 
     @Test
     fun `generation with multiple section roles and repeated accounts`() {
         val account = buildTestAccount(
             "account",
-            mutableListOf(buildTestRole("user-role", false)),
+            mutableListOf(buildTestRole("user-role", false))
         )
 
         testBuildGetGenerationDto(
@@ -217,24 +217,24 @@ class GetGenerationDtoTest {
                 buildTestRole(
                     "section-role",
                     true,
-                    mutableListOf(account),
+                    mutableListOf(account)
                 ),
                 buildTestRole(
                     "section-role2",
                     true,
-                    mutableListOf(account),
-                ),
+                    mutableListOf(account)
+                )
             ),
             listOf(
                 GenerationSectionDto(
                     "section-role",
-                    listOf(buildTestGenerationUserDto("account", listOf("user-role"))),
+                    listOf(buildTestGenerationUserDto("account", listOf("user-role")))
                 ),
                 GenerationSectionDto(
                     "section-role2",
-                    emptyList(),
-                ),
-            ),
+                    emptyList()
+                )
+            )
         )
     }
 
@@ -259,7 +259,7 @@ class GetGenerationDtoTest {
     private fun buildTestRole(
         name: String,
         isSection: Boolean,
-        accounts: MutableList<Account> = mutableListOf(),
+        accounts: MutableList<Account> = mutableListOf()
     ): Role {
         val role = Role(name, Permissions(emptySet()), isSection, accounts)
         role.generation = testGeneration
@@ -268,11 +268,11 @@ class GetGenerationDtoTest {
 
     private fun buildTestAccount(name: String, roles: MutableList<Role>) = Account(
         name, "email", "password", null, null,
-        null, null, null, emptyList(), roles,
+        null, null, null, emptyList(), roles
     )
 
     private fun buildTestGenerationUserDto(name: String, roles: List<String>) = GenerationUserDto(
         buildTestAccount(name, mutableListOf()),
-        roles,
+        roles
     )
 }

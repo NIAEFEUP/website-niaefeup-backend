@@ -38,18 +38,18 @@ class EventController(private val service: EventService) {
     @PutMapping("/{id}")
     fun updateEventById(
         @PathVariable id: Long,
-        @RequestBody dto: EventDto,
+        @RequestBody dto: EventDto
     ) = service.updateEventById(id, dto)
 
     @PutMapping("/{idEvent}/addTeamMember/{idAccount}")
     fun addTeamMemberById(
         @PathVariable idEvent: Long,
-        @PathVariable idAccount: Long,
+        @PathVariable idAccount: Long
     ) = service.addTeamMemberById(idEvent, idAccount)
 
     @PutMapping("/{idEvent}/removeTeamMember/{idAccount}")
     fun removeTeamMemberById(
         @PathVariable idEvent: Long,
-        @PathVariable idAccount: Long,
+        @PathVariable idAccount: Long
     ) = service.removeTeamMemberById(idEvent, idAccount)
 }

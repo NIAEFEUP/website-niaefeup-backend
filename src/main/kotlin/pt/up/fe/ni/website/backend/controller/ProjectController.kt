@@ -36,7 +36,7 @@ class ProjectController(private val service: ProjectService) {
     @PutMapping("/{id}")
     fun updatePostById(
         @PathVariable id: Long,
-        @RequestBody dto: ProjectDto,
+        @RequestBody dto: ProjectDto
     ) = service.updateProjectById(id, dto)
 
     @PutMapping("/{id}/archive")
@@ -48,12 +48,12 @@ class ProjectController(private val service: ProjectService) {
     @PutMapping("/{idProject}/addTeamMember/{idAccount}")
     fun addTeamMemberById(
         @PathVariable idProject: Long,
-        @PathVariable idAccount: Long,
+        @PathVariable idAccount: Long
     ) = service.addTeamMemberById(idProject, idAccount)
 
     @PutMapping("/{idProject}/removeTeamMember/{idAccount}")
     fun removeTeamMemberById(
         @PathVariable idProject: Long,
-        @PathVariable idAccount: Long,
+        @PathVariable idAccount: Long
     ) = service.removeTeamMemberById(idProject, idAccount)
 }

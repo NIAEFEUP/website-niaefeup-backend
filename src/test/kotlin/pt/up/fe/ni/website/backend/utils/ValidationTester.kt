@@ -5,7 +5,7 @@ import org.springframework.test.web.servlet.ResultActionsDsl
 
 class ValidationTester(
     private val req: (Map<String, Any?>) -> ResultActionsDsl,
-    private val requiredFields: Map<String, Any?> = mapOf(),
+    private val requiredFields: Map<String, Any?> = mapOf()
 ) {
     lateinit var param: String
     var parameterName: String? = null
@@ -136,7 +136,7 @@ class ValidationTester(
 
         params[param] = mapOf(
             "startDate" to "09-01-2023",
-            "endDate" to "08-01-2023",
+            "endDate" to "08-01-2023"
         )
         req(params)
             .expectValidationError()

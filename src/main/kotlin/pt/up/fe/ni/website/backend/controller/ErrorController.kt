@@ -21,7 +21,7 @@ import pt.up.fe.ni.website.backend.config.Logging
 data class SimpleError(
     val message: String,
     val param: String? = null,
-    val value: Any? = null,
+    val value: Any? = null
 )
 
 data class CustomError(val errors: List<SimpleError>)
@@ -43,8 +43,8 @@ class ErrorController(private val objectMapper: ObjectMapper) : ErrorController,
                 SimpleError(
                     violation.message,
                     violation.propertyPath.toString(),
-                    violation.invalidValue.takeIf { it.isSerializable() },
-                ),
+                    violation.invalidValue.takeIf { it.isSerializable() }
+                )
             )
         }
         return CustomError(errors)
@@ -59,8 +59,8 @@ class ErrorController(private val objectMapper: ObjectMapper) : ErrorController,
                 SimpleError(
                     error.defaultMessage ?: "invalid",
                     error.field,
-                    error.rejectedValue?.takeIf { it.isSerializable() },
-                ),
+                    error.rejectedValue?.takeIf { it.isSerializable() }
+                )
             )
         }
         return CustomError(errors)
@@ -74,21 +74,21 @@ class ErrorController(private val objectMapper: ObjectMapper) : ErrorController,
                 val type = cause.targetType.simpleName.lowercase()
                 return wrapSimpleError(
                     "must be $type",
-                    value = cause.value,
+                    value = cause.value
                 )
             }
 
             is MissingKotlinParameterException -> {
                 return wrapSimpleError(
                     "required",
-                    param = cause.parameter.name,
+                    param = cause.parameter.name
                 )
             }
 
             is MismatchedInputException -> {
                 return wrapSimpleError(
                     "must be ${cause.targetType.simpleName.lowercase()}",
-                    param = cause.path.joinToString(".") { it.fieldName },
+                    param = cause.path.joinToString(".") { it.fieldName }
                 )
             }
         }
@@ -128,7 +128,7 @@ class ErrorController(private val objectMapper: ObjectMapper) : ErrorController,
     }
 
     fun wrapSimpleError(msg: String, param: String? = null, value: Any? = null) = CustomError(
-        mutableListOf(SimpleError(msg, param, value)),
+        mutableListOf(SimpleError(msg, param, value))
     )
 
     fun Any.isSerializable() = try {

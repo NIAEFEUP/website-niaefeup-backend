@@ -11,7 +11,7 @@ import pt.up.fe.ni.website.backend.service.ErrorMessages
 @Service
 class EventService(
     override val repository: EventRepository,
-    accountService: AccountService,
+    accountService: AccountService
 ) : AbstractActivityService<Event>(repository, accountService) {
     fun getAllEvents(): List<Event> = repository.findAll().toList()
 
