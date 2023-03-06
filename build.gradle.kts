@@ -32,7 +32,7 @@ dependencies {
     implementation("ch.qos.logback:logback-core:1.4.5")
     implementation("org.slf4j:slf4j-api:2.0.6")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-    implementation("org.springframework.boot:spring-boot-starter-validation:3.0.0")
+    implementation("org.springframework.boot:spring-boot-starter-validation:3.0.4")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("com.h2database:h2")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
