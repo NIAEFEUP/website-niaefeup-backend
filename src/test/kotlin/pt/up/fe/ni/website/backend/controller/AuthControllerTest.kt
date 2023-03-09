@@ -125,7 +125,7 @@ class AuthControllerTest @Autowired constructor(
                     documentation,
                     "Authenticate account",
                     "This endpoint operation allows authentication using user's password and email, " +
-                        "generating new access and refresh tokens to be used in later communication.",
+                        "generating new access and refresh tokens to be used in following requests.",
                     documentRequestPayload = true
                 )
         }
