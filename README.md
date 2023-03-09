@@ -1,5 +1,5 @@
-# Website NIAEFEUP - BackEnd  
-[![codecov](https://codecov.io/gh/NIAEFEUP/website-niaefeup-backend/branch/develop/graph/badge.svg?token=4OPGXYESGP)](https://codecov.io/gh/NIAEFEUP/website-niaefeup-backend)  
+# Website NIAEFEUP - BackEnd
+[![codecov](https://codecov.io/gh/NIAEFEUP/website-niaefeup-backend/branch/develop/graph/badge.svg?token=4OPGXYESGP)](https://codecov.io/gh/NIAEFEUP/website-niaefeup-backend)
 The online platform for NIAEFEUP.
 
 ## Development setup
@@ -77,11 +77,11 @@ Run the `openapi3` or `postman` gradle task to get either the OpenAPI specificat
 Run the following command in your shell:
 
 ```bash
-gradle openapi3
+./gradlew openapi3
 ```
 
 ```bash
-gradle postman
+./gradlew postman
 ```
 
 ###### Results
