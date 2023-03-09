@@ -172,8 +172,8 @@ class AuthControllerTest @Autowired constructor(
                     .andDocument(
                         documentation,
                         "Refresh access token",
-                        "This endpoint operation allows the renewal of access tokens when expiring, " +
-                            "using the appropriate refresh token.",
+                        "This endpoint operation allows the renewal of the access and refresh tokens, " +
+                            "using the currently valid refresh token.",
                         documentRequestPayload = true
                     )
             }
