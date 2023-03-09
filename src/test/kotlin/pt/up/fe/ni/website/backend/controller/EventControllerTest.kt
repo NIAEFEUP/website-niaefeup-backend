@@ -346,7 +346,7 @@ internal class EventControllerTest @Autowired constructor(
                 .andDocument(
                     documentation,
                     "Create new events",
-                    "This endpoint operation creates new events.",
+                    "This endpoint operation creates a new event.",
                     documentRequestPayload = true
                 )
         }
