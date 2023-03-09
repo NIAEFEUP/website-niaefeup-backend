@@ -653,7 +653,7 @@ internal class EventControllerTest @Autowired constructor(
                 .andDocument(
                     documentation,
                     "Add member to event",
-                    "This operation adds a member to a given event.",
+                    "This operation adds a team member to a given event.",
                     urlParameters = parameters
                 )
         }
