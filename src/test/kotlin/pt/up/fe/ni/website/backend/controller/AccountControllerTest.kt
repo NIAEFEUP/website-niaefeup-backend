@@ -192,7 +192,7 @@ class AccountControllerTest @Autowired constructor(
                 .andDocument(
                     documentation,
                     "Create new accounts",
-                    "This endpoint operation creates new accounts.",
+                    "This endpoint operation creates a new account.",
                     documentRequestPayload = true
                 )
         }
