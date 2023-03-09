@@ -1,7 +1,5 @@
 package pt.up.fe.ni.website.backend.controller
 
-import pt.up.fe.ni.website.backend.documentation.payloadschemas.model.Event as PayloadEvent
-import pt.up.fe.ni.website.backend.model.constants.EventConstants as Constants
 import com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.util.Calendar
@@ -22,10 +20,12 @@ import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import pt.up.fe.ni.website.backend.documentation.payloadschemas.model.PayloadEvent
 import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.CustomWebsite
 import pt.up.fe.ni.website.backend.model.Event
 import pt.up.fe.ni.website.backend.model.constants.ActivityConstants
+import pt.up.fe.ni.website.backend.model.constants.EventConstants as Constants
 import pt.up.fe.ni.website.backend.model.embeddable.DateInterval
 import pt.up.fe.ni.website.backend.repository.AccountRepository
 import pt.up.fe.ni.website.backend.repository.EventRepository
@@ -651,7 +651,7 @@ internal class EventControllerTest @Autowired constructor(
                 )
                 .andDocument(
                     documentation,
-                    "Add member to event",
+                    "Add team member to event",
                     "This operation adds a team member to a given event.",
                     urlParameters = parameters
                 )
@@ -696,8 +696,8 @@ internal class EventControllerTest @Autowired constructor(
                 )
                 .andDocument(
                     documentation,
-                    "Remove member from event",
-                    "This operation removes a member of a given event.",
+                    "Remove a team member from event",
+                    "This operation removes a team member of a given event.",
                     urlParameters = parameters
                 )
         }
@@ -778,7 +778,7 @@ internal class EventControllerTest @Autowired constructor(
                 .andDocument(
                     documentation,
                     "Update events",
-                    "Update previously created events, using their ID.",
+                    "Update a previously created event, using its ID.",
                     urlParameters = parameters,
                     documentRequestPayload = true
                 )

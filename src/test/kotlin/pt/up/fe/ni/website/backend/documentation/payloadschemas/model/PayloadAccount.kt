@@ -4,7 +4,7 @@ import org.springframework.restdocs.payload.JsonFieldType
 import pt.up.fe.ni.website.backend.utils.documentation.DocumentedJSONField
 import pt.up.fe.ni.website.backend.utils.documentation.ModelDocumentation
 
-class Account : ModelDocumentation(
+class PayloadAccount : ModelDocumentation(
     Companion.Tag.ACCOUNT.name.lowercase(),
     Companion.Tag.ACCOUNT,
     mutableListOf(
@@ -14,7 +14,7 @@ class Account : ModelDocumentation(
         DocumentedJSONField("birthDate", "Birth date of the owner", JsonFieldType.STRING, optional = true),
         DocumentedJSONField(
             "photoPath",
-            "Path to the photo resource on the backend server",
+            "Path to the photo resource",
             JsonFieldType.STRING,
             optional = true
         ),

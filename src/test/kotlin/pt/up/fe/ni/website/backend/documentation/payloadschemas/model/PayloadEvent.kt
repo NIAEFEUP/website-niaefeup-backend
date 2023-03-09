@@ -5,7 +5,7 @@ import pt.up.fe.ni.website.backend.utils.documentation.DocumentedJSONField
 import pt.up.fe.ni.website.backend.utils.documentation.DocumentedJSONField.Companion.addFieldsBeneathPath
 import pt.up.fe.ni.website.backend.utils.documentation.ModelDocumentation
 
-class Event : ModelDocumentation(
+class PayloadEvent : ModelDocumentation(
     Companion.Tag.EVENT.name.lowercase(),
     Companion.Tag.EVENT,
     mutableListOf(
@@ -67,7 +67,7 @@ class Event : ModelDocumentation(
         )
     ).addFieldsBeneathPath(
         "teamMembers[]",
-        Account().payload.documentedJSONFields,
+        PayloadAccount().payload.documentedJSONFields,
         optional = true,
         addResponse = true
     )

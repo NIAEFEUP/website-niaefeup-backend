@@ -4,7 +4,7 @@ import org.springframework.restdocs.payload.JsonFieldType
 import pt.up.fe.ni.website.backend.utils.documentation.DocumentedJSONField
 import pt.up.fe.ni.website.backend.utils.documentation.ModelDocumentation
 
-class Post : ModelDocumentation(
+class PayloadPost : ModelDocumentation(
     Companion.Tag.POST.name.lowercase(),
     Companion.Tag.POST,
     mutableListOf(
@@ -20,13 +20,13 @@ class Post : ModelDocumentation(
         DocumentedJSONField("id", "Post ID", JsonFieldType.NUMBER, isInRequest = false),
         DocumentedJSONField(
             "publishDate",
-            "Date of publication of the post",
+            "Post's publish date",
             JsonFieldType.STRING,
             isInRequest = false
         ),
         DocumentedJSONField(
             "lastUpdatedAt",
-            "Date of the last update of the post",
+            "Post's latest update",
             JsonFieldType.STRING,
             isInRequest = false
         )

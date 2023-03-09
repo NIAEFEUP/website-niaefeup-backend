@@ -20,7 +20,7 @@ import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import pt.up.fe.ni.website.backend.documentation.payloadschemas.model.Project as PayloadProject
+import pt.up.fe.ni.website.backend.documentation.payloadschemas.model.PayloadProject
 import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.CustomWebsite
 import pt.up.fe.ni.website.backend.model.Project
@@ -248,7 +248,7 @@ internal class ProjectControllerTest @Autowired constructor(
                 .andDocument(
                     documentation,
                     "Create new projects",
-                    "This endpoint operation creates new projects.",
+                    "This endpoint operation creates a new project.",
                     documentRequestPayload = true
                 )
         }
@@ -441,7 +441,7 @@ internal class ProjectControllerTest @Autowired constructor(
                 .andDocument(
                     documentation,
                     "Update projects",
-                    "Update previously created projects, using their ID.",
+                    "Update a previously created project, using its ID.",
                     urlParameters = parameters,
                     documentRequestPayload = true
                 )
@@ -671,8 +671,10 @@ internal class ProjectControllerTest @Autowired constructor(
                 .andDocument(
                     documentation,
                     "Archive projects",
-                    "This endpoint updates projects as archived. This is useful to mark no longer " +
-                        "maintained or complete projects of the Nucleus.",
+                    """
+                        |This endpoint archives a project.
+                        |This is useful to mark no longer maintained or complete projects.
+                    """.trimMargin(),
                     urlParameters = parameters
                 )
 
@@ -715,8 +717,10 @@ internal class ProjectControllerTest @Autowired constructor(
                 .andDocument(
                     documentation,
                     "Unarchive projects",
-                    "This endpoint updates projects as unarchived. " +
-                        "This is useful to mark previously unarchived projects as active.",
+                    """
+                        |This endpoint unarchives a project.
+                        |This is useful to mark previously archived projects as active.
+                    """.trimMargin(),
                     urlParameters = parameters
                 )
 
@@ -788,8 +792,8 @@ internal class ProjectControllerTest @Autowired constructor(
                 )
                 .andDocument(
                     documentation,
-                    "Add member to Project",
-                    "This operation add a member to a given project.",
+                    "Add team member to Project",
+                    "This operation adds a team member to a given project.",
                     urlParameters = parameters
                 )
         }
@@ -837,8 +841,8 @@ internal class ProjectControllerTest @Autowired constructor(
                 )
                 .andDocument(
                     documentation,
-                    "Remove member from Project",
-                    "This operation removes a member of a given project.",
+                    "Remove team member from Project",
+                    "This operation removes a team member of a given project.",
                     urlParameters = parameters
                 )
         }

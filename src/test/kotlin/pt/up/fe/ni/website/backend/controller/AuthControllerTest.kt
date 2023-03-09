@@ -18,9 +18,9 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import pt.up.fe.ni.website.backend.documentation.payloadschemas.model.AuthCheck
-import pt.up.fe.ni.website.backend.documentation.payloadschemas.model.AuthNew
-import pt.up.fe.ni.website.backend.documentation.payloadschemas.model.AuthRefresh
+import pt.up.fe.ni.website.backend.documentation.payloadschemas.model.PayloadAuthCheck
+import pt.up.fe.ni.website.backend.documentation.payloadschemas.model.PayloadAuthNew
+import pt.up.fe.ni.website.backend.documentation.payloadschemas.model.PayloadAuthRefresh
 import pt.up.fe.ni.website.backend.dto.auth.LoginDto
 import pt.up.fe.ni.website.backend.dto.auth.TokenDto
 import pt.up.fe.ni.website.backend.model.Account
@@ -70,7 +70,7 @@ class AuthControllerTest @Autowired constructor(
             repository.save(testAccount)
         }
 
-        val documentation: ModelDocumentation = AuthNew()
+        val documentation: ModelDocumentation = PayloadAuthNew()
 
         @Test
         fun `should fail when email is not registered`() {
@@ -137,7 +137,7 @@ class AuthControllerTest @Autowired constructor(
             repository.save(testAccount)
         }
 
-        val documentation: ModelDocumentation = AuthRefresh()
+        val documentation: ModelDocumentation = PayloadAuthRefresh()
 
         @Test
         fun `should fail when refresh token is invalid`() {
@@ -188,7 +188,7 @@ class AuthControllerTest @Autowired constructor(
             repository.save(testAccount)
         }
 
-        val documentation: ModelDocumentation = AuthCheck()
+        val documentation: ModelDocumentation = PayloadAuthCheck()
 
         @Test
         fun `should fail when no access token is provided`() {

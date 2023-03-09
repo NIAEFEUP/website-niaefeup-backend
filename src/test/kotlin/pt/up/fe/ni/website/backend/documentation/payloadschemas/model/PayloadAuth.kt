@@ -5,7 +5,7 @@ import pt.up.fe.ni.website.backend.utils.documentation.DocumentedJSONField
 import pt.up.fe.ni.website.backend.utils.documentation.DocumentedJSONField.Companion.addFieldsBeneathPath
 import pt.up.fe.ni.website.backend.utils.documentation.ModelDocumentation
 
-class AuthNew : ModelDocumentation(
+class PayloadAuthNew : ModelDocumentation(
     Companion.Tag.AUTH.name.lowercase() + "-new",
     Companion.Tag.AUTH,
     mutableListOf(
@@ -36,7 +36,7 @@ class AuthNew : ModelDocumentation(
     )
 )
 
-class AuthRefresh : ModelDocumentation(
+class PayloadAuthRefresh : ModelDocumentation(
     Companion.Tag.AUTH.name.lowercase() + "-refresh",
     Companion.Tag.AUTH,
     mutableListOf(
@@ -55,7 +55,7 @@ class AuthRefresh : ModelDocumentation(
     )
 )
 
-class AuthCheck : ModelDocumentation(
+class PayloadAuthCheck : ModelDocumentation(
     Companion.Tag.AUTH.name.lowercase() + "-check",
     Companion.Tag.AUTH,
     mutableListOf(
@@ -65,5 +65,5 @@ class AuthCheck : ModelDocumentation(
             JsonFieldType.OBJECT,
             isInRequest = false
         )
-    ).addFieldsBeneathPath("authenticated_user", Account().payload.documentedJSONFields, addResponse = true)
+    ).addFieldsBeneathPath("authenticated_user", PayloadAccount().payload.documentedJSONFields, addResponse = true)
 )

@@ -21,7 +21,7 @@ import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import pt.up.fe.ni.website.backend.documentation.payloadschemas.model.Post as PayloadPost
+import pt.up.fe.ni.website.backend.documentation.payloadschemas.model.PayloadPost
 import pt.up.fe.ni.website.backend.model.Post
 import pt.up.fe.ni.website.backend.model.constants.PostConstants as Constants
 import pt.up.fe.ni.website.backend.repository.PostRepository
@@ -214,7 +214,7 @@ internal class PostControllerTest @Autowired constructor(
                 .andDocument(
                     documentation,
                     "Create new posts",
-                    "This endpoint operation creates new posts.",
+                    "This endpoint operation creates a new post.",
                     documentRequestPayload = true
                 )
         }
@@ -423,7 +423,7 @@ internal class PostControllerTest @Autowired constructor(
                 .andDocument(
                     documentation,
                     "Update posts",
-                    "Update previously created posts, using their ID.",
+                    "Update a previously created post, using its ID.",
                     urlParameters = parameters,
                     documentRequestPayload = true
                 )

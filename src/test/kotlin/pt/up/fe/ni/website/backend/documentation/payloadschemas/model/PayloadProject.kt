@@ -5,13 +5,13 @@ import pt.up.fe.ni.website.backend.utils.documentation.DocumentedJSONField
 import pt.up.fe.ni.website.backend.utils.documentation.DocumentedJSONField.Companion.addFieldsBeneathPath
 import pt.up.fe.ni.website.backend.utils.documentation.ModelDocumentation
 
-class Project : ModelDocumentation(
+class PayloadProject : ModelDocumentation(
     Companion.Tag.PROJECT.name.lowercase(),
     Companion.Tag.PROJECT,
     mutableListOf(
         DocumentedJSONField("title", "Project title", JsonFieldType.STRING),
         DocumentedJSONField("description", "Project description", JsonFieldType.STRING),
-        DocumentedJSONField("isArchived", "Whether this project is being actively maintained", JsonFieldType.BOOLEAN),
+        DocumentedJSONField("isArchived", "If the project is no longer maintained", JsonFieldType.BOOLEAN),
         DocumentedJSONField(
             "technologies",
             "Array of technologies used in the project",
@@ -65,7 +65,7 @@ class Project : ModelDocumentation(
         )
     ).addFieldsBeneathPath(
         "teamMembers[]",
-        Account().payload.documentedJSONFields,
+        PayloadAccount().payload.documentedJSONFields,
         addResponse = true,
         optional = true
     )

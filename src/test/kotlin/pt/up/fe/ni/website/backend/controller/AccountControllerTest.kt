@@ -20,7 +20,7 @@ import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import pt.up.fe.ni.website.backend.documentation.payloadschemas.model.Account as PayloadAccount
+import pt.up.fe.ni.website.backend.documentation.payloadschemas.model.PayloadAccount
 import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.CustomWebsite
 import pt.up.fe.ni.website.backend.model.constants.AccountConstants as Constants
