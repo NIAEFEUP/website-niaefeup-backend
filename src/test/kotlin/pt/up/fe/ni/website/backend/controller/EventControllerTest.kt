@@ -1,5 +1,7 @@
 package pt.up.fe.ni.website.backend.controller
 
+import pt.up.fe.ni.website.backend.documentation.payloadschemas.model.Event as PayloadEvent
+import pt.up.fe.ni.website.backend.model.constants.EventConstants as Constants
 import com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.util.Calendar
@@ -20,12 +22,10 @@ import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import pt.up.fe.ni.website.backend.documentation.payloadschemas.model.Event as PayloadEvent
 import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.CustomWebsite
 import pt.up.fe.ni.website.backend.model.Event
 import pt.up.fe.ni.website.backend.model.constants.ActivityConstants
-import pt.up.fe.ni.website.backend.model.constants.EventConstants as Constants
 import pt.up.fe.ni.website.backend.model.embeddable.DateInterval
 import pt.up.fe.ni.website.backend.repository.AccountRepository
 import pt.up.fe.ni.website.backend.repository.EventRepository
@@ -111,8 +111,9 @@ internal class EventControllerTest @Autowired constructor(
                 .andDocument(
                     documentation.getModelDocumentationArray(),
                     "Get all the events",
-                    "The operation returns an array of events, allowing to easily retrieve all the created events.\n" +
-                        "This is useful for example in the frontend's event page, where events are displayed."
+                    """The operation returns an array of events, allowing to easily retrieve all the created events.
+                        |This is useful for example in the frontend's event page, where events are displayed.
+                    """.trimMargin()
                 )
         }
     }
