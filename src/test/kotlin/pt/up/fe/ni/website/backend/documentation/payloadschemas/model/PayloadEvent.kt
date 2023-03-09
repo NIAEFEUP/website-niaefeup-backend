@@ -30,35 +30,6 @@ class PayloadEvent : ModelDocumentation(
             JsonFieldType.ARRAY,
             isInRequest = false
         ),
-        DocumentedJSONField("associatedRoles[]", "Array of Roles/Activity associations", isInRequest = false),
-        DocumentedJSONField(
-            "associatedRoles[].*.role",
-            "Roles associated with the activity",
-            JsonFieldType.OBJECT,
-            optional = true,
-            isInRequest = false
-        ),
-        DocumentedJSONField(
-            "associatedRoles[].*.activity",
-            "An activity that aggregates members with different roles",
-            JsonFieldType.OBJECT,
-            optional = true,
-            isInRequest = false
-        ),
-        DocumentedJSONField(
-            "associatedRoles[].*.permissions",
-            "Permissions of someone with a given role for this activity",
-            JsonFieldType.OBJECT,
-            optional = true,
-            isInRequest = false
-        ),
-        DocumentedJSONField(
-            "associatedRoles[].*.id",
-            "Id of the role/activity association",
-            JsonFieldType.NUMBER,
-            optional = true,
-            isInRequest = false
-        ),
         DocumentedJSONField(
             "teamMembersIds[]",
             "Team member IDs",

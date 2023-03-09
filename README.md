@@ -21,7 +21,7 @@ For automatic restart to fire up every time a source file changes, make sure tha
 Run the following command in your shell:
 
 ```bash
-gradle bootRun
+./gradlew bootRun
 ```
 
 ### Linting
@@ -35,7 +35,13 @@ Although IntelliJ does not provide linting suggestions for Kotlin out of the box
 You can fire up the analysis yourself by running in your shell:
 
 ```bash
-gradle ktlintCheck
+./gradlew ktlintCheck
+```
+
+You can fix the lint automatically by running in your shell:
+
+```bash
+./gradlew ktlintFormat
 ```
 
 #### With a git hook
@@ -43,13 +49,13 @@ gradle ktlintCheck
 You can setup a local precommit [git hook](https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks) for lint analysis running a Gradle task provided by the used linting plugin:
 
 ```bash
-gradle addKtlintCheckGitPreCommitHook
+./gradlew addKtlintCheckGitPreCommitHook
 ```
 
 Or even an auto-format hook, if that is your thing:
 
 ```bash
-gradle addKtlintFormatGitPreCommitHook
+./gradlew addKtlintFormatGitPreCommitHook
 ```
 
 ### Testing
@@ -63,7 +69,7 @@ Run the test suite as usual, selecting the respective task for running.
 Run the following command in your shell:
 
 ```bash
-gradle test
+./gradlew test
 ```
 
 

@@ -34,5 +34,8 @@ class PostController(private val service: PostService) {
     ) = service.updatePostById(postId, dto)
 
     @DeleteMapping("/{postId}")
-    fun deletePost(@PathVariable postId: Long) = service.deletePostById(postId)
+    fun deletePost(@PathVariable postId: Long): Map<String, String> {
+        service.deletePostById(postId)
+        return emptyMap()
+    }
 }

@@ -62,9 +62,10 @@ internal class ProjectControllerTest @Autowired constructor(
         "Awesome project",
         "this is a test project",
         mutableListOf(testAccount),
+        mutableListOf(),
+        "awesome-project",
         false,
-        listOf("Java", "Kotlin", "Spring"),
-        slug = "awesome-project"
+        listOf("Java", "Kotlin", "Spring")
     )
 
     val documentation: ModelDocumentation = PayloadProject()
@@ -78,6 +79,8 @@ internal class ProjectControllerTest @Autowired constructor(
                 "NIJobs",
                 "Job platform for students",
                 mutableListOf(),
+                mutableListOf(),
+                null,
                 false,
                 listOf("ExpressJS", "React")
             )
@@ -259,9 +262,10 @@ internal class ProjectControllerTest @Autowired constructor(
                 "Duplicated Slug",
                 "this is a test project with a duplicated slug",
                 mutableListOf(testAccount),
+                mutableListOf(),
+                testProject.slug,
                 false,
-                listOf("Java", "Kotlin", "Spring"),
-                slug = testProject.slug
+                listOf("Java", "Kotlin", "Spring")
             )
 
             mockMvc.post("/projects/new") {
@@ -535,9 +539,10 @@ internal class ProjectControllerTest @Autowired constructor(
                         "Duplicated Slug",
                         "this is a test project with a duplicated slug",
                         mutableListOf(testAccount),
+                        mutableListOf(),
+                        newSlug,
                         false,
-                        listOf("Java", "Kotlin", "Spring"),
-                        slug = newSlug
+                        listOf("Java", "Kotlin", "Spring")
                     )
                 )
             }.andExpect { status { isOk() } }
@@ -690,6 +695,8 @@ internal class ProjectControllerTest @Autowired constructor(
             "proj1",
             "very cool project",
             mutableListOf(),
+            mutableListOf(),
+            null,
             true,
             listOf("React", "TailwindCSS")
         )

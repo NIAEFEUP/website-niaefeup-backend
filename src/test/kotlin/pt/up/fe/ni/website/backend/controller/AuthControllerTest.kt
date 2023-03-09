@@ -55,7 +55,7 @@ class AuthControllerTest @Autowired constructor(
         listOf(
             CustomWebsite("https://test-website.com", "https://test-website.com/logo.png")
         ),
-        emptyList()
+        mutableListOf()
     )
 
     private val checkAuthHeaders = listOf<HeaderDescriptorWithType>(

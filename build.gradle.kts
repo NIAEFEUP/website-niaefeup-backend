@@ -3,9 +3,9 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("org.springframework.boot") version "3.0.0"
     id("io.spring.dependency-management") version "1.1.0"
-    kotlin("jvm") version "1.7.21"
-    kotlin("plugin.spring") version "1.7.21"
-    kotlin("plugin.jpa") version "1.7.21"
+    kotlin("jvm") version "1.8.10"
+    kotlin("plugin.spring") version "1.8.10"
+    kotlin("plugin.jpa") version "1.8.10"
     id("org.jlleitschuh.gradle.ktlint") version "11.2.0"
     id("com.epages.restdocs-api-spec") version "0.17.1"
 
@@ -31,11 +31,14 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
+    implementation("ch.qos.logback:logback-core:1.4.5")
+    implementation("org.slf4j:slf4j-api:2.0.6")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     implementation("org.springframework.boot:spring-boot-starter-validation:3.0.0")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("com.h2database:h2")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("ch.qos.logback:logback-classic:1.4.5")
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc:3.0.0")
     testImplementation("com.epages:restdocs-api-spec-mockmvc:0.17.1")
 }

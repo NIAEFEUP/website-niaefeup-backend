@@ -55,14 +55,15 @@ internal class EventControllerTest @Autowired constructor(
         "https://github.com",
         listOf(
             CustomWebsite("https://test-website.com", "https://test-website.com/logo.png")
-        ),
-        emptyList()
+        )
     )
 
     val testEvent = Event(
         "Great event",
         "This was a nice and iconic event",
         mutableListOf(testAccount),
+        mutableListOf(),
+        "great-event",
         "https://docs.google.com/forms",
         DateInterval(
             TestUtils.createDate(2022, Calendar.JULY, 28),
@@ -70,8 +71,7 @@ internal class EventControllerTest @Autowired constructor(
         ),
         "FEUP",
         "Great Events",
-        "https://example.com/exampleThumbnail",
-        slug = "great-event"
+        "https://example.com/exampleThumbnail"
     )
 
     val documentation = PayloadEvent()
@@ -85,6 +85,8 @@ internal class EventControllerTest @Autowired constructor(
                 "Bad event",
                 "This event was a failure",
                 mutableListOf(),
+                mutableListOf(),
+                null,
                 null,
                 DateInterval(
                     TestUtils.createDate(2021, Calendar.OCTOBER, 27),
@@ -233,6 +235,8 @@ internal class EventControllerTest @Autowired constructor(
                 "Bad event",
                 "This event was a failure",
                 mutableListOf(testAccount),
+                mutableListOf(),
+                null,
                 null,
                 DateInterval(
                     TestUtils.createDate(2021, Calendar.OCTOBER, 27),
@@ -246,6 +250,8 @@ internal class EventControllerTest @Autowired constructor(
                 "Mid event",
                 "This event was ok",
                 mutableListOf(),
+                mutableListOf(),
+                null,
                 null,
                 DateInterval(
                     TestUtils.createDate(2022, Calendar.JANUARY, 15),
@@ -259,6 +265,8 @@ internal class EventControllerTest @Autowired constructor(
                 "Cool event",
                 "This event was a awesome",
                 mutableListOf(testAccount),
+                mutableListOf(),
+                null,
                 null,
                 DateInterval(
                     TestUtils.createDate(2022, Calendar.SEPTEMBER, 11),
@@ -356,6 +364,8 @@ internal class EventControllerTest @Autowired constructor(
                 "Duplicated slug",
                 "This have a duplicated slug",
                 mutableListOf(testAccount),
+                mutableListOf(),
+                testEvent.slug,
                 "https://docs.google.com/forms",
                 DateInterval(
                     TestUtils.createDate(2022, Calendar.AUGUST, 28),
@@ -363,8 +373,7 @@ internal class EventControllerTest @Autowired constructor(
                 ),
                 "FEUP",
                 "Great Events",
-                "https://example.com/exampleThumbnail",
-                slug = testEvent.slug
+                "https://example.com/exampleThumbnail"
             )
 
             mockMvc.post("/events/new") {
@@ -603,8 +612,7 @@ internal class EventControllerTest @Autowired constructor(
             "https://github.com",
             listOf(
                 CustomWebsite("https://test-website.com", "https://test-website.com/logo.png")
-            ),
-            emptyList()
+            )
         )
 
         @BeforeEach
