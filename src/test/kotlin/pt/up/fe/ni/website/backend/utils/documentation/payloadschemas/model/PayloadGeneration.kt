@@ -26,13 +26,13 @@ class PayloadGenerationYears : ModelDocumentation(
     "arrayOf-${Tag.GENERATION.name.lowercase()}-years",
     Tag.GENERATION,
     mutableListOf(
-        DocumentedJSONField("[]", "List of all generation years", JsonFieldType.ARRAY),
-        DocumentedJSONField("[].*", "School year", JsonFieldType.STRING, optional = true)
+        DocumentedJSONField("[]", "List of all generation years", JsonFieldType.ARRAY, isInRequest = false),
+        DocumentedJSONField("[].*", "School year", JsonFieldType.STRING, optional = true, isInRequest = false)
     )
 )
 
-class PayloadGenerationGenerationSections : ModelDocumentation(
-    Tag.GENERATION.name.lowercase(),
+class PayloadGenerationSections : ModelDocumentation(
+    "${Tag.GENERATION.name.lowercase()}-sections",
     Tag.GENERATION,
     mutableListOf(
         DocumentedJSONField("[]", "Generation sections", JsonFieldType.ARRAY, isInRequest = false),

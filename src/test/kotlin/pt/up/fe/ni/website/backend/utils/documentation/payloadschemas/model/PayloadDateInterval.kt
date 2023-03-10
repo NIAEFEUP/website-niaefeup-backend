@@ -10,17 +10,12 @@ class PayloadDateInterval {
             "date-interval",
             mutableListOf(
                 DocumentedJSONField(
-                    "dateInterval",
-                    "Date interval of the activity",
-                    JsonFieldType.OBJECT
-                ),
-                DocumentedJSONField(
-                    "dateInterval.startDate",
+                    "startDate",
                     "Event beginning date",
                     JsonFieldType.STRING
                 ),
                 DocumentedJSONField(
-                    "dateInterval.endDate",
+                    "endDate",
                     "Event finishing date",
                     JsonFieldType.STRING,
                     optional = true

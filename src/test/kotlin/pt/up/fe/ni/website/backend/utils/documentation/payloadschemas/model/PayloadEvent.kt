@@ -15,6 +15,7 @@ class PayloadEvent : ModelDocumentation(
         DocumentedJSONField("thumbnailPath", "Thumbnail of the event", JsonFieldType.STRING),
         DocumentedJSONField("registerUrl", "Link to the event registration", JsonFieldType.STRING, optional = true),
         DocumentedJSONField("location", "Location for the event", JsonFieldType.STRING, optional = true),
+        DocumentedJSONField("dateInterval", "Date interval of the event", JsonFieldType.OBJECT, optional = true),
         DocumentedJSONField("category", "Event category", JsonFieldType.STRING, optional = true),
         DocumentedJSONField(
             "slug",
@@ -48,7 +49,7 @@ class PayloadEvent : ModelDocumentation(
         optional = true,
         addResponse = true
     ).addFieldsBeneathPath(
-        "",
+        "dateInterval",
         PayloadDateInterval.payload.documentedJSONFields,
         addRequest = true,
         addResponse = true

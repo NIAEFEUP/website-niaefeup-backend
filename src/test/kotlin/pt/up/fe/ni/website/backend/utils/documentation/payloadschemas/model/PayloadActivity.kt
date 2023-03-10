@@ -35,10 +35,16 @@ class PayloadActivity {
                     optional = true
                 )
             ).addFieldsBeneathPath(
-                "",
+                "dateInterval",
                 PayloadDateInterval.payload.documentedJSONFields,
                 addRequest = true,
                 addResponse = true
+            ).addFieldsBeneathPath(
+                "teamMembers[]",
+                PayloadAccount().payload.documentedJSONFields,
+                addRequest = true,
+                addResponse = true,
+                optional = true
             )
         )
     }

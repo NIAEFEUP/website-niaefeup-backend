@@ -43,7 +43,7 @@ import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
 import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
 import pt.up.fe.ni.website.backend.utils.documentation.payloadschemas.model.PayloadGeneration
-import pt.up.fe.ni.website.backend.utils.documentation.payloadschemas.model.PayloadGenerationGenerationSections
+import pt.up.fe.ni.website.backend.utils.documentation.payloadschemas.model.PayloadGenerationSections
 import pt.up.fe.ni.website.backend.utils.documentation.payloadschemas.model.PayloadGenerationYears
 import pt.up.fe.ni.website.backend.utils.documentation.utils.DocumentedJSONField
 import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocument
@@ -67,7 +67,7 @@ class GenerationControllerTest @Autowired constructor(
     private lateinit var testGenerations: List<Generation>
 
     private final val documentation = PayloadGeneration()
-    private final val generationSectionsDocumentation = PayloadGenerationGenerationSections()
+    private final val generationSectionsDocumentation = PayloadGenerationSections()
 
     private val updateSchoolYearSchema = PayloadSchema(
         "update-generation-year",
@@ -410,7 +410,7 @@ class GenerationControllerTest @Autowired constructor(
                 .andDocument(
                     documentation,
                     "Create new generations",
-                    "This operation retrieves creates a new generation.",
+                    "This operation creates a new generation.",
                     documentRequestPayload = true
                 )
         }

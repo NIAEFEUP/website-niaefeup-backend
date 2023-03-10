@@ -10,10 +10,17 @@ class PayloadAssociatedRoles {
         val payload = PayloadSchema(
             "associated-role",
             mutableListOf(
-                DocumentedJSONField("permissions", "Array of permissions", JsonFieldType.ARRAY),
-                DocumentedJSONField("permissions[].*", "Permission", JsonFieldType.STRING),
-                DocumentedJSONField("id", "Id of the role/activity association", JsonFieldType.NUMBER),
                 DocumentedJSONField("name", "Name of the role", JsonFieldType.STRING),
+                DocumentedJSONField("permissions", "Array of permissions", JsonFieldType.ARRAY),
+                DocumentedJSONField("permissions[].*", "Permission", JsonFieldType.NUMBER, isInResponse = false),
+                DocumentedJSONField("permissions[].*", "Permission", JsonFieldType.STRING, isInRequest = false),
+                DocumentedJSONField(
+                    "id",
+                    "Id of the role/activity association",
+                    JsonFieldType.NUMBER,
+                    isInRequest = false
+                ),
+
                 DocumentedJSONField(
                     "isSection",
                     "If the role represents a generation section",
@@ -22,17 +29,19 @@ class PayloadAssociatedRoles {
                 DocumentedJSONField(
                     "accountIds",
                     "Array of account ids associated with this role",
-                    JsonFieldType.ARRAY
+                    JsonFieldType.ARRAY,
+                    isInResponse = false
+                ),
+                DocumentedJSONField(
+                    "accountIds[].*",
+                    "Account id",
+                    JsonFieldType.NUMBER,
+                    isInResponse = false
                 ),
                 DocumentedJSONField(
                     "associatedActivities[]",
-                    "Array of ids of activities associated with this role",
+                    "Array of activities associated with this role",
                     JsonFieldType.ARRAY
-                ),
-                DocumentedJSONField(
-                    "associatedActivities[].id",
-                    "Id of the role",
-                    JsonFieldType.NUMBER
                 ),
                 DocumentedJSONField(
                     "associatedActivities[].activityId",
@@ -44,8 +53,19 @@ class PayloadAssociatedRoles {
                 DocumentedJSONField(
                     "associatedActivities[].permissions",
                     "Permissions of the role in the activity",
-                    JsonFieldType.ARRAY,
-                    optional = true
+                    JsonFieldType.ARRAY
+                ),
+                DocumentedJSONField(
+                    "associatedActivities[].permissions[].*",
+                    "Permissions",
+                    JsonFieldType.STRING,
+                    isInRequest = false
+                ),
+                DocumentedJSONField(
+                    "associatedActivities[].permissions[].*",
+                    "Permissions",
+                    JsonFieldType.NUMBER,
+                    isInResponse = false
                 )
             ).addFieldsBeneathPath(
                 "associatedActivities[]",
@@ -61,12 +81,16 @@ class PayloadAssociatedRoles {
             val payload = PayloadSchema(
                 "role",
                 mutableListOf(
-                    DocumentedJSONField("id", "Id of the role", JsonFieldType.NUMBER),
-                    DocumentedJSONField("activity", "Activity of the association", JsonFieldType.OBJECT)
+                    DocumentedJSONField("id", "Id of the role", JsonFieldType.NUMBER, isInRequest = false),
+                    DocumentedJSONField(
+                        "activity",
+                        "Activity of the association",
+                        JsonFieldType.OBJECT,
+                        isInRequest = false
+                    )
                 ).addFieldsBeneathPath(
                     "activity",
                     PayloadActivity.payload.documentedJSONFields,
-                    addRequest = true,
                     addResponse = true
                 )
             )
