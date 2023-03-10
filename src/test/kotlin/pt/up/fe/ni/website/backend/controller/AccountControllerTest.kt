@@ -1,5 +1,6 @@
 package pt.up.fe.ni.website.backend.controller
 
+import com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.util.Calendar
 import java.util.Date
@@ -10,10 +11,15 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
+import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.CustomWebsite
 import pt.up.fe.ni.website.backend.model.constants.AccountConstants as Constants
@@ -22,6 +28,14 @@ import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.ValidationTester
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
 import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
+import pt.up.fe.ni.website.backend.utils.documentation.payloadschemas.model.PayloadAccount
+import pt.up.fe.ni.website.backend.utils.documentation.utils.DocumentedJSONField
+import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocument
+import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentCustomRequestSchemaEmptyResponse
+import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentCustomRequestSchemaErrorResponse
+import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentErrorResponse
+import pt.up.fe.ni.website.backend.utils.documentation.utils.ModelDocumentation
+import pt.up.fe.ni.website.backend.utils.documentation.utils.PayloadSchema
 
 @ControllerTest
 class AccountControllerTest @Autowired constructor(
@@ -30,6 +44,8 @@ class AccountControllerTest @Autowired constructor(
     val repository: AccountRepository,
     val encoder: PasswordEncoder
 ) {
+    val documentation: ModelDocumentation = PayloadAccount()
+
     val testAccount = Account(
         "Test Account",
         "test_account@test.com",
@@ -71,12 +87,18 @@ class AccountControllerTest @Autowired constructor(
 
         @Test
         fun `should return all accounts`() {
-            mockMvc.get("/accounts")
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    content { json(objectMapper.writeValueAsString(testAccounts)) }
-                }
+            mockMvc.perform(get("/accounts"))
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    content().json(objectMapper.writeValueAsString(testAccounts))
+                )
+                .andDocument(
+                    documentation.getModelDocumentationArray(),
+                    "Get all the accounts",
+                    "The operation returns an array of accounts, allowing to easily retrieve all " +
+                        "the created accounts."
+                )
         }
     }
 
@@ -88,33 +110,50 @@ class AccountControllerTest @Autowired constructor(
             repository.save(testAccount)
         }
 
+        private val parameters = listOf(
+            parameterWithName("id").description(
+                "ID of the account to retrieve"
+            )
+        )
+
         @Test
         fun `should return the account`() {
-            mockMvc.get("/accounts/${testAccount.id}")
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.name") { value(testAccount.name) }
-                    jsonPath("$.email") { value(testAccount.email) }
-                    jsonPath("$.bio") { value(testAccount.bio) }
-                    jsonPath("$.birthDate") { value(testAccount.birthDate.toJson()) }
-                    jsonPath("$.photoPath") { value(testAccount.photoPath) }
-                    jsonPath("$.linkedin") { value(testAccount.linkedin) }
-                    jsonPath("$.github") { value(testAccount.github) }
-                    jsonPath("$.websites.length()") { value(1) }
-                    jsonPath("$.websites[0].url") { value(testAccount.websites[0].url) }
-                    jsonPath("$.websites[0].iconPath") { value(testAccount.websites[0].iconPath) }
-                }
+            mockMvc.perform(get("/accounts/{id}", testAccount.id))
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.name").value(testAccount.name),
+                    jsonPath("$.email").value(testAccount.email),
+                    jsonPath("$.bio").value(testAccount.bio),
+                    jsonPath("$.birthDate").value(testAccount.birthDate.toJson()),
+                    jsonPath("$.photoPath").value(testAccount.photoPath),
+                    jsonPath("$.linkedin").value(testAccount.linkedin),
+                    jsonPath("$.github").value(testAccount.github),
+                    jsonPath("$.websites.length()").value(1),
+                    jsonPath("$.websites[0].url").value(testAccount.websites[0].url),
+                    jsonPath("$.websites[0].iconPath").value(testAccount.websites[0].iconPath)
+                )
+                .andDocument(
+                    documentation,
+                    "Get accounts by ID",
+                    "This endpoint allows the retrieval of a single account using its ID.",
+                    urlParameters = parameters
+                )
         }
 
         @Test
         fun `should fail if the account does not exist`() {
-            mockMvc.get("/accounts/1234").andExpect {
-                status { isNotFound() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.errors.length()") { value(1) }
-                jsonPath("$.errors[0].message") { value("account not found with id 1234") }
-            }
+            mockMvc.perform(get("/accounts/{id}", 1234))
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("account not found with id 1234")
+                )
+                .andDocumentErrorResponse(
+                    documentation,
+                    urlParameters = parameters
+                )
         }
     }
 
@@ -128,23 +167,32 @@ class AccountControllerTest @Autowired constructor(
 
         @Test
         fun `should create the account`() {
-            mockMvc.post("/accounts/new") {
-                contentType = MediaType.APPLICATION_JSON
-                content = testAccount.toJson()
-            }.andExpect {
-                status { isOk() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.name") { value(testAccount.name) }
-                jsonPath("$.email") { value(testAccount.email) }
-                jsonPath("$.bio") { value(testAccount.bio) }
-                jsonPath("$.birthDate") { value(testAccount.birthDate.toJson()) }
-                jsonPath("$.photoPath") { value(testAccount.photoPath) }
-                jsonPath("$.linkedin") { value(testAccount.linkedin) }
-                jsonPath("$.github") { value(testAccount.github) }
-                jsonPath("$.websites.length()") { value(1) }
-                jsonPath("$.websites[0].url") { value(testAccount.websites[0].url) }
-                jsonPath("$.websites[0].iconPath") { value(testAccount.websites[0].iconPath) }
-            }
+            mockMvc.perform(
+                post("/accounts/new")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(testAccount.toJson())
+            )
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.name").value(testAccount.name),
+                    jsonPath("$.email").value(testAccount.email),
+                    jsonPath("$.bio").value(testAccount.bio),
+                    jsonPath("$.birthDate").value(testAccount.birthDate.toJson()),
+                    jsonPath("$.photoPath").value(testAccount.photoPath),
+                    jsonPath("$.linkedin").value(testAccount.linkedin),
+                    jsonPath("$.github").value(testAccount.github),
+                    jsonPath("$.websites.length()").value(1),
+                    jsonPath("$.websites[0].url").value(testAccount.websites[0].url),
+                    jsonPath("$.websites[0].iconPath").value(testAccount.websites[0].iconPath)
+
+                )
+                .andDocument(
+                    documentation,
+                    "Create new accounts",
+                    "This endpoint operation creates a new account.",
+                    documentRequestPayload = true
+                )
         }
 
         @Test
@@ -160,32 +208,37 @@ class AccountControllerTest @Autowired constructor(
                 "https://github.com"
             )
 
-            mockMvc.post("/accounts/new") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(
-                    mapOf(
-                        "name" to noWebsite.name,
-                        "email" to noWebsite.email,
-                        "password" to noWebsite.password,
-                        "bio" to noWebsite.bio,
-                        "birthDate" to noWebsite.birthDate,
-                        "photoPath" to noWebsite.photoPath,
-                        "linkedin" to noWebsite.linkedin,
-                        "github" to noWebsite.github
+            mockMvc.perform(
+                post("/accounts/new")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf(
+                                "name" to noWebsite.name,
+                                "email" to noWebsite.email,
+                                "password" to noWebsite.password,
+                                "bio" to noWebsite.bio,
+                                "birthDate" to noWebsite.birthDate,
+                                "photoPath" to noWebsite.photoPath,
+                                "linkedin" to noWebsite.linkedin,
+                                "github" to noWebsite.github
+                            )
+                        )
                     )
+            )
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.name").value(noWebsite.name),
+                    jsonPath("$.email").value(noWebsite.email),
+                    jsonPath("$.bio").value(noWebsite.bio),
+                    jsonPath("$.birthDate").value(noWebsite.birthDate.toJson()),
+                    jsonPath("$.photoPath").value(noWebsite.photoPath),
+                    jsonPath("$.linkedin").value(noWebsite.linkedin),
+                    jsonPath("$.github").value(noWebsite.github),
+                    jsonPath("$.websites.length()").value(0)
                 )
-            }.andExpect {
-                status { isOk() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.name") { value(noWebsite.name) }
-                jsonPath("$.email") { value(noWebsite.email) }
-                jsonPath("$.bio") { value(noWebsite.bio) }
-                jsonPath("$.birthDate") { value(noWebsite.birthDate.toJson()) }
-                jsonPath("$.photoPath") { value(noWebsite.photoPath) }
-                jsonPath("$.linkedin") { value(noWebsite.linkedin) }
-                jsonPath("$.github") { value(noWebsite.github) }
-                jsonPath("$.websites.length()") { value(0) }
-            }
+                .andDocument(documentation, documentRequestPayload = true)
         }
 
         @NestedTest
@@ -193,10 +246,12 @@ class AccountControllerTest @Autowired constructor(
         inner class InputValidation {
             private val validationTester = ValidationTester(
                 req = { params: Map<String, Any?> ->
-                    mockMvc.post("/accounts/new") {
-                        contentType = MediaType.APPLICATION_JSON
-                        content = objectMapper.writeValueAsString(params)
-                    }
+                    mockMvc.perform(
+                        post("/accounts/new")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(params))
+                    )
+                        .andDocumentErrorResponse(documentation, hasRequestPayload = true)
                 },
                 requiredFields = mapOf(
                     "name" to testAccount.name,
@@ -335,17 +390,21 @@ class AccountControllerTest @Autowired constructor(
             inner class WebsitesValidation {
                 private val validationTester = ValidationTester(
                     req = { params: Map<String, Any?> ->
-                        mockMvc.post("/accounts/new") {
-                            contentType = MediaType.APPLICATION_JSON
-                            content = objectMapper.writeValueAsString(
-                                mapOf(
-                                    "name" to testAccount.name,
-                                    "email" to testAccount.email,
-                                    "password" to testAccount.password,
-                                    "websites" to listOf<Any>(params)
+                        mockMvc.perform(
+                            post("/accounts/new")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                    objectMapper.writeValueAsString(
+                                        mapOf(
+                                            "name" to testAccount.name,
+                                            "email" to testAccount.email,
+                                            "password" to testAccount.password,
+                                            "websites" to listOf<Any>(params)
+                                        )
+                                    )
                                 )
-                            )
-                        }
+                        )
+                            .andDocumentErrorResponse(documentation, hasRequestPayload = true)
                     },
                     requiredFields = mapOf(
                         "url" to "https://www.google.com"
@@ -410,15 +469,18 @@ class AccountControllerTest @Autowired constructor(
                 content = testAccount.toJson()
             }.andExpect { status { isOk() } }
 
-            mockMvc.post("/accounts/new") {
-                contentType = MediaType.APPLICATION_JSON
-                content = testAccount.toJson()
-            }.andExpect {
-                status { isUnprocessableEntity() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.errors.length()") { value(1) }
-                jsonPath("$.errors[0].message") { value("email already exists") }
-            }
+            mockMvc.perform(
+                post("/accounts/new")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(testAccount.toJson())
+            )
+                .andExpectAll(
+                    status().isUnprocessableEntity,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("email already exists")
+                )
+                .andDocumentErrorResponse(documentation, hasRequestPayload = true)
         }
     }
 
@@ -435,6 +497,20 @@ class AccountControllerTest @Autowired constructor(
             changePasswordAccount.password = encoder.encode(changePasswordAccount.password)
         }
 
+        private val parameters = listOf(
+            parameterWithName("id").description(
+                "ID of the account to change the password."
+            )
+        )
+
+        private val passwordChangePayload = PayloadSchema(
+            "password-change",
+            mutableListOf(
+                DocumentedJSONField("oldPassword", "Current account password", JsonFieldType.STRING),
+                DocumentedJSONField("newPassword", "New account password", JsonFieldType.STRING)
+            )
+        )
+
         @BeforeEach
         fun addAccount() {
             repository.save(changePasswordAccount)
@@ -442,15 +518,26 @@ class AccountControllerTest @Autowired constructor(
 
         @Test
         fun `should change password`() {
-            mockMvc.post("/accounts/changePassword/${changePasswordAccount.id}") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(
-                    mapOf(
-                        "oldPassword" to password,
-                        "newPassword" to "test_password2"
+            mockMvc.perform(
+                post("/accounts/changePassword/{id}", changePasswordAccount.id)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf(
+                                "oldPassword" to password,
+                                "newPassword" to "test_password2"
+                            )
+                        )
                     )
+            ).andExpectAll(status().isOk)
+                .andDocumentCustomRequestSchemaEmptyResponse(
+                    documentation,
+                    passwordChangePayload,
+                    "Change account password",
+                    "Replaces sets a new account password",
+                    urlParameters = parameters,
+                    documentRequestPayload = true
                 )
-            }.andExpect { status { isOk() } }
 
             mockMvc.post("/auth/new") {
                 contentType = MediaType.APPLICATION_JSON
@@ -465,15 +552,24 @@ class AccountControllerTest @Autowired constructor(
 
         @Test
         fun `should fail due to wrong password`() {
-            mockMvc.post("/accounts/changePassword/${changePasswordAccount.id}") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(
-                    mapOf(
-                        "oldPassword" to "wrong_password",
-                        "newPassword" to "test_password2"
+            mockMvc.perform(
+                post("/accounts/changePassword/{id}", changePasswordAccount.id)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf(
+                                "oldPassword" to "wrong_password",
+                                "newPassword" to "test_password2"
+                            )
+                        )
                     )
+            ).andExpectAll(status().isUnprocessableEntity)
+                .andDocumentCustomRequestSchemaErrorResponse(
+                    documentation,
+                    passwordChangePayload,
+                    urlParameters = parameters,
+                    hasRequestPayload = true
                 )
-            }.andExpect { status { isUnprocessableEntity() } }
         }
     }
 

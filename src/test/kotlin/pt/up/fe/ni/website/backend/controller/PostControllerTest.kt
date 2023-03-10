@@ -1,5 +1,6 @@
 package pt.up.fe.ni.website.backend.controller
 
+import com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -11,17 +12,26 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.delete
-import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
-import org.springframework.test.web.servlet.put
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import pt.up.fe.ni.website.backend.model.Post
 import pt.up.fe.ni.website.backend.model.constants.PostConstants as Constants
 import pt.up.fe.ni.website.backend.repository.PostRepository
 import pt.up.fe.ni.website.backend.utils.ValidationTester
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
 import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
+import pt.up.fe.ni.website.backend.utils.documentation.payloadschemas.model.PayloadPost
+import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocument
+import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentEmptyObjectResponse
+import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentErrorResponse
+import pt.up.fe.ni.website.backend.utils.documentation.utils.ModelDocumentation
 
 @ControllerTest
 internal class PostControllerTest @Autowired constructor(
@@ -29,6 +39,8 @@ internal class PostControllerTest @Autowired constructor(
     val objectMapper: ObjectMapper,
     val repository: PostRepository
 ) {
+    val documentation: ModelDocumentation = PayloadPost()
+
     val testPost = Post(
         "New test released",
         "this is a test post",
@@ -55,11 +67,19 @@ internal class PostControllerTest @Autowired constructor(
 
         @Test
         fun `should return all posts`() {
-            mockMvc.get("/posts").andExpect {
-                status { isOk() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                content { json(objectMapper.writeValueAsString(testPosts)) }
-            }
+            mockMvc.perform(get("/posts"))
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    content().json(
+                        objectMapper.writeValueAsString(testPosts)
+                    )
+                )
+                .andDocument(
+                    documentation.getModelDocumentationArray(),
+                    "Get all the posts",
+                    "The operation returns an array of posts, allowing to easily retrieve all the created posts."
+                )
         }
     }
 
@@ -71,28 +91,46 @@ internal class PostControllerTest @Autowired constructor(
             repository.save(testPost)
         }
 
+        private val parameters = listOf(
+            parameterWithName("id").description(
+                "ID of the post to retrieve"
+            )
+        )
+
         @Test
         fun `should return the post`() {
-            mockMvc.get("/posts/${testPost.id}")
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.title") { value(testPost.title) }
-                    jsonPath("$.body") { value(testPost.body) }
-                    jsonPath("$.thumbnailPath") { value(testPost.thumbnailPath) }
-                    jsonPath("$.publishDate") { value(testPost.publishDate.toJson()) }
-                    jsonPath("$.lastUpdatedAt") { value(testPost.lastUpdatedAt.toJson(true)) }
-                }
+            mockMvc.perform(get("/posts/{id}", testPost.id))
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.title").value(testPost.title),
+                    jsonPath("$.body").value(testPost.body),
+                    jsonPath("$.thumbnailPath").value(testPost.thumbnailPath),
+                    jsonPath("$.publishDate").value(testPost.publishDate.toJson()),
+                    jsonPath("$.lastUpdatedAt").value(testPost.lastUpdatedAt.toJson(true))
+                )
+                .andDocument(
+                    documentation,
+                    "Get posts by ID",
+                    "This endpoint allows the retrieval of a single post using its ID. " +
+                        "It might be used to generate the specific post page.",
+                    urlParameters = parameters
+                )
         }
 
         @Test
         fun `should fail if the post does not exist`() {
-            mockMvc.get("/posts/1234").andExpect {
-                status { isNotFound() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.errors.length()") { value(1) }
-                jsonPath("$.errors[0].message") { value("post not found with id 1234") }
-            }
+            mockMvc.perform(get("/posts/{id}", 1234))
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("post not found with id 1234")
+                )
+                .andDocumentErrorResponse(
+                    documentation,
+                    urlParameters = parameters
+                )
         }
     }
 
@@ -104,29 +142,47 @@ internal class PostControllerTest @Autowired constructor(
             repository.save(testPost)
         }
 
+        private val parameters = listOf(
+            parameterWithName("slug").description(
+                "Short and friendly textual post identifier"
+            )
+        )
+
         @Test
         fun `should return the post`() {
-            mockMvc.get("/posts/${testPost.slug}")
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.id") { value(testPost.id) }
-                    jsonPath("$.title") { value(testPost.title) }
-                    jsonPath("$.body") { value(testPost.body) }
-                    jsonPath("$.thumbnailPath") { value(testPost.thumbnailPath) }
-                    jsonPath("$.publishDate") { value(testPost.publishDate.toJson()) }
-                    jsonPath("$.lastUpdatedAt") { value(testPost.lastUpdatedAt.toJson(true)) }
-                }
+            mockMvc.perform(get("/posts/{slug}", testPost.slug))
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.id").value(testPost.id),
+                    jsonPath("$.title").value(testPost.title),
+                    jsonPath("$.body").value(testPost.body),
+                    jsonPath("$.thumbnailPath").value(testPost.thumbnailPath),
+                    jsonPath("$.publishDate").value(testPost.publishDate.toJson()),
+                    jsonPath("$.lastUpdatedAt").value(testPost.lastUpdatedAt.toJson(true))
+                )
+                .andDocument(
+                    documentation,
+                    "Get posts by slug",
+                    "This endpoint allows the retrieval of a single post using its slug. " +
+                        "It might be used to generate the specific post page.",
+                    urlParameters = parameters
+                )
         }
 
         @Test
         fun `should fail if the post does not exist`() {
-            mockMvc.get("/posts/fail-slug").andExpect {
-                status { isNotFound() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.errors.length()") { value(1) }
-                jsonPath("$.errors[0].message") { value("post not found with slug fail-slug") }
-            }
+            mockMvc.perform(get("/posts/{slug}", "fail-slug"))
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("post not found with slug fail-slug")
+                )
+                .andDocumentErrorResponse(
+                    documentation,
+                    urlParameters = parameters
+                )
         }
     }
 
@@ -140,20 +196,27 @@ internal class PostControllerTest @Autowired constructor(
 
         @Test
         fun `should create a new post`() {
-            mockMvc.post("/posts/new") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(testPost)
-            }
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.title") { value(testPost.title) }
-                    jsonPath("$.body") { value(testPost.body) }
-                    jsonPath("$.thumbnailPath") { value(testPost.thumbnailPath) }
-                    jsonPath("$.publishDate") { exists() }
-                    jsonPath("$.lastUpdatedAt") { exists() }
-                    jsonPath("$.slug") { value(testPost.slug) }
-                }
+            mockMvc.perform(
+                post("/posts/new")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(testPost))
+            )
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.title").value(testPost.title),
+                    jsonPath("$.body").value(testPost.body),
+                    jsonPath("$.thumbnailPath").value(testPost.thumbnailPath),
+                    jsonPath("$.publishDate").exists(),
+                    jsonPath("$.lastUpdatedAt").exists(),
+                    jsonPath("$.slug").value(testPost.slug)
+                )
+                .andDocument(
+                    documentation,
+                    "Create new posts",
+                    "This endpoint operation creates a new post.",
+                    documentRequestPayload = true
+                )
         }
 
         @Test
@@ -163,15 +226,18 @@ internal class PostControllerTest @Autowired constructor(
                 content = objectMapper.writeValueAsString(testPost)
             }.andExpect { status { isOk() } }
 
-            mockMvc.post("/posts/new") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(testPost)
-            }.andExpect {
-                status { isUnprocessableEntity() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.errors.length()") { value(1) }
-                jsonPath("$.errors[0].message") { value("slug already exists") }
-            }
+            mockMvc.perform(
+                post("/posts/new")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(testPost))
+            )
+                .andExpectAll(
+                    status().isUnprocessableEntity,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("slug already exists")
+                )
+                .andDocumentErrorResponse(documentation, hasRequestPayload = true)
         }
 
         @NestedTest
@@ -179,10 +245,12 @@ internal class PostControllerTest @Autowired constructor(
         inner class InputValidation {
             private val validationTester = ValidationTester(
                 req = { params: Map<String, Any?> ->
-                    mockMvc.post("/posts/new") {
-                        contentType = MediaType.APPLICATION_JSON
-                        content = objectMapper.writeValueAsString(params)
-                    }
+                    mockMvc.perform(
+                        post("/posts/new")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(params))
+                    )
+                        .andDocumentErrorResponse(documentation, hasRequestPayload = true)
                 },
                 requiredFields = mapOf(
                     "title" to testPost.title,
@@ -261,25 +329,43 @@ internal class PostControllerTest @Autowired constructor(
             repository.save(testPost)
         }
 
+        private val parameters = listOf(
+            parameterWithName("id").description(
+                "ID of the post to delete"
+            )
+        )
+
         @Test
         fun `should delete the post`() {
-            mockMvc.delete("/posts/${testPost.id}").andExpect {
-                status { isOk() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$") { isEmpty() }
-            }
+            mockMvc.perform(delete("/posts/{id}", testPost.id))
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$").isEmpty
+                )
+                .andDocumentEmptyObjectResponse(
+                    documentation,
+                    "Delete posts",
+                    "This operation deletes an event using its ID.",
+                    urlParameters = parameters
+                )
 
             assert(repository.findById(testPost.id!!).isEmpty)
         }
 
         @Test
         fun `should fail if the post does not exist`() {
-            mockMvc.delete("/posts/1234").andExpect {
-                status { isNotFound() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.errors.length()") { value(1) }
-                jsonPath("$.errors[0].message") { value("post not found with id 1234") }
-            }
+            mockMvc.perform(delete("/posts/{id}", 1234))
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("post not found with id 1234")
+                )
+                .andDocumentErrorResponse(
+                    documentation,
+                    urlParameters = parameters
+                )
         }
     }
 
@@ -299,32 +385,48 @@ internal class PostControllerTest @Autowired constructor(
             )
         }
 
+        val parameters = listOf(
+            parameterWithName("id").description(
+                "ID of the post to update"
+            )
+        )
+
         @Test
         fun `should update the post without the slug`() {
             val newTitle = "New Title"
             val newBody = "New Body of the post"
             val newThumbnailPath = "https://thumbnails/new.png"
 
-            mockMvc.put("/posts/${testPost.id}") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(
-                    mapOf(
-                        "title" to newTitle,
-                        "body" to newBody,
-                        "thumbnailPath" to newThumbnailPath
+            mockMvc.perform(
+                put("/posts/{id}", testPost.id)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf(
+                                "title" to newTitle,
+                                "body" to newBody,
+                                "thumbnailPath" to newThumbnailPath
+                            )
+                        )
                     )
+            )
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.title").value(newTitle),
+                    jsonPath("$.body").value(newBody),
+                    jsonPath("$.thumbnailPath").value(newThumbnailPath),
+                    jsonPath("$.publishDate").value(testPost.publishDate.toJson()),
+                    jsonPath("$.lastUpdatedAt").exists(),
+                    jsonPath("$.slug").value(testPost.slug)
                 )
-            }
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.title") { value(newTitle) }
-                    jsonPath("$.body") { value(newBody) }
-                    jsonPath("$.thumbnailPath") { value(newThumbnailPath) }
-                    jsonPath("$.publishDate") { value(testPost.publishDate.toJson()) }
-                    jsonPath("$.lastUpdatedAt") { exists() }
-                    jsonPath("$.slug") { value(testPost.slug) }
-                }
+                .andDocument(
+                    documentation,
+                    "Update posts",
+                    "Update a previously created post, using its ID.",
+                    urlParameters = parameters,
+                    documentRequestPayload = true
+                )
 
             val updatedPost = repository.findById(testPost.id!!).get()
             assertEquals(newTitle, updatedPost.title)
@@ -340,27 +442,35 @@ internal class PostControllerTest @Autowired constructor(
             val newThumbnailPath = "https://thumbnails/new.png"
             val newSlug = "new-slug"
 
-            mockMvc.put("/posts/${testPost.id}") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(
-                    mapOf(
-                        "title" to newTitle,
-                        "body" to newBody,
-                        "thumbnailPath" to newThumbnailPath,
-                        "slug" to newSlug
+            mockMvc.perform(
+                put("/posts/{id}", testPost.id)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf(
+                                "title" to newTitle,
+                                "body" to newBody,
+                                "thumbnailPath" to newThumbnailPath,
+                                "slug" to newSlug
+                            )
+                        )
                     )
+            )
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.title").value(newTitle),
+                    jsonPath("$.body").value(newBody),
+                    jsonPath("$.thumbnailPath").value(newThumbnailPath),
+                    jsonPath("$.publishDate").value(testPost.publishDate.toJson()),
+                    jsonPath("$.lastUpdatedAt").exists(),
+                    jsonPath("$.slug").value(newSlug)
                 )
-            }
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.title") { value(newTitle) }
-                    jsonPath("$.body") { value(newBody) }
-                    jsonPath("$.thumbnailPath") { value(newThumbnailPath) }
-                    jsonPath("$.publishDate") { value(testPost.publishDate.toJson()) }
-                    jsonPath("$.lastUpdatedAt") { exists() }
-                    jsonPath("$.slug") { value(newSlug) }
-                }
+                .andDocument(
+                    documentation,
+                    urlParameters = parameters,
+                    documentRequestPayload = true
+                )
 
             val updatedPost = repository.findById(testPost.id!!).get()
             assertEquals(newTitle, updatedPost.title)
@@ -373,22 +483,30 @@ internal class PostControllerTest @Autowired constructor(
 
         @Test
         fun `should fail if the post does not exist`() {
-            mockMvc.put("/posts/1234") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(
-                    mapOf(
-                        "title" to "New Title",
-                        "body" to "New Body of the post",
-                        "thumbnailPath" to "thumbnails/new.png"
+            mockMvc.perform(
+                put("/posts/{id}", 1234)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf(
+                                "title" to "New Title",
+                                "body" to "New Body of the post",
+                                "thumbnailPath" to "thumbnails/new.png"
+                            )
+                        )
                     )
+            )
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("post not found with id 1234")
                 )
-            }
-                .andExpect {
-                    status { isNotFound() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.errors.length()") { value(1) }
-                    jsonPath("$.errors[0].message") { value("post not found with id 1234") }
-                }
+                .andDocumentErrorResponse(
+                    documentation,
+                    urlParameters = parameters,
+                    hasRequestPayload = true
+                )
         }
 
         @Test
@@ -398,23 +516,31 @@ internal class PostControllerTest @Autowired constructor(
             val newThumbnailPath = "https://thumbnails/new.png"
             val newSlug = "duplicated-slug"
 
-            mockMvc.put("/posts/${testPost.id}") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(
-                    mapOf(
-                        "title" to newTitle,
-                        "body" to newBody,
-                        "thumbnailPath" to newThumbnailPath,
-                        "slug" to newSlug
+            mockMvc.perform(
+                put("/posts/{id}", testPost.id)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf(
+                                "title" to newTitle,
+                                "body" to newBody,
+                                "thumbnailPath" to newThumbnailPath,
+                                "slug" to newSlug
+                            )
+                        )
                     )
+            )
+                .andExpectAll(
+                    status().isUnprocessableEntity,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("slug already exists")
                 )
-            }
-                .andExpect {
-                    status { isUnprocessableEntity() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.errors.length()") { value(1) }
-                    jsonPath("$.errors[0].message") { value("slug already exists") }
-                }
+                .andDocumentErrorResponse(
+                    documentation,
+                    urlParameters = parameters,
+                    hasRequestPayload = true
+                )
         }
 
         @NestedTest
@@ -422,10 +548,16 @@ internal class PostControllerTest @Autowired constructor(
         inner class InputValidation {
             private val validationTester = ValidationTester(
                 req = { params: Map<String, Any?> ->
-                    mockMvc.put("/posts/${testPost.id}") {
-                        contentType = MediaType.APPLICATION_JSON
-                        content = objectMapper.writeValueAsString(params)
-                    }
+                    mockMvc.perform(
+                        put("/posts/{id}", testPost.id)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(params))
+                    )
+                        .andDocumentErrorResponse(
+                            documentation,
+                            urlParameters = parameters,
+                            hasRequestPayload = true
+                        )
                 },
                 requiredFields = mapOf(
                     "title" to testPost.title,
