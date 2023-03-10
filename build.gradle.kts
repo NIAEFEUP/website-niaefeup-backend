@@ -93,10 +93,32 @@ configure<com.epages.restdocs.apispec.gradle.PostmanExtension> {
 tasks.register<Copy>("generateDocs") {
     dependsOn(tasks.named("openapi3"))
     dependsOn(tasks.named("postman"))
+    dependsOn(tasks.named("fixExamples"))
 
     from("${project.buildDir}/api-spec/openapi3.json")
     into(File("docs"))
 
     from("${project.buildDir}/api-spec/postman-collection.json")
     into(File("docs"))
+}
+
+tasks.register("fixExamples") {
+    dependsOn(tasks.named("openapi3"))
+    doLast {
+        val objectMapper = com.fasterxml.jackson.databind.ObjectMapper()
+
+        val spec = objectMapper.readTree(File("${project.buildDir}/api-spec/openapi3.json"))
+        (spec as com.fasterxml.jackson.databind.node.ObjectNode)
+            .findValues("examples").forEach { examples ->
+                examples.forEach { example ->
+                    (example as com.fasterxml.jackson.databind.node.ObjectNode)
+                        .replace("value", objectMapper.readTree(example.get("value").asText()))
+                }
+            }
+
+        objectMapper.writer().withDefaultPrettyPrinter().writeValue(
+            File("${project.buildDir}/api-spec/openapi3.json"),
+            spec
+        )
+    }
 }
