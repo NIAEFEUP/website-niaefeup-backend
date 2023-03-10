@@ -26,7 +26,8 @@ class PayloadGenerationYears : ModelDocumentation(
     "arrayOf-${Tag.GENERATION.name.lowercase()}-years",
     Tag.GENERATION,
     mutableListOf(
-        DocumentedJSONField("[]", "List of all generation years", JsonFieldType.ARRAY)
+        DocumentedJSONField("[]", "List of all generation years", JsonFieldType.ARRAY),
+        DocumentedJSONField("[].*", "School year", JsonFieldType.STRING, optional = true)
     )
 )
 

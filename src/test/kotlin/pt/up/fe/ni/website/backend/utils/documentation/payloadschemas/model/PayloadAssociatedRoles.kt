@@ -11,6 +11,7 @@ class PayloadAssociatedRoles {
             "associated-role",
             mutableListOf(
                 DocumentedJSONField("permissions", "Array of permissions", JsonFieldType.ARRAY),
+                DocumentedJSONField("permissions[].*", "Permission", JsonFieldType.STRING),
                 DocumentedJSONField("id", "Id of the role/activity association", JsonFieldType.NUMBER),
                 DocumentedJSONField("name", "Name of the role", JsonFieldType.STRING),
                 DocumentedJSONField(

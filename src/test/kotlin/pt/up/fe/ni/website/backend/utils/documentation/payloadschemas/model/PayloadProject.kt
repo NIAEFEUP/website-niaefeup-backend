@@ -19,12 +19,7 @@ class PayloadProject : ModelDocumentation(
             JsonFieldType.ARRAY,
             optional = true
         ),
-        DocumentedJSONField(
-            "associatedRoles[]",
-            "An activity that aggregates members with different roles",
-            JsonFieldType.ARRAY,
-            optional = true
-        ),
+        DocumentedJSONField("technologies.*", "Technology", JsonFieldType.STRING, optional = true),
         DocumentedJSONField(
             "slug",
             "Short and friendly textual event identifier",
@@ -57,17 +52,5 @@ class PayloadProject : ModelDocumentation(
         PayloadAccount().payload.documentedJSONFields,
         addResponse = true,
         optional = true
-    ).addFieldsBeneathPath(
-        "associatedRoles[]",
-        PayloadAssociatedRoles.payload.documentedJSONFields,
-        addResponse = true,
-        optional = true
-    ).addFieldsBeneathPath(
-        "associatedRoles[]",
-        PayloadAssociatedRoles.payload.documentedJSONFields,
-        addResponse = true,
-        addRequest = true,
-        optional = true
     )
-
 )

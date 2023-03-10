@@ -34,6 +34,13 @@ class PayloadEvent : ModelDocumentation(
             "Team member IDs",
             JsonFieldType.ARRAY,
             isInResponse = false
+        ),
+        DocumentedJSONField(
+            "teamMembersIds[].*",
+            "Team member ID",
+            JsonFieldType.NUMBER,
+            isInResponse = false,
+            optional = true
         )
     ).addFieldsBeneathPath(
         "teamMembers[]",

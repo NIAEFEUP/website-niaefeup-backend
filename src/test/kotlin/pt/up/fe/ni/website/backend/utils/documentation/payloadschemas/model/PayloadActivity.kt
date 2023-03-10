@@ -21,6 +21,7 @@ class PayloadActivity {
                     JsonFieldType.ARRAY,
                     optional = true
                 ),
+                DocumentedJSONField("technologies[].*", "Technology", JsonFieldType.STRING, optional = true),
                 DocumentedJSONField(
                     "dateInterval",
                     "Date interval of the activity",
