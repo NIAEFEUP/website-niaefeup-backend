@@ -1,12 +1,13 @@
 package pt.up.fe.ni.website.backend.documentation.payloadschemas.model
 
 import org.springframework.restdocs.payload.JsonFieldType
+import pt.up.fe.ni.website.backend.documentation.Tag
 import pt.up.fe.ni.website.backend.utils.documentation.DocumentedJSONField
 import pt.up.fe.ni.website.backend.utils.documentation.ModelDocumentation
 
 class PayloadAccount : ModelDocumentation(
-    Companion.Tag.ACCOUNT.name.lowercase(),
-    Companion.Tag.ACCOUNT,
+    Tag.ACCOUNT.name.lowercase(),
+    Tag.ACCOUNT,
     mutableListOf(
         DocumentedJSONField("name", "Name of the account owner", JsonFieldType.STRING),
         DocumentedJSONField("email", "Email associated to the account", JsonFieldType.STRING),
@@ -38,7 +39,13 @@ class PayloadAccount : ModelDocumentation(
         ),
         DocumentedJSONField("websites[].url", "URL to the website", JsonFieldType.STRING, optional = true),
         DocumentedJSONField("websites[].iconPath", "URL to the website's icon", JsonFieldType.STRING, optional = true),
-        DocumentedJSONField("roles[]", "Array with the roles of the account", JsonFieldType.ARRAY, optional = true),
+        DocumentedJSONField(
+            "roles[]",
+            "Array with the roles of the account",
+            JsonFieldType.ARRAY,
+            optional = true,
+            isInRequest = false
+        ),
         DocumentedJSONField("password", "Account password", JsonFieldType.STRING, isInResponse = false),
         DocumentedJSONField("id", "Account ID", JsonFieldType.NUMBER, isInRequest = false),
         DocumentedJSONField(

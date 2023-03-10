@@ -1,13 +1,14 @@
 package pt.up.fe.ni.website.backend.documentation.payloadschemas.model
 
 import org.springframework.restdocs.payload.JsonFieldType
+import pt.up.fe.ni.website.backend.documentation.Tag
 import pt.up.fe.ni.website.backend.utils.documentation.DocumentedJSONField
 import pt.up.fe.ni.website.backend.utils.documentation.DocumentedJSONField.Companion.addFieldsBeneathPath
 import pt.up.fe.ni.website.backend.utils.documentation.ModelDocumentation
 
 class PayloadAuthNew : ModelDocumentation(
-    Companion.Tag.AUTH.name.lowercase() + "-new",
-    Companion.Tag.AUTH,
+    Tag.AUTH.name.lowercase() + "-new",
+    Tag.AUTH,
     mutableListOf(
         DocumentedJSONField(
             "email",
@@ -37,8 +38,8 @@ class PayloadAuthNew : ModelDocumentation(
 )
 
 class PayloadAuthRefresh : ModelDocumentation(
-    Companion.Tag.AUTH.name.lowercase() + "-refresh",
-    Companion.Tag.AUTH,
+    Tag.AUTH.name.lowercase() + "-refresh",
+    Tag.AUTH,
     mutableListOf(
         DocumentedJSONField(
             "token",
@@ -56,8 +57,8 @@ class PayloadAuthRefresh : ModelDocumentation(
 )
 
 class PayloadAuthCheck : ModelDocumentation(
-    Companion.Tag.AUTH.name.lowercase() + "-check",
-    Companion.Tag.AUTH,
+    Tag.AUTH.name.lowercase() + "-check",
+    Tag.AUTH,
     mutableListOf(
         DocumentedJSONField(
             "authenticated_user",

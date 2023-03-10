@@ -1,5 +1,7 @@
 package pt.up.fe.ni.website.backend.controller
 
+import com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName
+import com.epages.restdocs.apispec.SimpleType
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.transaction.Transactional
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -9,11 +11,20 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
+import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.get
-import org.springframework.test.web.servlet.patch
-import org.springframework.test.web.servlet.post
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import pt.up.fe.ni.website.backend.documentation.payloadschemas.model.PayloadGeneration
+import pt.up.fe.ni.website.backend.documentation.payloadschemas.model.PayloadGenerationGenerationSections
+import pt.up.fe.ni.website.backend.documentation.payloadschemas.model.PayloadGenerationYears
 import pt.up.fe.ni.website.backend.dto.entity.GenerationDto
 import pt.up.fe.ni.website.backend.dto.entity.PerActivityRoleDto
 import pt.up.fe.ni.website.backend.dto.entity.RoleDto
@@ -34,6 +45,13 @@ import pt.up.fe.ni.website.backend.repository.RoleRepository
 import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
 import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
+import pt.up.fe.ni.website.backend.utils.documentation.DocumentedJSONField
+import pt.up.fe.ni.website.backend.utils.documentation.MockMVCExtension.Companion.andDocument
+import pt.up.fe.ni.website.backend.utils.documentation.MockMVCExtension.Companion.andDocumentCustomRequestSchema
+import pt.up.fe.ni.website.backend.utils.documentation.MockMVCExtension.Companion.andDocumentCustomRequestSchemaErrorResponse
+import pt.up.fe.ni.website.backend.utils.documentation.MockMVCExtension.Companion.andDocumentEmptyObjectResponse
+import pt.up.fe.ni.website.backend.utils.documentation.MockMVCExtension.Companion.andDocumentErrorResponse
+import pt.up.fe.ni.website.backend.utils.documentation.PayloadSchema
 
 @ControllerTest
 @Transactional
@@ -48,6 +66,32 @@ class GenerationControllerTest @Autowired constructor(
     private lateinit var testGeneration: Generation
     private lateinit var testGenerations: List<Generation>
 
+    private final val documentation = PayloadGeneration()
+    private final val generationSectionsDocumentation = PayloadGenerationGenerationSections()
+
+    private val updateSchoolYearSchema = PayloadSchema(
+        "update-generation-year",
+        mutableListOf(
+            DocumentedJSONField(
+                "schoolYear",
+                "New school year",
+                JsonFieldType.STRING
+            )
+        )
+    )
+
+    private val schoolYearParameter = listOf(
+        parameterWithName("schoolYear").description("School year associated with a generation").type(
+            SimpleType.STRING
+        )
+    )
+
+    private val idParameter = listOf(
+        parameterWithName("id").description("Id of a generation").type(
+            SimpleType.STRING
+        )
+    )
+
     @NestedTest
     @DisplayName("GET /generations")
     inner class GetAllGenerations {
@@ -57,16 +101,25 @@ class GenerationControllerTest @Autowired constructor(
             initializeTestGenerations()
         }
 
+        private val allGenerationsDocumentation = PayloadGenerationYears()
+
         @Test
         fun `should return all generation years`() {
-            mockMvc.get("/generations")
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.length()") { value(2) }
-                    jsonPath("$[0]") { value("22-23") }
-                    jsonPath("$[1]") { value("21-22") }
-                }
+            mockMvc.perform(get("/generations"))
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.length()").value(2),
+                    jsonPath("$[0]").value("22-23"),
+                    jsonPath("$[1]").value("21-22")
+                )
+                .andDocument(
+                    allGenerationsDocumentation,
+                    "Get all the school years with recorded generations",
+                    """This returns an array of years with recorded generations,
+                        |allowing other operations on the generations themselves.
+                    """.trimMargin()
+                )
         }
     }
 
@@ -80,15 +133,21 @@ class GenerationControllerTest @Autowired constructor(
 
         @Test
         fun `should return the generation of the year`() {
-            mockMvc.get("/generations/${testGenerations[0].schoolYear}")
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.length()") { value(2) }
-                    jsonPath("$[0].section") { value("section-role1") }
-                    jsonPath("$[0].accounts.length()") { value(1) }
-                    jsonPath("$[0].accounts[0].name") { value("Test Account") }
-                }
+            mockMvc.perform(get("/generations/{schoolYear}", testGenerations[0].schoolYear))
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.length()").value(2),
+                    jsonPath("$[0].section").value("section-role1"),
+                    jsonPath("$[0].accounts.length()").value(1),
+                    jsonPath("$[0].accounts[0].name").value("Test Account")
+                )
+                .andDocument(
+                    generationSectionsDocumentation,
+                    "Get generation by school year",
+                    "This operation retrieves the generation associated with a given school year.",
+                    urlParameters = schoolYearParameter
+                )
         }
 
         @Test
@@ -144,13 +203,13 @@ class GenerationControllerTest @Autowired constructor(
 
         @Test
         fun `should fail if the year does not exit`() {
-            mockMvc.get("/generations/14-15")
-                .andExpect {
-                    status { isNotFound() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.errors.length()") { value(1) }
-                    jsonPath("$.errors[0].message") { value("generation not found with year 14-15") }
-                }
+            mockMvc.perform(get("/generations/{schoolYear}", "14-15"))
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("generation not found with year 14-15")
+                ).andDocumentErrorResponse(generationSectionsDocumentation, urlParameters = schoolYearParameter)
         }
     }
 
@@ -164,15 +223,20 @@ class GenerationControllerTest @Autowired constructor(
 
         @Test
         fun `should return the generation of the id`() {
-            mockMvc.get("/generations/${testGenerations[0].id}")
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.length()") { value(2) }
-                    jsonPath("$[0].section") { value("section-role1") }
-                    jsonPath("$[0].accounts.length()") { value(1) }
-                    jsonPath("$[0].accounts[0].name") { value("Test Account") }
-                }
+            mockMvc.perform(get("/generations/{id}", testGenerations[0].id))
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.length()").value(2),
+                    jsonPath("$[0].section").value("section-role1"),
+                    jsonPath("$[0].accounts.length()").value(1),
+                    jsonPath("$[0].accounts[0].name").value("Test Account")
+                ).andDocument(
+                    generationSectionsDocumentation,
+                    "Get a generation by id",
+                    "This operation retrieves the generation using its id.",
+                    urlParameters = idParameter
+                )
         }
 
         @Test
@@ -228,13 +292,14 @@ class GenerationControllerTest @Autowired constructor(
 
         @Test
         fun `should fail if the year does not exit`() {
-            mockMvc.get("/generations/123")
-                .andExpect {
-                    status { isNotFound() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.errors.length()") { value(1) }
-                    jsonPath("$.errors[0].message") { value("generation not found with id 123") }
-                }
+            mockMvc.perform(get("/generations/{id}", 123))
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("generation not found with id 123")
+                )
+                .andDocumentErrorResponse(generationSectionsDocumentation, urlParameters = idParameter)
         }
     }
 
@@ -248,15 +313,19 @@ class GenerationControllerTest @Autowired constructor(
 
         @Test
         fun `should return the latest generation`() {
-            mockMvc.get("/generations/latest")
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.length()") { value(2) }
-                    jsonPath("$[0].section") { value("section-role1") }
-                    jsonPath("$[0].accounts.length()") { value(1) }
-                    jsonPath("$[0].accounts[0].name") { value("Test Account") }
-                }
+            mockMvc.perform(get("/generations/latest"))
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.length()").value(2),
+                    jsonPath("$[0].section").value("section-role1"),
+                    jsonPath("$[0].accounts.length()").value(1),
+                    jsonPath("$[0].accounts[0].name").value("Test Account")
+                ).andDocument(
+                    generationSectionsDocumentation,
+                    "Get the latest generation",
+                    "This operation retrieves the latest generation using its id."
+                )
         }
 
         @Test
@@ -313,13 +382,13 @@ class GenerationControllerTest @Autowired constructor(
         @Test
         fun `should fail if no generations`() {
             repository.deleteAll()
-            mockMvc.get("/generations/latest")
-                .andExpect {
-                    status { isNotFound() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.errors.length()") { value(1) }
-                    jsonPath("$.errors[0].message") { value("no generations created yet") }
-                }
+            mockMvc.perform(get("/generations/latest"))
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("no generations created yet")
+                ).andDocumentErrorResponse(generationSectionsDocumentation)
         }
     }
 
@@ -328,15 +397,22 @@ class GenerationControllerTest @Autowired constructor(
     inner class CreateGeneration {
         @Test
         fun `should create a new generation`() {
-            mockMvc.post("/generations/new") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(GenerationDto("22-23", emptyList()))
-            }
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.schoolYear") { value("22-23") }
-                }
+            mockMvc.perform(
+                post("/generations/new").contentType(MediaType.APPLICATION_JSON).content(
+                    objectMapper.writeValueAsString(GenerationDto("22-23", emptyList()))
+                )
+            )
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.schoolYear").value("22-23")
+                )
+                .andDocument(
+                    documentation,
+                    "Create new generations",
+                    "This operation retrieves creates a new generation.",
+                    documentRequestPayload = true
+                )
         }
 
         @Test
@@ -361,24 +437,28 @@ class GenerationControllerTest @Autowired constructor(
                 )
             )
 
-            mockMvc.post("/generations/new") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(generationDtoWithRoles)
-            }
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.schoolYear") { value("20-21") }
-                    jsonPath("$.roles.length()") { value(2) }
-                    jsonPath("$.roles[0].name") { value("role1") }
-                    jsonPath("$.roles[0].isSection") { value(true) }
-                    jsonPath("$.roles[0].permissions.length()") { value(0) }
-                    jsonPath("$.roles[0].associatedActivities.length()") { value(0) }
-                    jsonPath("$.roles[1].name") { value("role2") }
-                    jsonPath("$.roles[1].isSection") { value(false) }
-                    jsonPath("$.roles[1].permissions.length()") { value(0) }
-                    jsonPath("$.roles[1].associatedActivities.length()") { value(0) }
-                }
+            mockMvc.perform(
+                post("/generations/new")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(generationDtoWithRoles))
+            )
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.schoolYear").value("20-21"),
+                    jsonPath("$.roles.length()").value(2),
+                    jsonPath("$.roles[0].name").value("role1"),
+                    jsonPath("$.roles[0].isSection").value(true),
+                    jsonPath("$.roles[0].permissions.length()").value(0),
+                    jsonPath("$.roles[0].associatedActivities.length()").value(0),
+                    jsonPath("$.roles[1].name").value("role2"),
+                    jsonPath("$.roles[1].isSection").value(false),
+                    jsonPath("$.roles[1].permissions.length()").value(0),
+                    jsonPath("$.roles[1].associatedActivities.length()").value(0)
+                ).andDocument(
+                    documentation,
+                    documentRequestPayload = true
+                )
 
             val roles = roleRepository.findAll().toList()
             assertEquals(2, roles.size)
@@ -403,20 +483,24 @@ class GenerationControllerTest @Autowired constructor(
                 )
             )
 
-            mockMvc.post("/generations/new") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(generationDtoWithRoles)
-            }
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.schoolYear") { value("20-21") }
-                    jsonPath("$.roles.length()") { value(1) }
-                    jsonPath("$.roles[0].name") { value("role1") }
-                    jsonPath("$.roles[0].permissions.length()") { value(2) }
-                    jsonPath("$.roles[0].permissions[0]") { value(Permission.values()[0].name) }
-                    jsonPath("$.roles[0].permissions[1]") { value(Permission.values()[1].name) }
-                }
+            mockMvc.perform(
+                post("/generations/new")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(generationDtoWithRoles))
+            )
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.schoolYear").value("20-21"),
+                    jsonPath("$.roles.length()").value(1),
+                    jsonPath("$.roles[0].name").value("role1"),
+                    jsonPath("$.roles[0].permissions.length()").value(2),
+                    jsonPath("$.roles[0].permissions[0]").value(Permission.values()[0].name),
+                    jsonPath("$.roles[0].permissions[1]").value(Permission.values()[1].name)
+                ).andDocument(
+                    documentation,
+                    documentRequestPayload = true
+                )
 
             val roles = roleRepository.findAll().toList()
             assertEquals(1, roles.size)
@@ -426,16 +510,18 @@ class GenerationControllerTest @Autowired constructor(
 
         @Test
         fun `should fail if year is not specified and there are no generations`() {
-            mockMvc.post("/generations/new") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(GenerationDto(null, emptyList()))
-            }
-                .andExpect {
-                    status { isUnprocessableEntity() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.errors.length()") { value(1) }
-                    jsonPath("$.errors[0].message") { value("no generations created yet, please specify school year") }
-                }
+            mockMvc.perform(
+                post("/generations/new")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(GenerationDto(null, emptyList())))
+            )
+                .andExpectAll(
+                    status().isUnprocessableEntity,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("no generations created yet, please specify school year")
+                )
+                .andDocumentErrorResponse(documentation, hasRequestPayload = true)
         }
 
         @NestedTest
@@ -448,15 +534,17 @@ class GenerationControllerTest @Autowired constructor(
 
             @Test
             fun `should infer the year if not specified and create generation`() {
-                mockMvc.post("/generations/new") {
-                    contentType = MediaType.APPLICATION_JSON
-                    content = objectMapper.writeValueAsString(GenerationDto(null, emptyList()))
-                }
-                    .andExpect {
-                        status { isOk() }
-                        content { contentType(MediaType.APPLICATION_JSON) }
-                        jsonPath("$.schoolYear") { value("23-24") }
-                    }
+                mockMvc.perform(
+                    post("/generations/new")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(GenerationDto(null, emptyList())))
+                )
+                    .andExpectAll(
+                        status().isOk,
+                        content().contentType(MediaType.APPLICATION_JSON),
+                        jsonPath("$.schoolYear").value("23-24")
+                    )
+                    .andDocument(documentation, documentRequestPayload = true)
             }
 
             @Test
@@ -474,17 +562,18 @@ class GenerationControllerTest @Autowired constructor(
                     )
                 )
 
-                mockMvc.post("/generations/new") {
-                    contentType = MediaType.APPLICATION_JSON
-                    content = objectMapper.writeValueAsString(generationDtoWithAccounts)
-                }
-                    .andExpect {
-                        status { isOk() }
-                        content { contentType(MediaType.APPLICATION_JSON) }
-                        jsonPath("$.schoolYear") { value("20-21") }
-                        jsonPath("$.roles.length()") { value(1) }
-                        jsonPath("$.roles[0].name") { value("role1") }
-                    }
+                mockMvc.perform(
+                    post("/generations/new")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(generationDtoWithAccounts))
+                )
+                    .andExpectAll(
+                        status().isOk,
+                        content().contentType(MediaType.APPLICATION_JSON),
+                        jsonPath("$.schoolYear").value("20-21"),
+                        jsonPath("$.roles.length()").value(1),
+                        jsonPath("$.roles[0].name").value("role1")
+                    ).andDocument(documentation, documentRequestPayload = true)
 
                 val role = roleRepository.findAll().toList()
                     .filter { it.generation.schoolYear == "20-21" }
@@ -524,34 +613,33 @@ class GenerationControllerTest @Autowired constructor(
                     )
                 )
 
-                mockMvc.post("/generations/new") {
-                    contentType = MediaType.APPLICATION_JSON
-                    content = objectMapper.writeValueAsString(generationDtoWithActivities)
-                }
-                    .andExpect {
-                        status { isOk() }
-                        content { contentType(MediaType.APPLICATION_JSON) }
-                        jsonPath("$.schoolYear") { value("20-21") }
-                        jsonPath("$.roles.length()") { value(1) }
-                        jsonPath("$.roles[0].associatedActivities.length()") { value(2) }
-                        jsonPath("$.roles[0].associatedActivities[0].permissions.length()") { value(2) }
-                        jsonPath("$.roles[0].associatedActivities[0].permissions[0]") {
-                            value(
+                mockMvc.perform(
+                    post("/generations/new")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(generationDtoWithActivities))
+                )
+                    .andExpectAll(
+                        status().isOk,
+                        content().contentType(MediaType.APPLICATION_JSON),
+                        jsonPath("$.schoolYear").value("20-21"),
+                        jsonPath("$.roles.length()").value(1),
+                        jsonPath("$.roles[0].associatedActivities.length()").value(2),
+                        jsonPath("$.roles[0].associatedActivities[0].permissions.length()").value(2),
+                        jsonPath("$.roles[0].associatedActivities[0].permissions[0]")
+                            .value(
                                 Permission.values()[0].name
-                            )
-                        }
-                        jsonPath("$.roles[0].associatedActivities[0].permissions[1]") {
-                            value(
+                            ),
+                        jsonPath("$.roles[0].associatedActivities[0].permissions[1]")
+                            .value(
                                 Permission.values()[1].name
-                            )
-                        }
-                        jsonPath("$.roles[0].associatedActivities[1].permissions.length()") { value(1) }
-                        jsonPath("$.roles[0].associatedActivities[1].permissions[0]") {
-                            value(
+                            ),
+
+                        jsonPath("$.roles[0].associatedActivities[1].permissions.length()").value(1),
+                        jsonPath("$.roles[0].associatedActivities[1].permissions[0]")
+                            .value(
                                 Permission.values()[2].name
                             )
-                        }
-                    }
+                    ).andDocument(documentation, documentRequestPayload = true)
 
                 val role = roleRepository.findAll().toList()
                     .filter { it.generation.schoolYear == "20-21" }
@@ -579,16 +667,19 @@ class GenerationControllerTest @Autowired constructor(
 
             @Test
             fun `should fail if the year already exists`() {
-                mockMvc.post("/generations/new") {
-                    contentType = MediaType.APPLICATION_JSON
-                    content = objectMapper.writeValueAsString(GenerationDto("22-23", emptyList()))
-                }
-                    .andExpect {
-                        status { isUnprocessableEntity() }
-                        content { contentType(MediaType.APPLICATION_JSON) }
-                        jsonPath("$.errors.length()") { value(1) }
-                        jsonPath("$.errors[0].message") { value("generation already exists") }
-                    }
+                mockMvc.perform(
+                    post("/generations/new")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(
+                            objectMapper.writeValueAsString(GenerationDto("22-23", emptyList()))
+                        )
+                )
+                    .andExpectAll(
+                        status().isUnprocessableEntity,
+                        content().contentType(MediaType.APPLICATION_JSON),
+                        jsonPath("$.errors.length()").value(1),
+                        jsonPath("$.errors[0].message").value("generation already exists")
+                    ).andDocumentErrorResponse(documentation, hasRequestPayload = true)
             }
         }
     }
@@ -603,65 +694,98 @@ class GenerationControllerTest @Autowired constructor(
 
         @Test
         fun `should update the generation year`() {
-            mockMvc.patch("/generations/${testGenerations[0].schoolYear}") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(
-                    mapOf("schoolYear" to "19-20")
+            mockMvc.perform(
+                patch("/generations/{schoolYear}", testGenerations[0].schoolYear)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(mapOf("schoolYear" to "19-20")))
+            )
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.schoolYear").value("19-20")
                 )
-            }
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.schoolYear") { value("19-20") }
-                }
+                .andDocumentCustomRequestSchema(
+                    documentation,
+                    updateSchoolYearSchema,
+                    "Update a generation school year by its school year",
+                    "Update a generation school year, using its school year as a parameter",
+                    urlParameters = schoolYearParameter,
+                    documentRequestPayload = true
+                )
         }
 
         @Test
         fun `should fail if the year does not exist`() {
-            mockMvc.patch("/generations/17-18") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(
-                    mapOf("schoolYear" to "19-20")
+            mockMvc.perform(
+                patch("/generations/{schoolYear}", "17-18")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf("schoolYear" to "19-20")
+                        )
+                    )
+            )
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("generation not found with year 17-18")
+                ).andDocumentCustomRequestSchemaErrorResponse(
+                    documentation,
+                    updateSchoolYearSchema,
+                    urlParameters = schoolYearParameter,
+                    hasRequestPayload = true
                 )
-            }
-                .andExpect {
-                    status { isNotFound() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.errors.length()") { value(1) }
-                    jsonPath("$.errors[0].message") { value("generation not found with year 17-18") }
-                }
         }
 
         @Test
         fun `should fail if the new year is already taken`() {
-            mockMvc.patch("/generations/${testGenerations[0].schoolYear}") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(
-                    mapOf("schoolYear" to "21-22")
+            mockMvc.perform(
+                patch("/generations/{schoolYear}", testGenerations[0].schoolYear)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf("schoolYear" to "21-22")
+                        )
+                    )
+            )
+                .andExpectAll(
+                    status().isUnprocessableEntity,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("generation already exists")
                 )
-            }
-                .andExpect {
-                    status { isUnprocessableEntity() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.errors.length()") { value(1) }
-                    jsonPath("$.errors[0].message") { value("generation already exists") }
-                }
+                .andDocumentCustomRequestSchemaErrorResponse(
+                    documentation,
+                    updateSchoolYearSchema,
+                    urlParameters = schoolYearParameter,
+                    hasRequestPayload = true
+                )
         }
 
         @Test
         fun `should fail if the new year is not valid`() {
-            mockMvc.patch("/generations/${testGenerations[0].schoolYear}") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(
-                    mapOf("schoolYear" to "123")
+            mockMvc.perform(
+                patch("/generations/{schoolYear}", testGenerations[0].schoolYear)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf("schoolYear" to "123")
+                        )
+                    )
+            )
+                .andExpectAll(
+                    status().isBadRequest,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("must be formatted as <xx-yy> where yy=xx+1")
                 )
-            }
-                .andExpect {
-                    status { isBadRequest() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.errors.length()") { value(1) }
-                    jsonPath("$.errors[0].message") { value("must be formatted as <xx-yy> where yy=xx+1") }
-                }
+                .andDocumentCustomRequestSchemaErrorResponse(
+                    documentation,
+                    updateSchoolYearSchema,
+                    urlParameters = schoolYearParameter,
+                    hasRequestPayload = true
+                )
         }
     }
 
@@ -675,65 +799,103 @@ class GenerationControllerTest @Autowired constructor(
 
         @Test
         fun `should update the generation year`() {
-            mockMvc.patch("/generations/${testGenerations[0].id}") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(
-                    mapOf("schoolYear" to "19-20")
+            mockMvc.perform(
+                patch("/generations/{id}", testGenerations[0].id)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf("schoolYear" to "19-20")
+                        )
+                    )
+            )
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.schoolYear").value("19-20")
                 )
-            }
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.schoolYear") { value("19-20") }
-                }
+                .andDocumentCustomRequestSchema(
+                    documentation,
+                    updateSchoolYearSchema,
+                    "Update a generation school year by its Id",
+                    "Update a generation school year, using its Id as a parameter",
+                    urlParameters = idParameter,
+                    documentRequestPayload = true
+                )
         }
 
         @Test
         fun `should fail if the generation does not exist`() {
-            mockMvc.patch("/generations/123") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(
-                    mapOf("schoolYear" to "19-20")
+            mockMvc.perform(
+                patch("/generations/{id}", 123)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf("schoolYear" to "19-20")
+                        )
+                    )
+            )
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("generation not found with id 123")
                 )
-            }
-                .andExpect {
-                    status { isNotFound() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.errors.length()") { value(1) }
-                    jsonPath("$.errors[0].message") { value("generation not found with id 123") }
-                }
+                .andDocumentCustomRequestSchemaErrorResponse(
+                    documentation,
+                    updateSchoolYearSchema,
+                    urlParameters = idParameter,
+                    hasRequestPayload = true
+                )
         }
 
         @Test
         fun `should fail if the new year is already taken`() {
-            mockMvc.patch("/generations/${testGenerations[0].id}") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(
-                    mapOf("schoolYear" to "21-22")
+            mockMvc.perform(
+                patch("/generations/{id}", testGenerations[0].id)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf("schoolYear" to "21-22")
+                        )
+                    )
+            )
+                .andExpectAll(
+                    status().isUnprocessableEntity,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("generation already exists")
                 )
-            }
-                .andExpect {
-                    status { isUnprocessableEntity() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.errors.length()") { value(1) }
-                    jsonPath("$.errors[0].message") { value("generation already exists") }
-                }
+                .andDocumentCustomRequestSchemaErrorResponse(
+                    documentation,
+                    updateSchoolYearSchema,
+                    urlParameters = idParameter,
+                    hasRequestPayload = true
+                )
         }
 
         @Test
         fun `should fail if the new year is not valid`() {
-            mockMvc.patch("/generations/1") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(
-                    mapOf("schoolYear" to "123")
+            mockMvc.perform(
+                patch("/generations/{id}", 1)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf("schoolYear" to "123")
+                        )
+                    )
+            )
+                .andExpectAll(
+                    status().isBadRequest(),
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("must be formatted as <xx-yy> where yy=xx+1")
                 )
-            }
-                .andExpect {
-                    status { isBadRequest() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.errors.length()") { value(1) }
-                    jsonPath("$.errors[0].message") { value("must be formatted as <xx-yy> where yy=xx+1") }
-                }
+                .andDocumentCustomRequestSchemaErrorResponse(
+                    documentation,
+                    updateSchoolYearSchema,
+                    urlParameters = idParameter,
+                    hasRequestPayload = true
+                )
         }
     }
 
@@ -747,25 +909,34 @@ class GenerationControllerTest @Autowired constructor(
 
         @Test
         fun `should delete the generation`() {
-            mockMvc.delete("/generations/${testGenerations[0].schoolYear}")
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$") { isEmpty() }
-                }
+            mockMvc.perform(delete("/generations/{schoolYear}", testGenerations[0].schoolYear))
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$").isEmpty
+                ).andDocumentEmptyObjectResponse(
+                    documentation,
+                    "Delete a generation by its school year",
+                    "Delete a generation by its school year, using its school year as a parameter",
+                    urlParameters = schoolYearParameter
+                )
 
             assert(repository.findById(testGenerations[0].id!!).isEmpty)
         }
 
         @Test
         fun `should fail if the generation does not exist`() {
-            mockMvc.delete("/generations/17-18")
-                .andExpect {
-                    status { isNotFound() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.errors.length()") { value(1) }
-                    jsonPath("$.errors[0].message") { value("generation not found with year 17-18") }
-                }
+            mockMvc.perform(delete("/generations/{schoolYear}", "17-18"))
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("generation not found with year 17-18")
+                )
+                .andDocumentErrorResponse(
+                    documentation,
+                    urlParameters = schoolYearParameter
+                )
         }
 
         @Test
@@ -820,25 +991,33 @@ class GenerationControllerTest @Autowired constructor(
 
         @Test
         fun `should delete the generation`() {
-            mockMvc.delete("/generations/${testGenerations[0].id}")
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$") { isEmpty() }
-                }
+            mockMvc.perform(delete("/generations/{id}", testGenerations[0].id))
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$").isEmpty
+                ).andDocumentEmptyObjectResponse(
+                    documentation,
+                    "Delete a generation by its id",
+                    "Delete a generation by its id, using its id as a parameter",
+                    urlParameters = idParameter
+                )
 
             assert(repository.findById(testGenerations[0].id!!).isEmpty)
         }
 
         @Test
         fun `should fail if the generation does not exist`() {
-            mockMvc.delete("/generations/123")
-                .andExpect {
-                    status { isNotFound() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.errors.length()") { value(1) }
-                    jsonPath("$.errors[0].message") { value("generation not found with id 123") }
-                }
+            mockMvc.perform(delete("/generations/{id}", 123))
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("generation not found with id 123")
+                ).andDocumentErrorResponse(
+                    documentation,
+                    urlParameters = idParameter
+                )
         }
     }
 

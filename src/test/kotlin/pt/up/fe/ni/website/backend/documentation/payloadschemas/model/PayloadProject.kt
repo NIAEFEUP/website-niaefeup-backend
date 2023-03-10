@@ -1,13 +1,14 @@
 package pt.up.fe.ni.website.backend.documentation.payloadschemas.model
 
 import org.springframework.restdocs.payload.JsonFieldType
+import pt.up.fe.ni.website.backend.documentation.Tag
 import pt.up.fe.ni.website.backend.utils.documentation.DocumentedJSONField
 import pt.up.fe.ni.website.backend.utils.documentation.DocumentedJSONField.Companion.addFieldsBeneathPath
 import pt.up.fe.ni.website.backend.utils.documentation.ModelDocumentation
 
 class PayloadProject : ModelDocumentation(
-    Companion.Tag.PROJECT.name.lowercase(),
-    Companion.Tag.PROJECT,
+    Tag.PROJECT.name.lowercase(),
+    Tag.PROJECT,
     mutableListOf(
         DocumentedJSONField("title", "Project title", JsonFieldType.STRING),
         DocumentedJSONField("description", "Project description", JsonFieldType.STRING),
@@ -22,18 +23,6 @@ class PayloadProject : ModelDocumentation(
             "associatedRoles[]",
             "An activity that aggregates members with different roles",
             JsonFieldType.ARRAY,
-            optional = true
-        ),
-        DocumentedJSONField(
-            "associatedRoles[].*.permissions",
-            "Permissions of someone with a given role for this activity",
-            JsonFieldType.OBJECT,
-            optional = true
-        ),
-        DocumentedJSONField(
-            "associatedRoles[].*.id",
-            "Id of the role/activity association",
-            JsonFieldType.NUMBER,
             optional = true
         ),
         DocumentedJSONField(
@@ -68,5 +57,17 @@ class PayloadProject : ModelDocumentation(
         PayloadAccount().payload.documentedJSONFields,
         addResponse = true,
         optional = true
+    ).addFieldsBeneathPath(
+        "associatedRoles[]",
+        PayloadAssociatedRoles.payload.documentedJSONFields,
+        addResponse = true,
+        optional = true
+    ).addFieldsBeneathPath(
+        "associatedRoles[]",
+        PayloadAssociatedRoles.payload.documentedJSONFields,
+        addResponse = true,
+        addRequest = true,
+        optional = true
     )
+
 )

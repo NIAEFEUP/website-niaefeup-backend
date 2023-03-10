@@ -1,12 +1,13 @@
 package pt.up.fe.ni.website.backend.documentation.payloadschemas.model
 
 import org.springframework.restdocs.payload.JsonFieldType
+import pt.up.fe.ni.website.backend.documentation.Tag
 import pt.up.fe.ni.website.backend.utils.documentation.DocumentedJSONField
 import pt.up.fe.ni.website.backend.utils.documentation.ModelDocumentation
 
 class PayloadPost : ModelDocumentation(
-    Companion.Tag.POST.name.lowercase(),
-    Companion.Tag.POST,
+    Tag.POST.name.lowercase(),
+    Tag.POST,
     mutableListOf(
         DocumentedJSONField("title", "Post title", JsonFieldType.STRING),
         DocumentedJSONField("body", "Post body", JsonFieldType.STRING),
