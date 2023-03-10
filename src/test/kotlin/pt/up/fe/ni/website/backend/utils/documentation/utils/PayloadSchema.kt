@@ -1,8 +1,8 @@
-package pt.up.fe.ni.website.backend.utils.documentation
+package pt.up.fe.ni.website.backend.utils.documentation.utils
 
 import com.epages.restdocs.apispec.Schema
 import org.springframework.restdocs.payload.FieldDescriptor
-import pt.up.fe.ni.website.backend.utils.documentation.DocumentedJSONField.Companion.addFieldsBeneathPath
+import pt.up.fe.ni.website.backend.utils.documentation.utils.DocumentedJSONField.Companion.addFieldsBeneathPath
 
 open class PayloadSchema(
     open val schemaName: String,

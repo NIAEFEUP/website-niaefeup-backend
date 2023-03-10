@@ -1,4 +1,4 @@
-package pt.up.fe.ni.website.backend.utils.documentation
+package pt.up.fe.ni.website.backend.utils.documentation.utils
 
 import kotlin.reflect.jvm.internal.impl.load.kotlin.JvmType
 import org.springframework.restdocs.payload.FieldDescriptor

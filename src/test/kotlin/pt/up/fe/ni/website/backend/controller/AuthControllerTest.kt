@@ -18,9 +18,6 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import pt.up.fe.ni.website.backend.documentation.payloadschemas.model.PayloadAuthCheck
-import pt.up.fe.ni.website.backend.documentation.payloadschemas.model.PayloadAuthNew
-import pt.up.fe.ni.website.backend.documentation.payloadschemas.model.PayloadAuthRefresh
 import pt.up.fe.ni.website.backend.dto.auth.LoginDto
 import pt.up.fe.ni.website.backend.dto.auth.TokenDto
 import pt.up.fe.ni.website.backend.model.Account
@@ -29,9 +26,12 @@ import pt.up.fe.ni.website.backend.repository.AccountRepository
 import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
 import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
-import pt.up.fe.ni.website.backend.utils.documentation.MockMVCExtension.Companion.andDocument
-import pt.up.fe.ni.website.backend.utils.documentation.MockMVCExtension.Companion.andDocumentErrorResponse
-import pt.up.fe.ni.website.backend.utils.documentation.ModelDocumentation
+import pt.up.fe.ni.website.backend.utils.documentation.payloadschemas.model.PayloadAuthCheck
+import pt.up.fe.ni.website.backend.utils.documentation.payloadschemas.model.PayloadAuthNew
+import pt.up.fe.ni.website.backend.utils.documentation.payloadschemas.model.PayloadAuthRefresh
+import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocument
+import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentErrorResponse
+import pt.up.fe.ni.website.backend.utils.documentation.utils.ModelDocumentation
 
 @ControllerTest
 class AuthControllerTest @Autowired constructor(

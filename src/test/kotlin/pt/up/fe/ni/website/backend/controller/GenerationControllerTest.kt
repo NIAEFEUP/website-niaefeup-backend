@@ -22,9 +22,6 @@ import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import pt.up.fe.ni.website.backend.documentation.payloadschemas.model.PayloadGeneration
-import pt.up.fe.ni.website.backend.documentation.payloadschemas.model.PayloadGenerationGenerationSections
-import pt.up.fe.ni.website.backend.documentation.payloadschemas.model.PayloadGenerationYears
 import pt.up.fe.ni.website.backend.dto.entity.GenerationDto
 import pt.up.fe.ni.website.backend.dto.entity.PerActivityRoleDto
 import pt.up.fe.ni.website.backend.dto.entity.RoleDto
@@ -45,13 +42,16 @@ import pt.up.fe.ni.website.backend.repository.RoleRepository
 import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
 import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
-import pt.up.fe.ni.website.backend.utils.documentation.DocumentedJSONField
-import pt.up.fe.ni.website.backend.utils.documentation.MockMVCExtension.Companion.andDocument
-import pt.up.fe.ni.website.backend.utils.documentation.MockMVCExtension.Companion.andDocumentCustomRequestSchema
-import pt.up.fe.ni.website.backend.utils.documentation.MockMVCExtension.Companion.andDocumentCustomRequestSchemaErrorResponse
-import pt.up.fe.ni.website.backend.utils.documentation.MockMVCExtension.Companion.andDocumentEmptyObjectResponse
-import pt.up.fe.ni.website.backend.utils.documentation.MockMVCExtension.Companion.andDocumentErrorResponse
-import pt.up.fe.ni.website.backend.utils.documentation.PayloadSchema
+import pt.up.fe.ni.website.backend.utils.documentation.payloadschemas.model.PayloadGeneration
+import pt.up.fe.ni.website.backend.utils.documentation.payloadschemas.model.PayloadGenerationGenerationSections
+import pt.up.fe.ni.website.backend.utils.documentation.payloadschemas.model.PayloadGenerationYears
+import pt.up.fe.ni.website.backend.utils.documentation.utils.DocumentedJSONField
+import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocument
+import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentCustomRequestSchema
+import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentCustomRequestSchemaErrorResponse
+import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentEmptyObjectResponse
+import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentErrorResponse
+import pt.up.fe.ni.website.backend.utils.documentation.utils.PayloadSchema
 
 @ControllerTest
 @Transactional

@@ -1,4 +1,4 @@
-package pt.up.fe.ni.website.backend.utils.documentation
+package pt.up.fe.ni.website.backend.utils.documentation.utils
 
 import com.epages.restdocs.apispec.HeaderDescriptorWithType
 import com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document
@@ -8,8 +8,8 @@ import com.epages.restdocs.apispec.ResourceSnippetParameters.Companion.builder
 import com.epages.restdocs.apispec.Schema
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.test.web.servlet.ResultActions
-import pt.up.fe.ni.website.backend.documentation.payloadschemas.EmptyObjectSchema
-import pt.up.fe.ni.website.backend.documentation.payloadschemas.ErrorSchema
+import pt.up.fe.ni.website.backend.utils.documentation.payloadschemas.EmptyObjectSchema
+import pt.up.fe.ni.website.backend.utils.documentation.payloadschemas.ErrorSchema
 
 class MockMVCExtension {
     companion object {

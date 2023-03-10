@@ -1,4 +1,4 @@
-package pt.up.fe.ni.website.backend.utils.documentation
+package pt.up.fe.ni.website.backend.utils.documentation.utils
 
 open class ModelDocumentation(
     schemaName: String,

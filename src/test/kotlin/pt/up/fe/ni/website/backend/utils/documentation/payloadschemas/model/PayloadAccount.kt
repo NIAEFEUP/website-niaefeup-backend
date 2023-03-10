@@ -1,9 +1,9 @@
-package pt.up.fe.ni.website.backend.documentation.payloadschemas.model
+package pt.up.fe.ni.website.backend.utils.documentation.payloadschemas.model
 
 import org.springframework.restdocs.payload.JsonFieldType
-import pt.up.fe.ni.website.backend.documentation.Tag
-import pt.up.fe.ni.website.backend.utils.documentation.DocumentedJSONField
-import pt.up.fe.ni.website.backend.utils.documentation.ModelDocumentation
+import pt.up.fe.ni.website.backend.utils.documentation.Tag
+import pt.up.fe.ni.website.backend.utils.documentation.utils.DocumentedJSONField
+import pt.up.fe.ni.website.backend.utils.documentation.utils.ModelDocumentation
 
 class PayloadAccount : ModelDocumentation(
     Tag.ACCOUNT.name.lowercase(),
