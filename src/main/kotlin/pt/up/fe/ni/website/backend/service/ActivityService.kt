@@ -32,4 +32,55 @@ abstract class ActivityService<T : Activity>(
         activity.teamMembers.removeIf { it.id == idAccount }
         return repository.save(activity)
     }
+
+    fun addHallOfFameMemberById(idActivity: Long, idAccount: Long): T {
+        val activity = getActivityById(idActivity)
+        if (!accountService.doesAccountExist(idAccount)) {
+            throw NoSuchElementException(
+                ErrorMessages.accountNotFound(
+                    idAccount
+                )
+            )
+        }
+        // TODO: Add Account to HallOfFame
+        return repository.save(activity)
+    }
+
+    fun removeHallOfFameMemberById(idActivity: Long, idAccount: Long): T {
+        val activity = getActivityById(idActivity)
+        if (!accountService.doesAccountExist(idAccount)) {
+            throw NoSuchElementException(
+                ErrorMessages.accountNotFound(
+                    idAccount
+                )
+            )
+        }
+        // TODO: Remove Account from HallOfFame
+        return repository.save(activity)
+    }
+    fun moveMemberToHallOfFameById(idActivity: Long, idAccount: Long): T {
+        val activity = getActivityById(idActivity)
+        if (!accountService.doesAccountExist(idAccount)) {
+            throw NoSuchElementException(
+                ErrorMessages.accountNotFound(
+                    idAccount
+                )
+            )
+        }
+        // TODO: Move Account from Team to HallOfFame
+        return repository.save(activity);
+    }
+
+    fun moveMemberToActiveTeamById(idActivity: Long, idAccount: Long): T {
+        val activity = getActivityById(idActivity)
+        if (!accountService.doesAccountExist(idAccount)) {
+            throw NoSuchElementException(
+                ErrorMessages.accountNotFound(
+                    idAccount
+                )
+            )
+        }
+        // TODO: Move Account from HallOfFame to Team
+        return repository.save(activity);
+    }
 }
