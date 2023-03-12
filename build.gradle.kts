@@ -72,6 +72,8 @@ val apiSpecTitle = "NIAEFEUP Website - Backend API specification"
 val apiSpecDescription =
     """This specification documents the available endpoints and possible operations on the website's backend.
         |For each of the operations, its purpose, security, requests and possible responses are documented.
+        |
+        |Postman collection also available <a href="postman-collection.json" download>here</a>.
     """.trimMargin()
 
 configure<com.epages.restdocs.apispec.gradle.OpenApi3Extension> {
