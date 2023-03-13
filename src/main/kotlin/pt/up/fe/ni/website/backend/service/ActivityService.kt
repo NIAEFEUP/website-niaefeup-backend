@@ -35,14 +35,9 @@ abstract class ActivityService<T : Activity>(
 
     fun addHallOfFameMemberById(idActivity: Long, idAccount: Long): T {
         val activity = getActivityById(idActivity)
-        if (!accountService.doesAccountExist(idAccount)) {
-            throw NoSuchElementException(
-                ErrorMessages.accountNotFound(
-                    idAccount
-                )
-            )
-        }
-        // TODO: Add Account to HallOfFame
+        // TODO: Add Account to HallOfFame, maybe check if it exists on the team to avoid duplicates
+        val account = accountService.getAccountById(idAccount)
+        activity.hallOfFame.add(account)
         return repository.save(activity)
     }
 
@@ -55,7 +50,8 @@ abstract class ActivityService<T : Activity>(
                 )
             )
         }
-        // TODO: Remove Account from HallOfFame
+        // TODO: Remove Account from HallOfFame, check if it exists on the team to avoid duplicates
+        activity.hallOfFame.removeIf { it.id == idAccount }
         return repository.save(activity)
     }
     fun moveMemberToHallOfFameById(idActivity: Long, idAccount: Long): T {
@@ -67,7 +63,11 @@ abstract class ActivityService<T : Activity>(
                 )
             )
         }
-        // TODO: Move Account from Team to HallOfFame
+        // TODO: Move Account from Team to HallOfFame, check if it is already on HallOfFame
+        val account = accountService.getAccountById(idAccount)
+        if (activity.teamMembers.removeIf { it.id == idAccount }) {
+            activity.hallOfFame.add(account)
+        }
         return repository.save(activity)
     }
 
@@ -80,7 +80,11 @@ abstract class ActivityService<T : Activity>(
                 )
             )
         }
-        // TODO: Move Account from HallOfFame to Team
+        // TODO: Move Account from HallOfFame to Team, check if it is already on HallOfFame
+        val account = accountService.getAccountById(idAccount)
+        if (activity.hallOfFame.removeIf { it.id == idAccount }) {
+            activity.teamMembers.add(account)
+        }
         return repository.save(activity)
     }
 }
