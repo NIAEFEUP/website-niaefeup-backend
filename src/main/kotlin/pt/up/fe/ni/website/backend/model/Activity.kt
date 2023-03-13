@@ -30,6 +30,10 @@ abstract class Activity(
     @OneToMany(fetch = FetchType.EAGER)
     open val teamMembers: MutableList<Account>,
 
+    @JoinColumn // Fixme: Don't know if this is needed
+    @OneToMany(fetch = FetchType.EAGER)
+    open val hallOfFame: MutableList<Account>,
+
     @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
     open var associatedRoles: List<@Valid PerActivityRole>,
 
