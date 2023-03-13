@@ -68,7 +68,7 @@ abstract class ActivityService<T : Activity>(
             )
         }
         // TODO: Move Account from Team to HallOfFame
-        return repository.save(activity);
+        return repository.save(activity)
     }
 
     fun moveMemberToActiveTeamById(idActivity: Long, idAccount: Long): T {
@@ -81,6 +81,6 @@ abstract class ActivityService<T : Activity>(
             )
         }
         // TODO: Move Account from HallOfFame to Team
-        return repository.save(activity);
+        return repository.save(activity)
     }
 }
