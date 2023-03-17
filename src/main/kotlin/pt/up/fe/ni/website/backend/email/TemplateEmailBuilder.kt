@@ -10,11 +10,22 @@ import org.springframework.boot.autoconfigure.mustache.MustacheResourceTemplateL
 import org.springframework.core.io.Resource
 import org.springframework.core.io.UrlResource
 import org.springframework.mail.javamail.MimeMessageHelper
+import org.springframework.util.ResourceUtils
 import pt.up.fe.ni.website.backend.config.email.EmailConfigProperties
 
 abstract class TemplateEmailBuilder<T>(
     private val template: String
 ) : BaseEmailBuilder() {
+    private companion object {
+        val commonmarkParser: Parser = Parser.builder().extensions(
+            listOf(
+                YamlFrontMatterExtension.create()
+            )
+        ).build()
+        val commonmarkHtmlRenderer: HtmlRenderer = HtmlRenderer.builder().build()
+        val commonmarkTextRenderer: TextContentRenderer = TextContentRenderer.builder().build()
+    }
+
     private var data: T? = null
 
     fun data(data: T) = apply {
@@ -30,45 +41,55 @@ abstract class TemplateEmailBuilder<T>(
 
         val markdown = mustache.loadTemplate(template).execute(data)
 
-        val commonmarkParser = Parser.builder().extensions(
-            listOf(
-                YamlFrontMatterExtension.create()
-            )
-        ).build()
-        val commonmarkHtmlRenderer = HtmlRenderer.builder().build()
-        val commonmarkTextRenderer = TextContentRenderer.builder().build()
-
         val doc = commonmarkParser.parse(markdown)
-
-        val html = commonmarkHtmlRenderer.render(doc)
+        val htmlContent = commonmarkHtmlRenderer.render(doc)
         val text = commonmarkTextRenderer.render(doc)
-
-        helper.setText(text, html)
 
         val yamlVisitor = YamlFrontMatterVisitor()
         doc.accept(yamlVisitor)
 
-        val subject = yamlVisitor.data["subject"]?.getOrNull(0)
+        val subject = yamlVisitor.data["subject"]?.firstOrNull()
         if (subject != null) {
             helper.setSubject(subject)
         }
 
-        print(yamlVisitor.data)
-
         yamlVisitor.data.getOrDefault("attachments", emptyList()).forEach { addFile(helper::addAttachment, it) }
         yamlVisitor.data.getOrDefault("inline", emptyList()).forEach { addFile(helper::addInline, it) }
+
+        val styles = yamlVisitor.data.getOrDefault("styles", mutableListOf()).apply {
+            if (yamlVisitor.data["no_default_style"].isNullOrEmpty()) {
+                this.add(emailConfigProperties.defaultStyle)
+            }
+        }.map {
+            ResourceUtils.getFile(it).readText()
+        }
+
+        val htmlTemplate = yamlVisitor.data["layout"]?.firstOrNull() ?: emailConfigProperties.defaultHtmlLayout
+        val html = mustache.loadTemplate(htmlTemplate).execute(
+            mapOf(
+                "subject" to subject,
+                "content" to htmlContent,
+                "styles" to styles
+            )
+        )
+
+        helper.setText(text, html)
     }
 
-    private fun addFile(fn: (String, Resource) -> Any, file: String) {
-        val split = file.split("\\s*::\\s*".toRegex())
+    private fun addFile(fn: (String, Resource) -> Any, file: String): Pair<String, String>? {
+        var split = file.split("\\s*::\\s*".toRegex(), 2)
 
-        if (split.size != 2) {
-            return
+        if (split.isEmpty()) {
+            return null
+        } else if (split.size == 1) {
+            split = listOf(split[0], split[0])
         }
 
         val name = split[0]
         val path = split[1]
 
         fn(name, UrlResource(path))
+
+        return Pair(name, path)
     }
 }
