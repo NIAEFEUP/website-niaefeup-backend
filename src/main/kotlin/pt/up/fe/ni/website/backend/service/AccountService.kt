@@ -45,11 +45,12 @@ class AccountService(private val repository: AccountRepository, private val enco
         repository.save(account)
     }
 
-    fun deleteAccountById(id: Long) {
+    fun deleteAccountById(id: Long): Map<String, String> {
         if (!repository.existsById(id)) {
             throw NoSuchElementException(ErrorMessages.accountNotFound(id))
         }
 
         repository.deleteById(id)
+        return emptyMap()
     }
 }

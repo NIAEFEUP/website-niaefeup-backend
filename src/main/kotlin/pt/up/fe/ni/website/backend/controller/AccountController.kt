@@ -37,8 +37,5 @@ class AccountController(private val service: AccountService) {
     ) = service.updateAccountById(id, dto)
 
     @DeleteMapping("/{id}")
-    fun deleteAccount(@PathVariable id: Long): Map<String, String> {
-        service.deleteAccountById(id)
-        return emptyMap()
-    }
+    fun deleteAccountById(@PathVariable id: Long) = service.deleteAccountById(id)
 }

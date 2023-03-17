@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import java.util.Calendar
 import java.util.Date
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -18,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.post
+import org.springframework.test.web.servlet.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -391,6 +393,7 @@ class AccountControllerTest @Autowired constructor(
             inner class WebsitesValidation {
                 private val validationTester = ValidationTester(
                     req = { params: Map<String, Any?> ->
+
                         mockMvc.perform(
                             post("/accounts/new")
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -601,6 +604,110 @@ class AccountControllerTest @Autowired constructor(
                 jsonPath("$.errors.length()") { value(1) }
                 jsonPath("$.errors[0].message") { value("account not found with id 1234") }
             }
+        }
+    }
+
+    @NestedTest
+    @DisplayName("PUT /accounts/{accountId}")
+    inner class UpdateAccount {
+        @BeforeEach
+        fun addProject() {
+            repository.save(testAccount)
+        }
+
+        @Test
+        fun `should update the account`() {
+            val newName = "Test Account 2"
+            val newEmail = "test_account2@test.com"
+            val newPassword = "test_password2"
+            val newBio = "This is a test account altered"
+            val newBirthDate = TestUtils.createDate(2003, Calendar.JULY, 28)
+            val newPhotoPath = "https://test-photo2.com"
+            val newLinkedin = "https://linkedin2.com"
+            val newGithub = "https://github2.com"
+            val newWebsites = listOf(
+                CustomWebsite("https://test-website2.com", "https://test-website.com/logo.png")
+            )
+
+            val updatedFields = Account(
+                newName,
+                newEmail,
+                newPassword,
+                newBio,
+                newBirthDate,
+                newPhotoPath,
+                newLinkedin,
+                newGithub,
+                newWebsites
+            )
+
+            mockMvc.put("/accounts/${testAccount.id}") {
+                contentType = MediaType.APPLICATION_JSON
+                content = updatedFields.toJson()
+            }
+                .andExpect {
+                    status { isOk() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$.name") { value(newName) }
+                    jsonPath("$.email") { value(newEmail) }
+                    jsonPath("$.bio") { value(newBio) }
+                    jsonPath("$.birthDate") { value(newBirthDate.toJson()) }
+                    jsonPath("$.photoPath") { value(newPhotoPath) }
+                    jsonPath("$.linkedin") { value(newLinkedin) }
+                    jsonPath("$.github") { value(newGithub) }
+                    jsonPath("$.websites.length()") { value(1) }
+                    jsonPath("$.websites[0].url") { value(updatedFields.websites[0].url) }
+                    jsonPath("$.websites[0].iconPath") { value(updatedFields.websites[0].iconPath) }
+                }
+
+            val updatedAccount = repository.findById(testAccount.id!!).get()
+            Assertions.assertEquals(newName, updatedAccount.name)
+            Assertions.assertEquals(newEmail, updatedAccount.email)
+            Assertions.assertEquals(newPassword, updatedAccount.password)
+            Assertions.assertEquals(newBio, updatedAccount.bio)
+            Assertions.assertEquals(newBirthDate.toJson(), updatedAccount.birthDate.toJson())
+            Assertions.assertEquals(newPhotoPath, updatedAccount.photoPath)
+            Assertions.assertEquals(newLinkedin, updatedAccount.linkedin)
+            Assertions.assertEquals(newWebsites[0].url, updatedAccount.websites[0].url)
+            Assertions.assertEquals(newWebsites[0].iconPath, updatedAccount.websites[0].iconPath)
+        }
+
+        @Test
+        fun `should fail if the project does not exist`() {
+            val newName = "Test Account 2"
+            val newEmail = "test_account2@test.com"
+            val newPassword = "test_password2"
+            val newBio = "This is a test account altered"
+            val newBirthDate = TestUtils.createDate(2003, Calendar.JULY, 28)
+            val newPhotoPath = "https://test-photo2.com"
+            val newLinkedin = "https://linkedin2.com"
+            val newGithub = "https://github2.com"
+            val newWebsites = listOf(
+                CustomWebsite("https://test-website2.com", "https://test-website.com/logo.png")
+            )
+
+            mockMvc.put("/accounts/1234") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(
+                    mapOf(
+                        "name" to newName,
+                        "email" to newEmail,
+                        "password" to newPassword,
+                        "bio" to newBio,
+                        "birthDate" to newBirthDate.toJson(),
+                        "photoPath" to newPhotoPath,
+                        "linkedin" to newLinkedin,
+                        "github" to newGithub,
+                        "websites" to newWebsites
+                    )
+                )
+            }
+                .andExpect {
+                    status { isNotFound() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$.errors.length()") { value(1) }
+                    jsonPath("$.errors[0].message") { value("account not found with id 1234") }
+                }
         }
     }
 
