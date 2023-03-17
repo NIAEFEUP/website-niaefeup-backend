@@ -12,14 +12,14 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.post
-import org.springframework.test.web.servlet.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -36,6 +36,7 @@ import pt.up.fe.ni.website.backend.utils.documentation.utils.DocumentedJSONField
 import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocument
 import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentCustomRequestSchemaEmptyResponse
 import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentCustomRequestSchemaErrorResponse
+import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentEmptyObjectResponse
 import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentErrorResponse
 import pt.up.fe.ni.website.backend.utils.documentation.utils.ModelDocumentation
 import pt.up.fe.ni.website.backend.utils.documentation.utils.PayloadSchema
@@ -585,25 +586,38 @@ class AccountControllerTest @Autowired constructor(
             repository.save(testAccount)
         }
 
+        private val parameters = listOf(parameterWithName("id").description("ID of the account to delete"))
+
         @Test
         fun `should delete the account`() {
-            mockMvc.delete("/accounts/${testAccount.id}").andExpect {
-                status { isOk() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$") { isEmpty() }
-            }
+            mockMvc.perform(delete("/accounts/{id}", testAccount.id)).andExpectAll(
+                status().isOk,
+                content().contentType(MediaType.APPLICATION_JSON),
+                jsonPath("$").isEmpty
+            )
+                .andDocumentEmptyObjectResponse(
+                    documentation,
+                    "Delete accounts",
+                    "This operation deletes an account using its ID.",
+                    urlParameters = parameters
+                )
 
             assert(repository.findById(testAccount.id!!).isEmpty)
         }
 
         @Test
         fun `should fail if the account does not exist`() {
-            mockMvc.delete("/accounts/1234").andExpect {
-                status { isNotFound() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.errors.length()") { value(1) }
-                jsonPath("$.errors[0].message") { value("account not found with id 1234") }
-            }
+            mockMvc.perform(delete("/accounts/{id}", 1234)).andExpectAll(
+
+                status().isNotFound,
+                content().contentType(MediaType.APPLICATION_JSON),
+                jsonPath("$.errors.length()").value(1),
+                jsonPath("$.errors[0].message").value("account not found with id 1234")
+            )
+                .andDocumentErrorResponse(
+                    documentation,
+                    urlParameters = parameters
+                )
         }
     }
 
@@ -615,11 +629,12 @@ class AccountControllerTest @Autowired constructor(
             repository.save(testAccount)
         }
 
+        private val parameters = listOf(parameterWithName("id").description("ID of the account to update"))
+
         @Test
         fun `should update the account`() {
             val newName = "Test Account 2"
             val newEmail = "test_account2@test.com"
-            val newPassword = "test_password2"
             val newBio = "This is a test account altered"
             val newBirthDate = TestUtils.createDate(2003, Calendar.JULY, 28)
             val newPhotoPath = "https://test-photo2.com"
@@ -629,41 +644,48 @@ class AccountControllerTest @Autowired constructor(
                 CustomWebsite("https://test-website2.com", "https://test-website.com/logo.png")
             )
 
-            val updatedFields = Account(
-                newName,
-                newEmail,
-                newPassword,
-                newBio,
-                newBirthDate,
-                newPhotoPath,
-                newLinkedin,
-                newGithub,
-                newWebsites
+            mockMvc.perform(
+                put("/accounts/{id}", testAccount.id)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf(
+                                "name" to newName,
+                                "email" to newEmail,
+                                "password" to testAccount.password,
+                                "bio" to newBio,
+                                "birthDate" to newBirthDate,
+                                "photoPath" to newPhotoPath,
+                                "linkedin" to newLinkedin,
+                                "github" to newGithub,
+                                "websites" to newWebsites
+                            )
+                        )
+                    )
+            ).andExpectAll(
+                status().isOk,
+                content().contentType(MediaType.APPLICATION_JSON),
+                jsonPath("$.name").value(newName),
+                jsonPath("$.email").value(newEmail),
+                jsonPath("$.bio").value(newBio),
+                jsonPath("$.birthDate").value(newBirthDate.toJson()),
+                jsonPath("$.photoPath").value(newPhotoPath),
+                jsonPath("$.linkedin").value(newLinkedin),
+                jsonPath("$.github").value(newGithub),
+                jsonPath("$.websites.length()").value(1),
+                jsonPath("$.websites[0].url").value(newWebsites[0].url),
+                jsonPath("$.websites[0].iconPath").value(newWebsites[0].iconPath)
+            ).andDocument(
+                documentation,
+                "Update accounts",
+                "Update a previously created account, with the exception of its password, using its ID.",
+                urlParameters = parameters,
+                documentRequestPayload = true
             )
-
-            mockMvc.put("/accounts/${testAccount.id}") {
-                contentType = MediaType.APPLICATION_JSON
-                content = updatedFields.toJson()
-            }
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.name") { value(newName) }
-                    jsonPath("$.email") { value(newEmail) }
-                    jsonPath("$.bio") { value(newBio) }
-                    jsonPath("$.birthDate") { value(newBirthDate.toJson()) }
-                    jsonPath("$.photoPath") { value(newPhotoPath) }
-                    jsonPath("$.linkedin") { value(newLinkedin) }
-                    jsonPath("$.github") { value(newGithub) }
-                    jsonPath("$.websites.length()") { value(1) }
-                    jsonPath("$.websites[0].url") { value(updatedFields.websites[0].url) }
-                    jsonPath("$.websites[0].iconPath") { value(updatedFields.websites[0].iconPath) }
-                }
 
             val updatedAccount = repository.findById(testAccount.id!!).get()
             Assertions.assertEquals(newName, updatedAccount.name)
             Assertions.assertEquals(newEmail, updatedAccount.email)
-            Assertions.assertEquals(newPassword, updatedAccount.password)
             Assertions.assertEquals(newBio, updatedAccount.bio)
             Assertions.assertEquals(newBirthDate.toJson(), updatedAccount.birthDate.toJson())
             Assertions.assertEquals(newPhotoPath, updatedAccount.photoPath)
@@ -676,7 +698,6 @@ class AccountControllerTest @Autowired constructor(
         fun `should fail if the project does not exist`() {
             val newName = "Test Account 2"
             val newEmail = "test_account2@test.com"
-            val newPassword = "test_password2"
             val newBio = "This is a test account altered"
             val newBirthDate = TestUtils.createDate(2003, Calendar.JULY, 28)
             val newPhotoPath = "https://test-photo2.com"
@@ -686,28 +707,35 @@ class AccountControllerTest @Autowired constructor(
                 CustomWebsite("https://test-website2.com", "https://test-website.com/logo.png")
             )
 
-            mockMvc.put("/accounts/1234") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(
-                    mapOf(
-                        "name" to newName,
-                        "email" to newEmail,
-                        "password" to newPassword,
-                        "bio" to newBio,
-                        "birthDate" to newBirthDate.toJson(),
-                        "photoPath" to newPhotoPath,
-                        "linkedin" to newLinkedin,
-                        "github" to newGithub,
-                        "websites" to newWebsites
+            mockMvc.perform(
+                put("/accounts/{id}", 1234)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf(
+                                "name" to newName,
+                                "email" to newEmail,
+                                "password" to testAccount.password,
+                                "bio" to newBio,
+                                "birthDate" to newBirthDate,
+                                "photoPath" to newPhotoPath,
+                                "linkedin" to newLinkedin,
+                                "github" to newGithub,
+                                "websites" to newWebsites
+                            )
+                        )
                     )
+            )
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("account not found with id 1234")
+                ).andDocumentErrorResponse(
+                    documentation,
+                    urlParameters = parameters,
+                    hasRequestPayload = true
                 )
-            }
-                .andExpect {
-                    status { isNotFound() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.errors.length()") { value(1) }
-                    jsonPath("$.errors[0].message") { value("account not found with id 1234") }
-                }
         }
     }
 
