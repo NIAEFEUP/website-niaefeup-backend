@@ -61,18 +61,6 @@ class AuthConfig(
         return BCryptPasswordEncoder()
     }
 
-    @Bean
-    fun corsFilter(): CorsFilter {
-        // TODO: This is a temporary solution. We should use a proper CORS filter.
-        val source = UrlBasedCorsConfigurationSource()
-        val config = CorsConfiguration()
-        config.addAllowedOrigin("*")
-        config.addAllowedHeader("*")
-        config.addAllowedMethod("*")
-        source.registerCorsConfiguration("/**", config)
-        return CorsFilter(source)
-    }
-
     fun rolesConverter(): JwtAuthenticationConverter? {
         val authoritiesConverter = JwtGrantedAuthoritiesConverter()
         authoritiesConverter.setAuthorityPrefix("ROLE_")
