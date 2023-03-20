@@ -16,6 +16,10 @@ abstract class ActivityService<T : Activity>(
     fun addTeamMemberById(idActivity: Long, idAccount: Long): T {
         val activity = getActivityById(idActivity)
         val account = accountService.getAccountById(idAccount)
+        if (activity.hallOfFame.find { it.id == idAccount } != null) {
+            // TODO: deal with member that already exists on the hallOfFame, should it return an error or move?
+            return moveMemberToActiveTeamById(idActivity, idAccount)
+        }
         activity.teamMembers.add(account)
         return repository.save(activity)
     }
@@ -35,8 +39,11 @@ abstract class ActivityService<T : Activity>(
 
     fun addHallOfFameMemberById(idActivity: Long, idAccount: Long): T {
         val activity = getActivityById(idActivity)
-        // TODO: Add Account to HallOfFame, maybe check if it exists on the team to avoid duplicates
         val account = accountService.getAccountById(idAccount)
+        if (activity.teamMembers.find { it.id == idAccount } != null) {
+            // TODO: deal with member that already exists on the team, should it return an error or move?
+            return moveMemberToHallOfFameById(idActivity, idAccount)
+        }
         activity.hallOfFame.add(account)
         return repository.save(activity)
     }
@@ -50,7 +57,6 @@ abstract class ActivityService<T : Activity>(
                 )
             )
         }
-        // TODO: Remove Account from HallOfFame, check if it exists on the team to avoid duplicates
         activity.hallOfFame.removeIf { it.id == idAccount }
         return repository.save(activity)
     }
