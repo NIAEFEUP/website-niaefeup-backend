@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import pt.up.fe.ni.website.backend.dto.account.UpdateAccountDto
 import pt.up.fe.ni.website.backend.dto.auth.ChangePasswordDto
 import pt.up.fe.ni.website.backend.dto.entity.AccountDto
 import pt.up.fe.ni.website.backend.service.AccountService
@@ -33,7 +34,7 @@ class AccountController(private val service: AccountService) {
     @PutMapping("/{id}")
     fun updateAccountById(
         @PathVariable id: Long,
-        @RequestBody dto: AccountDto
+        @RequestBody dto: UpdateAccountDto
     ) = service.updateAccountById(id, dto)
 
     @DeleteMapping("/{id}")

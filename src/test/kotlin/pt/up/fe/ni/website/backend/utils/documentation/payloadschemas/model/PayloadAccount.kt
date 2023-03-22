@@ -5,7 +5,7 @@ import pt.up.fe.ni.website.backend.utils.documentation.Tag
 import pt.up.fe.ni.website.backend.utils.documentation.utils.DocumentedJSONField
 import pt.up.fe.ni.website.backend.utils.documentation.utils.ModelDocumentation
 
-class PayloadAccount : ModelDocumentation(
+class PayloadAccount(includePassword: Boolean = true) : ModelDocumentation(
     Tag.ACCOUNT.name.lowercase(),
     Tag.ACCOUNT,
     mutableListOf(
@@ -38,7 +38,12 @@ class PayloadAccount : ModelDocumentation(
             optional = true
         ),
         DocumentedJSONField("websites[].url", "URL to the website", JsonFieldType.STRING, optional = true),
-        DocumentedJSONField("websites[].iconPath", "URL to the website's icon", JsonFieldType.STRING, optional = true),
+        DocumentedJSONField(
+            "websites[].iconPath",
+            "URL to the website's icon",
+            JsonFieldType.STRING,
+            optional = true
+        ),
         DocumentedJSONField(
             "roles[]",
             "Array with the roles of the account",
@@ -46,7 +51,7 @@ class PayloadAccount : ModelDocumentation(
             optional = true,
             isInRequest = false
         ),
-        DocumentedJSONField("password", "Account password", JsonFieldType.STRING, isInResponse = false),
+
         DocumentedJSONField("id", "Account ID", JsonFieldType.NUMBER, isInRequest = false),
         DocumentedJSONField(
             "websites[].id",
@@ -56,4 +61,17 @@ class PayloadAccount : ModelDocumentation(
             isInRequest = false
         )
     )
-)
+) {
+    init {
+        if (includePassword) {
+            payload.documentedJSONFields.add(
+                DocumentedJSONField(
+                    "password",
+                    "Account password",
+                    JsonFieldType.STRING,
+                    isInResponse = false
+                )
+            )
+        }
+    }
+}

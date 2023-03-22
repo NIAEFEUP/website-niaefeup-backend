@@ -3,6 +3,7 @@ package pt.up.fe.ni.website.backend.service
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
+import pt.up.fe.ni.website.backend.dto.account.UpdateAccountDto
 import pt.up.fe.ni.website.backend.dto.auth.ChangePasswordDto
 import pt.up.fe.ni.website.backend.dto.entity.AccountDto
 import pt.up.fe.ni.website.backend.model.Account
@@ -27,9 +28,25 @@ class AccountService(private val repository: AccountRepository, private val enco
 
     fun doesAccountExist(id: Long): Boolean = repository.findByIdOrNull(id) != null
 
-    fun updateAccountById(id: Long, dto: AccountDto): Account {
+    fun updateAccountById(id: Long, dto: UpdateAccountDto): Account {
         val account = getAccountById(id)
-        val newAccount = dto.update(account)
+
+        repository.findByEmail(dto.email)?.let {
+            throw IllegalArgumentException(ErrorMessages.emailAlreadyExists)
+        }
+
+        val accountDto = AccountDto(
+            dto.email,
+            account.password,
+            dto.name,
+            dto.bio,
+            dto.birthDate,
+            dto.photoPath,
+            dto.linkedin,
+            dto.github,
+            dto.websites
+        )
+        val newAccount = accountDto.update(account)
         return repository.save(newAccount)
     }
 

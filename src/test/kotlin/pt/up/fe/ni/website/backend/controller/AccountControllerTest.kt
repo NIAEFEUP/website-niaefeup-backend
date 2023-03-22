@@ -624,11 +624,27 @@ class AccountControllerTest @Autowired constructor(
     @NestedTest
     @DisplayName("PUT /accounts/{accountId}")
     inner class UpdateAccount {
+        private val newAccount = Account(
+            "Another test Account",
+            "test2_account@test.com",
+            "test_password",
+            "This is another test account",
+            TestUtils.createDate(2003, Calendar.APRIL, 4),
+            "https://test-photo.com",
+            "https://linkedin.com",
+            "https://github.com",
+            listOf(
+                CustomWebsite("https://test-website.com", "https://test-website.com/logo.png")
+            )
+        )
+
         @BeforeEach
         fun addProject() {
             repository.save(testAccount)
+            repository.save(newAccount)
         }
 
+        private val documentation = PayloadAccount(includePassword = false)
         private val parameters = listOf(parameterWithName("id").description("ID of the account to update"))
 
         @Test
@@ -652,7 +668,6 @@ class AccountControllerTest @Autowired constructor(
                             mapOf(
                                 "name" to newName,
                                 "email" to newEmail,
-                                "password" to testAccount.password,
                                 "bio" to newBio,
                                 "birthDate" to newBirthDate,
                                 "photoPath" to newPhotoPath,
@@ -715,7 +730,6 @@ class AccountControllerTest @Autowired constructor(
                             mapOf(
                                 "name" to newName,
                                 "email" to newEmail,
-                                "password" to testAccount.password,
                                 "bio" to newBio,
                                 "birthDate" to newBirthDate,
                                 "photoPath" to newPhotoPath,
@@ -732,6 +746,49 @@ class AccountControllerTest @Autowired constructor(
                     jsonPath("$.errors.length()").value(1),
                     jsonPath("$.errors[0].message").value("account not found with id 1234")
                 ).andDocumentErrorResponse(
+                    documentation,
+                    urlParameters = parameters,
+                    hasRequestPayload = true
+                )
+        }
+
+        @Test
+        fun `should fail if the new email is already taken`() {
+            val newName = "Test Account 2"
+            val newBio = "This is a test account altered"
+            val newBirthDate = TestUtils.createDate(2003, Calendar.JULY, 28)
+            val newPhotoPath = "https://test-photo2.com"
+            val newLinkedin = "https://linkedin2.com"
+            val newGithub = "https://github2.com"
+            val newWebsites = listOf(
+                CustomWebsite("https://test-website2.com", "https://test-website.com/logo.png")
+            )
+
+            mockMvc.perform(
+                put("/accounts/{id}", testAccount.id)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf(
+                                "name" to newName,
+                                "email" to "test2_account@test.com",
+                                "bio" to newBio,
+                                "birthDate" to newBirthDate,
+                                "photoPath" to newPhotoPath,
+                                "linkedin" to newLinkedin,
+                                "github" to newGithub,
+                                "websites" to newWebsites
+                            )
+                        )
+                    )
+            )
+                .andExpectAll(
+                    status().isUnprocessableEntity,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("email already exists")
+                )
+                .andDocumentErrorResponse(
                     documentation,
                     urlParameters = parameters,
                     hasRequestPayload = true
