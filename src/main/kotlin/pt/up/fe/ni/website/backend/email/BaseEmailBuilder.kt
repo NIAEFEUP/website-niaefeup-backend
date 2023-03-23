@@ -3,10 +3,13 @@ package pt.up.fe.ni.website.backend.email
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Email
 import org.springframework.mail.javamail.MimeMessageHelper
+import pt.up.fe.ni.website.backend.config.ApplicationContextUtils
 import pt.up.fe.ni.website.backend.config.email.EmailConfigProperties
 import pt.up.fe.ni.website.backend.model.Account
 
 abstract class BaseEmailBuilder : EmailBuilder {
+    protected val emailConfigProperties = ApplicationContextUtils.getBean(EmailConfigProperties::class.java)
+
     private var from: String? = null
     private var fromPersonal: String? = null
     private var to: MutableSet<String> = mutableSetOf()
@@ -42,7 +45,7 @@ abstract class BaseEmailBuilder : EmailBuilder {
         bcc.addAll(users.map { it.email })
     }
 
-    override fun build(helper: MimeMessageHelper, emailConfigProperties: EmailConfigProperties) {
+    override fun build(helper: MimeMessageHelper) {
         helper.setFrom(from ?: emailConfigProperties.from, fromPersonal ?: emailConfigProperties.fromPersonal)
 
         to.forEach(helper::setTo)

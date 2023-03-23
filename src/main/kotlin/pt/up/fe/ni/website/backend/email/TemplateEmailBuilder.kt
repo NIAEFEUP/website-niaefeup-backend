@@ -1,30 +1,23 @@
 package pt.up.fe.ni.website.backend.email
 
 import com.samskivert.mustache.Mustache
-import org.commonmark.ext.front.matter.YamlFrontMatterExtension
 import org.commonmark.ext.front.matter.YamlFrontMatterVisitor
 import org.commonmark.parser.Parser
 import org.commonmark.renderer.html.HtmlRenderer
 import org.commonmark.renderer.text.TextContentRenderer
-import org.springframework.boot.autoconfigure.mustache.MustacheResourceTemplateLoader
 import org.springframework.core.io.Resource
 import org.springframework.core.io.UrlResource
 import org.springframework.mail.javamail.MimeMessageHelper
 import org.springframework.util.ResourceUtils
-import pt.up.fe.ni.website.backend.config.email.EmailConfigProperties
+import pt.up.fe.ni.website.backend.config.ApplicationContextUtils
 
 abstract class TemplateEmailBuilder<T>(
     private val template: String
 ) : BaseEmailBuilder() {
-    private companion object {
-        val commonmarkParser: Parser = Parser.builder().extensions(
-            listOf(
-                YamlFrontMatterExtension.create()
-            )
-        ).build()
-        val commonmarkHtmlRenderer: HtmlRenderer = HtmlRenderer.builder().build()
-        val commonmarkTextRenderer: TextContentRenderer = TextContentRenderer.builder().build()
-    }
+    private val commonmarkParser = ApplicationContextUtils.getBean(Parser::class.java)
+    private val commonmarkHtmlRenderer = ApplicationContextUtils.getBean(HtmlRenderer::class.java)
+    private val commonmarkTextRenderer = ApplicationContextUtils.getBean(TextContentRenderer::class.java)
+    private val mustache = ApplicationContextUtils.getBean(Mustache.Compiler::class.java)
 
     private var data: T? = null
 
@@ -32,12 +25,10 @@ abstract class TemplateEmailBuilder<T>(
         this.data = data
     }
 
-    override fun build(helper: MimeMessageHelper, emailConfigProperties: EmailConfigProperties) {
-        super.build(helper, emailConfigProperties)
+    override fun build(helper: MimeMessageHelper) {
+        super.build(helper)
 
-        val mustache = Mustache.compiler().withLoader(
-            MustacheResourceTemplateLoader(emailConfigProperties.templatePrefix, emailConfigProperties.templateSuffix)
-        )
+        if (data == null) return
 
         val markdown = mustache.loadTemplate(template).execute(data)
 
@@ -49,12 +40,7 @@ abstract class TemplateEmailBuilder<T>(
         doc.accept(yamlVisitor)
 
         val subject = yamlVisitor.data["subject"]?.firstOrNull()
-        if (subject != null) {
-            helper.setSubject(subject)
-        }
-
-        yamlVisitor.data.getOrDefault("attachments", emptyList()).forEach { addFile(helper::addAttachment, it) }
-        yamlVisitor.data.getOrDefault("inline", emptyList()).forEach { addFile(helper::addInline, it) }
+        subject?.let { helper.setSubject(it) }
 
         val styles = yamlVisitor.data.getOrDefault("styles", mutableListOf()).apply {
             if (yamlVisitor.data["no_default_style"].isNullOrEmpty()) {
@@ -74,22 +60,19 @@ abstract class TemplateEmailBuilder<T>(
         )
 
         helper.setText(text, html)
+
+        yamlVisitor.data.getOrDefault("attachments", emptyList()).forEach { addFile(helper::addAttachment, it) }
+        yamlVisitor.data.getOrDefault("inline", emptyList()).forEach { addFile(helper::addInline, it) }
     }
 
-    private fun addFile(fn: (String, Resource) -> Any, file: String): Pair<String, String>? {
-        var split = file.split("\\s*::\\s*".toRegex(), 2)
+    private fun addFile(fn: (String, Resource) -> Any, file: String) {
+        val split = file.split("\\s*::\\s*".toRegex(), 2)
 
-        if (split.isEmpty()) {
-            return null
-        } else if (split.size == 1) {
-            split = listOf(split[0], split[0])
-        }
+        if (split.isEmpty()) return
 
         val name = split[0]
-        val path = split[1]
+        val path = split.getOrElse(1) { split[0] }
 
         fn(name, UrlResource(path))
-
-        return Pair(name, path)
     }
 }

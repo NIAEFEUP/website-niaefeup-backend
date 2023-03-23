@@ -6,7 +6,6 @@ import jakarta.activation.URLDataSource
 import java.io.File
 import java.net.URL
 import org.springframework.mail.javamail.MimeMessageHelper
-import pt.up.fe.ni.website.backend.config.email.EmailConfigProperties
 
 class SimpleEmailBuilder : BaseEmailBuilder() {
     private var text: String? = null
@@ -51,20 +50,16 @@ class SimpleEmailBuilder : BaseEmailBuilder() {
         inlines.add(EmailFile(name, URLDataSource(URL(path))))
     }
 
-    override fun build(helper: MimeMessageHelper, emailConfigProperties: EmailConfigProperties) {
-        super.build(helper, emailConfigProperties)
+    override fun build(helper: MimeMessageHelper) {
+        super.build(helper)
 
-        if (text != null && html != null) {
-            helper.setText(text!!, html!!)
-        } else if (text != null) {
-            helper.setText(text!!)
-        } else if (html != null) {
-            helper.setText(html!!, true)
+        when {
+            text != null && html != null -> helper.setText(text!!, html!!)
+            html != null -> helper.setText(html!!, true)
+            text != null -> helper.setText(text!!)
         }
 
-        if (subject != null) {
-            helper.setSubject(subject!!)
-        }
+        subject?.let { helper.setSubject(it) }
 
         attachments.forEach { helper.addAttachment(it.name, it.content) }
         inlines.forEach { helper.addInline(it.name, it.content) }
