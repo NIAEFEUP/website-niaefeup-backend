@@ -233,10 +233,6 @@ class AccountControllerTest @Autowired constructor(
                 jsonPath("$.websites.length()").value(1),
                 jsonPath("$.websites[0].url").value(testAccount.websites[0].url),
                 jsonPath("$.websites[0].iconPath").value(testAccount.websites[0].iconPath),
-            ).andDocument(
-                documentation,
-                "Create account",
-                "Creates a new account",
             )
         }
 
@@ -442,10 +438,10 @@ class AccountControllerTest @Autowired constructor(
 
         @Test
         fun `should fail to create account with existing email`() {
-            println("testAccount: ${objectMapper.writeValueAsString(testAccount)}")
-
             val accountPart = MockPart("account", testAccount.toJson().toByteArray())
             accountPart.headers.contentType = MediaType.APPLICATION_JSON
+
+            mockMvc.perform(multipart("/accounts/new").part(accountPart)).andExpect(status().isOk)
 
             mockMvc.perform(multipart("/accounts/new").part(accountPart))
                 .andExpectAll(
