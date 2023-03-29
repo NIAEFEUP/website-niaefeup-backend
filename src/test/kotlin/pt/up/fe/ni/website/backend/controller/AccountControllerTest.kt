@@ -178,7 +178,7 @@ class AccountControllerTest @Autowired constructor(
 
         @Test
         fun `should create the account`() {
-            val accountPart = MockPart("account", testAccount.toJson().toByteArray())
+            val accountPart = MockPart("dto", testAccount.toJson().toByteArray())
             accountPart.headers.contentType = MediaType.APPLICATION_JSON
 
             mockMvc.perform(multipart("/accounts/new").part(accountPart))
@@ -199,7 +199,7 @@ class AccountControllerTest @Autowired constructor(
 
         @Test
         fun `should create the account with valid image`() {
-            val accountPart = MockPart("account", testAccount.toJson().toByteArray())
+            val accountPart = MockPart("dto", testAccount.toJson().toByteArray())
             accountPart.headers.contentType = MediaType.APPLICATION_JSON
 
             val file = MockMultipartFile(
@@ -213,7 +213,7 @@ class AccountControllerTest @Autowired constructor(
             Mockito.mockStatic(UUID::class.java)
             Mockito.`when`(UUID.randomUUID()).thenReturn(uuid)
 
-            val expectedPhotoPath = "${uploadConfigProperties.staticServe}/profile/$uuid.jpeg"
+            val expectedPhotoPath = "${uploadConfigProperties.staticServe}/profile/${testAccount.email}-$uuid.jpeg"
 
             mockMvc.perform(
                 multipart("/accounts/new")
@@ -240,7 +240,7 @@ class AccountControllerTest @Autowired constructor(
         inner class InputValidation {
             private val validationTester = ValidationTester(
                 req = { params: Map<String, Any?> ->
-                    val accountPart = MockPart("account", objectMapper.writeValueAsString(params).toByteArray())
+                    val accountPart = MockPart("dto", objectMapper.writeValueAsString(params).toByteArray())
                     accountPart.headers.contentType = MediaType.APPLICATION_JSON
 
                     mockMvc.perform(multipart("/accounts/new").part(accountPart))
@@ -368,7 +368,7 @@ class AccountControllerTest @Autowired constructor(
                 private val validationTester = ValidationTester(
                     req = { params: Map<String, Any?> ->
                         val accountPart = MockPart(
-                            "account",
+                            "dto",
                             objectMapper.writeValueAsString(
                                 mapOf(
                                     "name" to testAccount.name,
@@ -440,7 +440,7 @@ class AccountControllerTest @Autowired constructor(
 
         @Test
         fun `should fail to create account with existing email`() {
-            val accountPart = MockPart("account", testAccount.toJson().toByteArray())
+            val accountPart = MockPart("dto", testAccount.toJson().toByteArray())
             accountPart.headers.contentType = MediaType.APPLICATION_JSON
 
             mockMvc.perform(multipart("/accounts/new").part(accountPart)).andExpect(status().isOk)
@@ -545,7 +545,7 @@ class AccountControllerTest @Autowired constructor(
 
         @Test
         fun `should fail to create account with invalid filename extension`() {
-            val accountPart = MockPart("account", testAccount.toJson().toByteArray())
+            val accountPart = MockPart("dto", testAccount.toJson().toByteArray())
             accountPart.headers.contentType = MediaType.APPLICATION_JSON
 
             val file = MockMultipartFile(
@@ -575,7 +575,7 @@ class AccountControllerTest @Autowired constructor(
 
         @Test
         fun `should fail to create account with invalid filename media type`() {
-            val accountPart = MockPart("account", testAccount.toJson().toByteArray())
+            val accountPart = MockPart("dto", testAccount.toJson().toByteArray())
             accountPart.headers.contentType = MediaType.APPLICATION_JSON
 
             val file = MockMultipartFile(
