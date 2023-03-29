@@ -13,12 +13,7 @@ class PayloadAccount(includePassword: Boolean = true) : ModelDocumentation(
         DocumentedJSONField("email", "Email associated to the account", JsonFieldType.STRING),
         DocumentedJSONField("bio", "Short profile description", JsonFieldType.STRING, optional = true),
         DocumentedJSONField("birthDate", "Birth date of the owner", JsonFieldType.STRING, optional = true),
-        DocumentedJSONField(
-            "photoPath",
-            "Path to the photo resource",
-            JsonFieldType.STRING,
-            optional = true
-        ),
+        DocumentedJSONField("photo", "Path to the photo resource", JsonFieldType.STRING, optional = true),
         DocumentedJSONField(
             "linkedin",
             "Handle/link to the owner's LinkedIn profile",
