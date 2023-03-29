@@ -1,16 +1,16 @@
-package pt.up.fe.ni.website.backend.util
+package pt.up.fe.ni.website.backend.service.upload
 
 import com.cloudinary.Cloudinary
 import com.cloudinary.Transformation
 import java.io.File
 
 interface FileUploader {
-    fun upload(folder: String, fileName: String, image: ByteArray): String
+    fun uploadImage(folder: String, fileName: String, image: ByteArray): String
     fun delete(filePath: String)
 }
 
 class CloudinaryFileUploader(private val basePath: String, private val cloudinary: Cloudinary) : FileUploader {
-    override fun upload(folder: String, fileName: String, image: ByteArray): String {
+    override fun uploadImage(folder: String, fileName: String, image: ByteArray): String {
         val path = "$basePath/$folder/$fileName"
 
         val imageTransformation = Transformation().width(250).height(250).crop("thumb").chain()
@@ -20,7 +20,7 @@ class CloudinaryFileUploader(private val basePath: String, private val cloudinar
             mapOf(
                 "public_id" to path,
                 "overwrite" to true,
-                "transformation" to imageTransformation,
+                "transformation" to imageTransformation
             )
         )
 
@@ -33,7 +33,7 @@ class CloudinaryFileUploader(private val basePath: String, private val cloudinar
 }
 
 class StaticFileUploader(private val storePath: String, private val servePath: String) : FileUploader {
-    override fun upload(folder: String, fileName: String, image: ByteArray): String {
+    override fun uploadImage(folder: String, fileName: String, image: ByteArray): String {
         val file = File("$storePath/$folder/$fileName")
         file.createNewFile()
         file.writeBytes(image)

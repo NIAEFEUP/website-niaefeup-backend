@@ -1,12 +1,13 @@
-package pt.up.fe.ni.website.backend.annotations.validation
+package pt.up.fe.ni.website.backend.utils.validation
 
 import jakarta.validation.Constraint
 import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
 import jakarta.validation.Payload
-import org.springframework.web.multipart.MultipartFile
-import pt.up.fe.ni.website.backend.util.filenameExtension
 import kotlin.reflect.KClass
+import org.springframework.web.multipart.MultipartFile
+import pt.up.fe.ni.website.backend.model.constants.UploadConstants
+import pt.up.fe.ni.website.backend.utils.extensions.filenameExtension
 
 @MustBeDocumented
 @Constraint(validatedBy = [ValidImageValidator::class])
@@ -15,13 +16,12 @@ import kotlin.reflect.KClass
 annotation class ValidImage(
     val message: String = "{files.invalid_image}",
     val groups: Array<KClass<*>> = [],
-    val payload: Array<KClass<Payload>> = [],
+    val payload: Array<KClass<Payload>> = []
 )
 
 class ValidImageValidator : ConstraintValidator<ValidImage, MultipartFile?> {
 
     override fun isValid(value: MultipartFile?, context: ConstraintValidatorContext?): Boolean {
-
         if (value == null) {
             return true
         }
@@ -38,10 +38,10 @@ class ValidImageValidator : ConstraintValidator<ValidImage, MultipartFile?> {
     }
 
     private fun isSupportedContentType(contentType: String?): Boolean {
-        return contentType == "image/png" || contentType == "image/jpg" || contentType == "image/jpeg"
+        return UploadConstants.SupportedTypes.contentTypes.contains(contentType)
     }
 
     private fun isSupportedFileExtension(extension: String?): Boolean {
-        return extension == "png" || extension == "jpg" || extension == "jpeg"
+        return UploadConstants.SupportedTypes.fileExtensions.contains(extension)
     }
 }

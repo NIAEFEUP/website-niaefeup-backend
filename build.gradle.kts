@@ -62,7 +62,7 @@ tasks.withType<Test> {
     testLogging {
         events = mutableSetOf(
             TestLogEvent.FAILED,
-            TestLogEvent.SKIPPED,
+            TestLogEvent.SKIPPED
         )
         exceptionFormat = TestExceptionFormat.FULL
         showExceptions = true
@@ -75,8 +75,7 @@ tasks.withType<Test> {
                 TestLogEvent.PASSED,
                 TestLogEvent.SKIPPED,
                 TestLogEvent.STANDARD_OUT,
-                TestLogEvent.STANDARD_ERROR,
-                TestLogEvent.STANDARD_OUT
+                TestLogEvent.STANDARD_ERROR
             )
             exceptionFormat = TestExceptionFormat.FULL
         }

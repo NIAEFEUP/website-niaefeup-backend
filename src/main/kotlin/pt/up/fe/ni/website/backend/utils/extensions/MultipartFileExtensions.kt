@@ -1,4 +1,4 @@
-package pt.up.fe.ni.website.backend.util
+package pt.up.fe.ni.website.backend.utils.extensions
 
 import org.springframework.web.multipart.MultipartFile
 

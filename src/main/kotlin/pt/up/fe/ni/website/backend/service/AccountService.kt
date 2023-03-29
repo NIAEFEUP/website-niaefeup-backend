@@ -1,5 +1,6 @@
 package pt.up.fe.ni.website.backend.service
 
+import java.util.UUID
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -8,12 +9,15 @@ import pt.up.fe.ni.website.backend.dto.entity.account.CreateAccountDto
 import pt.up.fe.ni.website.backend.dto.entity.account.UpdateAccountDto
 import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.repository.AccountRepository
-import pt.up.fe.ni.website.backend.util.FileUploader
-import pt.up.fe.ni.website.backend.util.filenameExtension
-import java.util.UUID
+import pt.up.fe.ni.website.backend.service.upload.FileUploader
+import pt.up.fe.ni.website.backend.utils.extensions.filenameExtension
 
 @Service
-class AccountService(private val repository: AccountRepository, private val encoder: PasswordEncoder, private val fileUploader: FileUploader) {
+class AccountService(
+    private val repository: AccountRepository,
+    private val encoder: PasswordEncoder,
+    private val fileUploader: FileUploader
+) {
     fun getAllAccounts(): List<Account> = repository.findAll().toList()
 
     fun createAccount(dto: CreateAccountDto): Account {
@@ -24,8 +28,8 @@ class AccountService(private val repository: AccountRepository, private val enco
         val account = dto.create()
         account.password = encoder.encode(dto.password)
 
-        val fileName = "${UUID.randomUUID()}.${dto.photoFile?.filenameExtension() ?: ""}"
-        account.photo = dto.photoFile?.bytes?.let { fileUploader.upload("profile", fileName, it) }
+        val fileName = "${dto.email}-${UUID.randomUUID()}.${dto.photoFile?.filenameExtension() ?: ""}"
+        account.photo = dto.photoFile?.bytes?.let { fileUploader.uploadImage("profile", fileName, it) }
 
         return repository.save(account)
     }

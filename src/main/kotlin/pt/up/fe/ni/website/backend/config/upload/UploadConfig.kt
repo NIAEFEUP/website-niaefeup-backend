@@ -4,19 +4,17 @@ import com.cloudinary.Cloudinary
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.util.ResourceUtils
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
-import pt.up.fe.ni.website.backend.util.CloudinaryFileUploader
-import pt.up.fe.ni.website.backend.util.FileUploader
-import pt.up.fe.ni.website.backend.util.StaticFileUploader
+import pt.up.fe.ni.website.backend.service.upload.CloudinaryFileUploader
+import pt.up.fe.ni.website.backend.service.upload.FileUploader
+import pt.up.fe.ni.website.backend.service.upload.StaticFileUploader
 
 @Configuration
 class UploadConfig(
-    private val uploadConfigProperties: UploadConfigProperties,
-
-) : WebMvcConfigurer {
+    private val uploadConfigProperties: UploadConfigProperties
+) {
     @Bean
     fun fileUploader(): FileUploader {
-        return when (uploadConfigProperties.uploadType) {
+        return when (uploadConfigProperties.provider) {
             "cloudinary" -> CloudinaryFileUploader(
                 uploadConfigProperties.cloudinaryBasePath ?: "/",
                 Cloudinary(

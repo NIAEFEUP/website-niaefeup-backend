@@ -2,6 +2,9 @@ package pt.up.fe.ni.website.backend.controller
 
 import com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName
 import com.fasterxml.jackson.databind.ObjectMapper
+import java.util.Calendar
+import java.util.Date
+import java.util.UUID
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeAll
@@ -12,24 +15,24 @@ import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete
+import org.springframework.mock.web.MockMultipartFile
+import org.springframework.mock.web.MockPart
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.multipart
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.security.crypto.password.PasswordEncoder
-import org.springframework.mock.web.MockMultipartFile
-import org.springframework.mock.web.MockPart
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.multipart
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import org.springframework.test.web.servlet.multipart
 import pt.up.fe.ni.website.backend.config.upload.UploadConfigProperties
 import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.CustomWebsite
 import pt.up.fe.ni.website.backend.model.constants.AccountConstants as Constants
-import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.multipart
 import pt.up.fe.ni.website.backend.repository.AccountRepository
 import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.ValidationTester
@@ -44,9 +47,6 @@ import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Co
 import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentErrorResponse
 import pt.up.fe.ni.website.backend.utils.documentation.utils.ModelDocumentation
 import pt.up.fe.ni.website.backend.utils.documentation.utils.PayloadSchema
-import java.util.Calendar
-import java.util.Date
-import java.util.UUID
 
 @ControllerTest
 class AccountControllerTest @Autowired constructor(
@@ -54,7 +54,7 @@ class AccountControllerTest @Autowired constructor(
     val objectMapper: ObjectMapper,
     val repository: AccountRepository,
     val encoder: PasswordEncoder,
-    val uploadConfigProperties: UploadConfigProperties,
+    val uploadConfigProperties: UploadConfigProperties
 ) {
     val documentation: ModelDocumentation = PayloadAccount()
 
@@ -178,24 +178,23 @@ class AccountControllerTest @Autowired constructor(
 
         @Test
         fun `should create the account`() {
-
             val accountPart = MockPart("account", testAccount.toJson().toByteArray())
             accountPart.headers.contentType = MediaType.APPLICATION_JSON
 
             mockMvc.perform(multipart("/accounts/new").part(accountPart))
                 .andExpectAll(
-                status().isOk,
-                content().contentType(MediaType.APPLICATION_JSON),
-                jsonPath("$.name").value(testAccount.name),
-                jsonPath("$.email").value(testAccount.email),
-                jsonPath("$.bio").value(testAccount.bio),
-                jsonPath("$.birthDate").value(testAccount.birthDate.toJson()),
-                jsonPath("$.linkedin").value(testAccount.linkedin),
-                jsonPath("$.github").value(testAccount.github),
-                jsonPath("$.websites.length()").value(1),
-                jsonPath("$.websites[0].url").value(testAccount.websites[0].url),
-                jsonPath("$.websites[0].iconPath").value(testAccount.websites[0].iconPath)
-            )
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.name").value(testAccount.name),
+                    jsonPath("$.email").value(testAccount.email),
+                    jsonPath("$.bio").value(testAccount.bio),
+                    jsonPath("$.birthDate").value(testAccount.birthDate.toJson()),
+                    jsonPath("$.linkedin").value(testAccount.linkedin),
+                    jsonPath("$.github").value(testAccount.github),
+                    jsonPath("$.websites.length()").value(1),
+                    jsonPath("$.websites[0].url").value(testAccount.websites[0].url),
+                    jsonPath("$.websites[0].iconPath").value(testAccount.websites[0].iconPath)
+                )
         }
 
         @Test
@@ -232,7 +231,7 @@ class AccountControllerTest @Autowired constructor(
                 jsonPath("$.photo").value(expectedPhotoPath),
                 jsonPath("$.websites.length()").value(1),
                 jsonPath("$.websites[0].url").value(testAccount.websites[0].url),
-                jsonPath("$.websites[0].iconPath").value(testAccount.websites[0].iconPath),
+                jsonPath("$.websites[0].iconPath").value(testAccount.websites[0].iconPath)
             )
         }
 
@@ -368,14 +367,17 @@ class AccountControllerTest @Autowired constructor(
             inner class WebsitesValidation {
                 private val validationTester = ValidationTester(
                     req = { params: Map<String, Any?> ->
-                        val accountPart = MockPart("account", objectMapper.writeValueAsString(
-                            mapOf(
-                                "name" to testAccount.name,
-                                "email" to testAccount.email,
-                                "password" to testAccount.password,
-                                "websites" to listOf<Any>(params)
-                            )
-                        ).toByteArray())
+                        val accountPart = MockPart(
+                            "account",
+                            objectMapper.writeValueAsString(
+                                mapOf(
+                                    "name" to testAccount.name,
+                                    "email" to testAccount.email,
+                                    "password" to testAccount.password,
+                                    "websites" to listOf<Any>(params)
+                                )
+                            ).toByteArray()
+                        )
                         accountPart.headers.contentType = MediaType.APPLICATION_JSON
 
                         mockMvc.perform(multipart("/accounts/new").part(accountPart))

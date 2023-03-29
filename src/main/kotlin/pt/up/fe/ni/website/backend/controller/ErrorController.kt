@@ -10,15 +10,13 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.core.AuthenticationException
-import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.bind.annotation.RestControllerAdvice
-import pt.up.fe.ni.website.backend.config.Logging
 import org.springframework.web.multipart.MaxUploadSizeExceededException
-import pt.up.fe.ni.website.backend.util.isSerializable
+import pt.up.fe.ni.website.backend.config.Logging
 
 data class SimpleError(
     val message: String,
@@ -45,8 +43,8 @@ class ErrorController(private val objectMapper: ObjectMapper) : ErrorController,
                 SimpleError(
                     violation.message,
                     violation.propertyPath.toString(),
-                    violation.invalidValue?.let {
-                        if (isSerializable(it)) it else null
+                    violation.invalidValue.takeIf {
+                        it.isSerializable()
                     }
                 )
             )

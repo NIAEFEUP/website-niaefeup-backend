@@ -15,9 +15,9 @@ import pt.up.fe.ni.website.backend.dto.auth.ChangePasswordDto
 import pt.up.fe.ni.website.backend.dto.entity.account.CreateAccountDto
 import pt.up.fe.ni.website.backend.dto.entity.account.UpdateAccountDto
 import org.springframework.web.multipart.MultipartFile
-import pt.up.fe.ni.website.backend.annotations.validation.ValidImage
 import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.service.AccountService
+import pt.up.fe.ni.website.backend.utils.validation.ValidImage
 
 @RestController
 @RequestMapping("/accounts")
@@ -47,8 +47,13 @@ class AccountController(private val service: AccountService) {
         return emptyMap()
     }
     @PostMapping("/new", consumes = ["multipart/form-data"])
-    fun createAccount(@RequestPart account: CreateAccountDto, @RequestParam @ValidImage photo: MultipartFile?): Account {
-        account.photoFile = photo
-        return service.createAccount(account)
+    fun createAccount(
+        @RequestPart dto: CreateAccountDto,
+        @RequestParam
+        @ValidImage
+        photo: MultipartFile?
+    ): Account {
+        dto.photoFile = photo
+        return service.createAccount(dto)
     }
 }
