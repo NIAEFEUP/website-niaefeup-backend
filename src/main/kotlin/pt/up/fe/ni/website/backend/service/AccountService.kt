@@ -3,9 +3,9 @@ package pt.up.fe.ni.website.backend.service
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
-import pt.up.fe.ni.website.backend.dto.account.UpdateAccountDto
 import pt.up.fe.ni.website.backend.dto.auth.ChangePasswordDto
-import pt.up.fe.ni.website.backend.dto.entity.AccountDto
+import pt.up.fe.ni.website.backend.dto.entity.account.CreateAccountDto
+import pt.up.fe.ni.website.backend.dto.entity.account.UpdateAccountDto
 import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.repository.AccountRepository
 
@@ -13,7 +13,7 @@ import pt.up.fe.ni.website.backend.repository.AccountRepository
 class AccountService(private val repository: AccountRepository, private val encoder: PasswordEncoder) {
     fun getAllAccounts(): List<Account> = repository.findAll().toList()
 
-    fun createAccount(dto: AccountDto): Account {
+    fun createAccount(dto: CreateAccountDto): Account {
         repository.findByEmail(dto.email)?.let {
             throw IllegalArgumentException(ErrorMessages.emailAlreadyExists)
         }
@@ -35,18 +35,7 @@ class AccountService(private val repository: AccountRepository, private val enco
             throw IllegalArgumentException(ErrorMessages.emailAlreadyExists)
         }
 
-        val accountDto = AccountDto(
-            dto.email,
-            account.password,
-            dto.name,
-            dto.bio,
-            dto.birthDate,
-            dto.photoPath,
-            dto.linkedin,
-            dto.github,
-            dto.websites
-        )
-        val newAccount = accountDto.update(account)
+        val newAccount = dto.update(account)
         return repository.save(newAccount)
     }
 
@@ -62,12 +51,10 @@ class AccountService(private val repository: AccountRepository, private val enco
         repository.save(account)
     }
 
-    fun deleteAccountById(id: Long): Map<String, String> {
+    fun deleteAccountById(id: Long) {
         if (!repository.existsById(id)) {
             throw NoSuchElementException(ErrorMessages.accountNotFound(id))
         }
-
         repository.deleteById(id)
-        return emptyMap()
     }
 }

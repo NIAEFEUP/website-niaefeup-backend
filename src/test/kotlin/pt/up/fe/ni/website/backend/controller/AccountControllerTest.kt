@@ -639,7 +639,7 @@ class AccountControllerTest @Autowired constructor(
         )
 
         @BeforeEach
-        fun addProject() {
+        fun addAccounts() {
             repository.save(testAccount)
             repository.save(newAccount)
         }
@@ -710,7 +710,7 @@ class AccountControllerTest @Autowired constructor(
         }
 
         @Test
-        fun `should fail if the project does not exist`() {
+        fun `should fail if the account does not exist`() {
             val newName = "Test Account 2"
             val newEmail = "test_account2@test.com"
             val newBio = "This is a test account altered"
