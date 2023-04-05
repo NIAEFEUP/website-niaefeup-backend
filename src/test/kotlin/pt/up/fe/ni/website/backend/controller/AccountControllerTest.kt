@@ -5,14 +5,17 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import java.util.Calendar
 import java.util.Date
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.web.servlet.MockMvc
@@ -33,6 +36,7 @@ import pt.up.fe.ni.website.backend.utils.documentation.utils.DocumentedJSONField
 import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocument
 import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentCustomRequestSchemaEmptyResponse
 import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentCustomRequestSchemaErrorResponse
+import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentEmptyObjectResponse
 import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentErrorResponse
 import pt.up.fe.ni.website.backend.utils.documentation.utils.ModelDocumentation
 import pt.up.fe.ni.website.backend.utils.documentation.utils.PayloadSchema
@@ -390,6 +394,7 @@ class AccountControllerTest @Autowired constructor(
             inner class WebsitesValidation {
                 private val validationTester = ValidationTester(
                     req = { params: Map<String, Any?> ->
+
                         mockMvc.perform(
                             post("/accounts/new")
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -567,6 +572,224 @@ class AccountControllerTest @Autowired constructor(
                 .andDocumentCustomRequestSchemaErrorResponse(
                     documentation,
                     passwordChangePayload,
+                    urlParameters = parameters,
+                    hasRequestPayload = true
+                )
+        }
+    }
+
+    @NestedTest
+    @DisplayName("DELETE /accounts/{accountId}")
+    inner class DeleteAccount {
+        @BeforeEach
+        fun addAccount() {
+            repository.save(testAccount)
+        }
+
+        private val parameters = listOf(parameterWithName("id").description("ID of the account to delete"))
+
+        @Test
+        fun `should delete the account`() {
+            mockMvc.perform(delete("/accounts/{id}", testAccount.id)).andExpectAll(
+                status().isOk,
+                content().contentType(MediaType.APPLICATION_JSON),
+                jsonPath("$").isEmpty
+            )
+                .andDocumentEmptyObjectResponse(
+                    documentation,
+                    "Delete accounts",
+                    "This operation deletes an account using its ID.",
+                    urlParameters = parameters
+                )
+
+            assert(repository.findById(testAccount.id!!).isEmpty)
+        }
+
+        @Test
+        fun `should fail if the account does not exist`() {
+            mockMvc.perform(delete("/accounts/{id}", 1234)).andExpectAll(
+
+                status().isNotFound,
+                content().contentType(MediaType.APPLICATION_JSON),
+                jsonPath("$.errors.length()").value(1),
+                jsonPath("$.errors[0].message").value("account not found with id 1234")
+            )
+                .andDocumentErrorResponse(
+                    documentation,
+                    urlParameters = parameters
+                )
+        }
+    }
+
+    @NestedTest
+    @DisplayName("PUT /accounts/{accountId}")
+    inner class UpdateAccount {
+        private val newAccount = Account(
+            "Another test Account",
+            "test2_account@test.com",
+            "test_password",
+            "This is another test account",
+            TestUtils.createDate(2003, Calendar.APRIL, 4),
+            "https://test-photo.com",
+            "https://linkedin.com",
+            "https://github.com",
+            listOf(
+                CustomWebsite("https://test-website.com", "https://test-website.com/logo.png")
+            )
+        )
+
+        @BeforeEach
+        fun addAccounts() {
+            repository.save(testAccount)
+            repository.save(newAccount)
+        }
+
+        private val documentation = PayloadAccount(includePassword = false)
+        private val parameters = listOf(parameterWithName("id").description("ID of the account to update"))
+
+        @Test
+        fun `should update the account`() {
+            val newName = "Test Account 2"
+            val newEmail = "test_account2@test.com"
+            val newBio = "This is a test account altered"
+            val newBirthDate = TestUtils.createDate(2003, Calendar.JULY, 28)
+            val newPhotoPath = "https://test-photo2.com"
+            val newLinkedin = "https://linkedin2.com"
+            val newGithub = "https://github2.com"
+            val newWebsites = listOf(
+                CustomWebsite("https://test-website2.com", "https://test-website.com/logo.png")
+            )
+
+            mockMvc.perform(
+                put("/accounts/{id}", testAccount.id)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf(
+                                "name" to newName,
+                                "email" to newEmail,
+                                "bio" to newBio,
+                                "birthDate" to newBirthDate,
+                                "photoPath" to newPhotoPath,
+                                "linkedin" to newLinkedin,
+                                "github" to newGithub,
+                                "websites" to newWebsites
+                            )
+                        )
+                    )
+            ).andExpectAll(
+                status().isOk,
+                content().contentType(MediaType.APPLICATION_JSON),
+                jsonPath("$.name").value(newName),
+                jsonPath("$.email").value(newEmail),
+                jsonPath("$.bio").value(newBio),
+                jsonPath("$.birthDate").value(newBirthDate.toJson()),
+                jsonPath("$.photoPath").value(newPhotoPath),
+                jsonPath("$.linkedin").value(newLinkedin),
+                jsonPath("$.github").value(newGithub),
+                jsonPath("$.websites.length()").value(1),
+                jsonPath("$.websites[0].url").value(newWebsites[0].url),
+                jsonPath("$.websites[0].iconPath").value(newWebsites[0].iconPath)
+            ).andDocument(
+                documentation,
+                "Update accounts",
+                "Update a previously created account, with the exception of its password, using its ID.",
+                urlParameters = parameters,
+                documentRequestPayload = true
+            )
+
+            val updatedAccount = repository.findById(testAccount.id!!).get()
+            Assertions.assertEquals(newName, updatedAccount.name)
+            Assertions.assertEquals(newEmail, updatedAccount.email)
+            Assertions.assertEquals(newBio, updatedAccount.bio)
+            Assertions.assertEquals(newBirthDate.toJson(), updatedAccount.birthDate.toJson())
+            Assertions.assertEquals(newPhotoPath, updatedAccount.photoPath)
+            Assertions.assertEquals(newLinkedin, updatedAccount.linkedin)
+            Assertions.assertEquals(newWebsites[0].url, updatedAccount.websites[0].url)
+            Assertions.assertEquals(newWebsites[0].iconPath, updatedAccount.websites[0].iconPath)
+        }
+
+        @Test
+        fun `should fail if the account does not exist`() {
+            val newName = "Test Account 2"
+            val newEmail = "test_account2@test.com"
+            val newBio = "This is a test account altered"
+            val newBirthDate = TestUtils.createDate(2003, Calendar.JULY, 28)
+            val newPhotoPath = "https://test-photo2.com"
+            val newLinkedin = "https://linkedin2.com"
+            val newGithub = "https://github2.com"
+            val newWebsites = listOf(
+                CustomWebsite("https://test-website2.com", "https://test-website.com/logo.png")
+            )
+
+            mockMvc.perform(
+                put("/accounts/{id}", 1234)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf(
+                                "name" to newName,
+                                "email" to newEmail,
+                                "bio" to newBio,
+                                "birthDate" to newBirthDate,
+                                "photoPath" to newPhotoPath,
+                                "linkedin" to newLinkedin,
+                                "github" to newGithub,
+                                "websites" to newWebsites
+                            )
+                        )
+                    )
+            )
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("account not found with id 1234")
+                ).andDocumentErrorResponse(
+                    documentation,
+                    urlParameters = parameters,
+                    hasRequestPayload = true
+                )
+        }
+
+        @Test
+        fun `should fail if the new email is already taken`() {
+            val newName = "Test Account 2"
+            val newBio = "This is a test account altered"
+            val newBirthDate = TestUtils.createDate(2003, Calendar.JULY, 28)
+            val newPhotoPath = "https://test-photo2.com"
+            val newLinkedin = "https://linkedin2.com"
+            val newGithub = "https://github2.com"
+            val newWebsites = listOf(
+                CustomWebsite("https://test-website2.com", "https://test-website.com/logo.png")
+            )
+
+            mockMvc.perform(
+                put("/accounts/{id}", testAccount.id)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf(
+                                "name" to newName,
+                                "email" to "test2_account@test.com",
+                                "bio" to newBio,
+                                "birthDate" to newBirthDate,
+                                "photoPath" to newPhotoPath,
+                                "linkedin" to newLinkedin,
+                                "github" to newGithub,
+                                "websites" to newWebsites
+                            )
+                        )
+                    )
+            )
+                .andExpectAll(
+                    status().isUnprocessableEntity,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("email already exists")
+                )
+                .andDocumentErrorResponse(
+                    documentation,
                     urlParameters = parameters,
                     hasRequestPayload = true
                 )

@@ -4,7 +4,8 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import pt.up.fe.ni.website.backend.dto.auth.ChangePasswordDto
-import pt.up.fe.ni.website.backend.dto.entity.AccountDto
+import pt.up.fe.ni.website.backend.dto.entity.account.CreateAccountDto
+import pt.up.fe.ni.website.backend.dto.entity.account.UpdateAccountDto
 import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.repository.AccountRepository
 
@@ -12,7 +13,7 @@ import pt.up.fe.ni.website.backend.repository.AccountRepository
 class AccountService(private val repository: AccountRepository, private val encoder: PasswordEncoder) {
     fun getAllAccounts(): List<Account> = repository.findAll().toList()
 
-    fun createAccount(dto: AccountDto): Account {
+    fun createAccount(dto: CreateAccountDto): Account {
         repository.findByEmail(dto.email)?.let {
             throw IllegalArgumentException(ErrorMessages.emailAlreadyExists)
         }
@@ -27,6 +28,17 @@ class AccountService(private val repository: AccountRepository, private val enco
 
     fun doesAccountExist(id: Long): Boolean = repository.findByIdOrNull(id) != null
 
+    fun updateAccountById(id: Long, dto: UpdateAccountDto): Account {
+        val account = getAccountById(id)
+
+        repository.findByEmail(dto.email)?.let {
+            throw IllegalArgumentException(ErrorMessages.emailAlreadyExists)
+        }
+
+        val newAccount = dto.update(account)
+        return repository.save(newAccount)
+    }
+
     fun getAccountByEmail(email: String): Account = repository.findByEmail(email)
         ?: throw NoSuchElementException(ErrorMessages.emailNotFound(email))
 
@@ -37,5 +49,12 @@ class AccountService(private val repository: AccountRepository, private val enco
         }
         account.password = encoder.encode(dto.newPassword)
         repository.save(account)
+    }
+
+    fun deleteAccountById(id: Long) {
+        if (!repository.existsById(id)) {
+            throw NoSuchElementException(ErrorMessages.accountNotFound(id))
+        }
+        repository.deleteById(id)
     }
 }
