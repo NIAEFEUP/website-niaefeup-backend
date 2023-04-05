@@ -1,5 +1,6 @@
 package pt.up.fe.ni.website.backend.controller
 
+import com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.util.Calendar
 import java.util.Date
@@ -10,11 +11,15 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.delete
-import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
-import org.springframework.test.web.servlet.put
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.CustomWebsite
 import pt.up.fe.ni.website.backend.model.Event
@@ -27,6 +32,10 @@ import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.ValidationTester
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
 import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
+import pt.up.fe.ni.website.backend.utils.documentation.payloadschemas.model.PayloadEvent
+import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocument
+import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentEmptyObjectResponse
+import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentErrorResponse
 
 @ControllerTest
 internal class EventControllerTest @Autowired constructor(
@@ -65,6 +74,8 @@ internal class EventControllerTest @Autowired constructor(
         "https://example.com/exampleThumbnail"
     )
 
+    val documentation = PayloadEvent()
+
     @NestedTest
     @DisplayName("GET /events")
     inner class GetAllEvents {
@@ -95,12 +106,17 @@ internal class EventControllerTest @Autowired constructor(
 
         @Test
         fun `should return all events`() {
-            mockMvc.get("/events")
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    content { json(objectMapper.writeValueAsString(testEvents)) }
-                }
+            mockMvc.perform(get("/events").accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk)
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().json(objectMapper.writeValueAsString(testEvents)))
+                .andDocument(
+                    documentation.getModelDocumentationArray(),
+                    "Get all the events",
+                    """The operation returns an array of events, allowing to easily retrieve all the created events.
+                        |This is useful for example in the frontend's event page, where events are displayed.
+                    """.trimMargin()
+                )
         }
     }
 
@@ -113,34 +129,47 @@ internal class EventControllerTest @Autowired constructor(
             repository.save(testEvent)
         }
 
+        private val parameters = listOf(parameterWithName("id").description("ID of the event to retrieve"))
+
         @Test
         fun `should return the event`() {
-            mockMvc.get("/events/${testEvent.id}")
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.title") { value(testEvent.title) }
-                    jsonPath("$.description") { value(testEvent.description) }
-                    jsonPath("$.teamMembers.length()") { value(1) }
-                    jsonPath("$.teamMembers[0].email") { value(testAccount.email) }
-                    jsonPath("$.teamMembers[0].name") { value(testAccount.name) }
-                    jsonPath("$.registerUrl") { value(testEvent.registerUrl) }
-                    jsonPath("$.dateInterval.startDate") { value(testEvent.dateInterval.startDate.toJson()) }
-                    jsonPath("$.dateInterval.endDate") { value(testEvent.dateInterval.endDate.toJson()) }
-                    jsonPath("$.location") { value(testEvent.location) }
-                    jsonPath("$.category") { value(testEvent.category) }
-                    jsonPath("$.thumbnailPath") { value(testEvent.thumbnailPath) }
-                }
+            mockMvc.perform(get("/events/{id}", testEvent.id))
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.title").value(testEvent.title),
+                    jsonPath("$.description").value(testEvent.description),
+                    jsonPath("$.teamMembers.length()").value(1),
+                    jsonPath("$.teamMembers[0].email").value(testAccount.email),
+                    jsonPath("$.teamMembers[0].name").value(testAccount.name),
+                    jsonPath("$.registerUrl").value(testEvent.registerUrl),
+                    jsonPath("$.dateInterval.startDate").value(testEvent.dateInterval.startDate.toJson()),
+                    jsonPath("$.dateInterval.endDate").value(testEvent.dateInterval.endDate.toJson()),
+                    jsonPath("$.location").value(testEvent.location),
+                    jsonPath("$.category").value(testEvent.category),
+                    jsonPath("$.thumbnailPath").value(testEvent.thumbnailPath),
+                    jsonPath("$.slug").value(testEvent.slug)
+
+                )
+                .andDocument(
+                    documentation,
+                    "Get events by ID",
+                    "This endpoint allows the retrieval of a single event using its ID. " +
+                        "It might be used to generate the specific event page.",
+                    urlParameters = parameters
+                )
         }
 
         @Test
         fun `should fail if the event does not exist`() {
-            mockMvc.get("/events/1234").andExpect {
-                status { isNotFound() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.errors.length()") { value(1) }
-                jsonPath("$.errors[0].message") { value("event not found with id 1234") }
-            }
+            mockMvc.perform(get("/events/{id}", 1234))
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("event not found with id 1234")
+                )
+                .andDocumentErrorResponse(documentation)
         }
     }
 
@@ -153,34 +182,47 @@ internal class EventControllerTest @Autowired constructor(
             repository.save(testEvent)
         }
 
+        private val parameters = listOf(
+            parameterWithName("slug").description("Short and friendly textual event identifier")
+        )
+
         @Test
         fun `should return the event`() {
-            mockMvc.get("/events/${testEvent.slug}")
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.title") { value(testEvent.title) }
-                    jsonPath("$.description") { value(testEvent.description) }
-                    jsonPath("$.teamMembers.length()") { value(1) }
-                    jsonPath("$.teamMembers[0].email") { value(testAccount.email) }
-                    jsonPath("$.teamMembers[0].name") { value(testAccount.name) }
-                    jsonPath("$.registerUrl") { value(testEvent.registerUrl) }
-                    jsonPath("$.dateInterval.startDate") { value(testEvent.dateInterval.startDate.toJson()) }
-                    jsonPath("$.dateInterval.endDate") { value(testEvent.dateInterval.endDate.toJson()) }
-                    jsonPath("$.location") { value(testEvent.location) }
-                    jsonPath("$.category") { value(testEvent.category) }
-                    jsonPath("$.thumbnailPath") { value(testEvent.thumbnailPath) }
-                }
+            mockMvc.perform(get("/events/{slug}", testEvent.slug))
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.title").value(testEvent.title),
+                    jsonPath("$.description").value(testEvent.description),
+                    jsonPath("$.teamMembers.length()").value(1),
+                    jsonPath("$.teamMembers[0].email").value(testAccount.email),
+                    jsonPath("$.teamMembers[0].name").value(testAccount.name),
+                    jsonPath("$.registerUrl").value(testEvent.registerUrl),
+                    jsonPath("$.dateInterval.startDate").value(testEvent.dateInterval.startDate.toJson()),
+                    jsonPath("$.dateInterval.endDate").value(testEvent.dateInterval.endDate.toJson()),
+                    jsonPath("$.location").value(testEvent.location),
+                    jsonPath("$.category").value(testEvent.category),
+                    jsonPath("$.thumbnailPath").value(testEvent.thumbnailPath),
+                    jsonPath("$.slug").value(testEvent.slug)
+                )
+                .andDocument(
+                    documentation,
+                    "Get events by slug",
+                    "This endpoint allows the retrieval of a single event using its slug.",
+                    urlParameters = parameters
+                )
         }
 
         @Test
-        fun `should fail if the event does not exist`() {
-            mockMvc.get("/events/fail-slug").andExpect {
-                status { isNotFound() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.errors.length()") { value(1) }
-                jsonPath("$.errors[0].message") { value("event not found with slug fail-slug") }
-            }
+        fun `should fail if the event slug does not exist`() {
+            mockMvc.perform(get("/events/{slug}", "fail-slug"))
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("event not found with slug fail-slug")
+                )
+                .andDocumentErrorResponse(documentation, urlParameters = parameters)
         }
     }
 
@@ -236,6 +278,8 @@ internal class EventControllerTest @Autowired constructor(
             )
         )
 
+        private val parameters = listOf(parameterWithName("category").description("Category of the events to retrieve"))
+
         @BeforeEach
         fun addToRepositories() {
             accountRepository.save(testAccount)
@@ -244,14 +288,21 @@ internal class EventControllerTest @Autowired constructor(
 
         @Test
         fun `should return all events of the category`() {
-            mockMvc.get("/events/category/${testEvent.category}")
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.length()") { value(2) }
-                    jsonPath("$[0].category") { value(testEvent.category) }
-                    jsonPath("$[1].category") { value(testEvent.category) }
-                }
+            mockMvc.perform(get("/events/category/{category}", testEvent.category))
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.length()").value(2),
+                    jsonPath("$[0].category").value(testEvent.category),
+                    jsonPath("$[1].category").value(testEvent.category)
+                )
+                .andDocument(
+                    documentation.getModelDocumentationArray(),
+                    "Get events by category",
+                    "This endpoint allows the retrieval of events labeled with a given category. " +
+                        "It might be used to filter events in the event page.",
+                    urlParameters = parameters
+                )
         }
     }
 
@@ -265,37 +316,46 @@ internal class EventControllerTest @Autowired constructor(
 
         @Test
         fun `should create a new event`() {
-            mockMvc.post("/events/new") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(
-                    mapOf(
-                        "title" to testEvent.title,
-                        "description" to testEvent.description,
-                        "dateInterval" to testEvent.dateInterval,
-                        "teamMembersIds" to mutableListOf(testAccount.id!!),
-                        "registerUrl" to testEvent.registerUrl,
-                        "location" to testEvent.location,
-                        "category" to testEvent.category,
-                        "thumbnailPath" to testEvent.thumbnailPath,
-                        "slug" to testEvent.slug
+            mockMvc.perform(
+                post("/events/new")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf(
+                                "title" to testEvent.title,
+                                "description" to testEvent.description,
+                                "dateInterval" to testEvent.dateInterval,
+                                "teamMembersIds" to mutableListOf(testAccount.id!!),
+                                "registerUrl" to testEvent.registerUrl,
+                                "location" to testEvent.location,
+                                "category" to testEvent.category,
+                                "thumbnailPath" to testEvent.thumbnailPath,
+                                "slug" to testEvent.slug
+                            )
+                        )
                     )
+            )
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.title").value(testEvent.title),
+                    jsonPath("$.description").value(testEvent.description),
+                    jsonPath("$.teamMembers.length()").value(1),
+                    jsonPath("$.teamMembers[0].email").value(testAccount.email),
+                    jsonPath("$.teamMembers[0].name").value(testAccount.name),
+                    jsonPath("$.dateInterval.startDate").value(testEvent.dateInterval.startDate.toJson()),
+                    jsonPath("$.dateInterval.endDate").value(testEvent.dateInterval.endDate.toJson()),
+                    jsonPath("$.location").value(testEvent.location),
+                    jsonPath("$.category").value(testEvent.category),
+                    jsonPath("$.thumbnailPath").value(testEvent.thumbnailPath),
+                    jsonPath("$.slug").value(testEvent.slug)
                 )
-            }
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.title") { value(testEvent.title) }
-                    jsonPath("$.description") { value(testEvent.description) }
-                    jsonPath("$.teamMembers.length()") { value(1) }
-                    jsonPath("$.teamMembers[0].email") { value(testAccount.email) }
-                    jsonPath("$.teamMembers[0].name") { value(testAccount.name) }
-                    jsonPath("$.dateInterval.startDate") { value(testEvent.dateInterval.startDate.toJson()) }
-                    jsonPath("$.dateInterval.endDate") { value(testEvent.dateInterval.endDate.toJson()) }
-                    jsonPath("$.location") { value(testEvent.location) }
-                    jsonPath("$.category") { value(testEvent.category) }
-                    jsonPath("$.thumbnailPath") { value(testEvent.thumbnailPath) }
-                    jsonPath("$.slug") { value(testEvent.slug) }
-                }
+                .andDocument(
+                    documentation,
+                    "Create new events",
+                    "This endpoint operation creates a new event.",
+                    documentRequestPayload = true
+                )
         }
 
         @Test
@@ -321,16 +381,18 @@ internal class EventControllerTest @Autowired constructor(
                 content = objectMapper.writeValueAsString(testEvent)
             }.andExpect { status { isOk() } }
 
-            mockMvc.post("/events/new") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(duplicatedSlugEvent)
-            }
-                .andExpect {
-                    status { isUnprocessableEntity() }
-                    content { MediaType.APPLICATION_JSON }
-                    jsonPath("$.errors.length()") { value(1) }
-                    jsonPath("$.errors[0].message") { value("slug already exists") }
-                }
+            mockMvc.perform(
+                post("/events/new")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(duplicatedSlugEvent))
+            )
+                .andExpectAll(
+                    status().isUnprocessableEntity,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("slug already exists")
+                )
+                .andDocumentErrorResponse(documentation, hasRequestPayload = true)
         }
 
         @NestedTest
@@ -338,10 +400,12 @@ internal class EventControllerTest @Autowired constructor(
         inner class InputValidation {
             private val validationTester = ValidationTester(
                 req = { params: Map<String, Any?> ->
-                    mockMvc.post("/events/new") {
-                        contentType = MediaType.APPLICATION_JSON
-                        content = objectMapper.writeValueAsString(params)
-                    }
+                    mockMvc.perform(
+                        post("/events/new")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(params))
+                    )
+                        .andDocumentErrorResponse(documentation, hasRequestPayload = true)
                 },
                 requiredFields = mapOf(
                     "title" to testEvent.title,
@@ -500,25 +564,36 @@ internal class EventControllerTest @Autowired constructor(
             repository.save(testEvent)
         }
 
+        private val parameters = listOf(parameterWithName("id").description("ID of the event to delete"))
+
         @Test
         fun `should delete the event`() {
-            mockMvc.delete("/events/${testEvent.id}").andExpect {
-                status { isOk() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$") { isEmpty() }
-            }
+            mockMvc.perform(delete("/events/{id}", testEvent.id))
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$").isEmpty
+                )
+                .andDocumentEmptyObjectResponse(
+                    documentation,
+                    "Delete events",
+                    "This operation deletes an event using its ID.",
+                    urlParameters = parameters
+                )
 
             assert(repository.findById(testEvent.id!!).isEmpty)
         }
 
         @Test
         fun `should fail if the event does not exist`() {
-            mockMvc.delete("/events/1234").andExpect {
-                status { isNotFound() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.errors.length()") { value(1) }
-                jsonPath("$.errors[0].message") { value("event not found with id 1234") }
-            }
+            mockMvc.perform(delete("/events/{id}", 1234))
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("event not found with id 1234")
+                )
+                .andDocumentErrorResponse(documentation, urlParameters = parameters)
         }
     }
 
@@ -547,46 +622,59 @@ internal class EventControllerTest @Autowired constructor(
             repository.save(testEvent)
         }
 
+        private val parameters = listOf(
+            parameterWithName("eventId")
+                .description("ID of the event to add the member to"),
+            parameterWithName("accountId").description("ID of the account to add")
+        )
+
         @Test
         fun `should add a team member`() {
-            mockMvc.put("/events/${testEvent.id}/addTeamMember/${newAccount.id}")
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.teamMembers.length()") { value(2) }
-                    jsonPath("$.teamMembers.length()") { value(2) }
-                    jsonPath("$.teamMembers[0].name") { value(testAccount.name) }
-                    jsonPath("$.teamMembers[0].email") { value(testAccount.email) }
-                    jsonPath("$.teamMembers[0].bio") { value(testAccount.bio) }
-                    jsonPath("$.teamMembers[0].birthDate") { value(testAccount.birthDate.toJson()) }
-                    jsonPath("$.teamMembers[0].photoPath") { value(testAccount.photoPath) }
-                    jsonPath("$.teamMembers[0].linkedin") { value(testAccount.linkedin) }
-                    jsonPath("$.teamMembers[0].github") { value(testAccount.github) }
-                    jsonPath("$.teamMembers[0].websites.length()") { value(1) }
-                    jsonPath("$.teamMembers[0].websites[0].url") { value(testAccount.websites[0].url) }
-                    jsonPath("$.teamMembers[0].websites[0].iconPath") { value(testAccount.websites[0].iconPath) }
-                    jsonPath("$.teamMembers[1].name") { value(newAccount.name) }
-                    jsonPath("$.teamMembers[1].email") { value(newAccount.email) }
-                    jsonPath("$.teamMembers[1].bio") { value(newAccount.bio) }
-                    jsonPath("$.teamMembers[1].birthDate") { value(newAccount.birthDate.toJson()) }
-                    jsonPath("$.teamMembers[1].photoPath") { value(newAccount.photoPath) }
-                    jsonPath("$.teamMembers[1].linkedin") { value(newAccount.linkedin) }
-                    jsonPath("$.teamMembers[1].github") { value(newAccount.github) }
-                    jsonPath("$.teamMembers[1].websites.length()") { value(1) }
-                    jsonPath("$.teamMembers[1].websites[0].url") { value(newAccount.websites[0].url) }
-                    jsonPath("$.teamMembers[1].websites[0].iconPath") { value(newAccount.websites[0].iconPath) }
-                }
+            mockMvc.perform(put("/events/{eventId}/addTeamMember/{accountId}", testEvent.id, newAccount.id))
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.teamMembers.length()").value(2),
+                    jsonPath("$.teamMembers.length()").value(2),
+                    jsonPath("$.teamMembers[0].name").value(testAccount.name),
+                    jsonPath("$.teamMembers[0].email").value(testAccount.email),
+                    jsonPath("$.teamMembers[0].bio").value(testAccount.bio),
+                    jsonPath("$.teamMembers[0].birthDate").value(testAccount.birthDate.toJson()),
+                    jsonPath("$.teamMembers[0].photoPath").value(testAccount.photoPath),
+                    jsonPath("$.teamMembers[0].linkedin").value(testAccount.linkedin),
+                    jsonPath("$.teamMembers[0].github").value(testAccount.github),
+                    jsonPath("$.teamMembers[0].websites.length()").value(1),
+                    jsonPath("$.teamMembers[0].websites[0].url").value(testAccount.websites[0].url),
+                    jsonPath("$.teamMembers[0].websites[0].iconPath").value(testAccount.websites[0].iconPath),
+                    jsonPath("$.teamMembers[1].name").value(newAccount.name),
+                    jsonPath("$.teamMembers[1].email").value(newAccount.email),
+                    jsonPath("$.teamMembers[1].bio").value(newAccount.bio),
+                    jsonPath("$.teamMembers[1].birthDate").value(newAccount.birthDate.toJson()),
+                    jsonPath("$.teamMembers[1].photoPath").value(newAccount.photoPath),
+                    jsonPath("$.teamMembers[1].linkedin").value(newAccount.linkedin),
+                    jsonPath("$.teamMembers[1].github").value(newAccount.github),
+                    jsonPath("$.teamMembers[1].websites.length()").value(1),
+                    jsonPath("$.teamMembers[1].websites[0].url").value(newAccount.websites[0].url),
+                    jsonPath("$.teamMembers[1].websites[0].iconPath").value(newAccount.websites[0].iconPath)
+                )
+                .andDocument(
+                    documentation,
+                    "Add team member to event",
+                    "This operation adds a team member to a given event.",
+                    urlParameters = parameters
+                )
         }
 
         @Test
         fun `should fail if the team member does not exist`() {
-            mockMvc.put("/events/${testEvent.id}/addTeamMember/1234")
-                .andExpect {
-                    status { isNotFound() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.errors.length()") { value(1) }
-                    jsonPath("$.errors[0].message") { value("account not found with id 1234") }
-                }
+            mockMvc.perform(put("/events/{eventId}/addTeamMember/{accountId}", testEvent.id, 1234))
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("account not found with id 1234")
+                )
+                .andDocumentErrorResponse(documentation, urlParameters = parameters)
         }
     }
 
@@ -600,25 +688,38 @@ internal class EventControllerTest @Autowired constructor(
             repository.save(testEvent)
         }
 
+        private val parameters = listOf(
+            parameterWithName("eventId")
+                .description("ID of the event to remove the member from"),
+            parameterWithName("accountId").description("ID of the account to remove")
+        )
+
         @Test
         fun `should remove a team member`() {
-            mockMvc.put("/events/${testEvent.id}/removeTeamMember/${testAccount.id}")
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.teamMembers.length()") { value(0) }
-                }
+            mockMvc.perform(put("/events/{eventId}/removeTeamMember/{accountId}", testEvent.id, testAccount.id))
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.teamMembers.length()").value(0)
+                )
+                .andDocument(
+                    documentation,
+                    "Remove a team member from event",
+                    "This operation removes a team member of a given event.",
+                    urlParameters = parameters
+                )
         }
 
         @Test
         fun `should fail if the team member does not exist`() {
-            mockMvc.put("/events/${testEvent.id}/removeTeamMember/1234")
-                .andExpect {
-                    status { isNotFound() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.errors.length()") { value(1) }
-                    jsonPath("$.errors[0].message") { value("account not found with id 1234") }
-                }
+            mockMvc.perform(put("/events/{eventId}/removeTeamMember/{accountId}", testEvent.id, 1234))
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("account not found with id 1234")
+                )
+                .andDocumentErrorResponse(documentation, urlParameters = parameters)
         }
     }
 
@@ -630,6 +731,8 @@ internal class EventControllerTest @Autowired constructor(
             accountRepository.save(testAccount)
             repository.save(testEvent)
         }
+
+        val parameters = listOf(parameterWithName("id").description("ID of the event to update"))
 
         @Test
         fun `should update the event`() {
@@ -644,35 +747,49 @@ internal class EventControllerTest @Autowired constructor(
             val newLocation = "FLUP"
             val newCategory = "Greatest Events"
             val newThumbnailPath = "https://thumbnails/new.png"
+            val newSlug = "new-slug"
 
-            mockMvc.put("/events/${testEvent.id}") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(
-                    mapOf(
-                        "title" to newTitle,
-                        "description" to newDescription,
-                        "teamMembersIds" to newTeamMembers,
-                        "registerUrl" to newRegisterUrl,
-                        "dateInterval" to newDateInterval,
-                        "location" to newLocation,
-                        "category" to newCategory,
-                        "thumbnailPath" to newThumbnailPath
+            mockMvc.perform(
+                put("/events/{id}", testEvent.id)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf(
+                                "title" to newTitle,
+                                "description" to newDescription,
+                                "teamMembersIds" to newTeamMembers,
+                                "registerUrl" to newRegisterUrl,
+                                "dateInterval" to newDateInterval,
+                                "location" to newLocation,
+                                "category" to newCategory,
+                                "thumbnailPath" to newThumbnailPath,
+                                "slug" to newSlug
+                            )
+                        )
                     )
+            )
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.title").value(newTitle),
+                    jsonPath("$.description").value(newDescription),
+                    jsonPath("$.teamMembers.length()").value(0),
+                    jsonPath("$.registerUrl").value(newRegisterUrl),
+                    jsonPath("$.dateInterval.startDate").value(newDateInterval.startDate.toJson()),
+                    jsonPath("$.dateInterval.endDate").value(newDateInterval.endDate.toJson()),
+                    jsonPath("$.location").value(newLocation),
+                    jsonPath("$.category").value(newCategory),
+                    jsonPath("$.thumbnailPath").value(newThumbnailPath),
+                    jsonPath("$.slug").value(newSlug)
+
                 )
-            }
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.title") { value(newTitle) }
-                    jsonPath("$.description") { value(newDescription) }
-                    jsonPath("$.teamMembers.length()") { value(0) }
-                    jsonPath("$.registerUrl") { value(newRegisterUrl) }
-                    jsonPath("$.dateInterval.startDate") { value(newDateInterval.startDate.toJson()) }
-                    jsonPath("$.dateInterval.endDate") { value(newDateInterval.endDate.toJson()) }
-                    jsonPath("$.location") { value(newLocation) }
-                    jsonPath("$.category") { value(newCategory) }
-                    jsonPath("$.thumbnailPath") { value(newThumbnailPath) }
-                }
+                .andDocument(
+                    documentation,
+                    "Update events",
+                    "Update a previously created event, using its ID.",
+                    urlParameters = parameters,
+                    documentRequestPayload = true
+                )
 
             val updatedEvent = repository.findById(testEvent.id!!).get()
             assertEquals(newTitle, updatedEvent.title)
@@ -683,27 +800,33 @@ internal class EventControllerTest @Autowired constructor(
             assertEquals(newLocation, updatedEvent.location)
             assertEquals(newCategory, updatedEvent.category)
             assertEquals(newThumbnailPath, updatedEvent.thumbnailPath)
+            assertEquals(newSlug, updatedEvent.slug)
         }
 
         @Test
         fun `should fail if the event does not exist`() {
-            mockMvc.put("/events/1234") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(
-                    mapOf(
-                        "title" to "New Title",
-                        "description" to "New Description",
-                        "dateInterval" to DateInterval(TestUtils.createDate(2022, Calendar.DECEMBER, 1), null),
-                        "thumbnailPath" to "http://test.com/thumbnail/1"
+            mockMvc.perform(
+                put("/events/{id}", 1234)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf(
+                                "title" to "New Title",
+                                "description" to "New Description",
+                                "dateInterval" to DateInterval(TestUtils.createDate(2022, Calendar.DECEMBER, 1), null),
+                                "thumbnailPath" to "http://test.com/thumbnail/1",
+                                "associatedRoles" to testEvent.associatedRoles
+                            )
+                        )
                     )
+            )
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("event not found with id 1234")
                 )
-            }
-                .andExpect {
-                    status { isNotFound() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.errors.length()") { value(1) }
-                    jsonPath("$.errors[0].message") { value("event not found with id 1234") }
-                }
+                .andDocumentErrorResponse(documentation, urlParameters = parameters, hasRequestPayload = true)
         }
 
         @NestedTest
@@ -711,10 +834,12 @@ internal class EventControllerTest @Autowired constructor(
         inner class InputValidation {
             private val validationTester = ValidationTester(
                 req = { params: Map<String, Any?> ->
-                    mockMvc.put("/events/${testEvent.id}") {
-                        contentType = MediaType.APPLICATION_JSON
-                        content = objectMapper.writeValueAsString(params)
-                    }
+                    mockMvc.perform(
+                        put("/events/{id}", testEvent.id)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(params))
+                    )
+                        .andDocumentErrorResponse(documentation, urlParameters = parameters, hasRequestPayload = true)
                 },
                 requiredFields = mapOf(
                     "title" to testEvent.title,
