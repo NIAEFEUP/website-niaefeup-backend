@@ -14,13 +14,11 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
-import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete
-import org.springframework.mock.web.MockMultipartFile
 import org.springframework.mock.web.MockPart
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.multipart
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
-import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.web.servlet.MockMvc
@@ -195,6 +193,7 @@ class AccountControllerTest @Autowired constructor(
                     jsonPath("$.websites[0].iconPath").value(testAccount.websites[0].iconPath)
                 )
         }
+
         @Test
         fun `should create an account with an empty website list`() {
             val noWebsite = Account(
@@ -205,7 +204,8 @@ class AccountControllerTest @Autowired constructor(
                 TestUtils.createDate(2001, Calendar.JULY, 28),
                 "https://test-photo.com",
                 "https://linkedin.com",
-                "https://github.com")
+                "https://github.com"
+            )
 
             val data = objectMapper.writeValueAsString(
                 mapOf(
@@ -234,6 +234,7 @@ class AccountControllerTest @Autowired constructor(
                     jsonPath("$.websites.length()").value(0)
                 )
         }
+
         @Test
         fun `should create the account with valid image`() {
             val uuid: UUID = UUID.randomUUID()
@@ -259,7 +260,7 @@ class AccountControllerTest @Autowired constructor(
                     jsonPath("$.websites.length()").value(1),
                     jsonPath("$.websites[0].url").value(testAccount.websites[0].url),
                     jsonPath("$.websites[0].iconPath").value(testAccount.websites[0].iconPath)
-            )
+                )
 
             mockedSettings.close()
         }
@@ -279,7 +280,7 @@ class AccountControllerTest @Autowired constructor(
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.errors.length()").value(1),
                     jsonPath("$.errors[0].message").value("invalid image type (png, jpg or jpeg)"),
-                    jsonPath("$.errors[0].param").value("createAccount.photo"),
+                    jsonPath("$.errors[0].param").value("createAccount.photo")
                 )
 
             mockedSettings.close()
@@ -300,7 +301,7 @@ class AccountControllerTest @Autowired constructor(
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.errors.length()").value(1),
                     jsonPath("$.errors[0].message").value("invalid image type (png, jpg or jpeg)"),
-                    jsonPath("$.errors[0].param").value("createAccount.photo"),
+                    jsonPath("$.errors[0].param").value("createAccount.photo")
                 )
 
             mockedSettings.close()
@@ -314,7 +315,7 @@ class AccountControllerTest @Autowired constructor(
                     mockMvc.multipartBuilder("/accounts/new")
                         .addPart("dto", objectMapper.writeValueAsString(params))
                         .perform()
-                  },
+                },
                 requiredFields = mapOf(
                     "name" to testAccount.name,
                     "email" to testAccount.email,
@@ -760,7 +761,7 @@ class AccountControllerTest @Autowired constructor(
                 CustomWebsite("https://test-website2.com", "https://test-website.com/logo.png")
             )
 
-            val expectedPhotoPath = "${uploadConfigProperties.staticServe}/profile/${newEmail}-$uuid.jpeg"
+            val expectedPhotoPath = "${uploadConfigProperties.staticServe}/profile/$newEmail-$uuid.jpeg"
 
             val data = objectMapper.writeValueAsString(
                 mapOf(

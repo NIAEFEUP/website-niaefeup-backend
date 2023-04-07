@@ -10,7 +10,7 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor
 
 class MockMvcMultipartBuilder(
     private val mockMvc: MockMvc,
-    uri: String,
+    uri: String
 ) {
     private val multipart = multipart(uri)
 
@@ -39,7 +39,7 @@ class MockMvcMultipartBuilder(
         return this
     }
 
-    fun asPutMethod() : MockMvcMultipartBuilder {
+    fun asPutMethod(): MockMvcMultipartBuilder {
         multipart.with(
             RequestPostProcessor {
                 it.method = "PUT"

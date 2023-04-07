@@ -2,9 +2,9 @@ package pt.up.fe.ni.website.backend.dto.entity.account
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import java.util.Date
+import org.springframework.web.multipart.MultipartFile
 import pt.up.fe.ni.website.backend.dto.entity.CustomWebsiteDto
 import pt.up.fe.ni.website.backend.dto.entity.EntityDto
-import org.springframework.web.multipart.MultipartFile
 import pt.up.fe.ni.website.backend.model.Account
 
 class CreateAccountDto(

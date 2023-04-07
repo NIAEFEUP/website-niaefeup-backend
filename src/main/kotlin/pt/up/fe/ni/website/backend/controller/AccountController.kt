@@ -1,7 +1,7 @@
 package pt.up.fe.ni.website.backend.controller
 
-import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.validation.annotation.Validated
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.multipart.MultipartFile
 import pt.up.fe.ni.website.backend.dto.auth.ChangePasswordDto
 import pt.up.fe.ni.website.backend.dto.entity.account.CreateAccountDto
 import pt.up.fe.ni.website.backend.dto.entity.account.UpdateAccountDto
-import org.springframework.web.multipart.MultipartFile
 import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.service.AccountService
 import pt.up.fe.ni.website.backend.utils.validation.ValidImage
@@ -52,6 +52,7 @@ class AccountController(private val service: AccountService) {
         service.deleteAccountById(id)
         return emptyMap()
     }
+
     @PostMapping("/new", consumes = ["multipart/form-data"])
     fun createAccount(
         @RequestPart dto: CreateAccountDto,
