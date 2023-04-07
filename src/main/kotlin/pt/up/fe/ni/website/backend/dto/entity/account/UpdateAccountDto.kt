@@ -13,7 +13,8 @@ class UpdateAccountDto(
     val bio: String?,
     val birthDate: Date?,
     @JsonIgnore
-    var photoFile: MultipartFile?, val linkedin: String?,
+    var photoFile: MultipartFile?,
+    val linkedin: String?,
     val github: String?,
     val websites: List<CustomWebsiteDto>?
 ) : EntityDto<Account>()
