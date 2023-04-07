@@ -6,11 +6,12 @@ import org.springframework.mock.web.MockPart
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.multipart
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.ResultActions
+import org.springframework.test.web.servlet.request.RequestPostProcessor
 
 class MockMvcMultipartBuilder(
-    private val uri: String,
     private val mockMvc: MockMvc,
-    ) {
+    uri: String,
+) {
     private val multipart = multipart(uri)
 
     fun addPart(key: String, data: String): MockMvcMultipartBuilder {
@@ -38,7 +39,17 @@ class MockMvcMultipartBuilder(
         return this
     }
 
-    public fun perform(): ResultActions {
+    fun asPutMethod() : MockMvcMultipartBuilder {
+        multipart.with(
+            RequestPostProcessor {
+                it.method = "PUT"
+                it
+            }
+        )
+        return this
+    }
+
+    fun perform(): ResultActions {
         return mockMvc.perform(multipart)
     }
 }

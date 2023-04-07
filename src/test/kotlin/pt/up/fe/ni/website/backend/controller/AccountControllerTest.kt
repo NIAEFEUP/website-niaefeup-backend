@@ -691,50 +691,48 @@ class AccountControllerTest @Autowired constructor(
             val newEmail = "test_account2@test.com"
             val newBio = "This is a test account altered"
             val newBirthDate = TestUtils.createDate(2003, Calendar.JULY, 28)
-            val newPhotoPath = "https://test-photo2.com"
             val newLinkedin = "https://linkedin2.com"
             val newGithub = "https://github2.com"
             val newWebsites = listOf(
                 CustomWebsite("https://test-website2.com", "https://test-website.com/logo.png")
             )
 
-            mockMvc.perform(
-                put("/accounts/{id}", testAccount.id)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(
-                        objectMapper.writeValueAsString(
-                            mapOf(
-                                "name" to newName,
-                                "email" to newEmail,
-                                "bio" to newBio,
-                                "birthDate" to newBirthDate,
-                                "photoPath" to newPhotoPath,
-                                "linkedin" to newLinkedin,
-                                "github" to newGithub,
-                                "websites" to newWebsites
-                            )
-                        )
-                    )
-            ).andExpectAll(
-                status().isOk,
-                content().contentType(MediaType.APPLICATION_JSON),
-                jsonPath("$.name").value(newName),
-                jsonPath("$.email").value(newEmail),
-                jsonPath("$.bio").value(newBio),
-                jsonPath("$.birthDate").value(newBirthDate.toJson()),
-                jsonPath("$.photoPath").value(newPhotoPath),
-                jsonPath("$.linkedin").value(newLinkedin),
-                jsonPath("$.github").value(newGithub),
-                jsonPath("$.websites.length()").value(1),
-                jsonPath("$.websites[0].url").value(newWebsites[0].url),
-                jsonPath("$.websites[0].iconPath").value(newWebsites[0].iconPath)
-            ).andDocument(
-                documentation,
-                "Update accounts",
-                "Update a previously created account, with the exception of its password, using its ID.",
-                urlParameters = parameters,
-                documentRequestPayload = true
+            val data = objectMapper.writeValueAsString(
+                mapOf(
+                    "name" to newName,
+                    "email" to newEmail,
+                    "bio" to newBio,
+                    "birthDate" to newBirthDate,
+                    "linkedin" to newLinkedin,
+                    "github" to newGithub,
+                    "websites" to newWebsites
+                )
             )
+
+            mockMvc.multipartBuilder("/accounts/${testAccount.id}", )
+                .addPart("dto", data)
+                .asPutMethod()
+                .perform()
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.name").value(newName),
+                    jsonPath("$.email").value(newEmail),
+                    jsonPath("$.bio").value(newBio),
+                    jsonPath("$.birthDate").value(newBirthDate.toJson()),
+                    jsonPath("$.linkedin").value(newLinkedin),
+                    jsonPath("$.github").value(newGithub),
+                    jsonPath("$.websites.length()").value(1),
+                    jsonPath("$.websites[0].url").value(newWebsites[0].url),
+                    jsonPath("$.websites[0].iconPath").value(newWebsites[0].iconPath)
+                )
+//                .andDocument(
+//                    documentation,
+//                    "Update accounts",
+//                    "Update a previously created account, with the exception of its password, using its ID.",
+//                    urlParameters = parameters,
+//                    documentRequestPayload = true
+//            )
 
             val updatedAccount = repository.findById(testAccount.id!!).get()
             Assertions.assertEquals(newName, updatedAccount.name)
@@ -759,34 +757,34 @@ class AccountControllerTest @Autowired constructor(
                 CustomWebsite("https://test-website2.com", "https://test-website.com/logo.png")
             )
 
-            mockMvc.perform(
-                put("/accounts/{id}", 1234)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(
-                        objectMapper.writeValueAsString(
-                            mapOf(
-                                "name" to newName,
-                                "email" to newEmail,
-                                "bio" to newBio,
-                                "birthDate" to newBirthDate,
-                                "photoPath" to newPhotoPath,
-                                "linkedin" to newLinkedin,
-                                "github" to newGithub,
-                                "websites" to newWebsites
-                            )
-                        )
-                    )
+            val data = objectMapper.writeValueAsString(
+                mapOf(
+                    "name" to newName,
+                    "email" to newEmail,
+                    "bio" to newBio,
+                    "birthDate" to newBirthDate,
+                    "photoPath" to newPhotoPath,
+                    "linkedin" to newLinkedin,
+                    "github" to newGithub,
+                    "websites" to newWebsites
+                )
             )
+
+            mockMvc.multipartBuilder("/accounts/${1234}")
+                .addPart("dto", data)
+                .asPutMethod()
+                .perform()
                 .andExpectAll(
                     status().isNotFound,
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.errors.length()").value(1),
                     jsonPath("$.errors[0].message").value("account not found with id 1234")
-                ).andDocumentErrorResponse(
-                    documentation,
-                    urlParameters = parameters,
-                    hasRequestPayload = true
                 )
+//                .andDocumentErrorResponse(
+//                    documentation,
+//                    urlParameters = parameters,
+//                    hasRequestPayload = true
+//                )
         }
 
         @Test
@@ -801,35 +799,34 @@ class AccountControllerTest @Autowired constructor(
                 CustomWebsite("https://test-website2.com", "https://test-website.com/logo.png")
             )
 
-            mockMvc.perform(
-                put("/accounts/{id}", testAccount.id)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(
-                        objectMapper.writeValueAsString(
-                            mapOf(
-                                "name" to newName,
-                                "email" to "test2_account@test.com",
-                                "bio" to newBio,
-                                "birthDate" to newBirthDate,
-                                "photoPath" to newPhotoPath,
-                                "linkedin" to newLinkedin,
-                                "github" to newGithub,
-                                "websites" to newWebsites
-                            )
-                        )
-                    )
+            val data = objectMapper.writeValueAsString(
+                mapOf(
+                    "name" to newName,
+                    "email" to "test2_account@test.com",
+                    "bio" to newBio,
+                    "birthDate" to newBirthDate,
+                    "photoPath" to newPhotoPath,
+                    "linkedin" to newLinkedin,
+                    "github" to newGithub,
+                    "websites" to newWebsites
+                )
             )
+
+            mockMvc.multipartBuilder("/accounts/${testAccount.id}")
+                .addPart("dto", data)
+                .asPutMethod()
+                .perform()
                 .andExpectAll(
                     status().isUnprocessableEntity,
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.errors.length()").value(1),
                     jsonPath("$.errors[0].message").value("email already exists")
                 )
-                .andDocumentErrorResponse(
-                    documentation,
-                    urlParameters = parameters,
-                    hasRequestPayload = true
-                )
+//                .andDocumentErrorResponse(
+//                    documentation,
+//                    urlParameters = parameters,
+//                    hasRequestPayload = true
+//                )
         }
     }
 

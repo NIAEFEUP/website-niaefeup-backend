@@ -38,8 +38,14 @@ class AccountController(private val service: AccountService) {
     @PutMapping("/{id}")
     fun updateAccountById(
         @PathVariable id: Long,
-        @RequestBody dto: UpdateAccountDto
-    ) = service.updateAccountById(id, dto)
+        @RequestPart dto: UpdateAccountDto,
+        @RequestParam
+        @ValidImage
+        photo: MultipartFile?
+    ): Account {
+        dto.photoFile = photo
+        return service.updateAccountById(id, dto)
+    }
 
     @DeleteMapping("/{id}")
     fun deleteAccountById(@PathVariable id: Long): Map<String, String> {
