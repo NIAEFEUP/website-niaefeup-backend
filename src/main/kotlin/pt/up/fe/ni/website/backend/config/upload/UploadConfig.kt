@@ -17,10 +17,7 @@ class UploadConfig(
         return when (uploadConfigProperties.provider) {
             "cloudinary" -> CloudinaryFileUploader(
                 uploadConfigProperties.cloudinaryBasePath ?: "/",
-                Cloudinary(
-                    uploadConfigProperties.cloudinaryUrl
-                        ?: kotlin.run { throw Error("Cloudinary URL not provided") }
-                )
+                Cloudinary(uploadConfigProperties.cloudinaryUrl ?: throw Error("Cloudinary URL not provided"))
             )
             else -> StaticFileUploader(
                 uploadConfigProperties.staticPath?.let { ResourceUtils.getFile(it).absolutePath } ?: "",

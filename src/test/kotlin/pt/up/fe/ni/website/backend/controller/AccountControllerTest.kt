@@ -196,7 +196,49 @@ class AccountControllerTest @Autowired constructor(
                     jsonPath("$.websites[0].iconPath").value(testAccount.websites[0].iconPath)
                 )
         }
+        @Test
+        fun `should create an account with an empty website list`() {
+            val noWebsite = Account(
+                "Test Account",
+                "no_website@email.com",
+                "test_password",
+                "This is a test account",
+                TestUtils.createDate(2001, Calendar.JULY, 28),
+                "https://test-photo.com",
+                "https://linkedin.com",
+                "https://github.com")
 
+            val data = objectMapper.writeValueAsString(
+                mapOf(
+                    "name" to noWebsite.name,
+                    "email" to noWebsite.email,
+                    "password" to noWebsite.password,
+                    "bio" to noWebsite.bio,
+                    "birthDate" to noWebsite.birthDate,
+                    "linkedin" to noWebsite.linkedin,
+                    "github" to noWebsite.github
+                )
+            ).toByteArray()
+
+            val accountPart = MockPart("dto", data)
+            accountPart.headers.contentType = MediaType.APPLICATION_JSON
+
+            mockMvc.perform(
+                multipart("/accounts/new")
+                    .part(accountPart)
+            )
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.name").value(noWebsite.name),
+                    jsonPath("$.email").value(noWebsite.email),
+                    jsonPath("$.bio").value(noWebsite.bio),
+                    jsonPath("$.birthDate").value(noWebsite.birthDate.toJson()),
+                    jsonPath("$.linkedin").value(noWebsite.linkedin),
+                    jsonPath("$.github").value(noWebsite.github),
+                    jsonPath("$.websites.length()").value(0)
+                )
+        }
         @Test
         fun `should create the account with valid image`() {
             val accountPart = MockPart("dto", testAccount.toJson().toByteArray())
