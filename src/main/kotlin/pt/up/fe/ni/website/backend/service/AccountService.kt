@@ -38,7 +38,7 @@ class AccountService(
     }
 
     private fun photoFilename(email: String, photoFile: MultipartFile): String =
-        "$email-${UUID.randomUUID()}.${photoFile?.filenameExtension() ?: ""}"
+        "$email-${UUID.randomUUID()}.${photoFile.filenameExtension()}"
 
     fun getAccountById(id: Long): Account = repository.findByIdOrNull(id)
         ?: throw NoSuchElementException(ErrorMessages.accountNotFound(id))
