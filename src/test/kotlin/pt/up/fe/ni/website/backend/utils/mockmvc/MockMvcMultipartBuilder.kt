@@ -15,7 +15,7 @@ class MockMvcMultipartBuilder(
     private val multipart = multipart(uri)
 
     fun addPart(key: String, data: String): MockMvcMultipartBuilder {
-        val part = MockPart("dto", data.toByteArray())
+        val part = MockPart(key, data.toByteArray())
         part.headers.contentType = MediaType.APPLICATION_JSON
 
         multipart.part(part)
