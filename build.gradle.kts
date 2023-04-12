@@ -1,3 +1,5 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -33,6 +35,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("ch.qos.logback:logback-core:1.4.5")
     implementation("org.slf4j:slf4j-api:2.0.6")
+    implementation("com.cloudinary:cloudinary:1.0.14")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     implementation("org.springframework.boot:spring-boot-starter-validation:3.0.0")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
@@ -41,6 +44,10 @@ dependencies {
     testImplementation("ch.qos.logback:logback-classic:1.4.5")
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc:3.0.0")
     testImplementation("com.epages:restdocs-api-spec-mockmvc:0.17.1")
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
+        exclude(group = "org.mockito2", module = "mockito-core")
+    }
+    testImplementation("org.mockito:mockito-inline:5.0.0")
 }
 
 tasks.withType<KotlinCompile> {
@@ -52,6 +59,29 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    testLogging {
+        events = mutableSetOf(
+            TestLogEvent.FAILED,
+            TestLogEvent.SKIPPED
+        )
+        exceptionFormat = TestExceptionFormat.FULL
+        showExceptions = true
+        showCauses = true
+        showStackTraces = true
+
+        debug {
+            events = mutableSetOf(
+                TestLogEvent.FAILED,
+                TestLogEvent.PASSED,
+                TestLogEvent.SKIPPED,
+                TestLogEvent.STANDARD_OUT,
+                TestLogEvent.STANDARD_ERROR
+            )
+            exceptionFormat = TestExceptionFormat.FULL
+        }
+        info.events = debug.events
+        info.exceptionFormat = debug.exceptionFormat
+    }
 }
 
 tasks.test {
