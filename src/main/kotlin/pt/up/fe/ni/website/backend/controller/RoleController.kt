@@ -53,20 +53,20 @@ class RoleController(private val roleService: RoleService) {
         return emptyMap()
     }
 
-    @PostMapping("/{id}/activities")
+    @PostMapping("/{id}/activities/{activityId}/permissions")
     fun addPermissionToPerActivityRole(
         @PathVariable id: Long,
-        @RequestBody activityId: Long,
+        @PathVariable activityId: Long,
         @RequestBody permissions: Permissions
     ): Map<String, String> {
         roleService.grantPermissionToRoleOnActivity(id, activityId, permissions)
         return emptyMap()
     }
 
-    @DeleteMapping("/{id}/activities")
+    @DeleteMapping("/{id}/activities/{activityId}/permissions")
     fun revokePermissionToPerActivityRole(
         @PathVariable id: Long,
-        @RequestBody activityId: Long,
+        @PathVariable activityId: Long,
         @RequestBody permissions: Permissions
     ): Map<String, String> {
         roleService.revokePermissionFromRoleOnActivity(id, activityId, permissions)

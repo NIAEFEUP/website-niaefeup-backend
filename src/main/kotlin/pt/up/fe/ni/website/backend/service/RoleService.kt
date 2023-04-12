@@ -61,6 +61,11 @@ class RoleService(
 
         foundActivity.permissions.addAll(permissions)
         perActivityRoleRepository.save(foundActivity)
+        if (activity.associatedRoles.find { it.activity == activity } == null) {
+            role.associatedActivities.add(foundActivity)
+        }
+        activityRepository.save(activity)
+        roleRepository.save(role)
     }
 
     fun revokePermissionFromRoleOnActivity(roleId: Long, activityId: Long, permissions: Permissions) {
@@ -74,6 +79,8 @@ class RoleService(
             .find { it.role == role } ?: return
         foundActivity.permissions.removeAll(permissions)
         perActivityRoleRepository.save(foundActivity)
+        activityRepository.save(activity)
+
     }
 
     fun createNewRole(dto: RoleDto): Role {

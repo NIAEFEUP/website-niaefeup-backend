@@ -17,11 +17,14 @@ import org.springframework.test.web.servlet.post
 import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.CustomWebsite
 import pt.up.fe.ni.website.backend.model.Generation
+import pt.up.fe.ni.website.backend.model.PerActivityRole
+import pt.up.fe.ni.website.backend.model.Project
 import pt.up.fe.ni.website.backend.model.Role
 import pt.up.fe.ni.website.backend.model.permissions.Permission
 import pt.up.fe.ni.website.backend.model.permissions.Permissions
 import pt.up.fe.ni.website.backend.repository.AccountRepository
 import pt.up.fe.ni.website.backend.repository.GenerationRepository
+import pt.up.fe.ni.website.backend.repository.ProjectRepository
 import pt.up.fe.ni.website.backend.repository.RoleRepository
 import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
@@ -34,7 +37,8 @@ internal class RoleControllerTest @Autowired constructor(
     val objectMapper: ObjectMapper,
     val roleRepository: RoleRepository,
     val accountRepository: AccountRepository,
-    val generationRepository: GenerationRepository
+    val generationRepository: GenerationRepository,
+    val projectRepository: ProjectRepository
 ) {
     val testGeneration = Generation(
         "22-23"
@@ -49,6 +53,11 @@ internal class RoleControllerTest @Autowired constructor(
         "Coordenador de Projetos",
         Permissions(listOf(Permission.EDIT_ACCOUNT)),
         false
+    )
+
+    val testProject = Project(
+        "UNI",
+        "Melhor app"
     )
 
     val testAccount = Account(
@@ -395,6 +404,132 @@ internal class RoleControllerTest @Autowired constructor(
                 status { isNotFound() }
             }
             assert(roleRepository.findByIdOrNull(testRole.id!!)!!.accounts.size != 0)
+        }
+    }
+
+    @NestedTest
+    inner class AddPermissionToRoleActivity{
+        @BeforeEach
+        fun addAll(){
+            roleRepository.save(testRole)
+            projectRepository.save(testProject)
+        }
+
+        @Test
+        fun `should add permission to role activity and create PerActivityRole`(){
+            mockMvc.post("/roles/${testRole.id}/activities/${testProject.id}/permissions"){
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(Permissions(listOf(Permission.EDIT_ACTIVITY)))
+            }.andExpect {
+                status { isOk() }
+            }
+            assert(roleRepository.findByIdOrNull(testRole.id!!)!!.associatedActivities.size == 1)
+            assert(roleRepository.findByIdOrNull(testRole.id!!)!!.associatedActivities[0].permissions.contains(Permission.EDIT_ACTIVITY))
+        }
+        @Test
+        fun `shouldn't add permission to role activity if roleId is invalid`(){
+            mockMvc.post("/roles/1234/activities/${testProject.id}/permissions"){
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(Permissions(listOf(Permission.EDIT_ACTIVITY)))
+            }.andExpect {
+                status { isNotFound() }
+            }
+            assert(roleRepository.findByIdOrNull(testRole.id!!)!!.associatedActivities.size == 0)
+        }
+
+        @Test
+        fun `shouldn't add permission to role activity if activityId is invalid`(){
+            mockMvc.post("/roles/${testRole.id}/activities/1234/permissions"){
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(Permissions(listOf(Permission.EDIT_ACTIVITY)))
+            }.andExpect {
+                status { isNotFound() }
+            }
+            assert(roleRepository.findByIdOrNull(testRole.id!!)!!.associatedActivities.size == 0)
+        }
+
+        @Test
+        fun `shouldn't add permission to role activity if activityId is invalid and roleId is invalid`(){
+            mockMvc.post("/roles/${testRole.id}/activities/1234/permissions"){
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(Permissions(listOf(Permission.EDIT_ACTIVITY)))
+            }.andExpect {
+                status { isNotFound() }
+            }
+            assert(roleRepository.findByIdOrNull(testRole.id!!)!!.associatedActivities.size == 0)
+        }
+
+
+    }
+
+    @NestedTest
+    inner class RemovePermissionFromPerRoleActivity {
+        @BeforeEach
+        fun addAll() {
+            projectRepository.save(testProject)
+            roleRepository.save(testRole)
+            var perActivityRole = PerActivityRole(Permissions(listOf(Permission.EDIT_ACTIVITY)))
+            perActivityRole.activity = testProject
+            perActivityRole.role = testRole
+            testProject.associatedRoles.add(perActivityRole)
+            projectRepository.save(testProject)
+            roleRepository.save(testRole)
+        }
+
+        @AfterEach
+        fun removeAll() {
+            testProject.associatedRoles.removeAt(0)
+            projectRepository.save(testProject)
+        }
+
+        @Test
+        fun `should remove an existing role activity permission`() {
+            mockMvc.delete("/roles/${testRole.id}/activities/${testProject.id}/permissions") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(Permissions(listOf(Permission.EDIT_ACTIVITY)))
+            }.andExpect {
+                status { isOk() }
+            }
+            assert(projectRepository.findByIdOrNull(testProject.id!!)!!.associatedRoles.size == 1)
+            assert(!projectRepository.findByIdOrNull(testProject.id!!)!!.associatedRoles[0].permissions.contains(Permission.EDIT_ACTIVITY))
+
+        }
+
+        @Test
+        fun `should not remove an existing role activity permission on a non existing role`() {
+            mockMvc.delete("/roles/1234/activities/${testProject.id}/permissions") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(Permissions(listOf(Permission.EDIT_ACTIVITY)))
+            }.andExpect {
+                status { isNotFound() }
+            }
+            assert(projectRepository.findByIdOrNull(testProject.id!!)!!.associatedRoles.size == 1)
+            assert(projectRepository.findByIdOrNull(testProject.id!!)!!.associatedRoles[0].permissions.contains(Permission.EDIT_ACTIVITY))
+        }
+        @Test
+        fun `should not remove an existing role activity permission on a non existing activity`() {
+            mockMvc.delete("/roles/${testRole.id}/activities/1234/permissions") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(Permissions(listOf(Permission.EDIT_ACTIVITY)))
+            }.andExpect {
+                status { isNotFound() }
+            }
+            assert(projectRepository.findByIdOrNull(testProject.id!!)!!.associatedRoles.size == 1)
+            assert(projectRepository.findByIdOrNull(testProject.id!!)!!.associatedRoles[0].permissions.contains(Permission.EDIT_ACTIVITY))
+
+        }
+
+        @Test
+        fun `should not remove an existing role activity permission on a non existing activity and non existing role`() {
+            mockMvc.delete("/roles/1234/activities/1234/permissions") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(Permissions(listOf(Permission.EDIT_ACTIVITY)))
+            }.andExpect {
+                status { isNotFound() }
+            }
+            assert(projectRepository.findByIdOrNull(testProject.id!!)!!.associatedRoles.size == 1)
+            assert(projectRepository.findByIdOrNull(testProject.id!!)!!.associatedRoles[0].permissions.contains(Permission.EDIT_ACTIVITY))
+
         }
     }
 }
