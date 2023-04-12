@@ -237,9 +237,9 @@ internal class RoleControllerTest @Autowired constructor(
         fun `should grant permission to role that exists`() {
             mockMvc.post("/roles/${testRole.id}/grant") {
                 contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(
-                    Permissions(listOf(Permission.SUPERUSER))
-                )
+                content = objectMapper.writeValueAsString(mapOf(
+                    "permissions" to Permissions(listOf(Permission.SUPERUSER))
+                ))
             }.andExpect {
                 status { isOk() }
             }
@@ -250,9 +250,9 @@ internal class RoleControllerTest @Autowired constructor(
         fun `should grant permission to role that does not exists`() {
             mockMvc.post("/roles/1234/grant") {
                 contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(
-                    Permissions(listOf(Permission.SUPERUSER))
-                )
+                content = objectMapper.writeValueAsString(mapOf(
+                    "permissions" to Permissions(listOf(Permission.SUPERUSER))
+                ))
             }.andExpect {
                 status { isNotFound() }
             }
@@ -271,9 +271,9 @@ internal class RoleControllerTest @Autowired constructor(
         fun `should revoke permission to role that exists`() {
             mockMvc.post("/roles/${testRole.id}/revoke") {
                 contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(
-                    Permissions(listOf(Permission.SUPERUSER))
-                )
+                content = objectMapper.writeValueAsString(mapOf(
+                    "permissions" to Permissions(listOf(Permission.SUPERUSER))
+                ))
             }.andExpect {
                 status { isOk() }
             }
@@ -284,9 +284,9 @@ internal class RoleControllerTest @Autowired constructor(
         fun `should revoke permission to role that does not exists`() {
             mockMvc.post("/roles/1234/revoke") {
                 contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(
-                    Permissions(listOf(Permission.SUPERUSER))
-                )
+                content = objectMapper.writeValueAsString(mapOf(
+                    "permissions" to Permissions(listOf(Permission.SUPERUSER))
+                ))
             }.andExpect {
                 status { isNotFound() }
             }
@@ -417,9 +417,9 @@ internal class RoleControllerTest @Autowired constructor(
 
         @Test
         fun `should add permission to role activity and create PerActivityRole`(){
-            mockMvc.post("/roles/${testRole.id}/activities/${testProject.id}/permissions"){
+            mockMvc.post("/roles/${testRole.id}/activity/${testProject.id}/permissions"){
                 contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(Permissions(listOf(Permission.EDIT_ACTIVITY)))
+                content = objectMapper.writeValueAsString(mapOf("permissions" to Permissions(listOf(Permission.EDIT_ACTIVITY))))
             }.andExpect {
                 status { isOk() }
             }
@@ -428,9 +428,9 @@ internal class RoleControllerTest @Autowired constructor(
         }
         @Test
         fun `shouldn't add permission to role activity if roleId is invalid`(){
-            mockMvc.post("/roles/1234/activities/${testProject.id}/permissions"){
+            mockMvc.post("/roles/1234/activity/${testProject.id}/permissions"){
                 contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(Permissions(listOf(Permission.EDIT_ACTIVITY)))
+                content = objectMapper.writeValueAsString(mapOf("permissions" to Permissions(listOf(Permission.EDIT_ACTIVITY))))
             }.andExpect {
                 status { isNotFound() }
             }
@@ -439,9 +439,9 @@ internal class RoleControllerTest @Autowired constructor(
 
         @Test
         fun `shouldn't add permission to role activity if activityId is invalid`(){
-            mockMvc.post("/roles/${testRole.id}/activities/1234/permissions"){
+            mockMvc.post("/roles/${testRole.id}/activity/1234/permissions"){
                 contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(Permissions(listOf(Permission.EDIT_ACTIVITY)))
+                content = objectMapper.writeValueAsString(mapOf("permissions" to Permissions(listOf(Permission.EDIT_ACTIVITY))))
             }.andExpect {
                 status { isNotFound() }
             }
@@ -450,9 +450,10 @@ internal class RoleControllerTest @Autowired constructor(
 
         @Test
         fun `shouldn't add permission to role activity if activityId is invalid and roleId is invalid`(){
-            mockMvc.post("/roles/${testRole.id}/activities/1234/permissions"){
+            mockMvc.post("/roles/${testRole.id}/activity/1234/permissions"){
                 contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(Permissions(listOf(Permission.EDIT_ACTIVITY)))
+                content = objectMapper.writeValueAsString(mapOf("permissions" to Permissions(listOf(Permission.EDIT_ACTIVITY))))
+
             }.andExpect {
                 status { isNotFound() }
             }
@@ -484,9 +485,10 @@ internal class RoleControllerTest @Autowired constructor(
 
         @Test
         fun `should remove an existing role activity permission`() {
-            mockMvc.delete("/roles/${testRole.id}/activities/${testProject.id}/permissions") {
+            mockMvc.delete("/roles/${testRole.id}/activity/${testProject.id}/permissions") {
                 contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(Permissions(listOf(Permission.EDIT_ACTIVITY)))
+                content = objectMapper.writeValueAsString(mapOf("permissions" to Permissions(listOf(Permission.EDIT_ACTIVITY))))
+
             }.andExpect {
                 status { isOk() }
             }
@@ -497,9 +499,10 @@ internal class RoleControllerTest @Autowired constructor(
 
         @Test
         fun `should not remove an existing role activity permission on a non existing role`() {
-            mockMvc.delete("/roles/1234/activities/${testProject.id}/permissions") {
+            mockMvc.delete("/roles/1234/activity/${testProject.id}/permissions") {
                 contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(Permissions(listOf(Permission.EDIT_ACTIVITY)))
+                content = objectMapper.writeValueAsString(mapOf("permissions" to Permissions(listOf(Permission.EDIT_ACTIVITY))))
+
             }.andExpect {
                 status { isNotFound() }
             }
@@ -508,9 +511,10 @@ internal class RoleControllerTest @Autowired constructor(
         }
         @Test
         fun `should not remove an existing role activity permission on a non existing activity`() {
-            mockMvc.delete("/roles/${testRole.id}/activities/1234/permissions") {
+            mockMvc.delete("/roles/${testRole.id}/activity/1234/permissions") {
                 contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(Permissions(listOf(Permission.EDIT_ACTIVITY)))
+                content = objectMapper.writeValueAsString(mapOf("permissions" to Permissions(listOf(Permission.EDIT_ACTIVITY))))
+
             }.andExpect {
                 status { isNotFound() }
             }
@@ -521,9 +525,10 @@ internal class RoleControllerTest @Autowired constructor(
 
         @Test
         fun `should not remove an existing role activity permission on a non existing activity and non existing role`() {
-            mockMvc.delete("/roles/1234/activities/1234/permissions") {
+            mockMvc.delete("/roles/1234/activity/1234/permissions") {
                 contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(Permissions(listOf(Permission.EDIT_ACTIVITY)))
+                content = objectMapper.writeValueAsString(mapOf("permissions" to Permissions(listOf(Permission.EDIT_ACTIVITY))))
+
             }.andExpect {
                 status { isNotFound() }
             }
