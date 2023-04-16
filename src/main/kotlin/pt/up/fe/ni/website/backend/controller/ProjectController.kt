@@ -65,16 +65,4 @@ class ProjectController(private val service: ProjectService) {
         @PathVariable idProject: Long,
         @PathVariable idAccount: Long
     ) = service.removeHallOfFameMemberById(idProject, idAccount)
-
-    @PutMapping("/{idProject}/moveMemberToActiveTeamById/{idAccount}")
-    fun moveMemberToActiveTeamById(
-        @PathVariable idProject: Long,
-        @PathVariable idAccount: Long
-    ) = service.moveMemberToActiveTeamById(idProject, idAccount)
-
-    @PutMapping("/{idProject}/moveMemberToHallOfFameById/{idAccount}")
-    fun moveMemberToHallOfFameById(
-        @PathVariable idProject: Long,
-        @PathVariable idAccount: Long
-    ) = service.moveMemberToHallOfFameById(idProject, idAccount)
 }

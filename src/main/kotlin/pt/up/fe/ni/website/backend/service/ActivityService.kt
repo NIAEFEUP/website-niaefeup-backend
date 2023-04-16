@@ -16,10 +16,6 @@ abstract class ActivityService<T : Activity>(
     fun addTeamMemberById(idActivity: Long, idAccount: Long): T {
         val activity = getActivityById(idActivity)
         val account = accountService.getAccountById(idAccount)
-        if (activity.hallOfFame.find { it.id == idAccount } != null) {
-            // TODO: deal with member that already exists on the hallOfFame, should it return an error or move?
-            return moveMemberToActiveTeamById(idActivity, idAccount)
-        }
         activity.teamMembers.add(account)
         return repository.save(activity)
     }
@@ -34,61 +30,6 @@ abstract class ActivityService<T : Activity>(
             )
         }
         activity.teamMembers.removeIf { it.id == idAccount }
-        return repository.save(activity)
-    }
-
-    fun addHallOfFameMemberById(idActivity: Long, idAccount: Long): T {
-        val activity = getActivityById(idActivity)
-        val account = accountService.getAccountById(idAccount)
-        if (activity.teamMembers.find { it.id == idAccount } != null) {
-            // TODO: deal with member that already exists on the team, should it return an error or move?
-            return moveMemberToHallOfFameById(idActivity, idAccount)
-        }
-        activity.hallOfFame.add(account)
-        return repository.save(activity)
-    }
-
-    fun removeHallOfFameMemberById(idActivity: Long, idAccount: Long): T {
-        val activity = getActivityById(idActivity)
-        if (!accountService.doesAccountExist(idAccount)) {
-            throw NoSuchElementException(
-                ErrorMessages.accountNotFound(
-                    idAccount
-                )
-            )
-        }
-        activity.hallOfFame.removeIf { it.id == idAccount }
-        return repository.save(activity)
-    }
-    fun moveMemberToHallOfFameById(idActivity: Long, idAccount: Long): T {
-        val activity = getActivityById(idActivity)
-        if (!accountService.doesAccountExist(idAccount)) {
-            throw NoSuchElementException(
-                ErrorMessages.accountNotFound(
-                    idAccount
-                )
-            )
-        }
-        val account = accountService.getAccountById(idAccount)
-        if (activity.teamMembers.removeIf { it.id == idAccount }) {
-            activity.hallOfFame.add(account)
-        }
-        return repository.save(activity)
-    }
-
-    fun moveMemberToActiveTeamById(idActivity: Long, idAccount: Long): T {
-        val activity = getActivityById(idActivity)
-        if (!accountService.doesAccountExist(idAccount)) {
-            throw NoSuchElementException(
-                ErrorMessages.accountNotFound(
-                    idAccount
-                )
-            )
-        }
-        val account = accountService.getAccountById(idAccount)
-        if (activity.hallOfFame.removeIf { it.id == idAccount }) {
-            activity.teamMembers.add(account)
-        }
         return repository.save(activity)
     }
 }

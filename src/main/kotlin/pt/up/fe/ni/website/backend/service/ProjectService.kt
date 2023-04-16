@@ -73,4 +73,24 @@ class ProjectService(
         project.isArchived = false
         return repository.save(project)
     }
+
+    fun addHallOfFameMemberById(idProject: Long, idAccount: Long): Project {
+        val project = getProjectById(idProject)
+        val account = accountService.getAccountById(idAccount)
+        project.hallOfFame.add(account)
+        return repository.save(project)
+    }
+
+    fun removeHallOfFameMemberById(idProject: Long, idAccount: Long): Project {
+        val project = getProjectById(idProject)
+        if (!accountService.doesAccountExist(idAccount)) {
+            throw NoSuchElementException(
+                ErrorMessages.accountNotFound(
+                    idAccount
+                )
+            )
+        }
+        project.hallOfFame.removeIf { it.id == idAccount }
+        return repository.save(project)
+    }
 }
