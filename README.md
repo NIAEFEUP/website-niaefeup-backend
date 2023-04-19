@@ -1,5 +1,5 @@
-# Website NIAEFEUP - BackEnd  
-[![codecov](https://codecov.io/gh/NIAEFEUP/website-niaefeup-backend/branch/develop/graph/badge.svg?token=4OPGXYESGP)](https://codecov.io/gh/NIAEFEUP/website-niaefeup-backend)  
+# Website NIAEFEUP - BackEnd
+[![codecov](https://codecov.io/gh/NIAEFEUP/website-niaefeup-backend/branch/develop/graph/badge.svg?token=4OPGXYESGP)](https://codecov.io/gh/NIAEFEUP/website-niaefeup-backend)
 The online platform for NIAEFEUP.
 
 ## Development setup
@@ -21,7 +21,7 @@ For automatic restart to fire up every time a source file changes, make sure tha
 Run the following command in your shell:
 
 ```bash
-gradle bootRun
+./gradlew bootRun
 ```
 
 ### Linting
@@ -35,7 +35,13 @@ Although IntelliJ does not provide linting suggestions for Kotlin out of the box
 You can fire up the analysis yourself by running in your shell:
 
 ```bash
-gradle ktlintCheck
+./gradlew ktlintCheck
+```
+
+You can fix the lint automatically by running in your shell:
+
+```bash
+./gradlew ktlintFormat
 ```
 
 #### With a git hook
@@ -43,13 +49,13 @@ gradle ktlintCheck
 You can setup a local precommit [git hook](https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks) for lint analysis running a Gradle task provided by the used linting plugin:
 
 ```bash
-gradle addKtlintCheckGitPreCommitHook
+./gradlew addKtlintCheckGitPreCommitHook
 ```
 
 Or even an auto-format hook, if that is your thing:
 
 ```bash
-gradle addKtlintFormatGitPreCommitHook
+./gradlew addKtlintFormatGitPreCommitHook
 ```
 
 ### Testing
@@ -63,8 +69,30 @@ Run the test suite as usual, selecting the respective task for running.
 Run the following command in your shell:
 
 ```bash
-gradle test
+./gradlew test
 ```
+
+
+### API Documentation
+API documentation is generated through the use of the [Spring REST Docs API specification Integration (aka restdocs-api-spec)](https://github.com/ePages-de/restdocs-api-spec), a [Spring Rest Docs](https://spring.io/projects/spring-restdocs) extension that builds an [OpenAPI specification](https://www.openapis.org/) or a [Postman collection](https://learning.postman.com/docs/sending-requests/intro-to-collections/) from its description, included in the controller tests. To see examples of how to document the API, hop to one of the controller tests and read the [API documentation wiki page](https://github.com/NIAEFEUP/website-niaefeup-backend/wiki/API-documentation).
+
+Find the current version of the API documentation [here](https://develop--niaefeup-backend-docs.netlify.app/).
+
+The Postman collection is also available [here](https://develop--niaefeup-backend-docs.netlify.app/postman-collection.json).
+
+##### With IntelliJ
+Run the `generateDocs` gradle task to generate the OpenAPI specification or the Postman collection.
+
+##### With the command line
+Run the following command in your shell:
+
+```bash
+./gradlew generateDocs
+```
+
+###### Results
+Find the OpenAPI specification and Postman collection under `docs/` after running the task.
+
 
 ## Project Details
 

@@ -1,5 +1,7 @@
 package pt.up.fe.ni.website.backend.controller
 
+import com.epages.restdocs.apispec.HeaderDescriptorWithType
+import com.epages.restdocs.apispec.ResourceDocumentation.headerWithName
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.util.Calendar
 import org.hamcrest.Matchers.startsWith
@@ -7,11 +9,15 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import pt.up.fe.ni.website.backend.dto.auth.LoginDto
 import pt.up.fe.ni.website.backend.dto.auth.TokenDto
 import pt.up.fe.ni.website.backend.model.Account
@@ -20,6 +26,12 @@ import pt.up.fe.ni.website.backend.repository.AccountRepository
 import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
 import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
+import pt.up.fe.ni.website.backend.utils.documentation.payloadschemas.model.PayloadAuthCheck
+import pt.up.fe.ni.website.backend.utils.documentation.payloadschemas.model.PayloadAuthNew
+import pt.up.fe.ni.website.backend.utils.documentation.payloadschemas.model.PayloadAuthRefresh
+import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocument
+import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentErrorResponse
+import pt.up.fe.ni.website.backend.utils.documentation.utils.ModelDocumentation
 
 @ControllerTest
 class AuthControllerTest @Autowired constructor(
@@ -43,7 +55,11 @@ class AuthControllerTest @Autowired constructor(
         listOf(
             CustomWebsite("https://test-website.com", "https://test-website.com/logo.png")
         ),
-        emptyList()
+        mutableListOf()
+    )
+
+    private val checkAuthHeaders = listOf<HeaderDescriptorWithType>(
+        headerWithName(HttpHeaders.AUTHORIZATION).description("Bearer authentication token")
     )
 
     @NestedTest
@@ -54,43 +70,62 @@ class AuthControllerTest @Autowired constructor(
             repository.save(testAccount)
         }
 
+        val documentation: ModelDocumentation = PayloadAuthNew()
+
         @Test
         fun `should fail when email is not registered`() {
-            mockMvc.post("/auth/new") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(
-                    mapOf(
-                        "email" to "president@niaefeup.pt",
-                        "password" to testPassword
+            mockMvc.perform(
+                post("/auth/new")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf(
+                                "email" to "president@niaefeup.pt",
+                                "password" to testPassword
+                            )
+                        )
                     )
+            )
+                .andExpectAll(
+                    status().isNotFound,
+                    jsonPath("$.errors[0].message").value("account not found with email president@niaefeup.pt")
                 )
-            }.andExpect {
-                status { isNotFound() }
-                jsonPath("$.errors[0].message") { value("account not found with email president@niaefeup.pt") }
-            }
+                .andDocumentErrorResponse(documentation, hasRequestPayload = true)
         }
 
         @Test
         fun `should fail when password is incorrect`() {
-            mockMvc.post("/auth/new") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(LoginDto(testAccount.email, "wrong_password"))
-            }.andExpect {
-                status { isUnauthorized() }
-                jsonPath("$.errors[0].message") { value("invalid credentials") }
-            }
+            mockMvc.perform(
+                post("/auth/new")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(LoginDto(testAccount.email, "wrong_password")))
+            )
+                .andExpectAll(
+                    status().isUnauthorized,
+                    jsonPath("$.errors[0].message").value("invalid credentials")
+                )
+                .andDocumentErrorResponse(documentation, hasRequestPayload = true)
         }
 
         @Test
         fun `should return access and refresh tokens`() {
-            mockMvc.post("/auth/new") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(LoginDto(testAccount.email, testPassword))
-            }.andExpect {
-                status { isOk() }
-                jsonPath("$.access_token") { exists() }
-                jsonPath("$.refresh_token") { exists() }
-            }
+            mockMvc.perform(
+                post("/auth/new")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(LoginDto(testAccount.email, testPassword)))
+            )
+                .andExpectAll(
+                    status().isOk,
+                    jsonPath("$.access_token").exists(),
+                    jsonPath("$.refresh_token").exists()
+                )
+                .andDocument(
+                    documentation,
+                    "Authenticate account",
+                    "This endpoint operation allows authentication using user's password and email, " +
+                        "generating new access and refresh tokens to be used in following requests.",
+                    documentRequestPayload = true
+                )
         }
     }
 
@@ -102,15 +137,20 @@ class AuthControllerTest @Autowired constructor(
             repository.save(testAccount)
         }
 
+        val documentation: ModelDocumentation = PayloadAuthRefresh()
+
         @Test
         fun `should fail when refresh token is invalid`() {
-            mockMvc.post("/auth/refresh") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(TokenDto("invalid_refresh_token"))
-            }.andExpect {
-                status { isUnauthorized() }
-                jsonPath("$.errors[0].message") { value("invalid refresh token") }
-            }
+            mockMvc.perform(
+                post("/auth/refresh")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(TokenDto("invalid_refresh_token")))
+            )
+                .andExpectAll(
+                    status().isUnauthorized,
+                    jsonPath("$.errors[0].message").value("invalid refresh token")
+                )
+                .andDocumentErrorResponse(documentation, hasRequestPayload = true)
         }
 
         @Test
@@ -120,13 +160,22 @@ class AuthControllerTest @Autowired constructor(
                 content = objectMapper.writeValueAsString(LoginDto(testAccount.email, testPassword))
             }.andReturn().response.let { response ->
                 val refreshToken = objectMapper.readTree(response.contentAsString)["refresh_token"].asText()
-                mockMvc.post("/auth/refresh") {
-                    contentType = MediaType.APPLICATION_JSON
-                    content = objectMapper.writeValueAsString(TokenDto(refreshToken))
-                }.andExpect {
-                    status { isOk() }
-                    jsonPath("$.access_token") { exists() }
-                }
+                mockMvc.perform(
+                    post("/auth/refresh")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(TokenDto(refreshToken)))
+                )
+                    .andExpectAll(
+                        status().isOk,
+                        jsonPath("$.access_token").exists()
+                    )
+                    .andDocument(
+                        documentation,
+                        "Refresh access token",
+                        "This endpoint operation allows the renewal of the access token, " +
+                            "using the currently valid refresh token.",
+                        documentRequestPayload = true
+                    )
             }
         }
     }
@@ -139,22 +188,30 @@ class AuthControllerTest @Autowired constructor(
             repository.save(testAccount)
         }
 
+        val documentation: ModelDocumentation = PayloadAuthCheck()
+
         @Test
         fun `should fail when no access token is provided`() {
-            mockMvc.get("/auth").andExpect {
-                status { isForbidden() }
-                jsonPath("$.errors[0].message") { value("Access Denied") }
-            }
+            mockMvc.perform(get("/auth")).andExpectAll(
+                status().isForbidden,
+                jsonPath("$.errors[0].message").value("Access Denied")
+            )
+                .andDocumentErrorResponse(documentation)
         }
 
         @Test
         fun `should fail when access token is invalid`() {
-            mockMvc.get("/auth") {
-                header("Authorization", "Bearer invalid_access_token")
-            }.andExpect {
-                status { isUnauthorized() }
-                jsonPath("$.errors[0].message") { startsWith("An error occurred while attempting to decode the Jwt") }
-            }
+            mockMvc.perform(
+                get("/auth")
+                    .header("Authorization", "Bearer invalid_access_token")
+            )
+                .andExpectAll(
+                    status().isUnauthorized,
+                    jsonPath("$.errors[0].message").value(
+                        startsWith("An error occurred while attempting to decode the Jwt")
+                    )
+                )
+                .andDocumentErrorResponse(documentation, hasRequestPayload = true)
         }
 
         @Test
@@ -164,12 +221,22 @@ class AuthControllerTest @Autowired constructor(
                 content = objectMapper.writeValueAsString(LoginDto(testAccount.email, testPassword))
             }.andReturn().response.let { response ->
                 val accessToken = objectMapper.readTree(response.contentAsString)["access_token"].asText()
-                mockMvc.get("/auth") {
-                    header("Authorization", "Bearer $accessToken")
-                }.andExpect {
-                    status { isOk() }
-                    jsonPath("$.authenticated_user.email") { value(testAccount.email) }
-                }
+
+                mockMvc.perform(
+                    get("/auth")
+                        .header("Authorization", "Bearer $accessToken")
+                ).andExpectAll(
+                    status().isOk,
+                    jsonPath("$.authenticated_user.email").value(testAccount.email)
+                )
+                    .andDocument(
+                        documentation,
+                        "Check access token",
+                        "This endpoint operation allows to check if a given access token is valid, returning " +
+                            "the associated account's information.",
+                        checkAuthHeaders,
+                        documentRequestPayload = true
+                    )
             }
         }
     }

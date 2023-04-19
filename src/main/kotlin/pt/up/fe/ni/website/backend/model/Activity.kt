@@ -1,5 +1,6 @@
 package pt.up.fe.ni.website.backend.model
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
@@ -11,6 +12,7 @@ import jakarta.persistence.Inheritance
 import jakarta.persistence.InheritanceType
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.OneToMany
+import jakarta.persistence.OrderColumn
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Size
 import pt.up.fe.ni.website.backend.model.constants.ActivityConstants as Constants
@@ -20,23 +22,26 @@ import pt.up.fe.ni.website.backend.model.constants.ActivityConstants as Constant
 abstract class Activity(
     @JsonProperty(required = true)
     @field:Size(min = Constants.Title.minSize, max = Constants.Title.maxSize)
-    open val title: String,
+    var title: String,
 
     @JsonProperty(required = true)
     @field:Size(min = Constants.Description.minSize, max = Constants.Description.maxSize)
-    open val description: String,
+    var description: String,
 
     @JoinColumn
     @OneToMany(fetch = FetchType.EAGER)
-    open val teamMembers: MutableList<Account>,
-    @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
-    open var associatedRoles: List<@Valid PerActivityRole>,
+    val teamMembers: MutableList<Account>,
 
-    @Id
-    @GeneratedValue
-    open val id: Long? = null,
+    @OneToMany(cascade = [CascadeType.ALL], mappedBy = "activity")
+    @OrderColumn
+    @JsonIgnore // TODO: Decide if we want to return perRoles (or IDs) by default
+    val associatedRoles: MutableList<@Valid PerActivityRole> = mutableListOf(),
 
     @Column(unique = true)
     @field:Size(min = Constants.Slug.minSize, max = Constants.Slug.maxSize)
-    open val slug: String? = null
+    val slug: String? = null,
+
+    @Id
+    @GeneratedValue
+    val id: Long? = null
 )

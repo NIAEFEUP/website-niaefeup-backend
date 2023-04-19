@@ -1,5 +1,6 @@
 package pt.up.fe.ni.website.backend.controller
 
+import com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.util.Calendar
 import java.util.Date
@@ -10,11 +11,15 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.delete
-import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
-import org.springframework.test.web.servlet.put
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.CustomWebsite
 import pt.up.fe.ni.website.backend.model.Project
@@ -25,6 +30,11 @@ import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.ValidationTester
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
 import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
+import pt.up.fe.ni.website.backend.utils.documentation.payloadschemas.model.PayloadProject
+import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocument
+import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentEmptyObjectResponse
+import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentErrorResponse
+import pt.up.fe.ni.website.backend.utils.documentation.utils.ModelDocumentation
 
 @ControllerTest
 internal class ProjectControllerTest @Autowired constructor(
@@ -52,10 +62,13 @@ internal class ProjectControllerTest @Autowired constructor(
         "Awesome project",
         "this is a test project",
         mutableListOf(testAccount),
+        mutableListOf(),
+        "awesome-project",
         false,
-        listOf("Java", "Kotlin", "Spring"),
-        slug = "awesome-project"
+        listOf("Java", "Kotlin", "Spring")
     )
+
+    val documentation: ModelDocumentation = PayloadProject()
 
     @NestedTest
     @DisplayName("GET /projects")
@@ -66,6 +79,8 @@ internal class ProjectControllerTest @Autowired constructor(
                 "NIJobs",
                 "Job platform for students",
                 mutableListOf(),
+                mutableListOf(),
+                null,
                 false,
                 listOf("ExpressJS", "React")
             )
@@ -79,11 +94,19 @@ internal class ProjectControllerTest @Autowired constructor(
 
         @Test
         fun `should return all projects`() {
-            mockMvc.get("/projects").andExpect {
-                status { isOk() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                content { json(objectMapper.writeValueAsString(testProjects)) }
-            }
+            mockMvc.perform(get("/projects"))
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    content().json(objectMapper.writeValueAsString(testProjects))
+                )
+                .andDocument(
+                    documentation.getModelDocumentationArray(),
+                    "Get all the projects",
+                    "The operation returns an array of projects, allowing to easily retrieve all the created " +
+                        "projects. This is useful for example in the frontend project page, " +
+                        "where projects are displayed."
+                )
         }
     }
 
@@ -96,27 +119,42 @@ internal class ProjectControllerTest @Autowired constructor(
             repository.save(testProject)
         }
 
+        private val parameters = listOf(parameterWithName("id").description("ID of the project to retrieve"))
+
         @Test
         fun `should return the project`() {
-            mockMvc.get("/projects/${testProject.id}").andExpect {
-                status { isOk() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.title") { value(testProject.title) }
-                jsonPath("$.description") { value(testProject.description) }
-                jsonPath("$.technologies.length()") { value(testProject.technologies.size) }
-                jsonPath("$.technologies[0]") { value(testProject.technologies[0]) }
-                jsonPath("$.slug") { value(testProject.slug) }
-            }
+            mockMvc.perform(get("/projects/{id}", testProject.id))
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.title").value(testProject.title),
+                    jsonPath("$.description").value(testProject.description),
+                    jsonPath("$.technologies.length()").value(testProject.technologies.size),
+                    jsonPath("$.technologies[0]").value(testProject.technologies[0]),
+                    jsonPath("$.slug").value(testProject.slug)
+                )
+                .andDocument(
+                    documentation,
+                    "Get projects by ID",
+                    "This endpoint allows the retrieval of a single project using its ID. " +
+                        "It might be used to generate the specific project page.",
+                    urlParameters = parameters
+                )
         }
 
         @Test
         fun `should fail if the project does not exist`() {
-            mockMvc.get("/projects/1234").andExpect {
-                status { isNotFound() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.errors.length()") { value(1) }
-                jsonPath("$.errors[0].message") { value("project not found with id 1234") }
-            }
+            mockMvc.perform(get("/projects/{id}", 1234))
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("project not found with id 1234")
+                )
+                .andDocumentErrorResponse(
+                    documentation,
+                    urlParameters = parameters
+                )
         }
     }
 
@@ -129,27 +167,46 @@ internal class ProjectControllerTest @Autowired constructor(
             repository.save(testProject)
         }
 
+        private val parameters = listOf(
+            parameterWithName("slug").description(
+                "Short and friendly textual project identifier"
+            )
+        )
+
         @Test
         fun `should return the project`() {
-            mockMvc.get("/projects/${testProject.slug}").andExpect {
-                status { isOk() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.title") { value(testProject.title) }
-                jsonPath("$.description") { value(testProject.description) }
-                jsonPath("$.technologies.length()") { value(testProject.technologies.size) }
-                jsonPath("$.technologies[0]") { value(testProject.technologies[0]) }
-                jsonPath("$.slug") { value(testProject.slug) }
-            }
+            mockMvc.perform(get("/projects/{slug}", testProject.slug))
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.title").value(testProject.title),
+                    jsonPath("$.description").value(testProject.description),
+                    jsonPath("$.technologies.length()").value(testProject.technologies.size),
+                    jsonPath("$.technologies[0]").value(testProject.technologies[0]),
+                    jsonPath("$.slug").value(testProject.slug)
+                )
+                .andDocument(
+                    documentation,
+                    "Get projects by slug",
+                    "This endpoint allows the retrieval of a single project using its slug.",
+                    urlParameters = parameters
+                )
         }
 
         @Test
         fun `should fail if the project does not exist`() {
-            mockMvc.get("/projects/does-not-exist").andExpect {
-                status { isNotFound() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.errors.length()") { value(1) }
-                jsonPath("$.errors[0].message") { value("project not found with slug does-not-exist") }
-            }
+            mockMvc.perform(get("/projects/{slug}", "does-not-exist"))
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message")
+                        .value("project not found with slug does-not-exist")
+                )
+                .andDocumentErrorResponse(
+                    documentation,
+                    urlParameters = parameters
+                )
         }
     }
 
@@ -163,31 +220,40 @@ internal class ProjectControllerTest @Autowired constructor(
 
         @Test
         fun `should create a new project`() {
-            mockMvc.post("/projects/new") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(
-                    mapOf(
-                        "title" to testProject.title,
-                        "description" to testProject.description,
-                        "teamMembersIds" to mutableListOf(testAccount.id!!),
-                        "isArchived" to testProject.isArchived,
-                        "technologies" to testProject.technologies,
-                        "slug" to testProject.slug
+            mockMvc.perform(
+                post("/projects/new")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf(
+                                "title" to testProject.title,
+                                "description" to testProject.description,
+                                "teamMembersIds" to mutableListOf(testAccount.id!!),
+                                "isArchived" to testProject.isArchived,
+                                "technologies" to testProject.technologies,
+                                "slug" to testProject.slug
+                            )
+                        )
                     )
+            )
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.title").value(testProject.title),
+                    jsonPath("$.description").value(testProject.description),
+                    jsonPath("$.teamMembers.length()").value(1),
+                    jsonPath("$.teamMembers[0].email").value(testAccount.email),
+                    jsonPath("$.teamMembers[0].name").value(testAccount.name),
+                    jsonPath("$.technologies.length()").value(testProject.technologies.size),
+                    jsonPath("$.technologies[0]").value(testProject.technologies[0]),
+                    jsonPath("$.slug").value(testProject.slug)
                 )
-            }
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.title") { value(testProject.title) }
-                    jsonPath("$.description") { value(testProject.description) }
-                    jsonPath("$.teamMembers.length()") { value(1) }
-                    jsonPath("$.teamMembers[0].email") { value(testAccount.email) }
-                    jsonPath("$.teamMembers[0].name") { value(testAccount.name) }
-                    jsonPath("$.technologies.length()") { value(testProject.technologies.size) }
-                    jsonPath("$.technologies[0]") { value(testProject.technologies[0]) }
-                    jsonPath("$.slug") { value(testProject.slug) }
-                }
+                .andDocument(
+                    documentation,
+                    "Create new projects",
+                    "This endpoint operation creates a new project.",
+                    documentRequestPayload = true
+                )
         }
 
         @Test
@@ -196,9 +262,10 @@ internal class ProjectControllerTest @Autowired constructor(
                 "Duplicated Slug",
                 "this is a test project with a duplicated slug",
                 mutableListOf(testAccount),
+                mutableListOf(),
+                testProject.slug,
                 false,
-                listOf("Java", "Kotlin", "Spring"),
-                slug = testProject.slug
+                listOf("Java", "Kotlin", "Spring")
             )
 
             mockMvc.post("/projects/new") {
@@ -206,16 +273,18 @@ internal class ProjectControllerTest @Autowired constructor(
                 content = objectMapper.writeValueAsString(testProject)
             }.andExpect { status { isOk() } }
 
-            mockMvc.post("/projects/new") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(duplicatedSlugProject)
-            }
-                .andExpect {
-                    status { isUnprocessableEntity() }
-                    content { MediaType.APPLICATION_JSON }
-                    jsonPath("$.errors.length()") { value(1) }
-                    jsonPath("$.errors[0].message") { value("slug already exists") }
-                }
+            mockMvc.perform(
+                post("/projects/new")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(duplicatedSlugProject))
+            )
+                .andExpectAll(
+                    status().isUnprocessableEntity,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("slug already exists")
+                )
+                .andDocumentErrorResponse(documentation, hasRequestPayload = true)
         }
 
         @NestedTest
@@ -223,10 +292,12 @@ internal class ProjectControllerTest @Autowired constructor(
         inner class InputValidation {
             private val validationTester = ValidationTester(
                 req = { params: Map<String, Any?> ->
-                    mockMvc.post("/projects/new") {
-                        contentType = MediaType.APPLICATION_JSON
-                        content = objectMapper.writeValueAsString(params)
-                    }
+                    mockMvc.perform(
+                        post("/projects/new")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(params))
+                    )
+                        .andDocumentErrorResponse(documentation, hasRequestPayload = true)
                 },
                 requiredFields = mapOf(
                     "title" to testProject.title,
@@ -294,25 +365,39 @@ internal class ProjectControllerTest @Autowired constructor(
             repository.save(testProject)
         }
 
+        private val parameters = listOf(parameterWithName("id").description("ID of the project to delete"))
+
         @Test
         fun `should delete the project`() {
-            mockMvc.delete("/projects/${testProject.id}").andExpect {
-                status { isOk() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$") { isEmpty() }
-            }
+            mockMvc.perform(delete("/projects/{id}", testProject.id))
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$").isEmpty
+                )
+                .andDocumentEmptyObjectResponse(
+                    documentation,
+                    "Delete projects",
+                    "This operation deletes an projects using its ID.",
+                    urlParameters = parameters
+                )
 
             assert(repository.findById(testProject.id!!).isEmpty)
         }
 
         @Test
         fun `should fail if the project does not exist`() {
-            mockMvc.delete("/projects/1234").andExpect {
-                status { isNotFound() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.errors.length()") { value(1) }
-                jsonPath("$.errors[0].message") { value("project not found with id 1234") }
-            }
+            mockMvc.perform(delete("/projects/{id}", 1234))
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("project not found with id 1234")
+                )
+                .andDocumentErrorResponse(
+                    documentation,
+                    urlParameters = parameters
+                )
         }
     }
 
@@ -326,6 +411,8 @@ internal class ProjectControllerTest @Autowired constructor(
             repository.save(testProject)
         }
 
+        val parameters = listOf(parameterWithName("id").description("ID of the project to update"))
+
         @Test
         fun `should update the project without the slug`() {
             val newTitle = "New Title"
@@ -333,25 +420,35 @@ internal class ProjectControllerTest @Autowired constructor(
             val newTeamMembers = mutableListOf<Long>()
             val newIsArchived = true
 
-            mockMvc.put("/projects/${testProject.id}") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(
-                    mapOf(
-                        "title" to newTitle,
-                        "description" to newDescription,
-                        "teamMembersIds" to newTeamMembers,
-                        "isArchived" to newIsArchived
+            mockMvc.perform(
+                put("/projects/{id}", testProject.id)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf(
+                                "title" to newTitle,
+                                "description" to newDescription,
+                                "teamMembersIds" to newTeamMembers,
+                                "isArchived" to newIsArchived
+                            )
+                        )
                     )
+            )
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.title").value(newTitle),
+                    jsonPath("$.description").value(newDescription),
+                    jsonPath("$.teamMembers.length()").value(0),
+                    jsonPath("$.isArchived").value(newIsArchived)
                 )
-            }
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.title") { value(newTitle) }
-                    jsonPath("$.description") { value(newDescription) }
-                    jsonPath("$.teamMembers.length()") { value(0) }
-                    jsonPath("$.isArchived") { value(newIsArchived) }
-                }
+                .andDocument(
+                    documentation,
+                    "Update projects",
+                    "Update a previously created project, using its ID.",
+                    urlParameters = parameters,
+                    documentRequestPayload = true
+                )
 
             val updatedProject = repository.findById(testProject.id!!).get()
             assertEquals(newTitle, updatedProject.title)
@@ -366,25 +463,33 @@ internal class ProjectControllerTest @Autowired constructor(
             val newIsArchived = true
             val newSlug = "new-title"
 
-            mockMvc.put("/projects/${testProject.id}") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(
-                    mapOf(
-                        "title" to newTitle,
-                        "description" to newDescription,
-                        "isArchived" to newIsArchived,
-                        "slug" to newSlug
+            mockMvc.perform(
+                put("/projects/{id}", testProject.id)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf(
+                                "title" to newTitle,
+                                "description" to newDescription,
+                                "isArchived" to newIsArchived,
+                                "slug" to newSlug
+                            )
+                        )
                     )
+            )
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.title").value(newTitle),
+                    jsonPath("$.description").value(newDescription),
+                    jsonPath("$.isArchived").value(newIsArchived),
+                    jsonPath("$.slug").value(newSlug)
                 )
-            }
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.title") { value(newTitle) }
-                    jsonPath("$.description") { value(newDescription) }
-                    jsonPath("$.isArchived") { value(newIsArchived) }
-                    jsonPath("$.slug") { value(newSlug) }
-                }
+                .andDocument(
+                    documentation,
+                    urlParameters = parameters,
+                    documentRequestPayload = true
+                )
 
             val updatedProject = repository.findById(testProject.id!!).get()
             assertEquals(newTitle, updatedProject.title)
@@ -395,21 +500,29 @@ internal class ProjectControllerTest @Autowired constructor(
 
         @Test
         fun `should fail if the project does not exist`() {
-            mockMvc.put("/projects/1234") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(
-                    mapOf(
-                        "title" to "New Title",
-                        "description" to "New description of the project"
+            mockMvc.perform(
+                put("/projects/{id}", 1234)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf(
+                                "title" to "New Title",
+                                "description" to "New description of the project"
+                            )
+                        )
                     )
+            )
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("project not found with id 1234")
                 )
-            }
-                .andExpect {
-                    status { isNotFound() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.errors.length()") { value(1) }
-                    jsonPath("$.errors[0].message") { value("project not found with id 1234") }
-                }
+                .andDocumentErrorResponse(
+                    documentation,
+                    urlParameters = parameters,
+                    hasRequestPayload = true
+                )
         }
 
         @Test
@@ -426,30 +539,39 @@ internal class ProjectControllerTest @Autowired constructor(
                         "Duplicated Slug",
                         "this is a test project with a duplicated slug",
                         mutableListOf(testAccount),
+                        mutableListOf(),
+                        newSlug,
                         false,
-                        listOf("Java", "Kotlin", "Spring"),
-                        slug = newSlug
+                        listOf("Java", "Kotlin", "Spring")
                     )
                 )
             }.andExpect { status { isOk() } }
 
-            mockMvc.put("/projects/${testProject.id}") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(
-                    mapOf(
-                        "title" to newTitle,
-                        "description" to newDescription,
-                        "isArchived" to newIsArchived,
-                        "slug" to newSlug
+            mockMvc.perform(
+                put("/projects/{id}", testProject.id)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf(
+                                "title" to newTitle,
+                                "description" to newDescription,
+                                "isArchived" to newIsArchived,
+                                "slug" to newSlug
+                            )
+                        )
                     )
+            )
+                .andExpectAll(
+                    status().isUnprocessableEntity,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("slug already exists")
                 )
-            }
-                .andExpect {
-                    status { isUnprocessableEntity() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.errors.length()") { value(1) }
-                    jsonPath("$.errors[0].message") { value("slug already exists") }
-                }
+                .andDocumentErrorResponse(
+                    documentation,
+                    urlParameters = parameters,
+                    hasRequestPayload = true
+                )
         }
 
         @NestedTest
@@ -457,10 +579,16 @@ internal class ProjectControllerTest @Autowired constructor(
         inner class InputValidation {
             private val validationTester = ValidationTester(
                 req = { params: Map<String, Any?> ->
-                    mockMvc.put("/projects/${testProject.id}") {
-                        contentType = MediaType.APPLICATION_JSON
-                        content = objectMapper.writeValueAsString(params)
-                    }
+                    mockMvc.perform(
+                        put("/projects/{id}", testProject.id)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(params))
+                    )
+                        .andDocumentErrorResponse(
+                            documentation,
+                            urlParameters = parameters,
+                            hasRequestPayload = true
+                        )
                 },
                 requiredFields = mapOf(
                     "title" to testProject.title,
@@ -528,19 +656,32 @@ internal class ProjectControllerTest @Autowired constructor(
             repository.save(testProject)
         }
 
+        private val parameters = listOf(
+            parameterWithName("id")
+                .description("ID of the project to archive")
+        )
+
         @Test
         fun `should archive the project`() {
             val newIsArchived = true
 
-            mockMvc.put("/projects/${testProject.id}/archive") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString("isArchived" to newIsArchived)
-            }
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.isArchived") { value(newIsArchived) }
-                }
+            mockMvc.perform(
+                put("/projects/{id}/archive", testProject.id)
+            )
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.isArchived").value(newIsArchived)
+                )
+                .andDocument(
+                    documentation,
+                    "Archive projects",
+                    """
+                        |This endpoint archives a project.
+                        |This is useful to mark no longer maintained or complete projects.
+                    """.trimMargin(),
+                    urlParameters = parameters
+                )
 
             val archivedProject = repository.findById(testProject.id!!).get()
             assertEquals(newIsArchived, archivedProject.isArchived)
@@ -554,6 +695,8 @@ internal class ProjectControllerTest @Autowired constructor(
             "proj1",
             "very cool project",
             mutableListOf(),
+            mutableListOf(),
+            null,
             true,
             listOf("React", "TailwindCSS")
         )
@@ -564,19 +707,29 @@ internal class ProjectControllerTest @Autowired constructor(
             repository.save(project)
         }
 
+        private val parameters = listOf(parameterWithName("id").description("ID of the project to unarchive"))
+
         @Test
         fun `should unarchive the project`() {
             val newIsArchived = false
 
-            mockMvc.put("/projects/${project.id}/unarchive") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString("isArchived" to newIsArchived)
-            }
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.isArchived") { value(newIsArchived) }
-                }
+            mockMvc.perform(
+                put("/projects/{id}/unarchive", project.id)
+            )
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.isArchived").value(newIsArchived)
+                )
+                .andDocument(
+                    documentation,
+                    "Unarchive projects",
+                    """
+                        |This endpoint unarchives a project.
+                        |This is useful to mark previously archived projects as active.
+                    """.trimMargin(),
+                    urlParameters = parameters
+                )
 
             val unarchivedProject = repository.findById(project.id!!).get()
             assertEquals(newIsArchived, unarchivedProject.isArchived)
@@ -608,44 +761,61 @@ internal class ProjectControllerTest @Autowired constructor(
             repository.save(testProject)
         }
 
+        private val parameters = listOf(
+            parameterWithName("projectId").description(
+                "ID of the project to add the member to"
+            ),
+            parameterWithName("accountId").description("ID of the account to add")
+        )
+
         @Test
         fun `should add a team member`() {
-            mockMvc.put("/projects/${testProject.id}/addTeamMember/${newAccount.id}")
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.teamMembers.length()") { value(2) }
-                    jsonPath("$.teamMembers[0].name") { value(testAccount.name) }
-                    jsonPath("$.teamMembers[0].email") { value(testAccount.email) }
-                    jsonPath("$.teamMembers[0].bio") { value(testAccount.bio) }
-                    jsonPath("$.teamMembers[0].birthDate") { value(testAccount.birthDate.toJson()) }
-                    jsonPath("$.teamMembers[0].photoPath") { value(testAccount.photoPath) }
-                    jsonPath("$.teamMembers[0].linkedin") { value(testAccount.linkedin) }
-                    jsonPath("$.teamMembers[0].github") { value(testAccount.github) }
-                    jsonPath("$.teamMembers[0].websites.length()") { value(1) }
-                    jsonPath("$.teamMembers[0].websites[0].url") { value(testAccount.websites[0].url) }
-                    jsonPath("$.teamMembers[0].websites[0].iconPath") { value(testAccount.websites[0].iconPath) }
-                    jsonPath("$.teamMembers[1].name") { value(newAccount.name) }
-                    jsonPath("$.teamMembers[1].email") { value(newAccount.email) }
-                    jsonPath("$.teamMembers[1].bio") { value(newAccount.bio) }
-                    jsonPath("$.teamMembers[1].birthDate") { value(newAccount.birthDate.toJson()) }
-                    jsonPath("$.teamMembers[1].photoPath") { value(newAccount.photoPath) }
-                    jsonPath("$.teamMembers[1].linkedin") { value(newAccount.linkedin) }
-                    jsonPath("$.teamMembers[1].github") { value(newAccount.github) }
-                    jsonPath("$.teamMembers[1].websites.length()") { value(1) }
-                    jsonPath("$.teamMembers[1].websites[0].url") { value(newAccount.websites[0].url) }
-                    jsonPath("$.teamMembers[1].websites[0].iconPath") { value(newAccount.websites[0].iconPath) }
-                }
+            mockMvc.perform(
+                put("/projects/{projectId}/addTeamMember/{accountId}", testProject.id, newAccount.id)
+            )
+                .andExpectAll(
+                    status().isOk, content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.teamMembers.length()").value(2),
+                    jsonPath("$.teamMembers[0].name").value(testAccount.name),
+                    jsonPath("$.teamMembers[0].email").value(testAccount.email),
+                    jsonPath("$.teamMembers[0].bio").value(testAccount.bio),
+                    jsonPath("$.teamMembers[0].birthDate").value(testAccount.birthDate.toJson()),
+                    jsonPath("$.teamMembers[0].linkedin").value(testAccount.linkedin),
+                    jsonPath("$.teamMembers[0].github").value(testAccount.github),
+                    jsonPath("$.teamMembers[0].websites.length()").value(1),
+                    jsonPath("$.teamMembers[0].websites[0].url").value(testAccount.websites[0].url),
+                    jsonPath("$.teamMembers[0].websites[0].iconPath").value(testAccount.websites[0].iconPath),
+                    jsonPath("$.teamMembers[1].name").value(newAccount.name),
+                    jsonPath("$.teamMembers[1].email").value(newAccount.email),
+                    jsonPath("$.teamMembers[1].bio").value(newAccount.bio),
+                    jsonPath("$.teamMembers[1].birthDate").value(newAccount.birthDate.toJson()),
+                    jsonPath("$.teamMembers[1].linkedin").value(newAccount.linkedin),
+                    jsonPath("$.teamMembers[1].github").value(newAccount.github),
+                    jsonPath("$.teamMembers[1].websites.length()").value(1),
+                    jsonPath("$.teamMembers[1].websites[0].url").value(newAccount.websites[0].url),
+                    jsonPath("$.teamMembers[1].websites[0].iconPath").value(newAccount.websites[0].iconPath)
+                )
+                .andDocument(
+                    documentation,
+                    "Add team member to Project",
+                    "This operation adds a team member to a given project.",
+                    urlParameters = parameters
+                )
         }
 
         @Test
         fun `should fail if the team member does not exist`() {
-            mockMvc.put("/projects/${testProject.id}/addTeamMember/1234").andExpect {
-                status { isNotFound() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.errors.length()") { value(1) }
-                jsonPath("$.errors[0].message") { value("account not found with id 1234") }
-            }
+            mockMvc.perform(put("/projects/{projectId}/addTeamMember/{accountId}", testProject.id, 1234))
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("account not found with id 1234")
+                )
+                .andDocumentErrorResponse(
+                    documentation,
+                    urlParameters = parameters
+                )
         }
     }
 
@@ -659,24 +829,42 @@ internal class ProjectControllerTest @Autowired constructor(
             repository.save(testProject)
         }
 
+        private val parameters = listOf(
+            parameterWithName("projectId").description(
+                "ID of the project to remove the member from"
+            ),
+            parameterWithName("accountId").description("ID of the account to remove")
+        )
+
         @Test
         fun `should remove a team member`() {
-            mockMvc.put("/projects/${testProject.id}/removeTeamMember/${testAccount.id}")
-                .andExpect {
-                    status { isOk() }
-                    content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.teamMembers.length()") { value(0) }
-                }
+            mockMvc.perform(put("/projects/{projectId}/removeTeamMember/{accountId}", testProject.id, testAccount.id))
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.teamMembers.length()").value(0)
+                )
+                .andDocument(
+                    documentation,
+                    "Remove team member from Project",
+                    "This operation removes a team member of a given project.",
+                    urlParameters = parameters
+                )
         }
 
         @Test
         fun `should fail if the team member does not exist`() {
-            mockMvc.put("/projects/${testProject.id}/removeTeamMember/1234").andExpect {
-                status { isNotFound() }
-                content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.errors.length()") { value(1) }
-                jsonPath("$.errors[0].message") { value("account not found with id 1234") }
-            }
+            mockMvc.perform(put("/projects/{projectId}/removeTeamMember/{accountId}", testProject.id, 1234))
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("account not found with id 1234")
+                )
+                .andDocumentErrorResponse(
+                    documentation,
+                    urlParameters = parameters
+                )
         }
     }
 

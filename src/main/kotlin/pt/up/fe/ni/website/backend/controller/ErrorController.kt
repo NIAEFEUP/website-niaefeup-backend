@@ -1,5 +1,6 @@
 package pt.up.fe.ni.website.backend.controller
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.exc.InvalidFormatException
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
@@ -9,11 +10,14 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.core.AuthenticationException
+import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.multipart.MaxUploadSizeExceededException
+import pt.up.fe.ni.website.backend.config.Logging
 
 data class SimpleError(
     val message: String,
@@ -25,7 +29,7 @@ data class CustomError(val errors: List<SimpleError>)
 
 @RestController
 @RestControllerAdvice
-class ErrorController : ErrorController {
+class ErrorController(private val objectMapper: ObjectMapper) : ErrorController, Logging {
 
     @RequestMapping("/**")
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -40,7 +44,23 @@ class ErrorController : ErrorController {
                 SimpleError(
                     violation.message,
                     violation.propertyPath.toString(),
-                    violation.invalidValue
+                    violation.invalidValue.takeIf { it.isSerializable() }
+                )
+            )
+        }
+        return CustomError(errors)
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException::class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun invalidArguments(e: MethodArgumentNotValidException): CustomError {
+        val errors = mutableListOf<SimpleError>()
+        e.bindingResult.fieldErrors.forEach { error ->
+            errors.add(
+                SimpleError(
+                    error.defaultMessage ?: "invalid",
+                    error.field,
+                    error.rejectedValue?.takeIf { it.isSerializable() }
                 )
             )
         }
@@ -89,10 +109,16 @@ class ErrorController : ErrorController {
         return wrapSimpleError(e.message ?: "invalid argument")
     }
 
+    @ExceptionHandler(MaxUploadSizeExceededException::class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    fun invalidFileSize(e: MaxUploadSizeExceededException): CustomError {
+        return wrapSimpleError(e.message ?: "maximum upload size exceeded")
+    }
+
     @ExceptionHandler(Exception::class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     fun unexpectedError(e: Exception): CustomError {
-        System.err.println(e)
+        logger.error(e.message)
         return wrapSimpleError("unexpected error: " + e.message)
     }
 
@@ -111,4 +137,11 @@ class ErrorController : ErrorController {
     fun wrapSimpleError(msg: String, param: String? = null, value: Any? = null) = CustomError(
         mutableListOf(SimpleError(msg, param, value))
     )
+
+    fun Any.isSerializable() = try {
+        objectMapper.writeValueAsString(this)
+        true
+    } catch (err: Exception) {
+        false
+    }
 }

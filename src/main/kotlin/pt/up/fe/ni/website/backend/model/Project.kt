@@ -8,9 +8,11 @@ class Project(
     description: String,
     var hallOfFame: MutableList<Account> = mutableListOf(),
     teamMembers: MutableList<Account> = mutableListOf(),
+    associatedRoles: MutableList<PerActivityRole> = mutableListOf(),
+    slug: String? = null,
+
     var isArchived: Boolean = false,
     val technologies: List<String> = emptyList(),
-    associatedRoles: List<PerActivityRole> = emptyList(),
-    id: Long? = null,
-    slug: String? = null
-) : Activity(title, description, teamMembers, associatedRoles, id, slug)
+
+    id: Long? = null
+) : Activity(title, description, teamMembers, associatedRoles, slug, id)

@@ -44,7 +44,7 @@ class AccountTest {
             null,
             null,
             emptyList(),
-            listOf(
+            mutableListOf(
                 memberRole,
                 websiteManagerRole,
                 websiteDeveloperRole
@@ -61,7 +61,7 @@ class AccountTest {
             null,
             null,
             emptyList(),
-            listOf(
+            mutableListOf(
                 memberRole,
                 websiteDeveloperRole
             )
@@ -77,53 +77,64 @@ class AccountTest {
             null,
             null,
             emptyList(),
-            listOf(
+            mutableListOf(
                 memberRole
             )
         )
 
-        memberRole.accounts = listOf(
-            managerAccount,
-            developerAccount,
-            memberAccount
+        memberRole.accounts.addAll(
+            listOf(
+                managerAccount,
+                developerAccount,
+                memberAccount
+            )
         )
 
-        websiteManagerRole.accounts = listOf(
-            managerAccount
+        websiteManagerRole.accounts.addAll(
+            listOf(
+                managerAccount
+            )
         )
-
-        websiteDeveloperRole.accounts = listOf(
-            managerAccount,
-            developerAccount
+        websiteDeveloperRole.accounts.addAll(
+            listOf(
+                managerAccount,
+                developerAccount
+            )
         )
 
         val websiteManagerToProject = PerActivityRole(
-            websiteManagerRole,
-            websiteProject,
             Permissions(
                 listOf(Permission.EDIT_SETTINGS, Permission.DELETE_ACTIVITY)
             )
         )
+        websiteManagerToProject.role = websiteManagerRole
+        websiteManagerToProject.activity = websiteProject
 
         val websiteDeveloperToProject = PerActivityRole(
-            websiteDeveloperRole,
-            websiteProject,
             Permissions(
                 listOf(Permission.VIEW_ACTIVITY, Permission.EDIT_ACTIVITY)
             )
         )
+        websiteDeveloperToProject.role = websiteDeveloperRole
+        websiteDeveloperToProject.activity = websiteProject
 
-        websiteProject.associatedRoles = listOf(
-            websiteManagerToProject,
-            websiteDeveloperToProject
+        websiteProject.associatedRoles.addAll(
+            listOf(
+                websiteManagerToProject,
+                websiteDeveloperToProject
+            )
         )
 
-        websiteManagerRole.associatedActivities = listOf(
-            websiteManagerToProject
+        websiteManagerRole.associatedActivities.addAll(
+            listOf(
+                websiteManagerToProject
+            )
         )
 
-        websiteDeveloperRole.associatedActivities = listOf(
-            websiteDeveloperToProject
+        websiteDeveloperRole.associatedActivities.addAll(
+            listOf(
+                websiteDeveloperToProject
+            )
         )
 
         Assertions.assertEquals(

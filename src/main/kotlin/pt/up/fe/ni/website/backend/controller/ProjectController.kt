@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import pt.up.fe.ni.website.backend.dto.entity.ProjectDto
-import pt.up.fe.ni.website.backend.service.ProjectService
+import pt.up.fe.ni.website.backend.service.activity.ProjectService
 
 @RestController
 @RequestMapping("/projects")
@@ -28,10 +28,13 @@ class ProjectController(private val service: ProjectService) {
     fun createNewProject(@RequestBody dto: ProjectDto) = service.createProject(dto)
 
     @DeleteMapping("/{id}")
-    fun deleteProjectById(@PathVariable id: Long) = service.deleteProjectById(id)
+    fun deleteProjectById(@PathVariable id: Long): Map<String, String> {
+        service.deleteProjectById(id)
+        return emptyMap()
+    }
 
     @PutMapping("/{id}")
-    fun updatePostById(
+    fun updateProjectById(
         @PathVariable id: Long,
         @RequestBody dto: ProjectDto
     ) = service.updateProjectById(id, dto)

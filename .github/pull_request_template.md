@@ -5,7 +5,7 @@ Closes #[issue number]
 [Description of the changes proposed in the pull request]
 
 # Review checklist
--   [ ] Properly documents API changes in `docs/openapi.yml`
+-   [ ] Properly documents API changes in the corresponding controller test
 -   [ ] Contains enough appropriate tests
 -   [ ] Behavior is as expected
 -   [ ] Clean, well structured code
