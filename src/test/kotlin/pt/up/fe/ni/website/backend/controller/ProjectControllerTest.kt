@@ -61,6 +61,7 @@ internal class ProjectControllerTest @Autowired constructor(
     val testProject = Project(
         "Awesome project",
         "this is a test project",
+        mutableListOf(),
         mutableListOf(testAccount),
         mutableListOf(),
         "awesome-project",
@@ -78,6 +79,7 @@ internal class ProjectControllerTest @Autowired constructor(
             Project(
                 "NIJobs",
                 "Job platform for students",
+                mutableListOf(),
                 mutableListOf(),
                 mutableListOf(),
                 null,
@@ -261,6 +263,7 @@ internal class ProjectControllerTest @Autowired constructor(
             val duplicatedSlugProject = Project(
                 "Duplicated Slug",
                 "this is a test project with a duplicated slug",
+                mutableListOf(),
                 mutableListOf(testAccount),
                 mutableListOf(),
                 testProject.slug,
@@ -538,6 +541,7 @@ internal class ProjectControllerTest @Autowired constructor(
                     Project(
                         "Duplicated Slug",
                         "this is a test project with a duplicated slug",
+                        mutableListOf(),
                         mutableListOf(testAccount),
                         mutableListOf(),
                         newSlug,
@@ -694,6 +698,7 @@ internal class ProjectControllerTest @Autowired constructor(
         private val project = Project(
             "proj1",
             "very cool project",
+            mutableListOf(),
             mutableListOf(),
             mutableListOf(),
             null,
