@@ -12,7 +12,7 @@ import org.springframework.web.filter.CorsFilter
 @EnableWebSecurity
 class CorsConfig {
     @field:Value("\${frontend.url}")
-    final lateinit var url: String;
+    final lateinit var url: String
 
     @Bean
     fun corsFilter(): CorsFilter {
