@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import pt.up.fe.ni.website.backend.dto.entity.RoleDto
 import pt.up.fe.ni.website.backend.dto.permissions.PermissionsDto
-import pt.up.fe.ni.website.backend.model.permissions.Permission
 import pt.up.fe.ni.website.backend.model.permissions.Permissions
 import pt.up.fe.ni.website.backend.service.RoleService
 
@@ -32,15 +31,18 @@ class RoleController(private val roleService: RoleService) {
     }
 
     @PostMapping("/{id}/grant")
-    fun grantPermissionRole(@PathVariable id: Long,
-                            @RequestBody permissionsDto: PermissionsDto
+    fun grantPermissionRole(
+        @PathVariable id: Long,
+        @RequestBody permissionsDto: PermissionsDto
     ): Map<String, String> {
         roleService.grantPermissionToRole(id, Permissions(permissionsDto.permissions))
         return emptyMap()
     }
 
     @PostMapping("/{id}/revoke")
-    fun revokePermissionRole(@PathVariable id: Long,  @RequestBody permissionsDto: PermissionsDto
+    fun revokePermissionRole(
+        @PathVariable id: Long,
+        @RequestBody permissionsDto: PermissionsDto
     ): Map<String, String> {
         roleService.revokePermissionFromRole(id, Permissions(permissionsDto.permissions))
         return emptyMap()
@@ -64,8 +66,11 @@ class RoleController(private val roleService: RoleService) {
         @PathVariable activityId: Long,
         @RequestBody permissionsDto: PermissionsDto
     ): Map<String, String> {
-        roleService.grantPermissionToRoleOnActivity(id, activityId,
-            Permissions(permissionsDto.permissions))
+        roleService.grantPermissionToRoleOnActivity(
+            id,
+            activityId,
+            Permissions(permissionsDto.permissions)
+        )
         return emptyMap()
     }
 
@@ -75,8 +80,11 @@ class RoleController(private val roleService: RoleService) {
         @PathVariable activityId: Long,
         @RequestBody permissionsDto: PermissionsDto
     ): Map<String, String> {
-        roleService.revokePermissionFromRoleOnActivity(id, activityId,
-            Permissions(permissionsDto.permissions))
+        roleService.revokePermissionFromRoleOnActivity(
+            id,
+            activityId,
+            Permissions(permissionsDto.permissions)
+        )
         return emptyMap()
     }
 }

@@ -80,7 +80,6 @@ class RoleService(
         foundActivity.permissions.removeAll(permissions)
         perActivityRoleRepository.save(foundActivity)
         activityRepository.save(activity)
-
     }
 
     fun createNewRole(dto: RoleDto): Role {
