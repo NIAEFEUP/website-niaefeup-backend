@@ -230,6 +230,7 @@ internal class ProjectControllerTest @Autowired constructor(
                             mapOf(
                                 "title" to testProject.title,
                                 "description" to testProject.description,
+                                "hallOfFame" to testProject.hallOfFame,
                                 "teamMembersIds" to mutableListOf(testAccount.id!!),
                                 "isArchived" to testProject.isArchived,
                                 "technologies" to testProject.technologies,
@@ -243,6 +244,7 @@ internal class ProjectControllerTest @Autowired constructor(
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.title").value(testProject.title),
                     jsonPath("$.description").value(testProject.description),
+                    jsonPath("$.hallOfFame.length()").value(0),
                     jsonPath("$.teamMembers.length()").value(1),
                     jsonPath("$.teamMembers[0].email").value(testAccount.email),
                     jsonPath("$.teamMembers[0].name").value(testAccount.name),
