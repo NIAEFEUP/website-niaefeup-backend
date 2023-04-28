@@ -50,4 +50,10 @@ class Role(
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonBackReference
     lateinit var generation: Generation
+
+    override fun toString(): String {
+        val finalPermissions = permissions.joinToString(separator = " ") { it.name } +
+            " " + associatedActivities.joinToString(separator = " ")
+        return finalPermissions.trimEnd()
+    }
 }

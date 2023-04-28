@@ -26,4 +26,10 @@ class PerActivityRole(
     @ManyToOne
     @JsonBackReference
     lateinit var role: Role
+
+    override fun toString(): String {
+        val activityTitle = activity.title.filter { it.isLetterOrDigit() }
+        val permissionNames = permissions.joinToString(separator = "-") { it.name }
+        return "$activityTitle:$permissionNames"
+    }
 }

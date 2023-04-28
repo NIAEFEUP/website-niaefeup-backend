@@ -57,4 +57,10 @@ class AccountService(private val repository: AccountRepository, private val enco
         }
         repository.deleteById(id)
     }
+
+    fun getRoles(account: Account): List<String> {
+        return account.roles.map { role ->
+            "${role.name}(${role.permissions.joinToString { it.name }})"
+        }
+    }
 }

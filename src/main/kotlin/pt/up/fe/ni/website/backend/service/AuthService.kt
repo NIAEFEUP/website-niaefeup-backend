@@ -16,6 +16,8 @@ import org.springframework.security.oauth2.server.resource.InvalidBearerTokenExc
 import org.springframework.stereotype.Service
 import pt.up.fe.ni.website.backend.config.auth.AuthConfigProperties
 import pt.up.fe.ni.website.backend.model.Account
+import pt.up.fe.ni.website.backend.model.Project
+import pt.up.fe.ni.website.backend.repository.ActivityRepository
 
 @Service
 class AuthService(
@@ -23,14 +25,15 @@ class AuthService(
     val authConfigProperties: AuthConfigProperties,
     val jwtEncoder: JwtEncoder,
     val jwtDecoder: JwtDecoder,
-    private val passwordEncoder: PasswordEncoder
+    private val passwordEncoder: PasswordEncoder,
+    val repository: ActivityRepository<Project>
 ) {
     fun authenticate(email: String, password: String): Account {
         val account = accountService.getAccountByEmail(email)
         if (!passwordEncoder.matches(password, account.password)) {
             throw InvalidBearerTokenException(ErrorMessages.invalidCredentials)
         }
-        val authentication = UsernamePasswordAuthenticationToken(email, password, getAuthorities())
+        val authentication = UsernamePasswordAuthenticationToken(email, password, getAuthorities(account))
         SecurityContextHolder.getContext().authentication = authentication
         return account
     }
@@ -63,7 +66,7 @@ class AuthService(
     }
 
     private fun generateToken(account: Account, expiration: Duration, isRefresh: Boolean = false): String {
-        val roles = if (isRefresh) emptyList() else getAuthorities() // TODO: Pass account to getAuthorities()
+        val roles = if (isRefresh) emptyList() else getAuthorities(account)
         val scope = roles
             .stream()
             .map(GrantedAuthority::getAuthority)
@@ -80,9 +83,18 @@ class AuthService(
         return jwtEncoder.encode(JwtEncoderParameters.from(claims)).tokenValue
     }
 
-    private fun getAuthorities(): List<GrantedAuthority> {
-        return listOf("BOARD", "MEMBER").stream() // TODO: get roles from account
-            .map { role -> SimpleGrantedAuthority(role) }
-            .collect(Collectors.toList())
+    private fun getAuthorities(account: Account): List<GrantedAuthority> {
+       /* val testRole = Role("MEMBER", Permissions(listOf(Permission.CREATE_ACCOUNT, Permission.CREATE_ACTIVITY)), false)
+        val testPerActivityRole = PerActivityRole(Permissions(listOf(Permission.CREATE_ACCOUNT, Permission.CREATE_ACTIVITY)))
+        val activity = Project("Test Activity", "Test Description", mutableListOf(), mutableListOf())
+        testPerActivityRole.activity = activity
+        repository.save(activity)
+        testRole.associatedActivities.add(testPerActivityRole)
+        account.roles.add(testRole)
+*/
+        return account.roles.flatMap { role ->
+            val roleString = "${role.name} ${role.permissions.joinToString(separator = " ") { it.name }}"
+            roleString.split(" ")
+        }.map { SimpleGrantedAuthority(it) }
     }
 }
