@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
+import java.util.Locale
 import pt.up.fe.ni.website.backend.model.permissions.Permissions
 import pt.up.fe.ni.website.backend.model.permissions.PermissionsConverter
 
@@ -28,7 +29,7 @@ class PerActivityRole(
     lateinit var role: Role
 
     override fun toString(): String {
-        val activityTitle = activity.title.filter { it.isLetterOrDigit() }
+        val activityTitle = activity.title.filter { it.isLetterOrDigit() }.uppercase(Locale.getDefault())
         val permissionNames = permissions.joinToString(separator = "-") { it.name }
         return "$activityTitle:$permissionNames"
     }

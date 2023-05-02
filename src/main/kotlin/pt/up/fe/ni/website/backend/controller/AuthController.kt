@@ -29,7 +29,7 @@ class AuthController(val authService: AuthService) {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('MEMBER')")
+    @PreAuthorize("@authService.hasPermission(1)")
     fun checkAuthentication(): Map<String, Account> {
         val account = authService.getAuthenticatedAccount()
         return mapOf("authenticated_user" to account)
