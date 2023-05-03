@@ -1,19 +1,19 @@
 package pt.up.fe.ni.website.backend.service
 
+import java.time.Instant
 import java.util.UUID
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException
 import org.springframework.stereotype.Service
-import pt.up.fe.ni.website.backend.dto.auth.PassRecoveryDto
-import pt.up.fe.ni.website.backend.model.Account
-import pt.up.fe.ni.website.backend.repository.AccountRepository
-import java.time.Instant
 import org.springframework.web.multipart.MultipartFile
 import pt.up.fe.ni.website.backend.dto.auth.ChangePasswordDto
+import pt.up.fe.ni.website.backend.dto.auth.PassRecoveryDto
 import pt.up.fe.ni.website.backend.dto.entity.account.CreateAccountDto
 import pt.up.fe.ni.website.backend.dto.entity.account.UpdateAccountDto
+import pt.up.fe.ni.website.backend.model.Account
+import pt.up.fe.ni.website.backend.repository.AccountRepository
 import pt.up.fe.ni.website.backend.service.upload.FileUploader
 import pt.up.fe.ni.website.backend.utils.extensions.filenameExtension
 

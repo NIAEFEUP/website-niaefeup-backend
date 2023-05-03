@@ -65,6 +65,12 @@ class PayloadRecoverPassword : ModelDocumentation(
             "Id of the account",
             JsonFieldType.NUMBER,
             isInResponse = false
+        ),
+        DocumentedJSONField(
+            "recovery_url",
+            "URL to recover the password",
+            JsonFieldType.STRING,
+            isInRequest = false
         )
     )
 )

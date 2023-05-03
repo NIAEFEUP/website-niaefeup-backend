@@ -198,7 +198,7 @@ class AuthControllerTest @Autowired constructor(
                     status().isNotFound(),
                     jsonPath("$.errors.length()").value(1),
                     jsonPath("$.errors[0].message").value("account not found with id 1234")
-                ).andDocument(
+                ).andDocumentErrorResponse(
                     documentation,
                     "Recover password",
                     "This endpoint operation allows the recovery of the password of an account, " +
@@ -213,7 +213,13 @@ class AuthControllerTest @Autowired constructor(
                 .andExpectAll(
                     status().isOk(),
                     jsonPath("$.recovery_url").exists()
-                ).andDocumentErrorResponse(documentation)
+                ).andDocument(
+                    documentation,
+                    "Recover password",
+                    "This endpoint operation allows the recovery of the password of an account, " +
+                        "sending an email with a link to reset the password.",
+                    documentRequestPayload = false
+                )
         }
     }
 

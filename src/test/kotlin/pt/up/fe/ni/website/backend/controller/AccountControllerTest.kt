@@ -40,6 +40,7 @@ import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
 import pt.up.fe.ni.website.backend.utils.documentation.payloadschemas.model.PayloadAccount
 import pt.up.fe.ni.website.backend.utils.documentation.utils.DocumentedJSONField
 import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocument
+import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentCustomRequestSchema
 import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentCustomRequestSchemaEmptyResponse
 import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentCustomRequestSchemaErrorResponse
 import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentEmptyObjectResponse
@@ -915,7 +916,7 @@ class AccountControllerTest @Autowired constructor(
         private val passwordRecoveryPayload = PayloadSchema(
             "password-recover",
             mutableListOf(
-                DocumentedJSONField("password", "The new password.", JsonFieldType.STRING),
+                DocumentedJSONField("password", "The new password.", JsonFieldType.STRING)
             )
         )
 
@@ -928,20 +929,21 @@ class AccountControllerTest @Autowired constructor(
         fun `should update the password`() {
             mockMvc.perform(post("/auth/recoverPassword/${testAccount.id}"))
                 .andReturn().response.let { authResponse ->
-                    val recoveryLink = objectMapper.readTree(authResponse.contentAsString)["recovery_url"].asText()
-                        .removePrefix("localhost:8080")
-                    mockMvc.perform(put(recoveryLink)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(
-                            objectMapper.writeValueAsString(
-                                mapOf(
-                                    "password" to newPassword
+                    val recoveryToken = objectMapper.readTree(authResponse.contentAsString)["recovery_url"].asText()
+                        .removePrefix("localhost:8080/accounts/recoverPassword/")
+                    mockMvc.perform(
+                        put("/accounts/recoverPassword/{recoveryToken}", recoveryToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(
+                                objectMapper.writeValueAsString(
+                                    mapOf(
+                                        "password" to newPassword
+                                    )
                                 )
                             )
-                        )
                     ).andExpectAll(
                         status().isOk()
-                    ).andDocumentCustomRequestSchemaEmptyResponse(
+                    ).andDocumentCustomRequestSchema(
                         documentation,
                         passwordRecoveryPayload,
                         "Recover password",
@@ -954,15 +956,16 @@ class AccountControllerTest @Autowired constructor(
 
         @Test
         fun `should fail when token is invalid`() {
-            mockMvc.perform(put("/accounts/recoverPassword/invalid_token")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                    objectMapper.writeValueAsString(
-                        mapOf(
-                            "password" to newPassword
+            mockMvc.perform(
+                put("/accounts/recoverPassword/invalid_token")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf(
+                                "password" to newPassword
+                            )
                         )
                     )
-                )
             ).andExpectAll(
                 status().isUnauthorized(),
                 jsonPath("$.errors.length()").value(1),
