@@ -3,6 +3,7 @@ package pt.up.fe.ni.website.backend.controller
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -39,5 +40,11 @@ class AuthController(val authService: AuthService, val repository: ActivityRepos
             "authenticated_user" to account,
             "jwt_permissions" to authentication.authorities.map { it.toString() }.toList()
         )
+    }
+
+    @PreAuthorize("@authService.hasPermission(#permission.trim().toUpperCase())")
+    @GetMapping("/protected/{permission}")
+    fun protectedEndpoint(@PathVariable permission: String): Map<String, String> {
+        return mapOf("message" to "You have permission to access this endpoint!")
     }
 }
