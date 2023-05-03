@@ -1,4 +1,4 @@
-package pt.up.fe.ni.website.backend.config
+package pt.up.fe.ni.website.backend.config.auth
 
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
@@ -11,14 +11,14 @@ import org.springframework.web.filter.CorsFilter
 @Configuration
 @EnableWebSecurity
 class CorsConfig {
-    @field:Value("\${frontend.url}")
-    final lateinit var url: String
+    @field:Value("\${cors.allow-origin}")
+    final lateinit var origin: String
 
     @Bean
     fun corsFilter(): CorsFilter {
         val source = UrlBasedCorsConfigurationSource()
         val config = CorsConfiguration()
-        config.addAllowedOrigin(url)
+        config.addAllowedOrigin(origin)
         config.addAllowedHeader("*")
         config.addAllowedMethod("GET")
         config.addAllowedMethod("POST")
