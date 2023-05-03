@@ -2,6 +2,7 @@ package pt.up.fe.ni.website.backend.service
 
 import java.time.Duration
 import java.time.Instant
+import java.util.Locale
 import java.util.stream.Collectors
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.GrantedAuthority
@@ -13,31 +14,40 @@ import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.security.oauth2.jwt.JwtEncoder
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException
-import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import pt.up.fe.ni.website.backend.config.auth.AuthConfigProperties
 import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.Project
-import pt.up.fe.ni.website.backend.model.permissions.Permission
 import pt.up.fe.ni.website.backend.repository.ActivityRepository
+import pt.up.fe.ni.website.backend.service.activity.ActivityService
 
 @Service
-@Component("authService")
 class AuthService(
     val accountService: AccountService,
+    val activityService: ActivityService,
     val authConfigProperties: AuthConfigProperties,
     val jwtEncoder: JwtEncoder,
     val jwtDecoder: JwtDecoder,
     private val passwordEncoder: PasswordEncoder,
     val repository: ActivityRepository<Project>
 ) {
-    fun hasPermission(permission: Permission): Boolean {
-        println("here")
-        val authorities = SecurityContextHolder.getContext().authentication.authorities
-        for (a in authorities) {
-            println(a)
+    fun hasPermission(permission: String): Boolean {
+        val authentication = SecurityContextHolder.getContext().authentication
+        return authentication.authorities.any {
+            it.toString() == permission
         }
-        return false
+    }
+
+    fun hasActivityPermission(activityId: Long, permission: String): Boolean {
+        val authentication = SecurityContextHolder.getContext().authentication
+
+        val activity = activityService.getActivityById(activityId)
+        val name = activity.title.filter { it.isLetterOrDigit() }.uppercase(Locale.getDefault())
+
+        return authentication.authorities.any { it ->
+            val payload = it.toString().split(":")
+            payload.size == 2 && payload[0] == name && payload[1].split("-").any { p -> p == permission }
+        }
     }
 
     fun authenticate(email: String, password: String): Account {
@@ -78,31 +88,29 @@ class AuthService(
 
     private fun generateToken(account: Account, expiration: Duration, isRefresh: Boolean = false): String {
         val roles = if (isRefresh) emptyList() else generateAuthorities(account)
-        val scope = roles.stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining(" "))
+        val scope = roles
+            .stream()
+            .map(GrantedAuthority::getAuthority)
+            .collect(Collectors.joining(" "))
         val currentInstant = Instant.now()
-        val claims =
-            JwtClaimsSet.builder().issuer("self").issuedAt(currentInstant).expiresAt(currentInstant.plus(expiration))
-                .subject(account.email).claim("scope", scope).build()
+        val claims = JwtClaimsSet
+            .builder()
+            .issuer("self")
+            .issuedAt(currentInstant)
+            .expiresAt(currentInstant.plus(expiration))
+            .subject(account.email)
+            .claim("scope", scope).build()
         return jwtEncoder.encode(JwtEncoderParameters.from(claims)).tokenValue
     }
 
     private fun generateAuthorities(account: Account): List<GrantedAuthority> {
-        /*val testRole = Role("MEMBER", Permissions(listOf(Permission.CREATE_ACCOUNT, Permission.CREATE_ACTIVITY)), false)
-        val testPerActivityRole = PerActivityRole(
-            Permissions(listOf(Permission.CREATE_ACCOUNT, Permission.CREATE_ACTIVITY))
-        )
-        val activity = Project("Test Activity", "Test Description", mutableListOf(), mutableListOf())
-        testPerActivityRole.activity = activity
-        repository.save(activity)
-        testRole.associatedActivities.add(testPerActivityRole)
-        account.roles.add(testRole)
-        */
-
         return account.roles.map {
             it.toString().split(" ")
-        }.flatten().distinct().map {
-            println(it)
-            SimpleGrantedAuthority(it)
         }
+            .flatten()
+            .distinct()
+            .map {
+                SimpleGrantedAuthority(it)
+            }
     }
 }
