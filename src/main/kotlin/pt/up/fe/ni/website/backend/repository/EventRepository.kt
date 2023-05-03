@@ -5,6 +5,5 @@ import pt.up.fe.ni.website.backend.model.Event
 
 @Repository
 interface EventRepository : ActivityRepository<Event> {
-
     fun findAllByCategory(category: String): List<Event>
 }

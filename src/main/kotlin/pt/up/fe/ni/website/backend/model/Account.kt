@@ -1,5 +1,6 @@
 package pt.up.fe.ni.website.backend.model
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
@@ -8,18 +9,20 @@ import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
+import jakarta.persistence.JoinTable
 import jakarta.persistence.ManyToMany
 import jakarta.persistence.OneToMany
+import jakarta.persistence.OrderColumn
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.Past
 import jakarta.validation.constraints.Size
-import org.hibernate.validator.constraints.URL
-import pt.up.fe.ni.website.backend.annotations.validation.NullOrNotBlank
-import pt.up.fe.ni.website.backend.model.permissions.Permissions
 import java.util.Date
+import org.hibernate.validator.constraints.URL
 import pt.up.fe.ni.website.backend.model.constants.AccountConstants as Constants
+import pt.up.fe.ni.website.backend.model.permissions.Permissions
+import pt.up.fe.ni.website.backend.utils.validation.NullOrNotBlank
 
 @Entity
 class Account(
@@ -43,8 +46,7 @@ class Account(
     var birthDate: Date?,
 
     @field:NullOrNotBlank
-    @field:URL
-    var photoPath: String?,
+    var photo: String?,
 
     @field:NullOrNotBlank
     @field:URL
@@ -58,9 +60,11 @@ class Account(
     @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
     val websites: List<@Valid CustomWebsite> = emptyList(),
 
-    @JoinColumn
-    @ManyToMany(fetch = FetchType.EAGER)
-    var roles: List<@Valid Role> = emptyList(),
+    @ManyToMany
+    @JoinTable
+    @OrderColumn
+    @JsonIgnore // TODO: Decide if we want to return roles (or IDs) by default
+    val roles: MutableList<@Valid Role> = mutableListOf(),
 
     @Id @GeneratedValue
     val id: Long? = null

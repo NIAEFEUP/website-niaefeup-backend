@@ -1,0 +1,6 @@
+Authentication: Endpoints and operations for authentication management.
+Accounts: Endpoints and operations for account management.
+Events: Endpoints and operations for event management.
+Generations: Endpoints and operations for generations management.
+Posts: Endpoints and operations for post management.
+Projects: Endpoints and operations for project management.

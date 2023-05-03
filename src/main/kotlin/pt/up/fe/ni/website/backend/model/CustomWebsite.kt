@@ -6,7 +6,7 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
 import jakarta.validation.constraints.NotEmpty
 import org.hibernate.validator.constraints.URL
-import pt.up.fe.ni.website.backend.annotations.validation.NullOrNotBlank
+import pt.up.fe.ni.website.backend.utils.validation.NullOrNotBlank
 
 @Entity
 class CustomWebsite(

@@ -1,4 +1,4 @@
-package pt.up.fe.ni.website.backend.annotations.validation
+package pt.up.fe.ni.website.backend.utils.validation
 
 import jakarta.validation.Constraint
 import jakarta.validation.ConstraintValidator

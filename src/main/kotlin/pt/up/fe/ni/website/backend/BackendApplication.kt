@@ -5,9 +5,10 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.runApplication
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing
 import pt.up.fe.ni.website.backend.config.auth.AuthConfigProperties
+import pt.up.fe.ni.website.backend.config.upload.UploadConfigProperties
 
 @SpringBootApplication
-@EnableConfigurationProperties(AuthConfigProperties::class)
+@EnableConfigurationProperties(AuthConfigProperties::class, UploadConfigProperties::class)
 @EnableJpaAuditing
 class BackendApplication
 

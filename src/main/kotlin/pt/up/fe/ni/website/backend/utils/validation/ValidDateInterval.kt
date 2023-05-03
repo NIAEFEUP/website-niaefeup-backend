@@ -1,11 +1,11 @@
-package pt.up.fe.ni.website.backend.annotations.validation
+package pt.up.fe.ni.website.backend.utils.validation
 
 import jakarta.validation.Constraint
 import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
 import jakarta.validation.Payload
-import pt.up.fe.ni.website.backend.model.embeddable.DateInterval
 import kotlin.reflect.KClass
+import pt.up.fe.ni.website.backend.model.embeddable.DateInterval
 
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)

@@ -1,5 +1,8 @@
 package pt.up.fe.ni.website.backend.service
 
+import java.time.Duration
+import java.time.Instant
+import java.util.stream.Collectors
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
@@ -13,9 +16,6 @@ import org.springframework.security.oauth2.server.resource.InvalidBearerTokenExc
 import org.springframework.stereotype.Service
 import pt.up.fe.ni.website.backend.config.auth.AuthConfigProperties
 import pt.up.fe.ni.website.backend.model.Account
-import java.time.Duration
-import java.time.Instant
-import java.util.stream.Collectors
 
 @Service
 class AuthService(
