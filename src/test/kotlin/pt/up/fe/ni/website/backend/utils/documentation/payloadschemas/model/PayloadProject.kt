@@ -31,7 +31,7 @@ class PayloadProject : ModelDocumentation(
             "hallOfFame",
             "Array of members that were once associated with the project",
             JsonFieldType.ARRAY,
-            isInRequest = false
+            optional = true
         ),
         DocumentedJSONField(
             "teamMembers",
