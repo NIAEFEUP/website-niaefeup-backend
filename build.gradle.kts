@@ -41,7 +41,7 @@ dependencies {
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("com.h2database:h2")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("ch.qos.logback:logback-classic:1.4.5")
+    testImplementation("ch.qos.logback:logback-classic:1.4.8")
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc:3.0.0")
     testImplementation("com.epages:restdocs-api-spec-mockmvc:0.17.1")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
