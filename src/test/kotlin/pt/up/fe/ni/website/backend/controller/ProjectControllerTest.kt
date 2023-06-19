@@ -72,7 +72,6 @@ internal class ProjectControllerTest @Autowired constructor(
         )
     )
 
-
     val testProject = Project(
         "Awesome project",
         "this is a test project",
@@ -926,7 +925,7 @@ internal class ProjectControllerTest @Autowired constructor(
 
         private val parameters = listOf(
             parameterWithName("idProject").description(
-                "ID of the project to add the member to the hall of fame"
+                "ID of the project to add the account to the hall of fame"
             ),
             parameterWithName("idAccount").description("ID of the account to add")
         )
@@ -960,8 +959,8 @@ internal class ProjectControllerTest @Autowired constructor(
                 )
                 .andDocument(
                     documentation,
-                    "Add member to the Project's Hall Of Fame",
-                    "This operation adds a member to a given project's hall of fame.",
+                    "Add account to the Project's Hall Of Fame",
+                    "This operation adds an account to a given project's hall of fame.",
                     urlParameters = parameters
                 )
         }
@@ -969,6 +968,57 @@ internal class ProjectControllerTest @Autowired constructor(
         @Test
         fun `should fail if the account does not exist`() {
             mockMvc.perform(put("/projects/{idProject}/addHallOfFameMember/{idAccount}", testProject.id, 1234))
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("account not found with id 1234")
+                )
+                .andDocumentErrorResponse(
+                    documentation,
+                    urlParameters = parameters
+                )
+        }
+    }
+
+    @NestedTest
+    @DisplayName("PUT /projects/{idProject}/removeHallOfFameMember/{idAccount}")
+    inner class RemoveHallOfFameMember {
+        @BeforeEach
+        fun addToRepositories() {
+            accountRepository.save(testAccount)
+            accountRepository.save(testOldAccount)
+            repository.save(testProject)
+        }
+
+        private val parameters = listOf(
+            parameterWithName("idProject").description(
+                "ID of the project to remove the account from the hall of fame"
+            ),
+            parameterWithName("idAccount").description("ID of the account to remove")
+        )
+
+        @Test
+        fun `should remove a account from project's hall of fame `() {
+            mockMvc.perform(
+                put("/projects/{idProject}/removeHallOfFameMember/{idAccount}", testProject.id, testOldAccount.id)
+            )
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.hallOfFame.length()").value(0)
+                )
+                .andDocument(
+                    documentation,
+                    "Remove account from Project's Hall of Fame",
+                    "This operation adds an account to a given project's hall of fame.",
+                    urlParameters = parameters
+                )
+        }
+
+        @Test
+        fun `should fail if the account does not exist`() {
+            mockMvc.perform(put("/projects/{idProject}/removeHallOfFameMember/{idAccount}", testProject.id, 1234))
                 .andExpectAll(
                     status().isNotFound,
                     content().contentType(MediaType.APPLICATION_JSON),
