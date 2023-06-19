@@ -875,6 +875,89 @@ internal class ProjectControllerTest @Autowired constructor(
         }
     }
 
+    @NestedTest
+    @DisplayName("PUT /projects/{idProject}/addHallOfFameMember/{idAccount}")
+    inner class AddHallOfFameMember {
+        private val newAccount = Account(
+            "Another test Account",
+            "test3_account@test.com",
+            "test_password",
+            "This is another test account too",
+            TestUtils.createDate(2002, Calendar.JULY, 1),
+            "https://test-photo.com",
+            "https://linkedin.com",
+            "https://github.com",
+            listOf(
+                CustomWebsite("https://test-website.com", "https://test-website.com/logo.png")
+            )
+        )
+
+        @BeforeEach
+        fun addToRepositories() {
+            accountRepository.save(testAccount)
+            accountRepository.save(newAccount)
+            repository.save(testProject)
+        }
+
+        private val parameters = listOf(
+            parameterWithName("idProject").description(
+                "ID of the project to add the member to the hall of fame"
+            ),
+            parameterWithName("idAccount").description("ID of the account to add")
+        )
+
+        @Test
+        fun `should add account to project's hall of fame`() {
+            mockMvc.perform(
+                put("/projects/{idProject}/addHallOfFameMember/{idAccount}", testProject.id, newAccount.id)
+            )
+                .andExpectAll(
+                    status().isOk, content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.teamMembers.length()").value(1),
+                    jsonPath("$.teamMembers[0].name").value(testAccount.name),
+                    jsonPath("$.teamMembers[0].email").value(testAccount.email),
+                    jsonPath("$.teamMembers[0].bio").value(testAccount.bio),
+                    jsonPath("$.teamMembers[0].birthDate").value(testAccount.birthDate.toJson()),
+                    jsonPath("$.teamMembers[0].linkedin").value(testAccount.linkedin),
+                    jsonPath("$.teamMembers[0].github").value(testAccount.github),
+                    jsonPath("$.teamMembers[0].websites.length()").value(1),
+                    jsonPath("$.teamMembers[0].websites[0].url").value(testAccount.websites[0].url),
+                    jsonPath("$.teamMembers[0].websites[0].iconPath").value(testAccount.websites[0].iconPath),
+                    jsonPath("$.hallOfFame.length()").value(1),
+                    jsonPath("$.hallOfFame[0].name").value(newAccount.name),
+                    jsonPath("$.hallOfFame[0].email").value(newAccount.email),
+                    jsonPath("$.hallOfFame[0].bio").value(newAccount.bio),
+                    jsonPath("$.hallOfFame[0].birthDate").value(newAccount.birthDate.toJson()),
+                    jsonPath("$.hallOfFame[0].linkedin").value(newAccount.linkedin),
+                    jsonPath("$.hallOfFame[0].github").value(newAccount.github),
+                    jsonPath("$.hallOfFame[0].websites.length()").value(1),
+                    jsonPath("$.hallOfFame[0].websites[0].url").value(newAccount.websites[0].url),
+                    jsonPath("$.hallOfFame[0].websites[0].iconPath").value(newAccount.websites[0].iconPath)
+                )
+                .andDocument(
+                    documentation,
+                    "Add member to the Project's Hall Of Fame",
+                    "This operation adds a member to a given project's hall of fame.",
+                    urlParameters = parameters
+                )
+        }
+
+        @Test
+        fun `should fail if the account does not exist`() {
+            mockMvc.perform(put("/projects/{idProject}/addHallOfFameMember/{idAccount}", testProject.id, 1234))
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("account not found with id 1234")
+                )
+                .andDocumentErrorResponse(
+                    documentation,
+                    urlParameters = parameters
+                )
+        }
+    }
+
     fun Date?.toJson(): String {
         val quotedDate = objectMapper.writeValueAsString(this)
         // objectMapper adds quotes to the date, so remove them

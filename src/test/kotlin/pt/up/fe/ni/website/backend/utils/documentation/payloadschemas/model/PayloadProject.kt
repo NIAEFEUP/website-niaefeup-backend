@@ -34,6 +34,11 @@ class PayloadProject : ModelDocumentation(
             optional = true
         ),
         DocumentedJSONField(
+            "hallOfFame",
+            "Array of members that were once associated with the project",
+            isInRequest = true
+        ),
+        DocumentedJSONField(
             "teamMembers",
             "Array of members associated with the project",
             JsonFieldType.ARRAY,
@@ -55,6 +60,11 @@ class PayloadProject : ModelDocumentation(
         )
     ).addFieldsBeneathPath(
         "teamMembers[]",
+        PayloadAccount().payload.documentedJSONFields,
+        addResponse = true,
+        optional = true
+    ).addFieldsBeneathPath(
+        "hallOfFame[]",
         PayloadAccount().payload.documentedJSONFields,
         addResponse = true,
         optional = true
