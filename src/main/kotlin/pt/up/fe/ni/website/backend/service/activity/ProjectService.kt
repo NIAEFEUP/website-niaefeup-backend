@@ -23,6 +23,11 @@ class ProjectService(
 
         val project = dto.create()
 
+        dto.hallOfFameIds?.forEach {
+            val account = accountService.getAccountById(it)
+            project.hallOfFame.add(account)
+        }
+
         dto.teamMembersIds?.forEach {
             val account = accountService.getAccountById(it)
             project.teamMembers.add(account)

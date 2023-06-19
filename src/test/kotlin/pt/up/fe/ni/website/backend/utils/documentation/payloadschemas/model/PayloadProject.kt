@@ -28,6 +28,19 @@ class PayloadProject : ModelDocumentation(
         ),
         DocumentedJSONField("id", "Project ID", JsonFieldType.NUMBER, isInRequest = false),
         DocumentedJSONField(
+            "hallOfFame",
+            "Array of members that were once associated with the project",
+            JsonFieldType.ARRAY,
+            optional = true
+        ),
+        DocumentedJSONField(
+            "hallOfFameIds",
+            "Array with IDs of members that were once associated with the project",
+            JsonFieldType.ARRAY,
+            optional = true,
+            isInResponse = false
+        ),
+        DocumentedJSONField(
             "teamMembers",
             "Array of members associated with the project",
             JsonFieldType.ARRAY,
