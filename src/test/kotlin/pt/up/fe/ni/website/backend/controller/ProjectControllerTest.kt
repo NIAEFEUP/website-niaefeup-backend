@@ -58,10 +58,25 @@ internal class ProjectControllerTest @Autowired constructor(
         )
     )
 
+    final val testOldAccount = Account(
+        "Test Old Account",
+        "test_account_old@test.com",
+        "test_password",
+        "This is an old test account",
+        TestUtils.createDate(1994, Calendar.JUNE, 19),
+        "https://test-photo.com",
+        "https://linkedin.com",
+        "https://github.com",
+        listOf(
+            CustomWebsite("https://test-website.com", "https://test-website.com/logo.png")
+        )
+    )
+
+
     val testProject = Project(
         "Awesome project",
         "this is a test project",
-        mutableListOf(),
+        mutableListOf(testOldAccount),
         mutableListOf(testAccount),
         mutableListOf(),
         "awesome-project",
@@ -91,6 +106,7 @@ internal class ProjectControllerTest @Autowired constructor(
         @BeforeEach
         fun addToRepositories() {
             accountRepository.save(testAccount)
+            accountRepository.save(testOldAccount)
             for (project in testProjects) repository.save(project)
         }
 
@@ -118,6 +134,7 @@ internal class ProjectControllerTest @Autowired constructor(
         @BeforeEach
         fun addToRepositories() {
             accountRepository.save(testAccount)
+            accountRepository.save(testOldAccount)
             repository.save(testProject)
         }
 
@@ -166,6 +183,7 @@ internal class ProjectControllerTest @Autowired constructor(
         @BeforeEach
         fun addToRepositories() {
             accountRepository.save(testAccount)
+            accountRepository.save(testOldAccount)
             repository.save(testProject)
         }
 
@@ -367,6 +385,7 @@ internal class ProjectControllerTest @Autowired constructor(
         @BeforeEach
         fun addToRepositories() {
             accountRepository.save(testAccount)
+            accountRepository.save(testOldAccount)
             repository.save(testProject)
         }
 
@@ -413,6 +432,7 @@ internal class ProjectControllerTest @Autowired constructor(
         @BeforeEach
         fun addToRepositories() {
             accountRepository.save(testAccount)
+            accountRepository.save(testOldAccount)
             repository.save(testProject)
         }
 
@@ -659,6 +679,7 @@ internal class ProjectControllerTest @Autowired constructor(
         @BeforeEach
         fun addToRepositories() {
             accountRepository.save(testAccount)
+            accountRepository.save(testOldAccount)
             repository.save(testProject)
         }
 
@@ -764,6 +785,7 @@ internal class ProjectControllerTest @Autowired constructor(
         @BeforeEach
         fun addToRepositories() {
             accountRepository.save(testAccount)
+            accountRepository.save(testOldAccount)
             accountRepository.save(newAccount)
             repository.save(testProject)
         }
@@ -833,6 +855,7 @@ internal class ProjectControllerTest @Autowired constructor(
         @BeforeEach
         fun addToRepositories() {
             accountRepository.save(testAccount)
+            accountRepository.save(testOldAccount)
             repository.save(testProject)
         }
 
@@ -895,6 +918,7 @@ internal class ProjectControllerTest @Autowired constructor(
         @BeforeEach
         fun addToRepositories() {
             accountRepository.save(testAccount)
+            accountRepository.save(testOldAccount)
             accountRepository.save(newAccount)
             repository.save(testProject)
         }
@@ -913,26 +937,25 @@ internal class ProjectControllerTest @Autowired constructor(
             )
                 .andExpectAll(
                     status().isOk, content().contentType(MediaType.APPLICATION_JSON),
-                    jsonPath("$.teamMembers.length()").value(1),
-                    jsonPath("$.teamMembers[0].name").value(testAccount.name),
-                    jsonPath("$.teamMembers[0].email").value(testAccount.email),
-                    jsonPath("$.teamMembers[0].bio").value(testAccount.bio),
-                    jsonPath("$.teamMembers[0].birthDate").value(testAccount.birthDate.toJson()),
-                    jsonPath("$.teamMembers[0].linkedin").value(testAccount.linkedin),
-                    jsonPath("$.teamMembers[0].github").value(testAccount.github),
-                    jsonPath("$.teamMembers[0].websites.length()").value(1),
-                    jsonPath("$.teamMembers[0].websites[0].url").value(testAccount.websites[0].url),
-                    jsonPath("$.teamMembers[0].websites[0].iconPath").value(testAccount.websites[0].iconPath),
-                    jsonPath("$.hallOfFame.length()").value(1),
-                    jsonPath("$.hallOfFame[0].name").value(newAccount.name),
-                    jsonPath("$.hallOfFame[0].email").value(newAccount.email),
-                    jsonPath("$.hallOfFame[0].bio").value(newAccount.bio),
-                    jsonPath("$.hallOfFame[0].birthDate").value(newAccount.birthDate.toJson()),
-                    jsonPath("$.hallOfFame[0].linkedin").value(newAccount.linkedin),
-                    jsonPath("$.hallOfFame[0].github").value(newAccount.github),
+                    jsonPath("$.hallOfFame.length()").value(2),
+                    jsonPath("$.hallOfFame[0].name").value(testOldAccount.name),
+                    jsonPath("$.hallOfFame[0].email").value(testOldAccount.email),
+                    jsonPath("$.hallOfFame[0].bio").value(testOldAccount.bio),
+                    jsonPath("$.hallOfFame[0].birthDate").value(testOldAccount.birthDate.toJson()),
+                    jsonPath("$.hallOfFame[0].linkedin").value(testOldAccount.linkedin),
+                    jsonPath("$.hallOfFame[0].github").value(testOldAccount.github),
                     jsonPath("$.hallOfFame[0].websites.length()").value(1),
-                    jsonPath("$.hallOfFame[0].websites[0].url").value(newAccount.websites[0].url),
-                    jsonPath("$.hallOfFame[0].websites[0].iconPath").value(newAccount.websites[0].iconPath)
+                    jsonPath("$.hallOfFame[0].websites[0].url").value(testOldAccount.websites[0].url),
+                    jsonPath("$.hallOfFame[0].websites[0].iconPath").value(testOldAccount.websites[0].iconPath),
+                    jsonPath("$.hallOfFame[1].name").value(newAccount.name),
+                    jsonPath("$.hallOfFame[1].email").value(newAccount.email),
+                    jsonPath("$.hallOfFame[1].bio").value(newAccount.bio),
+                    jsonPath("$.hallOfFame[1].birthDate").value(newAccount.birthDate.toJson()),
+                    jsonPath("$.hallOfFame[1].linkedin").value(newAccount.linkedin),
+                    jsonPath("$.hallOfFame[1].github").value(newAccount.github),
+                    jsonPath("$.hallOfFame[1].websites.length()").value(1),
+                    jsonPath("$.hallOfFame[1].websites[0].url").value(newAccount.websites[0].url),
+                    jsonPath("$.hallOfFame[1].websites[0].iconPath").value(newAccount.websites[0].iconPath)
                 )
                 .andDocument(
                     documentation,
