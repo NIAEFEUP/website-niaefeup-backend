@@ -158,7 +158,7 @@ internal class RoleControllerTest @Autowired constructor(
             ).andDocument(
                 documentationRoles,
                 "Returns a specific role",
-                "Returns a summary brief of a specific role, which makes getting one role way more efficient. "
+                "Returns a summary brief of a specific role, which makes getting one role way more efficient."
             )
         }
 
@@ -220,7 +220,7 @@ internal class RoleControllerTest @Autowired constructor(
             ).andDocument(
                 documentationRoles,
                 "This creates a role, returning the complete role information",
-                "It will only create the role if it doesn't exist any other role with the same name"
+                "It will only create the role if it no other role with the same name exists in that generation"
             )
             assert(roleRepository.existsById(2))
             assert(generationRepository.findFirstByOrderBySchoolYearDesc() != null)
@@ -281,7 +281,7 @@ internal class RoleControllerTest @Autowired constructor(
         }
 
         @Test
-        fun `should not remove role id that does not exist`() {
+        fun `should not remove role if id does not exist`() {
             mockMvc.perform(delete("/roles/1234")).andExpectAll(
                 status().isNotFound(),
                 content().contentType(MediaType.APPLICATION_JSON),
@@ -293,7 +293,7 @@ internal class RoleControllerTest @Autowired constructor(
     }
 
     @NestedTest
-    inner class GrantPermissionRole {
+    inner class GrantPermissionToRole {
 
         @BeforeEach
         fun addRole() {
@@ -324,7 +324,7 @@ internal class RoleControllerTest @Autowired constructor(
         }
 
         @Test
-        fun `should grant permission to role that does not exists`() {
+        fun `should not grant permission to role that does not exists`() {
             mockMvc.perform(
                 post("/roles/1234/grant")
                     .contentType(MediaType.APPLICATION_JSON)
@@ -342,7 +342,7 @@ internal class RoleControllerTest @Autowired constructor(
     }
 
     @NestedTest
-    inner class RevokePermissionRole {
+    inner class RevokePermissionFromRole {
 
         @BeforeEach
         fun addRole() {
@@ -350,7 +350,7 @@ internal class RoleControllerTest @Autowired constructor(
         }
 
         @Test
-        fun `should revoke permission to role that exists`() {
+        fun `should revoke permission from role that exists`() {
             mockMvc.perform(
                 post("/roles/${testRole.id}/revoke")
                     .contentType(MediaType.APPLICATION_JSON)
@@ -367,13 +367,13 @@ internal class RoleControllerTest @Autowired constructor(
                 ).andDocumentEmptyObjectResponse(
                     documentationPermissions,
                     "Revokes permission by role ID",
-                    "Revokes permissions, it doesn't check if the permissions to be revoked are already off."
+                    "Revokes permissions, it doesn't check if the role contains them."
                 )
             assert(!roleRepository.findByIdOrNull(testRole.id!!)!!.permissions.contains(Permission.SUPERUSER))
         }
 
         @Test
-        fun `should revoke permission to role that does not exists`() {
+        fun `should not revoke permission from role that does not exist`() {
             mockMvc.perform(
                 post("/roles/1234/revoke")
                     .contentType(MediaType.APPLICATION_JSON)
@@ -410,7 +410,7 @@ internal class RoleControllerTest @Autowired constructor(
             ).andDocumentEmptyObjectResponse(
                 documentationAccount,
                 "Add an account to a role by its IDs",
-                "It will return an error if the user is already in the role or if the role doesn't exist"
+                "It will return an error if the user already has the role or if it doesn't exist"
             )
             assert(roleRepository.findByIdOrNull(testRole.id!!)!!.accounts.size != 0)
         }
@@ -469,7 +469,7 @@ internal class RoleControllerTest @Autowired constructor(
         }
 
         @Test
-        fun `should remove an existing account to an existing role`() {
+        fun `should remove an existing account from an existing role`() {
             mockMvc.perform(
                 delete("/roles/${testRole.id}/users")
                     .contentType(MediaType.APPLICATION_JSON)
@@ -478,14 +478,14 @@ internal class RoleControllerTest @Autowired constructor(
                 status().isOk
             ).andDocumentEmptyObjectResponse(
                 documentationAccount,
-                "Removes the account on the role by ID",
-                "It only works if the user is in role and role exists"
+                "Removes the account from the role by ID",
+                "It only works if the user has the role and it exists"
             )
             assert(roleRepository.findByIdOrNull(testRole.id!!)!!.accounts.size == 0)
         }
 
         @Test
-        fun `should not remove an non existing account to an existing role`() {
+        fun `should not remove a non existing account from an existing role`() {
             mockMvc.perform(
                 delete("/roles/${testRole.id}/users")
                     .contentType(MediaType.APPLICATION_JSON)
@@ -641,7 +641,7 @@ internal class RoleControllerTest @Autowired constructor(
                 documentationPermissions,
                 "Removes an PerRoleActivity permission by ID",
                 "It will not create a PerRoleActivity if it doesn't exist, it will simply return, " +
-                    "doesn't check if the permissions already are revoked..."
+                    "doesn't check if the permissions are already revoked..."
             )
             assert(projectRepository.findByIdOrNull(testProject.id!!)!!.associatedRoles.size == 1)
             assert(
