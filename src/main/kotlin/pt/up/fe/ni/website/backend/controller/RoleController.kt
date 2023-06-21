@@ -21,7 +21,7 @@ class RoleController(private val roleService: RoleService) {
     @GetMapping("/{id}")
     fun getRole(@PathVariable id: Long) = roleService.getRole(id)
 
-    @PostMapping("/new")
+    @PostMapping
     fun createNewRole(@RequestBody dto: RoleDto) = roleService.createNewRole(dto)
 
     @DeleteMapping("/{id}")
@@ -31,7 +31,7 @@ class RoleController(private val roleService: RoleService) {
     }
 
     @PostMapping("/{id}/grant")
-    fun grantPermissionRole(
+    fun grantPermissionToRole(
         @PathVariable id: Long,
         @RequestBody permissionsDto: PermissionsDto
     ): Map<String, String> {
@@ -40,7 +40,7 @@ class RoleController(private val roleService: RoleService) {
     }
 
     @PostMapping("/{id}/revoke")
-    fun revokePermissionRole(
+    fun revokePermissionFromRole(
         @PathVariable id: Long,
         @RequestBody permissionsDto: PermissionsDto
     ): Map<String, String> {
@@ -60,7 +60,7 @@ class RoleController(private val roleService: RoleService) {
         return emptyMap()
     }
 
-    @PostMapping("/{id}/activity/{activityId}/permissions")
+    @PostMapping("/{id}/activities/{activityId}/permissions")
     fun addPermissionToPerActivityRole(
         @PathVariable id: Long,
         @PathVariable activityId: Long,
@@ -74,8 +74,8 @@ class RoleController(private val roleService: RoleService) {
         return emptyMap()
     }
 
-    @DeleteMapping("/{id}/activity/{activityId}/permissions")
-    fun revokePermissionToPerActivityRole(
+    @DeleteMapping("/{id}/activities/{activityId}/permissions")
+    fun revokePermissionFromPerActivityRole(
         @PathVariable id: Long,
         @PathVariable activityId: Long,
         @RequestBody permissionsDto: PermissionsDto

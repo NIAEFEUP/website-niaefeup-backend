@@ -24,7 +24,7 @@ class RoleService(
     private val activityRepository: ActivityRepository<Activity>
 ) {
 
-    fun getRole(roleId: Long): Role {
+    fun getRoleById(roleId: Long): Role {
         val role = roleRepository.findById(roleId).orElseThrow {
             throw NoSuchElementException(ErrorMessages.roleNotFound(roleId))
         }
@@ -54,7 +54,7 @@ class RoleService(
         val role = roleRepository.findById(roleId).orElseThrow {
             throw NoSuchElementException(ErrorMessages.roleNotFound(roleId))
         }
-        val foundActivity = activity.associatedRoles
+        val foundPerActivityRole = activity.associatedRoles
             .find { it.activity == activity } ?: PerActivityRole(Permissions())
         foundActivity.role = role
         foundActivity.activity = activity

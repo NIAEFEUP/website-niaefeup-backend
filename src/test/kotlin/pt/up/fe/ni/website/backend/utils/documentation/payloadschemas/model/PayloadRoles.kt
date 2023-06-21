@@ -11,7 +11,7 @@ class PayloadRoles : ModelDocumentation(
     mutableListOf(
         DocumentedJSONField("name", "Name of the role", JsonFieldType.STRING),
         DocumentedJSONField("permissions", "Permissions in the role, as an integer", JsonFieldType.ARRAY),
-        DocumentedJSONField("isSection", "Role is section", JsonFieldType.BOOLEAN),
+        DocumentedJSONField("isSection", "Whether the role should be displayed as a section", JsonFieldType.BOOLEAN),
         DocumentedJSONField("id", "Internal ID of role", JsonFieldType.NUMBER),
         DocumentedJSONField(
             "associatedActivities",
