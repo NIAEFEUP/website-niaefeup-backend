@@ -3,6 +3,8 @@ package pt.up.fe.ni.website.backend.annotations.validation
 import org.junit.jupiter.api.Test
 import pt.up.fe.ni.website.backend.model.Role
 import pt.up.fe.ni.website.backend.model.permissions.Permissions
+import pt.up.fe.ni.website.backend.utils.validation.NoDuplicateRoles
+import pt.up.fe.ni.website.backend.utils.validation.NoDuplicateRolesValidator
 
 internal class NoDuplicateRolesTest {
     @Test

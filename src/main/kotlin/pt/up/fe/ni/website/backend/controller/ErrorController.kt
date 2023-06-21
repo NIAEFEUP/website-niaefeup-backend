@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.multipart.MaxUploadSizeExceededException
 import pt.up.fe.ni.website.backend.config.Logging
 
 data class SimpleError(
@@ -106,6 +107,12 @@ class ErrorController(private val objectMapper: ObjectMapper) : ErrorController,
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     fun illegalArgument(e: IllegalArgumentException): CustomError {
         return wrapSimpleError(e.message ?: "invalid argument")
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException::class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    fun invalidFileSize(e: MaxUploadSizeExceededException): CustomError {
+        return wrapSimpleError(e.message ?: "maximum upload size exceeded")
     }
 
     @ExceptionHandler(Exception::class)

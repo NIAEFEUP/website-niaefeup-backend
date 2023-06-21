@@ -3,6 +3,8 @@ package pt.up.fe.ni.website.backend.annotations.validation
 import org.junit.jupiter.api.Test
 import pt.up.fe.ni.website.backend.model.embeddable.DateInterval
 import pt.up.fe.ni.website.backend.utils.TestUtils
+import pt.up.fe.ni.website.backend.utils.validation.DateIntervalValidator
+import pt.up.fe.ni.website.backend.utils.validation.ValidDateInterval
 
 internal class DateIntervalTest {
     @Test
