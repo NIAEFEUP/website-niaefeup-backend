@@ -3,12 +3,12 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "3.0.0"
+    id("org.springframework.boot") version "3.1.1"
     id("io.spring.dependency-management") version "1.1.0"
     kotlin("jvm") version "1.8.10"
     kotlin("plugin.spring") version "1.8.10"
     kotlin("plugin.jpa") version "1.8.10"
-    id("org.jlleitschuh.gradle.ktlint") version "11.2.0"
+    id("org.jlleitschuh.gradle.ktlint") version "11.4.2"
     id("com.epages.restdocs-api-spec") version "0.17.1"
 
     jacoco
@@ -33,21 +33,21 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
-    implementation("ch.qos.logback:logback-core:1.4.5")
+    implementation("ch.qos.logback:logback-core:1.4.8")
     implementation("org.slf4j:slf4j-api:2.0.6")
     implementation("com.cloudinary:cloudinary:1.0.14")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-    implementation("org.springframework.boot:spring-boot-starter-validation:3.0.0")
+    implementation("org.springframework.boot:spring-boot-starter-validation:3.1.1")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("com.h2database:h2")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("ch.qos.logback:logback-classic:1.4.5")
+    testImplementation("ch.qos.logback:logback-classic:1.4.8")
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc:3.0.0")
     testImplementation("com.epages:restdocs-api-spec-mockmvc:0.17.1")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.mockito2", module = "mockito-core")
     }
-    testImplementation("org.mockito:mockito-inline:5.0.0")
+    testImplementation("org.mockito:mockito-inline:5.2.0")
 }
 
 tasks.withType<KotlinCompile> {
