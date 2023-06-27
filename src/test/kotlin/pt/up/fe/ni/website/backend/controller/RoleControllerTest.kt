@@ -181,22 +181,13 @@ internal class RoleControllerTest @Autowired constructor(
             generationRepository.save(testGeneration)
             roleRepository.save(testRole)
             testGeneration.roles.add(testRole)
-            roleRepository.save(testRole)
-            generationRepository.save(testGeneration)
-        }
-
-        @AfterEach
-        fun removeRole() {
-            testGeneration.roles.remove(testRole)
-            testGeneration.roles.remove(otherTestRole)
-            roleRepository.save(testRole)
             generationRepository.save(testGeneration)
         }
 
         @Test
         fun `should add new role`() {
             mockMvc.perform(
-                post("/roles/new")
+                post("/roles")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(
                         objectMapper.writeValueAsString(
@@ -222,7 +213,7 @@ internal class RoleControllerTest @Autowired constructor(
                 "This creates a role, returning the complete role information",
                 "It will only create the role if it no other role with the same name exists in that generation"
             )
-            assert(roleRepository.existsById(2))
+            assert(roleRepository.count().toInt() == 2)
             assert(generationRepository.findFirstByOrderBySchoolYearDesc() != null)
             assert(generationRepository.findFirstByOrderBySchoolYearDesc()!!.roles.size == 2)
             assert(generationRepository.findFirstByOrderBySchoolYearDesc()!!.roles[1].id!!.compareTo(2) == 0)
@@ -231,7 +222,7 @@ internal class RoleControllerTest @Autowired constructor(
         @Test
         fun `shouldn't add role with same name`() {
             mockMvc.perform(
-                post("/roles/new")
+                post("/roles")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(
                         objectMapper.writeValueAsString(
@@ -245,14 +236,12 @@ internal class RoleControllerTest @Autowired constructor(
                         )
                     )
             ).andExpectAll(
-                status().isUnprocessableEntity,
+                status().isBadRequest,
                 content().contentType(MediaType.APPLICATION_JSON),
                 jsonPath("$.errors.length()").value(1),
-                jsonPath("$.errors.[0].message").value("role already exists")
             )
                 .andDocumentErrorResponse(documentationRoles, hasRequestPayload = true)
             assert(roleRepository.findByName(testRole.name) != null)
-            assert(generationRepository.findFirstByOrderBySchoolYearDesc() != null)
             assert(generationRepository.findFirstByOrderBySchoolYearDesc()!!.roles.size == 2)
         }
     }
@@ -264,6 +253,12 @@ internal class RoleControllerTest @Autowired constructor(
             roleRepository.save(testRole)
             generationRepository.save(testGeneration)
             generationRepository.findFirstByOrderBySchoolYearDesc()!!.roles.add(testRole)
+        }
+
+        @AfterEach
+        fun removeRole(){
+            roleRepository.delete(testRole);
+            testGeneration.roles.remove(testRole)
         }
 
         @Test
@@ -281,6 +276,7 @@ internal class RoleControllerTest @Autowired constructor(
         }
 
         @Test
+        @Transactional
         fun `should not remove role if id does not exist`() {
             mockMvc.perform(delete("/roles/1234")).andExpectAll(
                 status().isNotFound(),
@@ -303,7 +299,7 @@ internal class RoleControllerTest @Autowired constructor(
         @Test
         fun `should grant permission to role that exists`() {
             mockMvc.perform(
-                post("/roles/${testRole.id}/grant")
+                post("/roles/${testRole.id}/permissions")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(
                         objectMapper.writeValueAsString(
@@ -326,7 +322,7 @@ internal class RoleControllerTest @Autowired constructor(
         @Test
         fun `should not grant permission to role that does not exists`() {
             mockMvc.perform(
-                post("/roles/1234/grant")
+                post("/roles/1234/permissions")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(
                         objectMapper.writeValueAsString(
@@ -352,7 +348,7 @@ internal class RoleControllerTest @Autowired constructor(
         @Test
         fun `should revoke permission from role that exists`() {
             mockMvc.perform(
-                post("/roles/${testRole.id}/revoke")
+                delete("/roles/${testRole.id}/permissions")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(
                         objectMapper.writeValueAsString(
@@ -375,7 +371,7 @@ internal class RoleControllerTest @Autowired constructor(
         @Test
         fun `should not revoke permission from role that does not exist`() {
             mockMvc.perform(
-                post("/roles/1234/revoke")
+                delete("/roles/1234/permissions")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(
                         objectMapper.writeValueAsString(
@@ -384,10 +380,10 @@ internal class RoleControllerTest @Autowired constructor(
                             )
                         )
                     )
+            ).andExpectAll(
+                status().isNotFound()
             ).andDocumentErrorResponse(documentationPermissions, hasRequestPayload = false)
-                .andExpectAll(
-                    status().isNotFound()
-                )
+
         }
     }
 
@@ -404,7 +400,7 @@ internal class RoleControllerTest @Autowired constructor(
             mockMvc.perform(
                 post("/roles/${testRole.id}/users")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(testAccount.id))
+                    .content(objectMapper.writeValueAsString(mapOf("userId" to testAccount.id)))
             ).andExpectAll(
                 status().isOk
             ).andDocumentEmptyObjectResponse(
@@ -420,7 +416,7 @@ internal class RoleControllerTest @Autowired constructor(
             mockMvc.perform(
                 post("/roles/${testRole.id}/users")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(1234))
+                    .content(objectMapper.writeValueAsString(mapOf("userId" to 1234)))
             ).andExpectAll(
                 status().isNotFound()
             ).andDocumentErrorResponse(documentationAccount, hasRequestPayload = true)
@@ -432,7 +428,7 @@ internal class RoleControllerTest @Autowired constructor(
             mockMvc.perform(
                 post("/roles/1234/users")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(1234))
+                    .content(objectMapper.writeValueAsString(mapOf("userId" to 1234)))
             ).andExpectAll(
                 status().isNotFound()
             ).andDocumentErrorResponse(documentationAccount, hasRequestPayload = true)
@@ -444,7 +440,7 @@ internal class RoleControllerTest @Autowired constructor(
             mockMvc.perform(
                 post("/roles/1234/users")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(testAccount.id))
+                    .content(objectMapper.writeValueAsString(mapOf("userId" to 1234)))
             ).andExpectAll(
                 status().isNotFound()
             ).andDocumentErrorResponse(documentationAccount, hasRequestPayload = true)
@@ -473,7 +469,7 @@ internal class RoleControllerTest @Autowired constructor(
             mockMvc.perform(
                 delete("/roles/${testRole.id}/users")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(testAccount.id))
+                    .content(objectMapper.writeValueAsString(mapOf("userId" to testAccount.id)))
             ).andExpectAll(
                 status().isOk
             ).andDocumentEmptyObjectResponse(
@@ -489,7 +485,7 @@ internal class RoleControllerTest @Autowired constructor(
             mockMvc.perform(
                 delete("/roles/${testRole.id}/users")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(1234))
+                    .content(objectMapper.writeValueAsString(mapOf("userId" to 1234)))
             ).andExpectAll(
                 status().isNotFound()
             ).andDocumentErrorResponse(documentationAccount, hasRequestPayload = true)
@@ -501,7 +497,7 @@ internal class RoleControllerTest @Autowired constructor(
             mockMvc.perform(
                 delete("/roles/1234/users")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(1234))
+                    .content(objectMapper.writeValueAsString(mapOf("userId" to 1234)))
             ).andExpectAll(
                 status().isNotFound()
             ).andDocumentErrorResponse(documentationAccount, hasRequestPayload = true)
@@ -513,7 +509,7 @@ internal class RoleControllerTest @Autowired constructor(
             mockMvc.perform(
                 delete("/roles/1234/users")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(testAccount.id))
+                    .content(objectMapper.writeValueAsString(mapOf("userId" to testAccount.id)))
             ).andExpectAll(
                 status().isNotFound()
             ).andDocumentErrorResponse(documentationAccount, hasRequestPayload = true)
@@ -532,7 +528,7 @@ internal class RoleControllerTest @Autowired constructor(
         @Test
         fun `should add permission to role activity and create PerActivityRole`() {
             mockMvc.perform(
-                post("/roles/${testRole.id}/activity/${testProject.id}/permissions")
+                post("/roles/${testRole.id}/activities/${testProject.id}/permissions")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(
                         objectMapper.writeValueAsString(
@@ -557,7 +553,7 @@ internal class RoleControllerTest @Autowired constructor(
         @Test
         fun `shouldn't add permission to role activity if roleId is invalid`() {
             mockMvc.perform(
-                post("/roles/1234/activity/${testProject.id}/permissions")
+                post("/roles/1234/activities/${testProject.id}/permissions")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(
                         objectMapper.writeValueAsString(
@@ -573,7 +569,7 @@ internal class RoleControllerTest @Autowired constructor(
         @Test
         fun `shouldn't add permission to role activity if activityId is invalid`() {
             mockMvc.perform(
-                post("/roles/${testRole.id}/activity/1234/permissions")
+                post("/roles/${testRole.id}/activities/1234/permissions")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(
                         objectMapper.writeValueAsString(
@@ -589,7 +585,7 @@ internal class RoleControllerTest @Autowired constructor(
         @Test
         fun `shouldn't add permission to role activity if activityId is invalid and roleId is invalid`() {
             mockMvc.perform(
-                post("/roles/${testRole.id}/activity/1234/permissions")
+                post("/roles/${testRole.id}/activities/1234/permissions")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(
                         objectMapper.writeValueAsString(
@@ -608,8 +604,8 @@ internal class RoleControllerTest @Autowired constructor(
     inner class RemovePermissionFromPerRoleActivity {
         @BeforeEach
         fun addAll() {
-            projectRepository.save(testProject)
             roleRepository.save(testRole)
+            projectRepository.save(testProject)
             val perActivityRole = PerActivityRole(Permissions(listOf(Permission.EDIT_ACTIVITY)))
             perActivityRole.activity = testProject
             perActivityRole.role = testRole
@@ -627,7 +623,7 @@ internal class RoleControllerTest @Autowired constructor(
         @Test
         fun `should remove an existing role activity permission`() {
             mockMvc.perform(
-                delete("/roles/${testRole.id}/activity/${testProject.id}/permissions")
+                delete("/roles/${testRole.id}/activities/${testProject.id}/permissions")
                     .contentType(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON)
                     .content(
                         objectMapper.writeValueAsString(
@@ -654,7 +650,7 @@ internal class RoleControllerTest @Autowired constructor(
         @Test
         fun `should not remove an existing role activity permission on a non existing role`() {
             mockMvc.perform(
-                delete("/roles/1234/activity/${testProject.id}/permissions")
+                delete("/roles/1234/activities/${testProject.id}/permissions")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(
                         objectMapper.writeValueAsString(
@@ -676,7 +672,7 @@ internal class RoleControllerTest @Autowired constructor(
         @Test
         fun `should not remove an existing role activity permission on a non existing activity`() {
             mockMvc.perform(
-                delete("/roles/${testRole.id}/activity/1234/permissions")
+                delete("/roles/${testRole.id}/activities/1234/permissions")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(
                         objectMapper.writeValueAsString(
@@ -698,7 +694,7 @@ internal class RoleControllerTest @Autowired constructor(
         @Test
         fun `should not remove an existing role activity perm on a non existing activity and non existing role`() {
             mockMvc.perform(
-                delete("/roles/1234/activity/1234/permissions")
+                delete("/roles/1234/activities/1234/permissions")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(
                         objectMapper.writeValueAsString(

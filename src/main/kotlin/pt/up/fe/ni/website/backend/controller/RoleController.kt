@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import pt.up.fe.ni.website.backend.dto.entity.RoleDto
 import pt.up.fe.ni.website.backend.dto.permissions.PermissionsDto
+import pt.up.fe.ni.website.backend.dto.permissions.UserIdDto
 import pt.up.fe.ni.website.backend.model.permissions.Permissions
 import pt.up.fe.ni.website.backend.service.RoleService
 
@@ -30,33 +31,33 @@ class RoleController(private val roleService: RoleService) {
         return emptyMap()
     }
 
-    @PostMapping("/{id}/grant")
+    @PostMapping("/{id}/permissions")
     fun grantPermissionToRole(
         @PathVariable id: Long,
         @RequestBody permissionsDto: PermissionsDto
     ): Map<String, String> {
-        roleService.grantPermissionToRole(id, Permissions(permissionsDto.permissions))
+        roleService.grantPermissionToRole(id, permissionsDto.permissions)
         return emptyMap()
     }
 
-    @PostMapping("/{id}/revoke")
+    @DeleteMapping("/{id}/permissions")
     fun revokePermissionFromRole(
         @PathVariable id: Long,
         @RequestBody permissionsDto: PermissionsDto
     ): Map<String, String> {
-        roleService.revokePermissionFromRole(id, Permissions(permissionsDto.permissions))
+        roleService.revokePermissionFromRole(id, permissionsDto.permissions)
         return emptyMap()
     }
 
     @PostMapping("/{id}/users")
-    fun addUserToRole(@PathVariable id: Long, @RequestBody userId: Long): Map<String, String> {
-        roleService.addUserToRole(id, userId)
+    fun addUserToRole(@PathVariable id: Long, @RequestBody userIdDto: UserIdDto): Map<String, String> {
+        roleService.addUserToRole(id, userIdDto.userId)
         return emptyMap()
     }
 
     @DeleteMapping("/{id}/users")
-    fun removeUserFromRole(@PathVariable id: Long, @RequestBody userId: Long): Map<String, String> {
-        roleService.removeUserFromRole(id, userId)
+    fun removeUserFromRole(@PathVariable id: Long, @RequestBody userIdDto: UserIdDto): Map<String, String> {
+        roleService.removeUserFromRole(id, userIdDto.userId)
         return emptyMap()
     }
 

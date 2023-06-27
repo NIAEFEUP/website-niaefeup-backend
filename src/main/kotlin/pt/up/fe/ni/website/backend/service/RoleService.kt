@@ -13,6 +13,7 @@ import pt.up.fe.ni.website.backend.repository.ActivityRepository
 import pt.up.fe.ni.website.backend.repository.GenerationRepository
 import pt.up.fe.ni.website.backend.repository.PerActivityRoleRepository
 import pt.up.fe.ni.website.backend.repository.RoleRepository
+import pt.up.fe.ni.website.backend.service.activity.ActivityService
 
 @Service
 @Transactional
@@ -20,11 +21,11 @@ class RoleService(
     private val roleRepository: RoleRepository,
     private val perActivityRoleRepository: PerActivityRoleRepository,
     private val generationRepository: GenerationRepository,
-    private val accountRepository: AccountRepository,
-    private val activityRepository: ActivityRepository<Activity>
+    private val accountService: AccountService,
+    private val activityService: ActivityService,
 ) {
 
-    fun getRoleById(roleId: Long): Role {
+    fun getRole(roleId: Long): Role {
         val role = roleRepository.findById(roleId).orElseThrow {
             throw NoSuchElementException(ErrorMessages.roleNotFound(roleId))
         }
@@ -32,54 +33,42 @@ class RoleService(
     }
     fun getAllRoles(): List<Role> = roleRepository.findAll().toList()
     fun grantPermissionToRole(roleId: Long, permissions: Permissions) {
-        val role = roleRepository.findById(roleId).orElseThrow {
-            throw NoSuchElementException(ErrorMessages.roleNotFound(roleId))
-        }
+        val role = getRole(roleId)
         role.permissions.addAll(permissions)
         roleRepository.save(role)
     }
 
     fun revokePermissionFromRole(roleId: Long, permissions: Permissions) {
-        val role = roleRepository.findById(roleId).orElseThrow {
-            throw NoSuchElementException(ErrorMessages.roleNotFound(roleId))
-        }
+        val role = getRole(roleId)
         role.permissions.removeAll(permissions)
         roleRepository.save(role)
     }
 
     fun grantPermissionToRoleOnActivity(roleId: Long, activityId: Long, permissions: Permissions) {
-        val activity = activityRepository.findById(activityId).orElseThrow {
-            throw NoSuchElementException(ErrorMessages.activityNotFound(activityId))
-        }
-        val role = roleRepository.findById(roleId).orElseThrow {
-            throw NoSuchElementException(ErrorMessages.roleNotFound(roleId))
-        }
+        val activity = activityService.getActivityById(activityId)
+        val role = getRole(roleId)
         val foundPerActivityRole = activity.associatedRoles
             .find { it.activity == activity } ?: PerActivityRole(Permissions())
-        foundActivity.role = role
-        foundActivity.activity = activity
+        foundPerActivityRole.role = role
+        foundPerActivityRole.activity = activity
 
-        foundActivity.permissions.addAll(permissions)
-        perActivityRoleRepository.save(foundActivity)
+        foundPerActivityRole.permissions.addAll(permissions)
+        perActivityRoleRepository.save(foundPerActivityRole)
         if (activity.associatedRoles.find { it.activity == activity } == null) {
-            role.associatedActivities.add(foundActivity)
+            role.associatedActivities.add(foundPerActivityRole)
         }
-        activityRepository.save(activity)
+        //activityRepository.save(activity)
         roleRepository.save(role)
     }
 
     fun revokePermissionFromRoleOnActivity(roleId: Long, activityId: Long, permissions: Permissions) {
-        val activity = activityRepository.findById(activityId).orElseThrow {
-            throw NoSuchElementException(ErrorMessages.activityNotFound(activityId))
-        }
-        val role = roleRepository.findById(roleId).orElseThrow {
-            throw NoSuchElementException(ErrorMessages.roleNotFound(roleId))
-        }
+        val activity = activityService.getActivityById(activityId)
+        val role = getRole(roleId)
         val foundActivity = activity.associatedRoles
             .find { it.role == role } ?: return
         foundActivity.permissions.removeAll(permissions)
         perActivityRoleRepository.save(foundActivity)
-        activityRepository.save(activity)
+        //activityRepository.save(activity)
     }
 
     fun createNewRole(dto: RoleDto): Role {
@@ -87,6 +76,7 @@ class RoleService(
             throw IllegalArgumentException(ErrorMessages.roleAlreadyExists)
         }
         val role = dto.create()
+
         val latestGeneration = generationRepository.findFirstByOrderBySchoolYearDesc()
             ?: throw IllegalArgumentException(ErrorMessages.noGenerations)
         roleRepository.save(role)
@@ -96,19 +86,16 @@ class RoleService(
     }
 
     fun deleteRole(roleId: Long) {
-        val role = roleRepository.findByIdOrNull(roleId)
-            ?: throw NoSuchElementException(ErrorMessages.roleNotFound(roleId))
+        val role = getRole(roleId)
         val latestGeneration = generationRepository.findFirstByOrderBySchoolYearDesc()!!
         latestGeneration.roles.remove(role)
         generationRepository.save(latestGeneration)
-        roleRepository.deleteById(roleId)
+        roleRepository.delete(role)
     }
 
     fun addUserToRole(roleId: Long, userId: Long) {
-        val role = roleRepository.findByIdOrNull(roleId)
-            ?: throw NoSuchElementException(ErrorMessages.roleNotFound(roleId))
-        val account = accountRepository.findByIdOrNull(userId)
-            ?: throw NoSuchElementException(ErrorMessages.accountNotFound(userId))
+        val role = getRole(roleId)
+        val account = accountService.getAccountById(userId)
         role.accounts.find { it.id == account.id }.let {
             if (it != null) throw NoSuchElementException(ErrorMessages.userAlreadyHasRole(roleId, userId))
         }
@@ -117,10 +104,8 @@ class RoleService(
     }
 
     fun removeUserFromRole(roleId: Long, userId: Long) {
-        val role = roleRepository.findByIdOrNull(roleId)
-            ?: throw NoSuchElementException(ErrorMessages.roleNotFound(roleId))
-        val account = accountRepository.findByIdOrNull(userId)
-            ?: throw NoSuchElementException(ErrorMessages.accountNotFound(userId))
+        val role = getRole(roleId)
+        val account = accountService.getAccountById(userId)
         role.accounts.find { it.id == account.id }.let {
             if (it == null) throw NoSuchElementException(ErrorMessages.userNotInRole(roleId, userId))
         }
