@@ -13,6 +13,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.mock.web.MockPart
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete
@@ -907,6 +908,9 @@ class AccountControllerTest @Autowired constructor(
     @NestedTest
     @DisplayName("PUT /recoverPassword/{recoveryToken}")
     inner class RecoverPassword {
+        @field:Value("\${backend.url}")
+        private lateinit var backendUrl: String
+
         private val newPassword = "new-password"
 
         private val parameters = listOf(
@@ -930,7 +934,7 @@ class AccountControllerTest @Autowired constructor(
             mockMvc.perform(post("/auth/recoverPassword/${testAccount.id}"))
                 .andReturn().response.let { authResponse ->
                     val recoveryToken = objectMapper.readTree(authResponse.contentAsString)["recovery_url"].asText()
-                        .removePrefix("localhost:8080/accounts/recoverPassword/")
+                        .removePrefix("$backendUrl/accounts/recoverPassword/")
                     mockMvc.perform(
                         put("/accounts/recoverPassword/{recoveryToken}", recoveryToken)
                             .contentType(MediaType.APPLICATION_JSON)

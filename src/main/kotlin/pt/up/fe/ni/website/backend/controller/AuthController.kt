@@ -1,5 +1,6 @@
 package pt.up.fe.ni.website.backend.controller
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -15,6 +16,9 @@ import pt.up.fe.ni.website.backend.service.AuthService
 @RestController
 @RequestMapping("/auth")
 class AuthController(val authService: AuthService) {
+    @field:Value("\${backend.url}")
+    private lateinit var backendUrl: String
+
     @PostMapping("/new")
     fun getNewToken(@RequestBody loginDto: LoginDto): Map<String, String> {
         val account = authService.authenticate(loginDto.email, loginDto.password)
@@ -33,7 +37,7 @@ class AuthController(val authService: AuthService) {
     fun generateRecoveryToken(@PathVariable id: Long): Map<String, String> {
         val recoveryToken = authService.generateRecoveryToken(id)
         // TODO: Change URL Later
-        return mapOf("recovery_url" to "localhost:8080/accounts/recoverPassword/$recoveryToken")
+        return mapOf("recovery_url" to "$backendUrl/accounts/recoverPassword/$recoveryToken")
     }
 
     @GetMapping
