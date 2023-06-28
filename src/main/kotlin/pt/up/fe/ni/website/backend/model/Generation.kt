@@ -11,8 +11,8 @@ import jakarta.persistence.Id
 import jakarta.persistence.OneToMany
 import jakarta.persistence.OrderColumn
 import jakarta.validation.Valid
-import pt.up.fe.ni.website.backend.annotations.validation.NoDuplicateRoles
-import pt.up.fe.ni.website.backend.annotations.validation.SchoolYear
+import pt.up.fe.ni.website.backend.utils.validation.NoDuplicateRoles
+import pt.up.fe.ni.website.backend.utils.validation.SchoolYear
 
 @Entity
 class Generation(
