@@ -100,11 +100,15 @@ Find the OpenAPI specification and Postman collection under `docs/` after runnin
 ## Project Structure
 
 - `src/main`
-  - `controller/` - Methods that register endpoints for the app
-  - `model/` - Database entity models (Spring Data JPA entities)
+  - `backend/` - Contains all the source code (excluding tests and resources)
+    - `config/` - Configuration classes used at boot
+    - `controller/` - Methods that register endpoints for the app
+    - `model/` - Database entity models (Spring Data JPA entities)
     - `dto/` - Data Transfer Objects for creating and modifying entities
-  - `repository/` - Data access layer methods (Spring Data repositories)
-  - `service/` - Business logic for the controllers
-  - `annotations/` - Custom annotations used in the project
-    - `validation/` - Custom validations used across the different models
+    - `repository/` - Data access layer methods (Spring Data repositories)
+    - `service/` - Business logic for the controllers
+    - `utils/` - Auxiliary packages used in the project
+      - `extensions/` - [Extension functions](https://kotlinlang.org/docs/extensions.html) used throughout the project
+      - `validation/` - Custom validations used across the different models
+  - `resources/` - All assets and static files needed, including static configurations
 - `src/test/` - Self explanatory: unit tests, functional (end-to-end) tests, etc.
