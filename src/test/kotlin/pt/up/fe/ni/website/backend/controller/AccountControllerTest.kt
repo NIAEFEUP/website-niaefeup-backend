@@ -619,6 +619,57 @@ class AccountControllerTest @Autowired constructor(
                     hasRequestPayload = true
                 )
         }
+
+        @NestedTest
+        @DisplayName("Input Validation")
+        inner class InputValidation {
+            private val validationTester = ValidationTester(
+                req = { params: Map<String, Any?> ->
+                    mockMvc.perform(
+                        post("/accounts/changePassword/${changePasswordAccount.id}")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(params))
+                    )
+                        .andDocumentErrorResponse(documentation, hasRequestPayload = true)
+                },
+                requiredFields = mapOf(
+                    "oldPassword" to password,
+                    "newPassword" to "test_password2"
+                )
+            )
+
+            @NestedTest
+            @DisplayName("oldPassword")
+            inner class OldPasswordValidation {
+                @BeforeAll
+                fun setParam() {
+                    validationTester.param = "oldPassword"
+                }
+
+                @Test
+                fun `should be required`() = validationTester.isRequired()
+
+                @Test
+                @DisplayName("size should be between ${Constants.Password.minSize} and ${Constants.Password.maxSize}()")
+                fun size() = validationTester.hasSizeBetween(Constants.Password.minSize, Constants.Password.maxSize)
+            }
+
+            @NestedTest
+            @DisplayName("newPassword")
+            inner class NewPasswordValidation {
+                @BeforeAll
+                fun setParam() {
+                    validationTester.param = "newPassword"
+                }
+
+                @Test
+                fun `should be required`() = validationTester.isRequired()
+
+                @Test
+                @DisplayName("size should be between ${Constants.Password.minSize} and ${Constants.Password.maxSize}()")
+                fun size() = validationTester.hasSizeBetween(Constants.Password.minSize, Constants.Password.maxSize)
+            }
+        }
     }
 
     @NestedTest
@@ -908,8 +959,8 @@ class AccountControllerTest @Autowired constructor(
     @NestedTest
     @DisplayName("PUT /recoverPassword/{recoveryToken}")
     inner class RecoverPassword {
-        @field:Value("\${backend.url}")
-        private lateinit var backendUrl: String
+        @field:Value("\${page.recover-password}")
+        private lateinit var recoverPasswordPage: String
 
         private val newPassword = "new-password"
 
@@ -934,7 +985,7 @@ class AccountControllerTest @Autowired constructor(
             mockMvc.perform(post("/auth/recoverPassword/${testAccount.id}"))
                 .andReturn().response.let { authResponse ->
                     val recoveryToken = objectMapper.readTree(authResponse.contentAsString)["recovery_url"].asText()
-                        .removePrefix("$backendUrl/accounts/recoverPassword/")
+                        .removePrefix("$recoverPasswordPage/")
                     mockMvc.perform(
                         put("/accounts/recoverPassword/{recoveryToken}", recoveryToken)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -956,6 +1007,15 @@ class AccountControllerTest @Autowired constructor(
                         documentRequestPayload = true
                     )
                 }
+            mockMvc.post("/auth/new") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(
+                    mapOf(
+                        "email" to testAccount.email,
+                        "password" to newPassword
+                    )
+                )
+            }.andExpect { status { isOk() } }
         }
 
         @Test
@@ -979,6 +1039,40 @@ class AccountControllerTest @Autowired constructor(
                 passwordRecoveryPayload,
                 hasRequestPayload = true
             )
+        }
+
+        @NestedTest
+        @DisplayName("Input Validation")
+        inner class InputValidation {
+            private val validationTester = ValidationTester(
+                req = { params: Map<String, Any?> ->
+                    mockMvc.perform(
+                        put("/accounts/recoverPassword/random-token")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(params))
+                    )
+                        .andDocumentErrorResponse(documentation, hasRequestPayload = true)
+                },
+                requiredFields = mapOf(
+                    "password" to "new-password"
+                )
+            )
+
+            @NestedTest
+            @DisplayName("password")
+            inner class PasswordValidation {
+                @BeforeAll
+                fun setParam() {
+                    validationTester.param = "password"
+                }
+
+                @Test
+                fun `should be required`() = validationTester.isRequired()
+
+                @Test
+                @DisplayName("size should be between ${Constants.Password.minSize} and ${Constants.Password.maxSize}()")
+                fun size() = validationTester.hasSizeBetween(Constants.Password.minSize, Constants.Password.maxSize)
+            }
         }
     }
 

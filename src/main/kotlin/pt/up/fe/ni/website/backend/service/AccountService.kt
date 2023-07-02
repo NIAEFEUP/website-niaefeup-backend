@@ -9,7 +9,7 @@ import org.springframework.security.oauth2.server.resource.InvalidBearerTokenExc
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import pt.up.fe.ni.website.backend.dto.auth.ChangePasswordDto
-import pt.up.fe.ni.website.backend.dto.auth.PassRecoveryDto
+import pt.up.fe.ni.website.backend.dto.auth.PasswordRecoveryDto
 import pt.up.fe.ni.website.backend.dto.entity.account.CreateAccountDto
 import pt.up.fe.ni.website.backend.dto.entity.account.UpdateAccountDto
 import pt.up.fe.ni.website.backend.model.Account
@@ -70,7 +70,7 @@ class AccountService(
     fun getAccountByEmail(email: String): Account = repository.findByEmail(email)
         ?: throw NoSuchElementException(ErrorMessages.emailNotFound(email))
 
-    fun recoverPassword(recoveryToken: String, dto: PassRecoveryDto): Account {
+    fun recoverPassword(recoveryToken: String, dto: PasswordRecoveryDto): Account {
         val jwt =
             try {
                 jwtDecoder.decode(recoveryToken)

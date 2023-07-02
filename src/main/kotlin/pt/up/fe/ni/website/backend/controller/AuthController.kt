@@ -16,8 +16,8 @@ import pt.up.fe.ni.website.backend.service.AuthService
 @RestController
 @RequestMapping("/auth")
 class AuthController(val authService: AuthService) {
-    @field:Value("\${backend.url}")
-    private lateinit var backendUrl: String
+    @field:Value("\${page.recover-password}")
+    private lateinit var recoverPasswordPage: String
 
     @PostMapping("/new")
     fun getNewToken(@RequestBody loginDto: LoginDto): Map<String, String> {
@@ -36,8 +36,8 @@ class AuthController(val authService: AuthService) {
     @PostMapping("/recoverPassword/{id}")
     fun generateRecoveryToken(@PathVariable id: Long): Map<String, String> {
         val recoveryToken = authService.generateRecoveryToken(id)
-        // TODO: Change URL Later
-        return mapOf("recovery_url" to "$backendUrl/accounts/recoverPassword/$recoveryToken")
+        // TODO: Change to email service
+        return mapOf("recovery_url" to "$recoverPasswordPage/$recoveryToken")
     }
 
     @GetMapping

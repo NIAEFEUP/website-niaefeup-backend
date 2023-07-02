@@ -1,5 +1,6 @@
 package pt.up.fe.ni.website.backend.controller
 
+import jakarta.validation.Valid
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 import pt.up.fe.ni.website.backend.dto.auth.ChangePasswordDto
-import pt.up.fe.ni.website.backend.dto.auth.PassRecoveryDto
+import pt.up.fe.ni.website.backend.dto.auth.PasswordRecoveryDto
 import pt.up.fe.ni.website.backend.dto.entity.account.CreateAccountDto
 import pt.up.fe.ni.website.backend.dto.entity.account.UpdateAccountDto
 import pt.up.fe.ni.website.backend.model.Account
@@ -31,11 +32,19 @@ class AccountController(private val service: AccountService) {
     fun getAccountById(@PathVariable id: Long) = service.getAccountById(id)
 
     @PutMapping("/recoverPassword/{recoveryToken}")
-    fun recoverPassword(@RequestBody dto: PassRecoveryDto, @PathVariable recoveryToken: String) =
+    fun recoverPassword(
+        @Valid @RequestBody
+        dto: PasswordRecoveryDto,
+        @PathVariable recoveryToken: String
+    ) =
         service.recoverPassword(recoveryToken, dto)
 
     @PostMapping("/changePassword/{id}")
-    fun changePassword(@PathVariable id: Long, @RequestBody dto: ChangePasswordDto): Map<String, String> {
+    fun changePassword(
+        @Valid @RequestBody
+        dto: ChangePasswordDto,
+        @PathVariable id: Long
+    ): Map<String, String> {
         service.changePassword(id, dto)
         return emptyMap()
     }
