@@ -59,7 +59,11 @@ class AuthService(
 
     fun generateRecoveryToken(id: Long): String {
         val account = accountService.getAccountById(id)
-        return generateToken(account, Duration.ofMinutes(authConfigProperties.jwtRecoveryExpirationMinutes))
+        return generateToken(
+            account,
+            Duration.ofMinutes(authConfigProperties.jwtRecoveryExpirationMinutes),
+            usePasswordHash = true
+        )
     }
 
     fun getAuthenticatedAccount(): Account {
@@ -67,21 +71,31 @@ class AuthService(
         return accountService.getAccountByEmail(authentication.name)
     }
 
-    private fun generateToken(account: Account, expiration: Duration, isRefresh: Boolean = false): String {
+    private fun generateToken(
+        account: Account,
+        expiration: Duration,
+        isRefresh: Boolean = false,
+        usePasswordHash: Boolean = false
+    ): String {
         val roles = if (isRefresh) emptyList() else getAuthorities() // TODO: Pass account to getAuthorities()
         val scope = roles
             .stream()
             .map(GrantedAuthority::getAuthority)
             .collect(Collectors.joining(" "))
         val currentInstant = Instant.now()
-        val claims = JwtClaimsSet
+        val claimsBuilder = JwtClaimsSet
             .builder()
             .issuer("self")
             .issuedAt(currentInstant)
             .expiresAt(currentInstant.plus(expiration))
             .subject(account.email)
             .claim("scope", scope)
-            .build()
+
+        if (usePasswordHash) {
+            claimsBuilder.claim("passwordHash", account.password)
+        }
+
+        val claims = claimsBuilder.build()
         return jwtEncoder.encode(JwtEncoderParameters.from(claims)).tokenValue
     }
 

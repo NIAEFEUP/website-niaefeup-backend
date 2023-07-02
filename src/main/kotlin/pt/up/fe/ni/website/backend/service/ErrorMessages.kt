@@ -15,6 +15,8 @@ object ErrorMessages {
 
     const val expiredRecoveryToken = "password recovery token has expired"
 
+    const val missingHashClaim = "password hash claim is missing"
+
     const val noGenerations = "no generations created yet"
 
     const val noGenerationsToInferYear = "no generations created yet, please specify school year"

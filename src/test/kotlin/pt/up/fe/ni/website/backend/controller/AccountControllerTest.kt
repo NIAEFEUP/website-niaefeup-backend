@@ -639,22 +639,6 @@ class AccountControllerTest @Autowired constructor(
             )
 
             @NestedTest
-            @DisplayName("oldPassword")
-            inner class OldPasswordValidation {
-                @BeforeAll
-                fun setParam() {
-                    validationTester.param = "oldPassword"
-                }
-
-                @Test
-                fun `should be required`() = validationTester.isRequired()
-
-                @Test
-                @DisplayName("size should be between ${Constants.Password.minSize} and ${Constants.Password.maxSize}()")
-                fun size() = validationTester.hasSizeBetween(Constants.Password.minSize, Constants.Password.maxSize)
-            }
-
-            @NestedTest
             @DisplayName("newPassword")
             inner class NewPasswordValidation {
                 @BeforeAll

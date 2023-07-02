@@ -82,6 +82,13 @@ class AccountService(
         }
         val account = getAccountByEmail(jwt.subject)
 
+        val tokenPasswordHash = jwt.getClaim<String>("passwordHash")
+            ?: throw InvalidBearerTokenException(ErrorMessages.missingHashClaim)
+
+        if (account.password != tokenPasswordHash) {
+            throw InvalidBearerTokenException(ErrorMessages.invalidRecoveryToken)
+        }
+
         account.password = encoder.encode(dto.password)
         return repository.save(account)
     }
