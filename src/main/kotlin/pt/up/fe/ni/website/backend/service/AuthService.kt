@@ -15,6 +15,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException
 import org.springframework.stereotype.Service
 import pt.up.fe.ni.website.backend.config.auth.AuthConfigProperties
+import pt.up.fe.ni.website.backend.dto.auth.PasswordRecoveryConfirmDto
 import pt.up.fe.ni.website.backend.model.Account
 
 @Service
@@ -57,13 +58,37 @@ class AuthService(
         return generateAccessToken(account)
     }
 
-    fun generateRecoveryToken(id: Long): String {
-        val account = accountService.getAccountById(id)
+    fun generateRecoveryToken(email: String): String? {
+        val account = accountService.getAccountByEmail(email)
         return generateToken(
             account,
             Duration.ofMinutes(authConfigProperties.jwtRecoveryExpirationMinutes),
             usePasswordHash = true
         )
+    }
+
+    fun confirmRecoveryToken(recoveryToken: String, dto: PasswordRecoveryConfirmDto): Account {
+        val jwt =
+            try {
+                jwtDecoder.decode(recoveryToken)
+            } catch (e: Exception) {
+                throw InvalidBearerTokenException(ErrorMessages.invalidRecoveryToken)
+            }
+
+        if (jwt.expiresAt?.isBefore(Instant.now()) != false) {
+            throw InvalidBearerTokenException(ErrorMessages.expiredRecoveryToken)
+        }
+        val account = accountService.getAccountByEmail(jwt.subject)
+
+        val tokenPasswordHash = jwt.getClaim<String>("passwordHash")
+            ?: throw InvalidBearerTokenException(ErrorMessages.invalidRecoveryToken)
+
+        if (account.password != tokenPasswordHash) {
+            throw InvalidBearerTokenException(ErrorMessages.invalidRecoveryToken)
+        }
+
+        account.password = passwordEncoder.encode(dto.password)
+        return accountService.updateAccount(account)
     }
 
     fun getAuthenticatedAccount(): Account {

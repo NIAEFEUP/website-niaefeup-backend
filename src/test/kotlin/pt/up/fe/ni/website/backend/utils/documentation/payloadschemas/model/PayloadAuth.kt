@@ -61,16 +61,17 @@ class PayloadRecoverPassword : ModelDocumentation(
     Tag.AUTH,
     mutableListOf(
         DocumentedJSONField(
-            "id",
-            "Id of the account",
-            JsonFieldType.NUMBER,
+            "email",
+            "Email of the account",
+            JsonFieldType.STRING,
             isInResponse = false
         ),
         DocumentedJSONField(
             "recovery_url",
             "URL to recover the password",
             JsonFieldType.STRING,
-            isInRequest = false
+            isInRequest = false,
+            optional = true // change this when email service is implemented
         )
     )
 )

@@ -13,19 +13,16 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.mock.web.MockPart
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.multipart
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
-import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.post
-import org.springframework.test.web.servlet.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -41,7 +38,6 @@ import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
 import pt.up.fe.ni.website.backend.utils.documentation.payloadschemas.model.PayloadAccount
 import pt.up.fe.ni.website.backend.utils.documentation.utils.DocumentedJSONField
 import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocument
-import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentCustomRequestSchema
 import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentCustomRequestSchemaEmptyResponse
 import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentCustomRequestSchemaErrorResponse
 import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentEmptyObjectResponse
@@ -937,126 +933,6 @@ class AccountControllerTest @Autowired constructor(
 //                    urlParameters = parameters,
 //                    hasRequestPayload = true
 //                )
-        }
-    }
-
-    @NestedTest
-    @DisplayName("PUT /recoverPassword/{recoveryToken}")
-    inner class RecoverPassword {
-        @field:Value("\${page.recover-password}")
-        private lateinit var recoverPasswordPage: String
-
-        private val newPassword = "new-password"
-
-        private val parameters = listOf(
-            parameterWithName("recoveryToken").description("The recovery token sent to the user's email.")
-        )
-
-        private val passwordRecoveryPayload = PayloadSchema(
-            "password-recover",
-            mutableListOf(
-                DocumentedJSONField("password", "The new password.", JsonFieldType.STRING)
-            )
-        )
-
-        @BeforeEach
-        fun setup() {
-            repository.save(testAccount)
-        }
-
-        @Test
-        fun `should update the password`() {
-            mockMvc.perform(post("/auth/recoverPassword/${testAccount.id}"))
-                .andReturn().response.let { authResponse ->
-                    val recoveryToken = objectMapper.readTree(authResponse.contentAsString)["recovery_url"].asText()
-                        .removePrefix("$recoverPasswordPage/")
-                    mockMvc.perform(
-                        put("/accounts/recoverPassword/{recoveryToken}", recoveryToken)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(
-                                objectMapper.writeValueAsString(
-                                    mapOf(
-                                        "password" to newPassword
-                                    )
-                                )
-                            )
-                    ).andExpectAll(
-                        status().isOk()
-                    ).andDocumentCustomRequestSchema(
-                        documentation,
-                        passwordRecoveryPayload,
-                        "Recover password",
-                        "Update the password of an account using a recovery token.",
-                        urlParameters = parameters,
-                        documentRequestPayload = true
-                    )
-                }
-            mockMvc.post("/auth/new") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(
-                    mapOf(
-                        "email" to testAccount.email,
-                        "password" to newPassword
-                    )
-                )
-            }.andExpect { status { isOk() } }
-        }
-
-        @Test
-        fun `should fail when token is invalid`() {
-            mockMvc.perform(
-                put("/accounts/recoverPassword/invalid_token")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(
-                        objectMapper.writeValueAsString(
-                            mapOf(
-                                "password" to newPassword
-                            )
-                        )
-                    )
-            ).andExpectAll(
-                status().isUnauthorized(),
-                jsonPath("$.errors.length()").value(1),
-                jsonPath("$.errors[0].message").value("invalid password recovery token")
-            ).andDocumentCustomRequestSchemaErrorResponse(
-                documentation,
-                passwordRecoveryPayload,
-                hasRequestPayload = true
-            )
-        }
-
-        @NestedTest
-        @DisplayName("Input Validation")
-        inner class InputValidation {
-            private val validationTester = ValidationTester(
-                req = { params: Map<String, Any?> ->
-                    mockMvc.perform(
-                        put("/accounts/recoverPassword/random-token")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(params))
-                    )
-                        .andDocumentErrorResponse(documentation, hasRequestPayload = true)
-                },
-                requiredFields = mapOf(
-                    "password" to "new-password"
-                )
-            )
-
-            @NestedTest
-            @DisplayName("password")
-            inner class PasswordValidation {
-                @BeforeAll
-                fun setParam() {
-                    validationTester.param = "password"
-                }
-
-                @Test
-                fun `should be required`() = validationTester.isRequired()
-
-                @Test
-                @DisplayName("size should be between ${Constants.Password.minSize} and ${Constants.Password.maxSize}()")
-                fun size() = validationTester.hasSizeBetween(Constants.Password.minSize, Constants.Password.maxSize)
-            }
         }
     }
 

@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 import pt.up.fe.ni.website.backend.dto.auth.ChangePasswordDto
-import pt.up.fe.ni.website.backend.dto.auth.PasswordRecoveryDto
 import pt.up.fe.ni.website.backend.dto.entity.account.CreateAccountDto
 import pt.up.fe.ni.website.backend.dto.entity.account.UpdateAccountDto
 import pt.up.fe.ni.website.backend.model.Account
@@ -30,14 +29,6 @@ class AccountController(private val service: AccountService) {
 
     @GetMapping("/{id}")
     fun getAccountById(@PathVariable id: Long) = service.getAccountById(id)
-
-    @PutMapping("/recoverPassword/{recoveryToken}")
-    fun recoverPassword(
-        @Valid @RequestBody
-        dto: PasswordRecoveryDto,
-        @PathVariable recoveryToken: String
-    ) =
-        service.recoverPassword(recoveryToken, dto)
 
     @PostMapping("/changePassword/{id}")
     fun changePassword(

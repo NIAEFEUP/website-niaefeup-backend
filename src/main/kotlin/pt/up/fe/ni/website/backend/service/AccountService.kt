@@ -1,15 +1,13 @@
 package pt.up.fe.ni.website.backend.service
 
-import java.time.Instant
 import java.util.UUID
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.oauth2.jwt.JwtDecoder
-import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
+import pt.up.fe.ni.website.backend.config.Logging
 import pt.up.fe.ni.website.backend.dto.auth.ChangePasswordDto
-import pt.up.fe.ni.website.backend.dto.auth.PasswordRecoveryDto
 import pt.up.fe.ni.website.backend.dto.entity.account.CreateAccountDto
 import pt.up.fe.ni.website.backend.dto.entity.account.UpdateAccountDto
 import pt.up.fe.ni.website.backend.model.Account
@@ -23,7 +21,7 @@ class AccountService(
     private val encoder: PasswordEncoder,
     private val jwtDecoder: JwtDecoder,
     private val fileUploader: FileUploader
-) {
+) : Logging {
     fun getAllAccounts(): List<Account> = repository.findAll().toList()
 
     fun createAccount(dto: CreateAccountDto): Account {
@@ -67,31 +65,10 @@ class AccountService(
         return repository.save(newAccount)
     }
 
+    fun updateAccount(account: Account): Account = repository.save(account)
+
     fun getAccountByEmail(email: String): Account = repository.findByEmail(email)
         ?: throw NoSuchElementException(ErrorMessages.emailNotFound(email))
-
-    fun recoverPassword(recoveryToken: String, dto: PasswordRecoveryDto): Account {
-        val jwt =
-            try {
-                jwtDecoder.decode(recoveryToken)
-            } catch (e: Exception) {
-                throw InvalidBearerTokenException(ErrorMessages.invalidRecoveryToken)
-            }
-        if (jwt.expiresAt?.isBefore(Instant.now()) != false) {
-            throw InvalidBearerTokenException(ErrorMessages.expiredRecoveryToken)
-        }
-        val account = getAccountByEmail(jwt.subject)
-
-        val tokenPasswordHash = jwt.getClaim<String>("passwordHash")
-            ?: throw InvalidBearerTokenException(ErrorMessages.missingHashClaim)
-
-        if (account.password != tokenPasswordHash) {
-            throw InvalidBearerTokenException(ErrorMessages.invalidRecoveryToken)
-        }
-
-        account.password = encoder.encode(dto.password)
-        return repository.save(account)
-    }
 
     fun changePassword(id: Long, dto: ChangePasswordDto) {
         val account = getAccountById(id)
