@@ -1,15 +1,11 @@
 package pt.up.fe.ni.website.backend.service
 
 import jakarta.transaction.Transactional
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import pt.up.fe.ni.website.backend.dto.entity.RoleDto
-import pt.up.fe.ni.website.backend.model.Activity
 import pt.up.fe.ni.website.backend.model.PerActivityRole
 import pt.up.fe.ni.website.backend.model.Role
 import pt.up.fe.ni.website.backend.model.permissions.Permissions
-import pt.up.fe.ni.website.backend.repository.AccountRepository
-import pt.up.fe.ni.website.backend.repository.ActivityRepository
 import pt.up.fe.ni.website.backend.repository.GenerationRepository
 import pt.up.fe.ni.website.backend.repository.PerActivityRoleRepository
 import pt.up.fe.ni.website.backend.repository.RoleRepository
@@ -22,7 +18,7 @@ class RoleService(
     private val perActivityRoleRepository: PerActivityRoleRepository,
     private val generationRepository: GenerationRepository,
     private val accountService: AccountService,
-    private val activityService: ActivityService,
+    private val activityService: ActivityService
 ) {
 
     fun getRole(roleId: Long): Role {
@@ -57,7 +53,7 @@ class RoleService(
         if (activity.associatedRoles.find { it.activity == activity } == null) {
             role.associatedActivities.add(foundPerActivityRole)
         }
-        //activityRepository.save(activity)
+        // activityRepository.save(activity)
         roleRepository.save(role)
     }
 
@@ -68,7 +64,7 @@ class RoleService(
             .find { it.role == role } ?: return
         foundActivity.permissions.removeAll(permissions)
         perActivityRoleRepository.save(foundActivity)
-        //activityRepository.save(activity)
+        // activityRepository.save(activity)
     }
 
     fun createNewRole(dto: RoleDto): Role {
@@ -79,6 +75,9 @@ class RoleService(
 
         val latestGeneration = generationRepository.findFirstByOrderBySchoolYearDesc()
             ?: throw IllegalArgumentException(ErrorMessages.noGenerations)
+
+        // need to set it from both sides due to testing transaction
+        role.generation = latestGeneration
         roleRepository.save(role)
         latestGeneration.roles.add(role)
         generationRepository.save(latestGeneration)
@@ -87,9 +86,8 @@ class RoleService(
 
     fun deleteRole(roleId: Long) {
         val role = getRole(roleId)
-        val latestGeneration = generationRepository.findFirstByOrderBySchoolYearDesc()!!
-        latestGeneration.roles.remove(role)
-        generationRepository.save(latestGeneration)
+        role.generation.roles.remove(role)
+        generationRepository.save(role.generation)
         roleRepository.delete(role)
     }
 

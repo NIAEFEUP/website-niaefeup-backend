@@ -26,10 +26,7 @@ class RoleController(private val roleService: RoleService) {
     fun createNewRole(@RequestBody dto: RoleDto) = roleService.createNewRole(dto)
 
     @DeleteMapping("/{id}")
-    fun deleteRole(@PathVariable id: Long): Map<String, String> {
-        roleService.deleteRole(id)
-        return emptyMap()
-    }
+    fun deleteRole(@PathVariable id: Long) = roleService.deleteRole(id)
 
     @PostMapping("/{id}/permissions")
     fun grantPermissionToRole(

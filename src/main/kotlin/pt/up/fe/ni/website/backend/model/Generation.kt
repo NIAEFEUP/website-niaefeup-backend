@@ -25,7 +25,6 @@ class Generation(
     val id: Long? = null
 ) {
     @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER, mappedBy = "generation")
-    @OrderColumn
     @JsonManagedReference
     @field:NoDuplicateRoles
     val roles: MutableList<@Valid Role> = mutableListOf()

@@ -180,7 +180,9 @@ internal class RoleControllerTest @Autowired constructor(
         fun addRole() {
             generationRepository.save(testGeneration)
             roleRepository.save(testRole)
-            testGeneration.roles.add(testRole)
+            if (testGeneration.roles.size == 0) {
+                testGeneration.roles.add(testRole)
+            }
             generationRepository.save(testGeneration)
         }
 
@@ -236,9 +238,9 @@ internal class RoleControllerTest @Autowired constructor(
                         )
                     )
             ).andExpectAll(
-                status().isBadRequest,
+                status().isUnprocessableEntity,
                 content().contentType(MediaType.APPLICATION_JSON),
-                jsonPath("$.errors.length()").value(1),
+                jsonPath("$.errors.length()").value(1)
             )
                 .andDocumentErrorResponse(documentationRoles, hasRequestPayload = true)
             assert(roleRepository.findByName(testRole.name) != null)
@@ -248,30 +250,33 @@ internal class RoleControllerTest @Autowired constructor(
 
     @NestedTest
     inner class DeleteRole {
+        lateinit var generation1: Generation
+        lateinit var role: Role
+
         @BeforeEach
         fun addRole() {
-            roleRepository.save(testRole)
-            generationRepository.save(testGeneration)
-            generationRepository.findFirstByOrderBySchoolYearDesc()!!.roles.add(testRole)
+            generation1 = Generation("22-23")
+            role = Role("test-role-1", Permissions(), true)
+            generation1.roles.add(role)
+            generationRepository.save(generation1)
+            role.generation = generation1
         }
 
         @AfterEach
-        fun removeRole(){
-            roleRepository.delete(testRole);
-            testGeneration.roles.remove(testRole)
+        fun removeRole() {
+            generationRepository.deleteAll()
         }
 
         @Test
         fun `should remove role with correct id`() {
-            mockMvc.perform(delete("/roles/${testRole.id}")).andExpectAll(
+            mockMvc.perform(delete("/roles/${role.id}")).andExpectAll(
                 status().isOk
             ).andDocumentEmptyObjectResponse(
                 documentationRoles,
                 "Removes the role by its id",
                 "The id must exist in order to remove it correctly"
             )
-            assert(roleRepository.findByName(testRole.name) == null)
-            assert(generationRepository.findFirstByOrderBySchoolYearDesc() != null)
+            assert(roleRepository.findByName(role.name) == null)
             assert(generationRepository.findFirstByOrderBySchoolYearDesc()!!.roles.size == 0)
         }
 
@@ -383,7 +388,6 @@ internal class RoleControllerTest @Autowired constructor(
             ).andExpectAll(
                 status().isNotFound()
             ).andDocumentErrorResponse(documentationPermissions, hasRequestPayload = false)
-
         }
     }
 
