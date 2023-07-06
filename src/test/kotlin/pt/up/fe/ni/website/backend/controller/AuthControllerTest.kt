@@ -3,7 +3,7 @@ package pt.up.fe.ni.website.backend.controller
 import com.epages.restdocs.apispec.HeaderDescriptorWithType
 import com.epages.restdocs.apispec.ResourceDocumentation.headerWithName
 import com.fasterxml.jackson.databind.ObjectMapper
-import java.util.Calendar
+import java.util.*
 import org.hamcrest.Matchers.startsWith
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -15,14 +15,19 @@ import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import pt.up.fe.ni.website.backend.dto.auth.LoginDto
 import pt.up.fe.ni.website.backend.dto.auth.TokenDto
-import pt.up.fe.ni.website.backend.model.Account
-import pt.up.fe.ni.website.backend.model.CustomWebsite
+import pt.up.fe.ni.website.backend.model.*
+import pt.up.fe.ni.website.backend.model.permissions.Permission
+import pt.up.fe.ni.website.backend.model.permissions.Permissions
 import pt.up.fe.ni.website.backend.repository.AccountRepository
+import pt.up.fe.ni.website.backend.repository.ActivityRepository
+import pt.up.fe.ni.website.backend.repository.PerActivityRoleRepository
+import pt.up.fe.ni.website.backend.repository.RoleRepository
 import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
 import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
@@ -38,7 +43,9 @@ class AuthControllerTest @Autowired constructor(
     val repository: AccountRepository,
     val mockMvc: MockMvc,
     val objectMapper: ObjectMapper,
-    passwordEncoder: PasswordEncoder
+    final val passwordEncoder: PasswordEncoder,
+    val activityRepository: ActivityRepository<Activity>,
+    val roleRepository: RoleRepository
 ) {
     final val testPassword = "testPassword"
 
@@ -237,6 +244,70 @@ class AuthControllerTest @Autowired constructor(
                         checkAuthHeaders,
                         documentRequestPayload = true
                     )
+            }
+        }
+    }
+
+    @NestedTest
+    @DisplayName("POST /auth/hasPermission/")
+    inner class CheckPermissions {
+        private val testAccountWithRole = Account(
+            "Test Account 2",
+            "test_account2@test.com",
+            passwordEncoder.encode(testPassword),
+            "This is a test account",
+            TestUtils.createDate(2001, Calendar.JULY, 28),
+            "https://test-photo.com",
+            "https://linkedin.com",
+            "https://github.com",
+            listOf(
+                CustomWebsite("https://test-website.com", "https://test-website.com/logo.png")
+            ),
+            mutableListOf()
+        )
+        private val testPermissions = listOf(Permission.CREATE_ACCOUNT, Permission.CREATE_ACTIVITY)
+        private val testRole = Role("MEMBER", Permissions(listOf(Permission.CREATE_ACCOUNT, Permission.CREATE_ACTIVITY)), false)
+        private val testPerActivityRole = PerActivityRole(Permissions(listOf(Permission.CREATE_ACCOUNT, Permission.CREATE_ACTIVITY)))
+        private val activity = Project("Test Activity", "Test Description", mutableListOf(), mutableListOf())
+
+
+        @BeforeEach
+        fun setup() {
+            testPerActivityRole.activity = activity
+            activityRepository.save(activity)
+            testRole.associatedActivities.add(testPerActivityRole)
+            testAccountWithRole.roles.add(testRole)
+
+            roleRepository.save(testRole)
+            repository.save(testAccountWithRole)
+            repository.save(testAccount)
+        }
+
+        @Test
+        fun `should fail when user has no roles`() {
+            mockMvc.post("/auth/new") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(LoginDto(testAccount.email, testPassword))
+            }.andReturn().response.let { response ->
+                val accessToken = objectMapper.readTree(response.contentAsString)["access_token"].asText()
+                mockMvc.perform(
+                    get("/auth/hasPermission/${testPermissions[0].toString().trim().uppercase(Locale.getDefault())}")
+                        .header("Authorization", "Bearer $accessToken")
+                ).andExpect(status().isForbidden)
+            }
+        }
+
+        @Test
+        fun `should fail when user doesn't have permission`() {
+            mockMvc.post("/auth/new") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(LoginDto(testAccountWithRole.email, testPassword))
+            }.andReturn().response.let { response ->
+                val accessToken = objectMapper.readTree(response.contentAsString)["access_token"].asText()
+                mockMvc.perform(
+                    get("/auth/hasPermission/${testPermissions[0].toString().trim().uppercase(Locale.getDefault())}")
+                        .header("Authorization", "Bearer $accessToken")
+                ).andExpect(status().isOk)
             }
         }
     }
