@@ -30,7 +30,6 @@ class AuthConfig(
 ) {
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-        http.headers().frameOptions().disable()
         return http.csrf { csrf -> csrf.disable() }.cors().and()
             .oauth2ResourceServer().jwt()
             .jwtAuthenticationConverter(rolesConverter())
