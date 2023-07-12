@@ -13,7 +13,6 @@ import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
-import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.get
@@ -37,24 +36,12 @@ import pt.up.fe.ni.website.backend.repository.RoleRepository
 import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
 import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
-import pt.up.fe.ni.website.backend.utils.documentation.Tag
 import pt.up.fe.ni.website.backend.utils.documentation.payloadschemas.model.PayloadAccount
 import pt.up.fe.ni.website.backend.utils.documentation.payloadschemas.model.PayloadPermissions
 import pt.up.fe.ni.website.backend.utils.documentation.payloadschemas.model.PayloadRoles
-import pt.up.fe.ni.website.backend.utils.documentation.utils.DocumentedJSONField
 import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocument
 import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentEmptyObjectResponse
 import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentErrorResponse
-import pt.up.fe.ni.website.backend.utils.documentation.utils.ModelDocumentation
-
-class AccountRoleDocumentation : ModelDocumentation(
-    Tag.ROLES.name.lowercase() + "-accounts",
-    Tag.ROLES,
-    mutableListOf(
-        DocumentedJSONField("[]", "Array that only contains ONE account id", JsonFieldType.ARRAY)
-    )
-
-)
 
 @ControllerTest
 @Transactional
@@ -87,7 +74,7 @@ internal class RoleControllerTest @Autowired constructor(
         false
     )
 
-    val testProject = Project(
+    val project = Project(
         "UNI",
         "Melhor app"
     )
@@ -174,6 +161,7 @@ internal class RoleControllerTest @Autowired constructor(
     }
 
     @NestedTest
+    @DisplayName("POST /roles/{id}")
     inner class CreateNewRole {
 
         @BeforeEach
@@ -249,6 +237,7 @@ internal class RoleControllerTest @Autowired constructor(
     }
 
     @NestedTest
+    @DisplayName("DELETE /roles/{id}")
     inner class DeleteRole {
         lateinit var generation1: Generation
         lateinit var role: Role
@@ -294,6 +283,7 @@ internal class RoleControllerTest @Autowired constructor(
     }
 
     @NestedTest
+    @DisplayName("POST /roles/{id}/permissions")
     inner class GrantPermissionToRole {
 
         @BeforeEach
@@ -343,6 +333,7 @@ internal class RoleControllerTest @Autowired constructor(
     }
 
     @NestedTest
+    @DisplayName("DELETE /roles/{id}/permissions")
     inner class RevokePermissionFromRole {
 
         @BeforeEach
@@ -392,6 +383,7 @@ internal class RoleControllerTest @Autowired constructor(
     }
 
     @NestedTest
+    @DisplayName("POST /roles/{id}/users")
     inner class AddUserToRole {
         @BeforeEach
         fun addRoleAndUser() {
@@ -453,6 +445,7 @@ internal class RoleControllerTest @Autowired constructor(
     }
 
     @NestedTest
+    @DisplayName("DELETE /roles/{id}/users")
     inner class RemoveUserFromRole {
         @BeforeEach
         fun addRoleAndUser() {
@@ -516,23 +509,27 @@ internal class RoleControllerTest @Autowired constructor(
                     .content(objectMapper.writeValueAsString(mapOf("userId" to testAccount.id)))
             ).andExpectAll(
                 status().isNotFound()
-            ).andDocumentErrorResponse(documentationAccount, hasRequestPayload = true)
+            ).andDocumentErrorResponse(
+                documentationAccount,
+                hasRequestPayload = true
+            )
             assert(roleRepository.findByIdOrNull(testRole.id!!)!!.accounts.size != 0)
         }
     }
 
     @NestedTest
+    @DisplayName("POST /roles/{id}/activities/{activityId}/permissions")
     inner class AddPermissionToRoleActivity {
         @BeforeEach
         fun addAll() {
             roleRepository.save(testRole)
-            projectRepository.save(testProject)
+            projectRepository.save(project)
         }
 
         @Test
         fun `should add permission to role activity and create PerActivityRole`() {
             mockMvc.perform(
-                post("/roles/${testRole.id}/activities/${testProject.id}/permissions")
+                post("/roles/${testRole.id}/activities/${project.id}/permissions")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(
                         objectMapper.writeValueAsString(
@@ -543,7 +540,7 @@ internal class RoleControllerTest @Autowired constructor(
                 status().isOk
             ).andDocumentEmptyObjectResponse(
                 documentationPermissions,
-                "Adds an permission to an role activity",
+                "Adds an permission to a role activity",
                 "It will create a PerRoleActivity if it doesn't exist"
             )
             assert(roleRepository.findByIdOrNull(testRole.id!!)!!.associatedActivities.size == 1)
@@ -557,7 +554,7 @@ internal class RoleControllerTest @Autowired constructor(
         @Test
         fun `shouldn't add permission to role activity if roleId is invalid`() {
             mockMvc.perform(
-                post("/roles/1234/activities/${testProject.id}/permissions")
+                post("/roles/1234/activities/${project.id}/permissions")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(
                         objectMapper.writeValueAsString(
@@ -566,7 +563,10 @@ internal class RoleControllerTest @Autowired constructor(
                     )
             ).andExpectAll(
                 status().isNotFound()
-            ).andDocumentErrorResponse(documentationPermissions, hasRequestPayload = true)
+            ).andDocumentErrorResponse(
+                documentationPermissions,
+                hasRequestPayload = true
+            )
             assert(roleRepository.findByIdOrNull(testRole.id!!)!!.associatedActivities.size == 0)
         }
 
@@ -582,7 +582,10 @@ internal class RoleControllerTest @Autowired constructor(
                     )
             ).andExpectAll(
                 status().isNotFound()
-            ).andDocumentErrorResponse(documentationPermissions, hasRequestPayload = true)
+            ).andDocumentErrorResponse(
+                documentationPermissions,
+                hasRequestPayload = true
+            )
             assert(roleRepository.findByIdOrNull(testRole.id!!)!!.associatedActivities.size == 0)
         }
 
@@ -605,29 +608,28 @@ internal class RoleControllerTest @Autowired constructor(
     }
 
     @NestedTest
+    @DisplayName("DELETE /roles/{id}/activities/{activityId}/permissions")
     inner class RemovePermissionFromPerRoleActivity {
+
+        private lateinit var project: Project
+
         @BeforeEach
         fun addAll() {
+            project = Project("test project", "test")
             roleRepository.save(testRole)
-            projectRepository.save(testProject)
+            projectRepository.save(project)
             val perActivityRole = PerActivityRole(Permissions(listOf(Permission.EDIT_ACTIVITY)))
-            perActivityRole.activity = testProject
+            perActivityRole.activity = project
             perActivityRole.role = testRole
-            testProject.associatedRoles.add(perActivityRole)
-            projectRepository.save(testProject)
+            project.associatedRoles.add(perActivityRole)
+            projectRepository.save(project)
             roleRepository.save(testRole)
-        }
-
-        @AfterEach
-        fun removeAll() {
-            testProject.associatedRoles.removeAt(0)
-            projectRepository.save(testProject)
         }
 
         @Test
         fun `should remove an existing role activity permission`() {
             mockMvc.perform(
-                delete("/roles/${testRole.id}/activities/${testProject.id}/permissions")
+                delete("/roles/${testRole.id}/activities/${project.id}/permissions")
                     .contentType(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON)
                     .content(
                         objectMapper.writeValueAsString(
@@ -643,9 +645,9 @@ internal class RoleControllerTest @Autowired constructor(
                 "It will not create a PerRoleActivity if it doesn't exist, it will simply return, " +
                     "doesn't check if the permissions are already revoked..."
             )
-            assert(projectRepository.findByIdOrNull(testProject.id!!)!!.associatedRoles.size == 1)
+            assert(projectRepository.findByIdOrNull(project.id!!)!!.associatedRoles.size == 1)
             assert(
-                !projectRepository.findByIdOrNull(testProject.id!!)!!.associatedRoles[0].permissions.contains(
+                !projectRepository.findByIdOrNull(project.id!!)!!.associatedRoles[0].permissions.contains(
                     Permission.EDIT_ACTIVITY
                 )
             )
@@ -654,7 +656,7 @@ internal class RoleControllerTest @Autowired constructor(
         @Test
         fun `should not remove an existing role activity permission on a non existing role`() {
             mockMvc.perform(
-                delete("/roles/1234/activities/${testProject.id}/permissions")
+                delete("/roles/1234/activities/${project.id}/permissions")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(
                         objectMapper.writeValueAsString(
@@ -664,10 +666,13 @@ internal class RoleControllerTest @Autowired constructor(
 
             ).andExpectAll(
                 status().isNotFound()
-            ).andDocumentErrorResponse(documentationPermissions, hasRequestPayload = false)
-            assert(projectRepository.findByIdOrNull(testProject.id!!)!!.associatedRoles.size == 1)
+            ).andDocumentErrorResponse(
+                documentationPermissions,
+                hasRequestPayload = false
+            )
+            assert(projectRepository.findByIdOrNull(project.id!!)!!.associatedRoles.size == 1)
             assert(
-                projectRepository.findByIdOrNull(testProject.id!!)!!.associatedRoles[0].permissions.contains(
+                projectRepository.findByIdOrNull(project.id!!)!!.associatedRoles[0].permissions.contains(
                     Permission.EDIT_ACTIVITY
                 )
             )
@@ -687,16 +692,16 @@ internal class RoleControllerTest @Autowired constructor(
             ).andExpectAll(
                 status().isNotFound()
             ).andDocumentErrorResponse(documentationPermissions, hasRequestPayload = false)
-            assert(projectRepository.findByIdOrNull(testProject.id!!)!!.associatedRoles.size == 1)
+            assert(projectRepository.findByIdOrNull(project.id!!)!!.associatedRoles.size == 1)
             assert(
-                projectRepository.findByIdOrNull(testProject.id!!)!!.associatedRoles[0].permissions.contains(
+                projectRepository.findByIdOrNull(project.id!!)!!.associatedRoles[0].permissions.contains(
                     Permission.EDIT_ACTIVITY
                 )
             )
         }
 
         @Test
-        fun `should not remove an existing role activity perm on a non existing activity and non existing role`() {
+        fun `should not remove an existing role permission when neither the activity and role don't exist`() {
             mockMvc.perform(
                 delete("/roles/1234/activities/1234/permissions")
                     .contentType(MediaType.APPLICATION_JSON)
@@ -708,10 +713,13 @@ internal class RoleControllerTest @Autowired constructor(
 
             ).andExpectAll(
                 status().isNotFound()
-            ).andDocumentErrorResponse(documentationPermissions, hasRequestPayload = false)
-            assert(projectRepository.findByIdOrNull(testProject.id!!)!!.associatedRoles.size == 1)
+            ).andDocumentErrorResponse(
+                documentationPermissions,
+                hasRequestPayload = false
+            )
+            assert(projectRepository.findByIdOrNull(project.id!!)!!.associatedRoles.size == 1)
             assert(
-                projectRepository.findByIdOrNull(testProject.id!!)!!.associatedRoles[0].permissions.contains(
+                projectRepository.findByIdOrNull(project.id!!)!!.associatedRoles[0].permissions.contains(
                     Permission.EDIT_ACTIVITY
                 )
             )
