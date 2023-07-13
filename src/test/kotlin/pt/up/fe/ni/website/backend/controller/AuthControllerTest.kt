@@ -1,6 +1,7 @@
 package pt.up.fe.ni.website.backend.controller
 
 import com.epages.restdocs.apispec.HeaderDescriptorWithType
+import com.epages.restdocs.apispec.ResourceDocumentation
 import com.epages.restdocs.apispec.ResourceDocumentation.headerWithName
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.transaction.Transactional
@@ -16,13 +17,17 @@ import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import pt.up.fe.ni.website.backend.dto.auth.LoginDto
 import pt.up.fe.ni.website.backend.dto.auth.TokenDto
-import pt.up.fe.ni.website.backend.model.*
+import pt.up.fe.ni.website.backend.model.Account
+import pt.up.fe.ni.website.backend.model.Activity
+import pt.up.fe.ni.website.backend.model.CustomWebsite
+import pt.up.fe.ni.website.backend.model.PerActivityRole
+import pt.up.fe.ni.website.backend.model.Project
+import pt.up.fe.ni.website.backend.model.Role
 import pt.up.fe.ni.website.backend.model.permissions.Permission
 import pt.up.fe.ni.website.backend.model.permissions.Permissions
 import pt.up.fe.ni.website.backend.repository.AccountRepository
@@ -35,6 +40,7 @@ import pt.up.fe.ni.website.backend.utils.annotations.NestedTest
 import pt.up.fe.ni.website.backend.utils.documentation.payloadschemas.model.PayloadAuthCheck
 import pt.up.fe.ni.website.backend.utils.documentation.payloadschemas.model.PayloadAuthNew
 import pt.up.fe.ni.website.backend.utils.documentation.payloadschemas.model.PayloadAuthRefresh
+import pt.up.fe.ni.website.backend.utils.documentation.payloadschemas.model.PayloadPermissionCheck
 import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocument
 import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentErrorResponse
 import pt.up.fe.ni.website.backend.utils.documentation.utils.ModelDocumentation
@@ -45,7 +51,7 @@ class AuthControllerTest @Autowired constructor(
     val repository: AccountRepository,
     val mockMvc: MockMvc,
     val objectMapper: ObjectMapper,
-    val passwordEncoder: PasswordEncoder,
+    passwordEncoder: PasswordEncoder,
     val activityRepository: ActivityRepository<Activity>,
     val roleRepository: RoleRepository,
     val perActivityRoleRepository: PerActivityRoleRepository
@@ -125,7 +131,8 @@ class AuthControllerTest @Autowired constructor(
             ).andDocument(
                 documentation,
                 "Authenticate account",
-                "This endpoint operation allows authentication using user's password and email, " + "generating new access and refresh tokens to be used in following requests.",
+                "This endpoint operation allows authentication using user's password and email, " +
+                    "generating new access and refresh tokens to be used in following requests.",
                 documentRequestPayload = true
             )
         }
@@ -168,7 +175,8 @@ class AuthControllerTest @Autowired constructor(
                 ).andDocument(
                     documentation,
                     "Refresh access token",
-                    "This endpoint operation allows the renewal of the access token, " + "using the currently valid refresh token.",
+                    "This endpoint operation allows the renewal of the access token, " +
+                        "using the currently valid refresh token.",
                     documentRequestPayload = true
                 )
             }
@@ -221,7 +229,8 @@ class AuthControllerTest @Autowired constructor(
                 ).andDocument(
                     documentation,
                     "Check access token",
-                    "This endpoint operation allows to check if a given access token is valid, returning " + "the associated account's information.",
+                    "This endpoint operation allows to check if a given access token is valid, returning " +
+                        "the associated account's information.",
                     checkAuthHeaders,
                     documentRequestPayload = true
                 )
@@ -230,21 +239,31 @@ class AuthControllerTest @Autowired constructor(
     }
 
     @NestedTest
-    @DisplayName("POST /auth/hasPermission/")
+    @DisplayName("POST /auth/hasPermission")
     inner class CheckPermissions {
         @BeforeEach
         fun setup() {
             activityRepository.save(testActivity)
+            roleRepository.save(testRole)
 
             testPerActivityRole.activity = testActivity
             testPerActivityRole.role = testRole
             perActivityRoleRepository.save(testPerActivityRole)
 
-            roleRepository.save(testRole)
-
             testAccount.roles.add(testRole)
             repository.save(testAccount)
         }
+
+        val documentation: ModelDocumentation = PayloadPermissionCheck()
+        private val globalParameters = listOf(
+            ResourceDocumentation.parameterWithName("permission")
+                .description("String representation of the permission to test")
+        )
+        private val perActivityParameters = listOf(
+            ResourceDocumentation.parameterWithName("activityId").description("Id of the activity"),
+            ResourceDocumentation.parameterWithName("permission")
+                .description("String representation of the permission to test")
+        )
 
         @Test
         fun `should fail when user doesn't have global permission`() {
@@ -255,11 +274,9 @@ class AuthControllerTest @Autowired constructor(
                 val accessToken = objectMapper.readTree(response.contentAsString)["access_token"].asText()
                 mockMvc.perform(
                     get(
-                        "/auth/hasPermission/${
-                            Permission.SUPERUSER
-                        }"
+                        "/auth/hasPermission/${Permission.SUPERUSER}"
                     ).header("Authorization", "Bearer $accessToken")
-                ).andExpect(status().isForbidden)
+                ).andExpect(status().isForbidden).andDocumentErrorResponse(documentation)
             }
         }
 
@@ -272,11 +289,17 @@ class AuthControllerTest @Autowired constructor(
                 val accessToken = objectMapper.readTree(response.contentAsString)["access_token"].asText()
                 mockMvc.perform(
                     get(
-                        "/auth/hasPermission/${
-                            testPermissions[0]
-                        }"
+                        "/auth/hasPermission/{permission}",
+                        testPermissions[0]
                     ).header("Authorization", "Bearer $accessToken")
-                ).andExpect(status().isOk)
+                ).andExpect(status().isOk).andDocument(
+                    documentation,
+                    "Check global user permission",
+                    "This endpoint succeeds whether the user has the given permission in one of their roles",
+                    checkAuthHeaders,
+                    emptyList(),
+                    globalParameters
+                )
             }
         }
 
@@ -289,11 +312,11 @@ class AuthControllerTest @Autowired constructor(
                 val accessToken = objectMapper.readTree(response.contentAsString)["access_token"].asText()
                 mockMvc.perform(
                     get(
-                        "/auth/hasPermission/${testActivity.id}/${
-                            Permission.DELETE_ACTIVITY
-                        }"
+                        "/auth/hasPermission/{activityId}/{permission}",
+                        testActivity.id,
+                        Permission.DELETE_ACTIVITY
                     ).header("Authorization", "Bearer $accessToken")
-                ).andExpect(status().isForbidden)
+                ).andExpect(status().isForbidden).andDocumentErrorResponse(documentation)
             }
         }
 
@@ -306,11 +329,16 @@ class AuthControllerTest @Autowired constructor(
                 val accessToken = objectMapper.readTree(response.contentAsString)["access_token"].asText()
                 mockMvc.perform(
                     get(
-                        "/auth/hasPermission/${testActivity.id}/${
-                            Permission.EDIT_ACTIVITY
-                        }"
+                        "/auth/hasPermission/${testActivity.id}/${Permission.EDIT_ACTIVITY}"
                     ).header("Authorization", "Bearer $accessToken")
-                ).andExpect(status().isOk)
+                ).andExpect(status().isOk).andDocument(
+                    documentation,
+                    "Check per activity user permission",
+                    "This endpoint succeeds whether the user has the given permission upon an activity",
+                    checkAuthHeaders,
+                    emptyList(),
+                    perActivityParameters
+                )
             }
         }
     }
