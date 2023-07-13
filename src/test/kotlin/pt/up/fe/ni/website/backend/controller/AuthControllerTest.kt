@@ -72,10 +72,6 @@ class AuthControllerTest @Autowired constructor(
         ),
         mutableListOf()
     )
-    private val testPermissions = listOf(Permission.CREATE_ACCOUNT, Permission.CREATE_ACTIVITY)
-    private val testRole = Role("MEMBER", Permissions(testPermissions), false)
-    private val testPerActivityRole = PerActivityRole(Permissions(listOf(Permission.EDIT_ACTIVITY)))
-    private val testActivity = Project("Test Activity", "Test Description", mutableListOf(), mutableListOf())
 
     private val checkAuthHeaders = listOf<HeaderDescriptorWithType>(
         headerWithName(HttpHeaders.AUTHORIZATION).description("Bearer authentication token")
@@ -241,14 +237,24 @@ class AuthControllerTest @Autowired constructor(
     @NestedTest
     @DisplayName("POST /auth/hasPermission")
     inner class CheckPermissions {
+        private val testPermissions = listOf(Permission.CREATE_ACCOUNT, Permission.CREATE_ACTIVITY)
+        private val testActivity = Project("Test Activity", "Test Description", mutableListOf(), mutableListOf())
+        private val testRole = Role("MEMBER", Permissions(testPermissions), false)
+        private val testPerActivityRole = PerActivityRole(Permissions(listOf(Permission.EDIT_ACTIVITY)))
+
+        init {
+            testPerActivityRole.activity = testActivity
+            testPerActivityRole.role = testRole
+        }
+
         @BeforeEach
         fun setup() {
             activityRepository.save(testActivity)
             roleRepository.save(testRole)
-
-            testPerActivityRole.activity = testActivity
-            testPerActivityRole.role = testRole
             perActivityRoleRepository.save(testPerActivityRole)
+
+            testRole.associatedActivities.add(testPerActivityRole)
+            roleRepository.save(testRole)
 
             testAccount.roles.add(testRole)
             repository.save(testAccount)
@@ -329,7 +335,9 @@ class AuthControllerTest @Autowired constructor(
                 val accessToken = objectMapper.readTree(response.contentAsString)["access_token"].asText()
                 mockMvc.perform(
                     get(
-                        "/auth/hasPermission/${testActivity.id}/${Permission.EDIT_ACTIVITY}"
+                        "/auth/hasPermission/{activityId}/{permission}",
+                        testActivity.id,
+                        Permission.EDIT_ACTIVITY
                     ).header("Authorization", "Bearer $accessToken")
                 ).andExpect(status().isOk).andDocument(
                     documentation,
