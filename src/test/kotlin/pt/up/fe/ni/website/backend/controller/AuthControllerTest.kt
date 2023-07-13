@@ -279,5 +279,39 @@ class AuthControllerTest @Autowired constructor(
                 ).andExpect(status().isOk)
             }
         }
+
+        @Test
+        fun `should fail when user doesn't have activity permission`() {
+            mockMvc.post("/auth/new") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(LoginDto(testAccount.email, testPassword))
+            }.andReturn().response.let { response ->
+                val accessToken = objectMapper.readTree(response.contentAsString)["access_token"].asText()
+                mockMvc.perform(
+                    get(
+                        "/auth/hasPermission/${testActivity.id}/${
+                            Permission.DELETE_ACTIVITY
+                        }"
+                    ).header("Authorization", "Bearer $accessToken")
+                ).andExpect(status().isForbidden)
+            }
+        }
+
+        @Test
+        fun `should succeed when user has activity permission`() {
+            mockMvc.post("/auth/new") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(LoginDto(testAccount.email, testPassword))
+            }.andReturn().response.let { response ->
+                val accessToken = objectMapper.readTree(response.contentAsString)["access_token"].asText()
+                mockMvc.perform(
+                    get(
+                        "/auth/hasPermission/${testActivity.id}/${
+                            Permission.EDIT_ACTIVITY
+                        }"
+                    ).header("Authorization", "Bearer $accessToken")
+                ).andExpect(status().isOk)
+            }
+        }
     }
 }
