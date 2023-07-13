@@ -44,13 +44,16 @@ class AuthController(val authService: AuthService, val repository: ActivityRepos
 
     @PreAuthorize("@authService.hasPermission(#permission.trim().toUpperCase())")
     @GetMapping("/hasPermission/{permission}")
-    fun protectedEndpoint(@PathVariable permission: String): Map<String, String> {
+    fun protectedPermission(@PathVariable permission: String): Map<String, String> {
         return mapOf("message" to "You have permission to access this endpoint!")
     }
 
     @PreAuthorize("@authService.hasActivityPermission(#activityId, #permission.trim().toUpperCase())")
     @GetMapping("/hasPermission/{activityId}/{permission}")
-    fun protected(@PathVariable activityId: Long, @PathVariable permission: String): Map<String, String> {
+    fun protectedPerActivityPermission(
+        @PathVariable activityId: Long,
+        @PathVariable permission: String
+    ): Map<String, String> {
         return mapOf("message" to "You have permission to access this endpoint!")
     }
 }

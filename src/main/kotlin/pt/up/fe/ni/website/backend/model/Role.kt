@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonManagedReference
 import com.fasterxml.jackson.annotation.JsonProperty
-import jakarta.persistence.CascadeType
 import jakarta.persistence.Convert
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
@@ -42,7 +41,7 @@ class Role(
     @GeneratedValue
     val id: Long? = null
 ) {
-    @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER, mappedBy = "role")
+    @OneToMany(mappedBy = "role")
     @JsonManagedReference
     val associatedActivities: MutableList<@Valid PerActivityRole> = mutableListOf()
 
@@ -52,7 +51,10 @@ class Role(
     lateinit var generation: Generation
 
     override fun toString(): String {
-        return permissions.joinToString(separator = " ") { it.name } +
-            " " + associatedActivities.joinToString(separator = " ").trimEnd()
+        val permissionsPayload = permissions.joinToString(separator = " ") { it.name }
+        if (associatedActivities.isEmpty()) {
+            return permissionsPayload
+        }
+        return permissionsPayload + " " + associatedActivities.joinToString(separator = " ").trimEnd()
     }
 }
