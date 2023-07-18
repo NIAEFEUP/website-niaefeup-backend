@@ -1,4 +1,4 @@
-package pt.up.fe.ni.website.backend.dto.permissions
+package pt.up.fe.ni.website.backend.dto.roles
 
 import pt.up.fe.ni.website.backend.model.permissions.Permissions
 

@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import pt.up.fe.ni.website.backend.dto.auth.UserIdDto
 import pt.up.fe.ni.website.backend.dto.entity.RoleDto
-import pt.up.fe.ni.website.backend.dto.permissions.PermissionsDto
-import pt.up.fe.ni.website.backend.dto.permissions.UserIdDto
+import pt.up.fe.ni.website.backend.dto.roles.PermissionsDto
 import pt.up.fe.ni.website.backend.model.permissions.Permissions
 import pt.up.fe.ni.website.backend.service.RoleService
 
