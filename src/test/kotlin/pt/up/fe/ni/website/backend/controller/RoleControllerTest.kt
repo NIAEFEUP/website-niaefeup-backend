@@ -57,6 +57,10 @@ internal class RoleControllerTest @Autowired constructor(
         "22-23"
     )
 
+    val lastYearGeneration = Generation(
+        "21-22"
+    )
+
     val documentationRoles = PayloadRoles()
 
     val documentationPermissions = PayloadPermissions()
@@ -172,12 +176,11 @@ internal class RoleControllerTest @Autowired constructor(
 
         @BeforeEach
         fun addRole() {
+            testRole.generation = testGeneration
             generationRepository.save(testGeneration)
+            generationRepository.save(lastYearGeneration)
             roleRepository.save(testRole)
-            if (testGeneration.roles.size == 0) {
-                testGeneration.roles.add(testRole)
-            }
-            generationRepository.save(testGeneration)
+            TestUtils.startNewTransaction()
         }
 
         @Test
@@ -211,7 +214,6 @@ internal class RoleControllerTest @Autowired constructor(
 
             )
             assert(roleRepository.count().toInt() == 2)
-            assert(generationRepository.findFirstByOrderBySchoolYearDesc() != null)
             assert(generationRepository.findFirstByOrderBySchoolYearDesc()!!.roles.size == 2)
             assert(generationRepository.findFirstByOrderBySchoolYearDesc()!!.roles[1].id!!.compareTo(2) == 0)
         }
@@ -238,8 +240,44 @@ internal class RoleControllerTest @Autowired constructor(
                 jsonPath("$.errors.length()").value(1)
             )
                 .andDocumentErrorResponse(documentationRoles, hasRequestPayload = true)
+            TestUtils.startNewTransaction(rollback = true)
             assert(roleRepository.findByName(testRole.name) != null)
-            assert(generationRepository.findFirstByOrderBySchoolYearDesc()!!.roles.size == 2)
+            assert(generationRepository.findFirstByOrderBySchoolYearDesc()!!.roles.size != 2)
+        }
+
+        @Test
+        fun `should add a role with an existing name but on a different generation`() {
+            mockMvc.perform(
+                post("/roles")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf(
+                                "name" to testRole.name,
+                                "permissions" to testRole.permissions.map { it.bit }.toList(),
+                                "isSection" to testRole.isSection,
+                                "associatedActivities" to testRole.associatedActivities,
+                                "accounts" to testRole.accounts,
+                                "generationId" to lastYearGeneration.id
+                            )
+                        )
+                    )
+            ).andExpectAll(
+                status().isOk,
+                content().contentType(MediaType.APPLICATION_JSON),
+                jsonPath("$.name").value("TestRole"),
+                jsonPath("$.id").value(2), // this must be hardcoded
+                jsonPath("$.permissions.length()").value(1),
+                jsonPath("$.isSection").value(false)
+            ).andDocument(
+                documentationRoles,
+                "This creates a role on a specified generation, returning the complete role information",
+                "It will only create the role if it no other role with the same name exists in that generation",
+                hasRequestPayload = true
+            )
+            TestUtils.startNewTransaction()
+            assert(generationRepository.findById(lastYearGeneration.id!!).orElseThrow().roles.size == 1)
+            assert(generationRepository.findFirstByOrderBySchoolYearDesc()!!.roles.size == 1)
         }
     }
 
@@ -248,8 +286,8 @@ internal class RoleControllerTest @Autowired constructor(
     inner class DeleteRole {
         private val parameters = listOf(parameterWithName("id").description("ID of the role to delete"))
 
-        lateinit var generation1: Generation
-        lateinit var role: Role
+        private lateinit var generation1: Generation
+        private lateinit var role: Role
 
         @BeforeEach
         fun addRole() {

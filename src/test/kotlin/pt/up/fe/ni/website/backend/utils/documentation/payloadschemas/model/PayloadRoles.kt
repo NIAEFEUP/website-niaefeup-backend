@@ -17,6 +17,13 @@ class PayloadRoles : ModelDocumentation(
             "associatedActivities",
             "List of activities that are associated with this role",
             JsonFieldType.ARRAY
+        ),
+        DocumentedJSONField(
+            "generation",
+            "ID of generation that this role should be added to, this is optional and if not specified it " +
+                "defaults to the latest generation",
+            JsonFieldType.NUMBER,
+            optional = true
         )
     )
 )

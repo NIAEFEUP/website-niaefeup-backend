@@ -1,8 +1,11 @@
 package pt.up.fe.ni.website.backend.service
 
 import jakarta.transaction.Transactional
+import jakarta.validation.Validator
 import org.springframework.stereotype.Service
+import pt.up.fe.ni.website.backend.config.ApplicationContextUtils
 import pt.up.fe.ni.website.backend.dto.entity.RoleDto
+import pt.up.fe.ni.website.backend.model.Generation
 import pt.up.fe.ni.website.backend.model.PerActivityRole
 import pt.up.fe.ni.website.backend.model.Role
 import pt.up.fe.ni.website.backend.model.permissions.Permissions
@@ -53,7 +56,6 @@ class RoleService(
         if (activity.associatedRoles.find { it.activity == activity } == null) {
             role.associatedActivities.add(foundPerActivityRole)
         }
-        // activityRepository.save(activity)
         roleRepository.save(role)
     }
 
@@ -64,23 +66,27 @@ class RoleService(
             .find { it.role == role } ?: return
         foundActivity.permissions.removeAll(permissions)
         perActivityRoleRepository.save(foundActivity)
-        // activityRepository.save(activity)
     }
 
     fun createNewRole(dto: RoleDto): Role {
-        if (roleRepository.findByName(dto.name) != null) {
-            throw IllegalArgumentException(ErrorMessages.roleAlreadyExists)
-        }
         val role = dto.create()
+        val generation: Generation = if (dto.generationId != null) {
+            generationRepository.findById(dto.generationId).orElseThrow {
+                IllegalArgumentException(ErrorMessages.generationNotFound(dto.generationId))
+            }
+        } else {
+            generationRepository.findFirstByOrderBySchoolYearDesc()
+                ?: throw IllegalArgumentException(ErrorMessages.noGenerations)
+        }
 
-        val latestGeneration = generationRepository.findFirstByOrderBySchoolYearDesc()
-            ?: throw IllegalArgumentException(ErrorMessages.noGenerations)
-
-        // need to set it from both sides due to testing transaction
-        role.generation = latestGeneration
+        role.generation = generation
+        generation.roles.add(role)
+        val validator: Validator = ApplicationContextUtils.getBean(Validator::class.java)
+        // we can infer that if something goes wrong is with adding a new role with the same name
+        if (validator.validate(generation).isNotEmpty()) {
+            throw IllegalArgumentException(ErrorMessages.roleAlreadyExists(role.name, generation.schoolYear))
+        }
         roleRepository.save(role)
-        latestGeneration.roles.add(role)
-        generationRepository.save(latestGeneration)
         return role
     }
 

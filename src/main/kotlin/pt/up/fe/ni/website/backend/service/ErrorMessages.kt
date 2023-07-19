@@ -17,7 +17,8 @@ object ErrorMessages {
 
     const val generationAlreadyExists = "generation already exists"
 
-    const val roleAlreadyExists = "role already exists"
+    fun roleAlreadyExists(roleName: String, generationYear: String): String =
+        "role $roleName already exists in $generationYear"
 
     fun postNotFound(postId: Long): String = "post not found with id $postId"
 

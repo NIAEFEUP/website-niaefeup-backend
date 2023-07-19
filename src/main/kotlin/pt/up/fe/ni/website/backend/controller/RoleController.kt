@@ -67,7 +67,7 @@ class RoleController(private val roleService: RoleService) {
         roleService.grantPermissionToRoleOnActivity(
             id,
             activityId,
-            Permissions(permissionsDto.permissions)
+            permissionsDto.permissions
         )
         return emptyMap()
     }
