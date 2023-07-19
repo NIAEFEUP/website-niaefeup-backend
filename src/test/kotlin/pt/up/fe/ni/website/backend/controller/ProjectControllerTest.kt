@@ -58,7 +58,7 @@ internal class ProjectControllerTest @Autowired constructor(
         )
     )
 
-    final val testOldAccount = Account(
+    final val testAccount2 = Account(
         "Test Old Account",
         "test_account_old@test.com",
         "test_password",
@@ -75,7 +75,7 @@ internal class ProjectControllerTest @Autowired constructor(
     val testProject = Project(
         "Awesome project",
         "this is a test project",
-        mutableListOf(testOldAccount),
+        mutableListOf(testAccount2),
         mutableListOf(testAccount),
         mutableListOf(),
         "awesome-project",
@@ -105,7 +105,7 @@ internal class ProjectControllerTest @Autowired constructor(
         @BeforeEach
         fun addToRepositories() {
             accountRepository.save(testAccount)
-            accountRepository.save(testOldAccount)
+            accountRepository.save(testAccount2)
             for (project in testProjects) repository.save(project)
         }
 
@@ -133,7 +133,7 @@ internal class ProjectControllerTest @Autowired constructor(
         @BeforeEach
         fun addToRepositories() {
             accountRepository.save(testAccount)
-            accountRepository.save(testOldAccount)
+            accountRepository.save(testAccount2)
             repository.save(testProject)
         }
 
@@ -182,7 +182,7 @@ internal class ProjectControllerTest @Autowired constructor(
         @BeforeEach
         fun addToRepositories() {
             accountRepository.save(testAccount)
-            accountRepository.save(testOldAccount)
+            accountRepository.save(testAccount2)
             repository.save(testProject)
         }
 
@@ -235,7 +235,7 @@ internal class ProjectControllerTest @Autowired constructor(
         @BeforeEach
         fun addToRepositories() {
             accountRepository.save(testAccount)
-            accountRepository.save(testOldAccount)
+            accountRepository.save(testAccount2)
         }
 
         @Test
@@ -248,7 +248,7 @@ internal class ProjectControllerTest @Autowired constructor(
                             mapOf(
                                 "title" to testProject.title,
                                 "description" to testProject.description,
-                                "hallOfFameIds" to mutableListOf(testOldAccount.id!!),
+                                "hallOfFameIds" to mutableListOf(testAccount2.id!!),
                                 "teamMembersIds" to mutableListOf(testAccount.id!!),
                                 "isArchived" to testProject.isArchived,
                                 "technologies" to testProject.technologies,
@@ -385,7 +385,7 @@ internal class ProjectControllerTest @Autowired constructor(
         @BeforeEach
         fun addToRepositories() {
             accountRepository.save(testAccount)
-            accountRepository.save(testOldAccount)
+            accountRepository.save(testAccount2)
             repository.save(testProject)
         }
 
@@ -432,7 +432,7 @@ internal class ProjectControllerTest @Autowired constructor(
         @BeforeEach
         fun addToRepositories() {
             accountRepository.save(testAccount)
-            accountRepository.save(testOldAccount)
+            accountRepository.save(testAccount2)
             repository.save(testProject)
         }
 
@@ -679,7 +679,7 @@ internal class ProjectControllerTest @Autowired constructor(
         @BeforeEach
         fun addToRepositories() {
             accountRepository.save(testAccount)
-            accountRepository.save(testOldAccount)
+            accountRepository.save(testAccount2)
             repository.save(testProject)
         }
 
@@ -785,7 +785,7 @@ internal class ProjectControllerTest @Autowired constructor(
         @BeforeEach
         fun addToRepositories() {
             accountRepository.save(testAccount)
-            accountRepository.save(testOldAccount)
+            accountRepository.save(testAccount2)
             accountRepository.save(newAccount)
             repository.save(testProject)
         }
@@ -855,7 +855,7 @@ internal class ProjectControllerTest @Autowired constructor(
         @BeforeEach
         fun addToRepositories() {
             accountRepository.save(testAccount)
-            accountRepository.save(testOldAccount)
+            accountRepository.save(testAccount2)
             repository.save(testProject)
         }
 
@@ -918,7 +918,7 @@ internal class ProjectControllerTest @Autowired constructor(
         @BeforeEach
         fun addToRepositories() {
             accountRepository.save(testAccount)
-            accountRepository.save(testOldAccount)
+            accountRepository.save(testAccount2)
             accountRepository.save(newAccount)
             repository.save(testProject)
         }
@@ -938,15 +938,15 @@ internal class ProjectControllerTest @Autowired constructor(
                 .andExpectAll(
                     status().isOk, content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.hallOfFame.length()").value(2),
-                    jsonPath("$.hallOfFame[0].name").value(testOldAccount.name),
-                    jsonPath("$.hallOfFame[0].email").value(testOldAccount.email),
-                    jsonPath("$.hallOfFame[0].bio").value(testOldAccount.bio),
-                    jsonPath("$.hallOfFame[0].birthDate").value(testOldAccount.birthDate.toJson()),
-                    jsonPath("$.hallOfFame[0].linkedin").value(testOldAccount.linkedin),
-                    jsonPath("$.hallOfFame[0].github").value(testOldAccount.github),
+                    jsonPath("$.hallOfFame[0].name").value(testAccount2.name),
+                    jsonPath("$.hallOfFame[0].email").value(testAccount2.email),
+                    jsonPath("$.hallOfFame[0].bio").value(testAccount2.bio),
+                    jsonPath("$.hallOfFame[0].birthDate").value(testAccount2.birthDate.toJson()),
+                    jsonPath("$.hallOfFame[0].linkedin").value(testAccount2.linkedin),
+                    jsonPath("$.hallOfFame[0].github").value(testAccount2.github),
                     jsonPath("$.hallOfFame[0].websites.length()").value(1),
-                    jsonPath("$.hallOfFame[0].websites[0].url").value(testOldAccount.websites[0].url),
-                    jsonPath("$.hallOfFame[0].websites[0].iconPath").value(testOldAccount.websites[0].iconPath),
+                    jsonPath("$.hallOfFame[0].websites[0].url").value(testAccount2.websites[0].url),
+                    jsonPath("$.hallOfFame[0].websites[0].iconPath").value(testAccount2.websites[0].iconPath),
                     jsonPath("$.hallOfFame[1].name").value(newAccount.name),
                     jsonPath("$.hallOfFame[1].email").value(newAccount.email),
                     jsonPath("$.hallOfFame[1].bio").value(newAccount.bio),
@@ -987,7 +987,7 @@ internal class ProjectControllerTest @Autowired constructor(
         @BeforeEach
         fun addToRepositories() {
             accountRepository.save(testAccount)
-            accountRepository.save(testOldAccount)
+            accountRepository.save(testAccount2)
             repository.save(testProject)
         }
 
@@ -1001,7 +1001,7 @@ internal class ProjectControllerTest @Autowired constructor(
         @Test
         fun `should remove a account from project's hall of fame `() {
             mockMvc.perform(
-                put("/projects/{idProject}/removeHallOfFameMember/{idAccount}", testProject.id, testOldAccount.id)
+                put("/projects/{idProject}/removeHallOfFameMember/{idAccount}", testProject.id, testAccount2.id)
             )
                 .andExpectAll(
                     status().isOk,
