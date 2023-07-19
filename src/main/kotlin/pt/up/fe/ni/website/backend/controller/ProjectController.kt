@@ -5,11 +5,15 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.multipart.MultipartFile
 import pt.up.fe.ni.website.backend.dto.entity.ProjectDto
+import pt.up.fe.ni.website.backend.model.Project
 import pt.up.fe.ni.website.backend.service.activity.ProjectService
+import pt.up.fe.ni.website.backend.utils.validation.ValidImage
 
 @RestController
 @RequestMapping("/projects")
@@ -24,8 +28,16 @@ class ProjectController(private val service: ProjectService) {
     @GetMapping("/{projectSlug}**")
     fun getProjectBySlug(@PathVariable projectSlug: String) = service.getProjectBySlug(projectSlug)
 
-    @PostMapping("/new")
-    fun createNewProject(@RequestBody dto: ProjectDto) = service.createProject(dto)
+    @PostMapping("/new", consumes = ["multipart/form-data"])
+    fun createNewProject(
+        @RequestPart dto: ProjectDto,
+        @RequestParam
+        @ValidImage
+        image: MultipartFile
+    ): Project {
+        dto.imageFile = image
+        return service.createProject(dto)
+    }
 
     @DeleteMapping("/{id}")
     fun deleteProjectById(@PathVariable id: Long): Map<String, String> {
@@ -33,11 +45,17 @@ class ProjectController(private val service: ProjectService) {
         return emptyMap()
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{id}", consumes = ["multipart/form-data"])
     fun updateProjectById(
         @PathVariable id: Long,
-        @RequestBody dto: ProjectDto
-    ) = service.updateProjectById(id, dto)
+        @RequestPart dto: ProjectDto,
+        @RequestParam
+        @ValidImage
+        image: MultipartFile?
+    ): Project {
+        dto.imageFile = image
+        return service.updateProjectById(id, dto)
+    }
 
     @PutMapping("/{id}/archive")
     fun archiveProjectById(@PathVariable id: Long) = service.archiveProjectById(id)

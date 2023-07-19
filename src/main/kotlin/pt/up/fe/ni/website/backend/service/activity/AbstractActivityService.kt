@@ -6,11 +6,13 @@ import pt.up.fe.ni.website.backend.model.Activity
 import pt.up.fe.ni.website.backend.repository.ActivityRepository
 import pt.up.fe.ni.website.backend.service.AccountService
 import pt.up.fe.ni.website.backend.service.ErrorMessages
+import pt.up.fe.ni.website.backend.service.upload.FileUploader
 
 @Service
 abstract class AbstractActivityService<T : Activity>(
     protected val repository: ActivityRepository<T>,
-    protected val accountService: AccountService
+    protected val accountService: AccountService,
+    protected val fileUploader: FileUploader
 ) {
     fun getActivityById(id: Long): T = repository.findByIdOrNull(id)
         ?: throw NoSuchElementException(ErrorMessages.activityNotFound(id))

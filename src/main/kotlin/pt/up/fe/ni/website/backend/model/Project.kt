@@ -17,9 +17,12 @@ class Project(
     teamMembers: MutableList<Account> = mutableListOf(),
     associatedRoles: MutableList<PerActivityRole> = mutableListOf(),
     slug: String? = null,
+    image: String,
 
     var isArchived: Boolean = false,
     val technologies: List<String> = emptyList(),
+    var slogan: String? = null,
+    var targetAudience: String,
 
     id: Long? = null
-) : Activity(title, description, teamMembers, associatedRoles, slug, id)
+) : Activity(title, description, teamMembers, associatedRoles, slug, image, id)

@@ -29,13 +29,18 @@ class AccountController(private val service: AccountService) {
     @GetMapping("/{id}")
     fun getAccountById(@PathVariable id: Long) = service.getAccountById(id)
 
-    @PostMapping("/changePassword/{id}")
-    fun changePassword(@PathVariable id: Long, @RequestBody dto: ChangePasswordDto): Map<String, String> {
-        service.changePassword(id, dto)
-        return emptyMap()
+    @PostMapping("/new", consumes = ["multipart/form-data"])
+    fun createAccount(
+        @RequestPart dto: CreateAccountDto,
+        @RequestParam
+        @ValidImage
+        photo: MultipartFile?
+    ): Account {
+        dto.photoFile = photo
+        return service.createAccount(dto)
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{id}", consumes = ["multipart/form-data"])
     fun updateAccountById(
         @PathVariable id: Long,
         @RequestPart dto: UpdateAccountDto,
@@ -53,14 +58,9 @@ class AccountController(private val service: AccountService) {
         return emptyMap()
     }
 
-    @PostMapping("/new", consumes = ["multipart/form-data"])
-    fun createAccount(
-        @RequestPart dto: CreateAccountDto,
-        @RequestParam
-        @ValidImage
-        photo: MultipartFile?
-    ): Account {
-        dto.photoFile = photo
-        return service.createAccount(dto)
+    @PostMapping("/changePassword/{id}")
+    fun changePassword(@PathVariable id: Long, @RequestBody dto: ChangePasswordDto): Map<String, String> {
+        service.changePassword(id, dto)
+        return emptyMap()
     }
 }

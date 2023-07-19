@@ -18,6 +18,7 @@ class Event(
     teamMembers: MutableList<Account> = mutableListOf(),
     associatedRoles: MutableList<PerActivityRole> = mutableListOf(),
     slug: String? = null,
+    image: String,
 
     @field:NullOrNotBlank
     @field:URL
@@ -39,4 +40,4 @@ class Event(
     val thumbnailPath: String,
 
     id: Long? = null
-) : Activity(title, description, teamMembers, associatedRoles, slug, id)
+) : Activity(title, description, teamMembers, associatedRoles, slug, image, id)

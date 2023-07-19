@@ -7,18 +7,25 @@ import pt.up.fe.ni.website.backend.model.Project
 import pt.up.fe.ni.website.backend.repository.ProjectRepository
 import pt.up.fe.ni.website.backend.service.AccountService
 import pt.up.fe.ni.website.backend.service.ErrorMessages
+import pt.up.fe.ni.website.backend.service.upload.FileUploader
 
 @Service
 class ProjectService(
     override val repository: ProjectRepository,
-    accountService: AccountService
-) : AbstractActivityService<Project>(repository, accountService) {
+    accountService: AccountService,
+    fileUploader: FileUploader
+) : AbstractActivityService<Project>(repository, accountService, fileUploader) {
 
     fun getAllProjects(): List<Project> = repository.findAll().toList()
 
     fun createProject(dto: ProjectDto): Project {
         repository.findBySlug(dto.slug)?.let {
             throw IllegalArgumentException(ErrorMessages.slugAlreadyExists)
+        }
+
+        dto.imageFile?.let {
+            val fileName = fileUploader.buildFileName(it, dto.title)
+            dto.image = fileUploader.uploadImage("projects", fileName, it.bytes)
         }
 
         val project = dto.create()
@@ -47,6 +54,14 @@ class ProjectService(
 
         repository.findBySlug(dto.slug)?.let {
             if (it.id != project.id) throw IllegalArgumentException(ErrorMessages.slugAlreadyExists)
+        }
+
+        val imageFile = dto.imageFile
+        if (imageFile == null) {
+            dto.image = project.image
+        } else {
+            val fileName = fileUploader.buildFileName(imageFile, dto.title)
+            dto.image = fileUploader.uploadImage("projects", fileName, imageFile.bytes)
         }
 
         val newProject = dto.update(project)
