@@ -5,6 +5,4 @@ import org.springframework.stereotype.Repository
 import pt.up.fe.ni.website.backend.model.Role
 
 @Repository
-interface RoleRepository : CrudRepository<Role, Long> {
-    fun findByName(name: String): Role?
-}
+interface RoleRepository : CrudRepository<Role, Long>

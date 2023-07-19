@@ -241,7 +241,7 @@ internal class RoleControllerTest @Autowired constructor(
             )
                 .andDocumentErrorResponse(documentationRoles, hasRequestPayload = true)
             TestUtils.startNewTransaction(rollback = true)
-            assert(roleRepository.findByName(testRole.name) != null)
+            assert(roleRepository.findByIdOrNull(testRole.id!!) != null)
             assert(generationRepository.findFirstByOrderBySchoolYearDesc()!!.roles.size != 2)
         }
 
@@ -305,6 +305,7 @@ internal class RoleControllerTest @Autowired constructor(
 
         @Test
         fun `should remove role with correct id`() {
+            val id: Long = role.id!!
             mockMvc.perform(delete("/roles/{id}", role.id)).andExpectAll(
                 status().isOk
             ).andDocumentEmptyObjectResponse(
@@ -313,7 +314,7 @@ internal class RoleControllerTest @Autowired constructor(
                 "The id must exist in order to remove it correctly",
                 urlParameters = parameters
             )
-            assert(roleRepository.findByName(role.name) == null)
+            assert(roleRepository.findByIdOrNull(id) == null)
             assert(generationRepository.findFirstByOrderBySchoolYearDesc()!!.roles.size == 0)
         }
 
