@@ -1011,7 +1011,7 @@ internal class ProjectControllerTest @Autowired constructor(
                 .andDocument(
                     documentation,
                     "Remove account from Project's Hall of Fame",
-                    "This operation adds an account to a given project's hall of fame.",
+                    "This operation removes an account from a given project's hall of fame.",
                     urlParameters = parameters
                 )
         }
