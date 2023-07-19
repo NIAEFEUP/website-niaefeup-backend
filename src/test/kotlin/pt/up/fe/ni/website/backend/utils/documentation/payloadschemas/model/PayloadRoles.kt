@@ -15,7 +15,8 @@ class PayloadRoles : ModelDocumentation(
         DocumentedJSONField("id", "Internal ID of role", JsonFieldType.NUMBER),
         DocumentedJSONField(
             "associatedActivities",
-            "List of activities that are associated with this role",
+            "List of PerActivityRoles that are associated with activities. These roles can have " +
+                "more permissions specific to that activity. (eg.: edit the specific event page)",
             JsonFieldType.ARRAY
         ),
         DocumentedJSONField(

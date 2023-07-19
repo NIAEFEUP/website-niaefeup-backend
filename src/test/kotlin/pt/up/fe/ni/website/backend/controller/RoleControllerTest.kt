@@ -469,7 +469,8 @@ internal class RoleControllerTest @Autowired constructor(
             ).andDocumentEmptyObjectResponse(
                 documentationRoles,
                 "Add an account to a role by its IDs",
-                "It will return an error if the user already has the role or if it doesn't exist",
+                "It's an idempotent endpoint so it will return HTTP code 200 even if the user is already " +
+                    "in the role",
                 hasRequestPayload = true,
                 urlParameters = parameters
             )
@@ -623,6 +624,7 @@ internal class RoleControllerTest @Autowired constructor(
         fun addAll() {
             roleRepository.save(testRole)
             projectRepository.save(project)
+            TestUtils.startNewTransaction()
         }
 
         @Test
@@ -644,6 +646,7 @@ internal class RoleControllerTest @Autowired constructor(
                 hasRequestPayload = true,
                 urlParameters = parameters
             )
+            TestUtils.startNewTransaction()
             assert(roleRepository.findByIdOrNull(testRole.id!!)!!.associatedActivities.size == 1)
             assert(
                 roleRepository.findByIdOrNull(testRole.id!!)!!.associatedActivities[0].permissions.contains(
@@ -670,6 +673,7 @@ internal class RoleControllerTest @Autowired constructor(
                 urlParameters = parameters
 
             )
+            TestUtils.startNewTransaction(rollback = true)
             assert(roleRepository.findByIdOrNull(testRole.id!!)!!.associatedActivities.size == 0)
         }
 
@@ -691,6 +695,7 @@ internal class RoleControllerTest @Autowired constructor(
                 urlParameters = parameters
 
             )
+            TestUtils.startNewTransaction(rollback = true)
             assert(roleRepository.findByIdOrNull(testRole.id!!)!!.associatedActivities.size == 0)
         }
 
@@ -712,6 +717,7 @@ internal class RoleControllerTest @Autowired constructor(
                 hasRequestPayload = true,
                 urlParameters = parameters
             )
+            TestUtils.startNewTransaction(rollback = true)
             assert(roleRepository.findByIdOrNull(testRole.id!!)!!.associatedActivities.size == 0)
         }
     }

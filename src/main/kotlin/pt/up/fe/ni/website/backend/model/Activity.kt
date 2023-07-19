@@ -12,7 +12,6 @@ import jakarta.persistence.Inheritance
 import jakarta.persistence.InheritanceType
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.OneToMany
-import jakarta.persistence.OrderColumn
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Size
 import pt.up.fe.ni.website.backend.model.constants.ActivityConstants as Constants
@@ -33,7 +32,6 @@ abstract class Activity(
     open val teamMembers: MutableList<Account>,
 
     @OneToMany(cascade = [CascadeType.ALL], mappedBy = "activity")
-    @OrderColumn
     @JsonIgnore // TODO: Decide if we want to return perRoles (or IDs) by default
     open val associatedRoles: MutableList<@Valid PerActivityRole> = mutableListOf(),
 

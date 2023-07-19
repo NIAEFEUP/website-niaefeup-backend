@@ -46,17 +46,13 @@ class RoleService(
     fun grantPermissionToRoleOnActivity(roleId: Long, activityId: Long, permissions: Permissions) {
         val activity = activityService.getActivityById(activityId)
         val role = getRole(roleId)
-        val foundPerActivityRole = activity.associatedRoles
+        val perActivityRole = activity.associatedRoles
             .find { it.activity == activity } ?: PerActivityRole(Permissions())
-        foundPerActivityRole.role = role
-        foundPerActivityRole.activity = activity
+        perActivityRole.role = role
+        perActivityRole.activity = activity
 
-        foundPerActivityRole.permissions.addAll(permissions)
-        perActivityRoleRepository.save(foundPerActivityRole)
-        if (activity.associatedRoles.find { it.activity == activity } == null) {
-            role.associatedActivities.add(foundPerActivityRole)
-        }
-        roleRepository.save(role)
+        perActivityRole.permissions.addAll(permissions)
+        perActivityRoleRepository.save(perActivityRole)
     }
 
     fun revokePermissionFromRoleOnActivity(roleId: Long, activityId: Long, permissions: Permissions) {
@@ -100,9 +96,7 @@ class RoleService(
     fun addUserToRole(roleId: Long, userId: Long) {
         val role = getRole(roleId)
         val account = accountService.getAccountById(userId)
-        role.accounts.find { it.id == account.id }.let {
-            if (it != null) throw NoSuchElementException(ErrorMessages.userAlreadyHasRole(roleId, userId))
-        }
+        if (role.accounts.any { it.id == account.id }) return
         role.accounts.add(account)
         roleRepository.save(role)
     }
@@ -110,9 +104,6 @@ class RoleService(
     fun removeUserFromRole(roleId: Long, userId: Long) {
         val role = getRole(roleId)
         val account = accountService.getAccountById(userId)
-        role.accounts.find { it.id == account.id }.let {
-            if (it == null) throw NoSuchElementException(ErrorMessages.userNotInRole(roleId, userId))
-        }
         role.accounts.remove(account)
         roleRepository.save(role)
     }
