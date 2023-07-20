@@ -15,6 +15,7 @@ class ProjectDto(
     val slogan: String?,
     val targetAudience: String,
     val links: List<CustomWebsiteDto>?,
+    val timeline: List<TimelineEventDto>?,
     var image: String?,
     @JsonIgnore
     var imageFile: MultipartFile?

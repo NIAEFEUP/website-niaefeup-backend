@@ -5,6 +5,7 @@ import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.OneToMany
+import jakarta.persistence.OrderBy
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotEmpty
 import pt.up.fe.ni.website.backend.utils.validation.NullOrNotBlank
@@ -35,6 +36,10 @@ class Project(
     @JoinColumn
     @OneToMany(fetch = FetchType.EAGER)
     var hallOfFame: MutableList<Account> = mutableListOf(),
+
+    @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
+    @OrderBy("date")
+    val timeline: List<@Valid TimelineEvent> = emptyList(),
 
     id: Long? = null
 ) : Activity(title, description, teamMembers, associatedRoles, slug, image, id)
