@@ -32,13 +32,13 @@ class EventController(private val service: EventService) {
 
     @PostMapping("/new", consumes = ["multipart/form-data"])
     fun createEvent(
-        @RequestPart dto: EventDto,
+        @RequestPart event: EventDto,
         @RequestParam
         @ValidImage
         image: MultipartFile
     ): Event {
-        dto.imageFile = image
-        return service.createEvent(dto)
+        event.imageFile = image
+        return service.createEvent(event)
     }
 
     @DeleteMapping("/{id}")
@@ -50,13 +50,13 @@ class EventController(private val service: EventService) {
     @PutMapping("/{id}", consumes = ["multipart/form-data"])
     fun updateEventById(
         @PathVariable id: Long,
-        @RequestPart dto: EventDto,
+        @RequestPart event: EventDto,
         @RequestParam
         @ValidImage
         image: MultipartFile?
     ): Event {
-        dto.imageFile = image
-        return service.updateEventById(id, dto)
+        event.imageFile = image
+        return service.updateEventById(id, event)
     }
 
     @PutMapping("/{idEvent}/addTeamMember/{idAccount}")

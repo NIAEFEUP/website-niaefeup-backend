@@ -30,13 +30,13 @@ class ProjectController(private val service: ProjectService) {
 
     @PostMapping("/new", consumes = ["multipart/form-data"])
     fun createNewProject(
-        @RequestPart dto: ProjectDto,
+        @RequestPart project: ProjectDto,
         @RequestParam
         @ValidImage
         image: MultipartFile
     ): Project {
-        dto.imageFile = image
-        return service.createProject(dto)
+        project.imageFile = image
+        return service.createProject(project)
     }
 
     @DeleteMapping("/{id}")
@@ -48,13 +48,13 @@ class ProjectController(private val service: ProjectService) {
     @PutMapping("/{id}", consumes = ["multipart/form-data"])
     fun updateProjectById(
         @PathVariable id: Long,
-        @RequestPart dto: ProjectDto,
+        @RequestPart project: ProjectDto,
         @RequestParam
         @ValidImage
         image: MultipartFile?
     ): Project {
-        dto.imageFile = image
-        return service.updateProjectById(id, dto)
+        project.imageFile = image
+        return service.updateProjectById(id, project)
     }
 
     @PutMapping("/{id}/archive")

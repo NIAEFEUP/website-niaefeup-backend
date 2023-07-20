@@ -31,25 +31,25 @@ class AccountController(private val service: AccountService) {
 
     @PostMapping("/new", consumes = ["multipart/form-data"])
     fun createAccount(
-        @RequestPart dto: CreateAccountDto,
+        @RequestPart account: CreateAccountDto,
         @RequestParam
         @ValidImage
         photo: MultipartFile?
     ): Account {
-        dto.photoFile = photo
-        return service.createAccount(dto)
+        account.photoFile = photo
+        return service.createAccount(account)
     }
 
     @PutMapping("/{id}", consumes = ["multipart/form-data"])
     fun updateAccountById(
         @PathVariable id: Long,
-        @RequestPart dto: UpdateAccountDto,
+        @RequestPart account: UpdateAccountDto,
         @RequestParam
         @ValidImage
         photo: MultipartFile?
     ): Account {
-        dto.photoFile = photo
-        return service.updateAccountById(id, dto)
+        account.photoFile = photo
+        return service.updateAccountById(id, account)
     }
 
     @DeleteMapping("/{id}")
