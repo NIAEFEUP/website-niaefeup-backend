@@ -279,7 +279,7 @@ class AccountControllerTest @Autowired constructor(
 
             mockMvc.multipartBuilder("/accounts/new")
                 .addPart("account", testAccount.toJson())
-                .addFile(filename = "photo.pdf", contentType = MediaType.APPLICATION_PDF_VALUE)
+                .addFile(filename = "photo.pdf")
                 .perform()
                 .andExpectAll(
                     status().isBadRequest,
@@ -312,6 +312,19 @@ class AccountControllerTest @Autowired constructor(
                 )
 
             mockedSettings.close()
+        }
+
+        @Test
+        fun `should fail when missing account part`() {
+            mockMvc.multipartBuilder("/accounts/new")
+                .perform()
+                .andExpectAll(
+                    status().isBadRequest,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("required"),
+                    jsonPath("$.errors[0].param").value("account")
+                )
         }
 
         @NestedTest
@@ -945,6 +958,20 @@ class AccountControllerTest @Autowired constructor(
 //                    urlParameters = parameters,
 //                    hasRequestPayload = true
 //                )
+        }
+
+        @Test
+        fun `should fail when missing account part`() {
+            mockMvc.multipartBuilder("/accounts/${testAccount.id}")
+                .asPutMethod()
+                .perform()
+                .andExpectAll(
+                    status().isBadRequest,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("required"),
+                    jsonPath("$.errors[0].param").value("account")
+                )
         }
 
         @NestedTest
