@@ -1,5 +1,6 @@
 package pt.up.fe.ni.website.backend.controller
 
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -17,6 +18,7 @@ import pt.up.fe.ni.website.backend.utils.validation.ValidImage
 
 @RestController
 @RequestMapping("/events")
+@Validated
 class EventController(private val service: EventService) {
     @GetMapping
     fun getAllEvents() = service.getAllEvents()
