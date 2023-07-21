@@ -693,30 +693,30 @@ class AccountControllerTest @Autowired constructor(
 
         private val parameters = listOf(parameterWithName("id").description("ID of the account to update"))
 
+        private val newName = "Test Account 2"
+        private val newEmail = "test_account2@test.com"
+        private val newBio = "This is a test account altered"
+        private val newBirthDate = TestUtils.createDate(2003, Calendar.JULY, 28)
+        private val newLinkedin = "https://linkedin2.com"
+        private val newGithub = "https://github2.com"
+        private val newWebsites = listOf(
+            CustomWebsite("https://test-website2.com", "https://test-website.com/logo.png", "test")
+        )
+
+        private val data: String = objectMapper.writeValueAsString(
+            mapOf(
+                "name" to newName,
+                "email" to newEmail,
+                "bio" to newBio,
+                "birthDate" to newBirthDate,
+                "linkedin" to newLinkedin,
+                "github" to newGithub,
+                "websites" to newWebsites
+            )
+        )
+
         @Test
         fun `should update the account`() {
-            val newName = "Test Account 2"
-            val newEmail = "test_account2@test.com"
-            val newBio = "This is a test account altered"
-            val newBirthDate = TestUtils.createDate(2003, Calendar.JULY, 28)
-            val newLinkedin = "https://linkedin2.com"
-            val newGithub = "https://github2.com"
-            val newWebsites = listOf(
-                CustomWebsite("https://test-website2.com", "https://test-website2.com/logo.png", "test2")
-            )
-
-            val data = objectMapper.writeValueAsString(
-                mapOf(
-                    "name" to newName,
-                    "email" to newEmail,
-                    "bio" to newBio,
-                    "birthDate" to newBirthDate,
-                    "linkedin" to newLinkedin,
-                    "github" to newGithub,
-                    "websites" to newWebsites
-                )
-            )
-
             mockMvc.multipartBuilder("/accounts/${testAccount.id}")
                 .addPart("account", data)
                 .asPutMethod()
@@ -816,29 +816,7 @@ class AccountControllerTest @Autowired constructor(
             val mockedSettings = Mockito.mockStatic(UUID::class.java)
             Mockito.`when`(UUID.randomUUID()).thenReturn(uuid)
 
-            val newName = "Test Account 2"
-            val newEmail = "test_account2@test.com"
-            val newBio = "This is a test account altered"
-            val newBirthDate = TestUtils.createDate(2003, Calendar.JULY, 28)
-            val newLinkedin = "https://linkedin2.com"
-            val newGithub = "https://github2.com"
-            val newWebsites = listOf(
-                CustomWebsite("https://test-website2.com", "https://test-website.com/logo.png", "test")
-            )
-
             val expectedPhotoPath = "${uploadConfigProperties.staticServe}/profile/$newEmail-$uuid.jpeg"
-
-            val data = objectMapper.writeValueAsString(
-                mapOf(
-                    "name" to newName,
-                    "email" to newEmail,
-                    "bio" to newBio,
-                    "birthDate" to newBirthDate,
-                    "linkedin" to newLinkedin,
-                    "github" to newGithub,
-                    "websites" to newWebsites
-                )
-            )
 
             mockMvc.multipartBuilder("/accounts/${testAccount.id}")
                 .asPutMethod()
@@ -876,6 +854,52 @@ class AccountControllerTest @Autowired constructor(
             Assertions.assertEquals(newLinkedin, updatedAccount.linkedin)
             Assertions.assertEquals(newWebsites[0].url, updatedAccount.websites[0].url)
             Assertions.assertEquals(newWebsites[0].iconPath, updatedAccount.websites[0].iconPath)
+
+            mockedSettings.close()
+        }
+
+        @Test
+        fun `should fail to update account with invalid filename extension`() {
+            val uuid: UUID = UUID.randomUUID()
+            val mockedSettings = Mockito.mockStatic(UUID::class.java)
+            Mockito.`when`(UUID.randomUUID()).thenReturn(uuid)
+
+            mockMvc.multipartBuilder("/accounts/${testAccount.id}")
+                .asPutMethod()
+                .addPart("account", data)
+                .addFile(filename = "photo.pdf", contentType = MediaType.APPLICATION_PDF_VALUE)
+                .perform()
+                .andExpectAll(
+                    status().isBadRequest,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("invalid image type (png, jpg or jpeg)"),
+                    jsonPath("$.errors[0].param").value("updateAccountById.photo")
+                )
+                .andDocumentErrorResponse(documentation, hasRequestPayload = true)
+
+            mockedSettings.close()
+        }
+
+        @Test
+        fun `should fail to update account with invalid filename media type`() {
+            val uuid: UUID = UUID.randomUUID()
+            val mockedSettings = Mockito.mockStatic(UUID::class.java)
+            Mockito.`when`(UUID.randomUUID()).thenReturn(uuid)
+
+            mockMvc.multipartBuilder("/accounts/${testAccount.id}")
+                .asPutMethod()
+                .addPart("account", data)
+                .addFile(contentType = MediaType.APPLICATION_PDF_VALUE)
+                .perform()
+                .andExpectAll(
+                    status().isBadRequest,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("invalid image type (png, jpg or jpeg)"),
+                    jsonPath("$.errors[0].param").value("updateAccountById.photo")
+                )
+                .andDocumentErrorResponse(documentation, hasRequestPayload = true)
 
             mockedSettings.close()
         }
@@ -921,6 +945,194 @@ class AccountControllerTest @Autowired constructor(
 //                    urlParameters = parameters,
 //                    hasRequestPayload = true
 //                )
+        }
+
+        @NestedTest
+        @DisplayName("Input Validation")
+        inner class InputValidation {
+            private val validationTester = ValidationTester(
+                req = { params: Map<String, Any?> ->
+                    mockMvc.multipartBuilder("/accounts/${testAccount.id}")
+                        .addPart("account", objectMapper.writeValueAsString(params))
+                        .asPutMethod()
+                        .perform()
+                        .andDocumentErrorResponse(documentation, hasRequestPayload = true)
+                },
+                requiredFields = mapOf(
+                    "name" to testAccount.name,
+                    "email" to "new_email@email.com",
+                    "websites" to emptyList<CustomWebsite>()
+                )
+            )
+
+            @NestedTest
+            @DisplayName("name")
+            inner class NameValidation {
+                @BeforeAll
+                fun setParam() {
+                    validationTester.param = "name"
+                }
+
+                @Test
+                fun `should be required`() = validationTester.isRequired()
+
+                @Test
+                @DisplayName("size should be between ${Constants.Name.minSize} and ${Constants.Name.maxSize}()")
+                fun size() = validationTester.hasSizeBetween(Constants.Name.minSize, Constants.Name.maxSize)
+            }
+
+            @NestedTest
+            @DisplayName("email")
+            inner class EmailValidation {
+                @BeforeAll
+                fun setParam() {
+                    validationTester.param = "email"
+                }
+
+                @Test
+                fun `should be required`() = validationTester.isRequired()
+
+                @Test
+                fun `should not be empty`() = validationTester.isNotEmpty()
+
+                @Test
+                fun `should be a valid email`() = validationTester.isEmail()
+            }
+
+            @NestedTest
+            @DisplayName("bio")
+            inner class BioValidation {
+                @BeforeAll
+                fun setParam() {
+                    validationTester.param = "bio"
+                }
+
+                @Test
+                @DisplayName("size should be between ${Constants.Bio.minSize} and ${Constants.Bio.maxSize}()")
+                fun size() =
+                    validationTester.hasSizeBetween(Constants.Bio.minSize, Constants.Bio.maxSize)
+            }
+
+            @NestedTest
+            @DisplayName("birthDate")
+            inner class BirthDateValidation {
+                @BeforeAll
+                fun setParam() {
+                    validationTester.param = "birthDate"
+                }
+
+                @Test
+                fun `should be a valid date`() = validationTester.isDate()
+
+                @Test
+                fun `should be in the past`() = validationTester.isPastDate()
+            }
+
+            @NestedTest
+            @DisplayName("linkedin")
+            inner class LinkedinValidation {
+                @BeforeAll
+                fun setParam() {
+                    validationTester.param = "linkedin"
+                }
+
+                @Test
+                fun `should be null or not blank`() = validationTester.isNullOrNotBlank()
+
+                @Test
+                fun `should be URL`() = validationTester.isUrl()
+            }
+
+            @NestedTest
+            @DisplayName("github")
+            inner class GithubValidation {
+                @BeforeAll
+                fun setParam() {
+                    validationTester.param = "github"
+                }
+
+                @Test
+                fun `should be null or not blank`() = validationTester.isNullOrNotBlank()
+
+                @Test
+                fun `should be URL`() = validationTester.isUrl()
+            }
+
+            @NestedTest
+            @DisplayName("websites")
+            inner class WebsitesValidation {
+                private val validationTester = ValidationTester(
+                    req = { params: Map<String, Any?> ->
+                        val accountPart = objectMapper.writeValueAsString(
+                            mapOf(
+                                "name" to testAccount.name,
+                                "email" to "new_email@email.com",
+                                "websites" to listOf<Any>(params)
+                            )
+                        )
+
+                        mockMvc.multipartBuilder("/accounts/${testAccount.id}")
+                            .addPart(
+                                "account",
+                                accountPart
+                            )
+                            .asPutMethod()
+                            .perform()
+                            .andDocumentErrorResponse(documentation, hasRequestPayload = true)
+                    },
+                    requiredFields = mapOf(
+                        "url" to "https://www.google.com"
+                    )
+                )
+
+                @NestedTest
+                @DisplayName("url")
+                inner class UrlValidation {
+                    @BeforeAll
+                    fun setParam() {
+                        validationTester.param = "url"
+                    }
+
+                    @Test
+                    fun `should be required`() {
+                        validationTester.parameterName = "url"
+                        validationTester.isRequired()
+                    }
+
+                    @Test
+                    fun `should not be empty`() {
+                        validationTester.parameterName = "websites[0].url"
+                        validationTester.isNotEmpty()
+                    }
+
+                    @Test
+                    fun `should be URL`() {
+                        validationTester.parameterName = "websites[0].url"
+                        validationTester.isUrl()
+                    }
+                }
+
+                @NestedTest
+                @DisplayName("iconPath")
+                inner class IconPathValidation {
+                    @BeforeAll
+                    fun setParam() {
+                        validationTester.param = "iconPath"
+                    }
+
+                    @Test
+                    fun `should be null or not blank`() {
+                        validationTester.parameterName = "websites[0].iconPath"
+                        validationTester.isNullOrNotBlank()
+                    }
+
+                    @Test
+                    fun `must be URL`() {
+                        validationTester.parameterName = "websites[0].iconPath"
+                        validationTester.isUrl()
+                    }
+                }
+            }
         }
 
         @Test
