@@ -1055,7 +1055,7 @@ class GenerationControllerTest @Autowired constructor(
                     listOf(testAccount),
                     listOf(
                         buildTestPerActivityRole(
-                            Project("NIJobs", "cool project")
+                            Project("NIJobs", "cool project", image = "cool-image.png", targetAudience = "students")
                         )
                     )
                 ),
@@ -1077,7 +1077,7 @@ class GenerationControllerTest @Autowired constructor(
                                 dateInterval = DateInterval(TestUtils.createDate(2023, 9, 10)),
                                 location = null,
                                 category = null,
-                                thumbnailPath = "https://www.google.com"
+                                image = "cool-image.png"
                             )
                         )
                     )

@@ -40,6 +40,12 @@ class PayloadAccount(includePassword: Boolean = true) : ModelDocumentation(
             optional = true
         ),
         DocumentedJSONField(
+            "websites[].label",
+            "Label for the website",
+            JsonFieldType.STRING,
+            optional = true
+        ),
+        DocumentedJSONField(
             "roles[]",
             "Array with the roles of the account",
             JsonFieldType.ARRAY,
