@@ -42,7 +42,6 @@ import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Co
 import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentCustomRequestSchemaErrorResponse
 import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentEmptyObjectResponse
 import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentErrorResponse
-import pt.up.fe.ni.website.backend.utils.documentation.utils.ModelDocumentation
 import pt.up.fe.ni.website.backend.utils.documentation.utils.PayloadSchema
 import pt.up.fe.ni.website.backend.utils.mockmvc.multipartBuilder
 
@@ -54,7 +53,8 @@ class AccountControllerTest @Autowired constructor(
     val encoder: PasswordEncoder,
     val uploadConfigProperties: UploadConfigProperties
 ) {
-    val documentation: ModelDocumentation = PayloadAccount()
+    val documentation = PayloadAccount()
+    val documentationNoPassword = PayloadAccount(includePassword = false)
 
     val testAccount = Account(
         "Test Account",
@@ -66,7 +66,7 @@ class AccountControllerTest @Autowired constructor(
         "https://linkedin.com",
         "https://github.com",
         listOf(
-            CustomWebsite("https://test-website.com", "https://test-website.com/logo.png")
+            CustomWebsite("https://test-website.com", "https://test-website.com/logo.png", "test")
         ),
         mutableListOf()
     )
@@ -177,7 +177,7 @@ class AccountControllerTest @Autowired constructor(
         @Test
         fun `should create the account`() {
             mockMvc.multipartBuilder("/accounts/new")
-                .addPart("dto", testAccount.toJson())
+                .addPart("account", testAccount.toJson())
                 .perform()
                 .andExpectAll(
                     status().isOk,
@@ -220,7 +220,7 @@ class AccountControllerTest @Autowired constructor(
             )
 
             mockMvc.multipartBuilder("/accounts/new")
-                .addPart("dto", data)
+                .addPart("account", data)
                 .perform()
                 .andExpectAll(
                     status().isOk,
@@ -244,7 +244,7 @@ class AccountControllerTest @Autowired constructor(
             val expectedPhotoPath = "${uploadConfigProperties.staticServe}/profile/${testAccount.email}-$uuid.jpeg"
 
             mockMvc.multipartBuilder("/accounts/new")
-                .addPart("dto", testAccount.toJson())
+                .addPart("account", testAccount.toJson())
                 .addFile()
                 .perform()
                 .andExpectAll(
@@ -261,6 +261,12 @@ class AccountControllerTest @Autowired constructor(
                     jsonPath("$.websites[0].url").value(testAccount.websites[0].url),
                     jsonPath("$.websites[0].iconPath").value(testAccount.websites[0].iconPath)
                 )
+//                .andDocument(
+//                    documentation,
+//                    "Create new accounts",
+//                    "This endpoint operation creates a new account.",
+//                    documentRequestPayload = true
+//                )
 
             mockedSettings.close()
         }
@@ -272,7 +278,7 @@ class AccountControllerTest @Autowired constructor(
             Mockito.`when`(UUID.randomUUID()).thenReturn(uuid)
 
             mockMvc.multipartBuilder("/accounts/new")
-                .addPart("dto", testAccount.toJson())
+                .addPart("account", testAccount.toJson())
                 .addFile(filename = "photo.pdf", contentType = MediaType.APPLICATION_PDF_VALUE)
                 .perform()
                 .andExpectAll(
@@ -282,6 +288,7 @@ class AccountControllerTest @Autowired constructor(
                     jsonPath("$.errors[0].message").value("invalid image type (png, jpg or jpeg)"),
                     jsonPath("$.errors[0].param").value("createAccount.photo")
                 )
+                .andDocumentErrorResponse(documentation, hasRequestPayload = true)
 
             mockedSettings.close()
         }
@@ -293,7 +300,7 @@ class AccountControllerTest @Autowired constructor(
             Mockito.`when`(UUID.randomUUID()).thenReturn(uuid)
 
             mockMvc.multipartBuilder("/accounts/new")
-                .addPart("dto", testAccount.toJson())
+                .addPart("account", testAccount.toJson())
                 .addFile(contentType = MediaType.APPLICATION_PDF_VALUE)
                 .perform()
                 .andExpectAll(
@@ -313,8 +320,9 @@ class AccountControllerTest @Autowired constructor(
             private val validationTester = ValidationTester(
                 req = { params: Map<String, Any?> ->
                     mockMvc.multipartBuilder("/accounts/new")
-                        .addPart("dto", objectMapper.writeValueAsString(params))
+                        .addPart("account", objectMapper.writeValueAsString(params))
                         .perform()
+                        .andDocumentErrorResponse(documentation, hasRequestPayload = true)
                 },
                 requiredFields = mapOf(
                     "name" to testAccount.name,
@@ -439,7 +447,7 @@ class AccountControllerTest @Autowired constructor(
                 private val validationTester = ValidationTester(
                     req = { params: Map<String, Any?> ->
                         val accountPart = MockPart(
-                            "dto",
+                            "account",
                             objectMapper.writeValueAsString(
                                 mapOf(
                                     "name" to testAccount.name,
@@ -495,13 +503,13 @@ class AccountControllerTest @Autowired constructor(
                     }
 
                     @Test
-                    fun `should be bull or not blank`() {
+                    fun `should be null or not blank`() {
                         validationTester.parameterName = "websites[0].iconPath"
                         validationTester.isNullOrNotBlank()
                     }
 
                     @Test
-                    fun `should be URL`() {
+                    fun `must be URL`() {
                         validationTester.parameterName = "websites[0].iconPath"
                         validationTester.isUrl()
                     }
@@ -512,12 +520,12 @@ class AccountControllerTest @Autowired constructor(
         @Test
         fun `should fail to create account with existing email`() {
             mockMvc.multipartBuilder("/accounts/new")
-                .addPart("dto", testAccount.toJson())
+                .addPart("account", testAccount.toJson())
                 .perform()
                 .andExpect(status().isOk)
 
             mockMvc.multipartBuilder("/accounts/new")
-                .addPart("dto", testAccount.toJson())
+                .addPart("account", testAccount.toJson())
                 .perform()
                 .andExpectAll(
                     status().isUnprocessableEntity,
@@ -673,7 +681,7 @@ class AccountControllerTest @Autowired constructor(
             "https://linkedin.com",
             "https://github.com",
             listOf(
-                CustomWebsite("https://test-website.com", "https://test-website.com/logo.png")
+                CustomWebsite("https://test-website.com", "https://test-website.com/logo.png", "test")
             )
         )
 
@@ -683,7 +691,6 @@ class AccountControllerTest @Autowired constructor(
             repository.save(newAccount)
         }
 
-        private val documentation = PayloadAccount(includePassword = false)
         private val parameters = listOf(parameterWithName("id").description("ID of the account to update"))
 
         @Test
@@ -695,7 +702,7 @@ class AccountControllerTest @Autowired constructor(
             val newLinkedin = "https://linkedin2.com"
             val newGithub = "https://github2.com"
             val newWebsites = listOf(
-                CustomWebsite("https://test-website2.com", "https://test-website.com/logo.png")
+                CustomWebsite("https://test-website2.com", "https://test-website2.com/logo.png", "test2")
             )
 
             val data = objectMapper.writeValueAsString(
@@ -711,7 +718,7 @@ class AccountControllerTest @Autowired constructor(
             )
 
             mockMvc.multipartBuilder("/accounts/${testAccount.id}")
-                .addPart("dto", data)
+                .addPart("account", data)
                 .asPutMethod()
                 .perform()
                 .andExpectAll(
@@ -728,12 +735,12 @@ class AccountControllerTest @Autowired constructor(
                     jsonPath("$.websites[0].iconPath").value(newWebsites[0].iconPath)
                 )
 //                .andDocument(
-//                    documentation,
+//                    documentationNoPassword,
 //                    "Update accounts",
-//                    "Update a previously created account, with the exception of its password, using its ID.",
+//                    "Update a previously created account, with the exception of the password, using its ID (no image).",
 //                    urlParameters = parameters,
 //                    documentRequestPayload = true
-//            )
+//                )
 
             val updatedAccount = repository.findById(testAccount.id!!).get()
             Assertions.assertEquals(newName, updatedAccount.name)
@@ -786,12 +793,12 @@ class AccountControllerTest @Autowired constructor(
                     jsonPath("$.websites[0].iconPath").value(newWebsites[0].iconPath)
                 )
 //                .andDocument(
-//                    documentation,
+//                    documentationNoPassword,
 //                    "Update accounts",
-//                    "Update a previously created account, with the exception of its password, using its ID.",
+//                    "Update a previously created account, with the exception of the password, using its ID.",
 //                    urlParameters = parameters,
 //                    documentRequestPayload = true
-//            )
+//                )
 
             val updatedAccount = repository.findById(testAccount.id!!).get()
             Assertions.assertEquals(newName, updatedAccount.name)
@@ -816,7 +823,7 @@ class AccountControllerTest @Autowired constructor(
             val newLinkedin = "https://linkedin2.com"
             val newGithub = "https://github2.com"
             val newWebsites = listOf(
-                CustomWebsite("https://test-website2.com", "https://test-website.com/logo.png")
+                CustomWebsite("https://test-website2.com", "https://test-website.com/logo.png", "test")
             )
 
             val expectedPhotoPath = "${uploadConfigProperties.staticServe}/profile/$newEmail-$uuid.jpeg"
@@ -835,7 +842,7 @@ class AccountControllerTest @Autowired constructor(
 
             mockMvc.multipartBuilder("/accounts/${testAccount.id}")
                 .asPutMethod()
-                .addPart("dto", data)
+                .addPart("account", data)
                 .addFile()
                 .perform()
                 .andExpectAll(
@@ -883,7 +890,7 @@ class AccountControllerTest @Autowired constructor(
             val newLinkedin = "https://linkedin2.com"
             val newGithub = "https://github2.com"
             val newWebsites = listOf(
-                CustomWebsite("https://test-website2.com", "https://test-website.com/logo.png")
+                CustomWebsite("https://test-website2.com", "https://test-website.com/logo.png", "test")
             )
 
             val data = objectMapper.writeValueAsString(
@@ -900,7 +907,7 @@ class AccountControllerTest @Autowired constructor(
             )
 
             mockMvc.multipartBuilder("/accounts/${1234}")
-                .addPart("dto", data)
+                .addPart("account", data)
                 .asPutMethod()
                 .perform()
                 .andExpectAll(
@@ -925,7 +932,7 @@ class AccountControllerTest @Autowired constructor(
             val newLinkedin = "https://linkedin2.com"
             val newGithub = "https://github2.com"
             val newWebsites = listOf(
-                CustomWebsite("https://test-website2.com", "https://test-website.com/logo.png")
+                CustomWebsite("https://test-website2.com", "https://test-website.com/logo.png", "test")
             )
 
             val data = objectMapper.writeValueAsString(
@@ -942,7 +949,7 @@ class AccountControllerTest @Autowired constructor(
             )
 
             mockMvc.multipartBuilder("/accounts/${testAccount.id}")
-                .addPart("dto", data)
+                .addPart("account", data)
                 .asPutMethod()
                 .perform()
                 .andExpectAll(
