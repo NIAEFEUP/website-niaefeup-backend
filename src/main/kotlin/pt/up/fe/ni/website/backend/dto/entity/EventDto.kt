@@ -13,7 +13,6 @@ class EventDto(
     val dateInterval: DateInterval,
     val location: String?,
     val category: String?,
-    val thumbnailPath: String,
     val slug: String?,
     var image: String?,
     @JsonIgnore

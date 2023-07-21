@@ -1,10 +1,8 @@
 package pt.up.fe.ni.website.backend.model
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
 import jakarta.validation.Valid
-import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.Size
 import org.hibernate.validator.constraints.URL
 import pt.up.fe.ni.website.backend.model.constants.EventConstants as Constants
@@ -33,11 +31,6 @@ class Event(
 
     @field:Size(min = Constants.Category.minSize, max = Constants.Category.maxSize)
     val category: String?,
-
-    @JsonProperty(required = true)
-    @field:NotEmpty
-    @field:URL
-    val thumbnailPath: String,
 
     id: Long? = null
 ) : Activity(title, description, teamMembers, associatedRoles, slug, image, id)
