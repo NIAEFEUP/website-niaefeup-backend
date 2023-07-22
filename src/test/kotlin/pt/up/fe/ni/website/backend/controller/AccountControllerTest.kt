@@ -610,7 +610,7 @@ class AccountControllerTest @Autowired constructor(
                     documentRequestPayload = true
                 )
 
-            mockMvc.post("/auth/new") {
+            mockMvc.post("/auth") {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(
                     mapOf(

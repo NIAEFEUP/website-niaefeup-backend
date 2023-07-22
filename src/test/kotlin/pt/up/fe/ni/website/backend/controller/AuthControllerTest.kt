@@ -63,7 +63,7 @@ class AuthControllerTest @Autowired constructor(
     )
 
     @NestedTest
-    @DisplayName("POST /auth/new")
+    @DisplayName("POST /auth")
     inner class GetNewToken {
         @BeforeEach
         fun setup() {
@@ -75,7 +75,7 @@ class AuthControllerTest @Autowired constructor(
         @Test
         fun `should fail when email is not registered`() {
             mockMvc.perform(
-                post("/auth/new")
+                post("/auth")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(
                         objectMapper.writeValueAsString(
@@ -96,7 +96,7 @@ class AuthControllerTest @Autowired constructor(
         @Test
         fun `should fail when password is incorrect`() {
             mockMvc.perform(
-                post("/auth/new")
+                post("/auth")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(LoginDto(testAccount.email, "wrong_password")))
             )
@@ -110,7 +110,7 @@ class AuthControllerTest @Autowired constructor(
         @Test
         fun `should return access and refresh tokens`() {
             mockMvc.perform(
-                post("/auth/new")
+                post("/auth")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(LoginDto(testAccount.email, testPassword)))
             )
@@ -155,7 +155,7 @@ class AuthControllerTest @Autowired constructor(
 
         @Test
         fun `should return new access token`() {
-            mockMvc.post("/auth/new") {
+            mockMvc.post("/auth") {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(LoginDto(testAccount.email, testPassword))
             }.andReturn().response.let { response ->
@@ -216,7 +216,7 @@ class AuthControllerTest @Autowired constructor(
 
         @Test
         fun `should return authenticated user`() {
-            mockMvc.post("/auth/new") {
+            mockMvc.post("/auth") {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(LoginDto(testAccount.email, testPassword))
             }.andReturn().response.let { response ->
