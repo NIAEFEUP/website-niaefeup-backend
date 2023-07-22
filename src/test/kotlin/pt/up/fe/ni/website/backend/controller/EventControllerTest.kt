@@ -767,6 +767,17 @@ internal class EventControllerTest @Autowired constructor(
     @NestedTest
     @DisplayName("PUT /events/{eventId}")
     inner class UpdateEvent {
+        private val testAccount2 = Account(
+            "Test Account2",
+            "test_account2@test.com",
+            "test_password",
+            "This is a test account2",
+            TestUtils.createDate(2001, Calendar.JULY, 28),
+            "https://test-photo.com",
+            "https://linkedin.com",
+            "https://github.com"
+        )
+
         private val uuid: UUID = UUID.randomUUID()
         private val mockedSettings = Mockito.mockStatic(UUID::class.java)
 
@@ -787,6 +798,12 @@ internal class EventControllerTest @Autowired constructor(
 
         @BeforeEach
         fun addToRepositories() {
+            accountRepository.save(testAccount)
+            accountRepository.save(testAccount2)
+            repository.save(testEvent)
+
+            newTeamMembers.clear()
+            newTeamMembers.add(testAccount2.id!!)
             eventPart = mutableMapOf(
                 "title" to newTitle,
                 "description" to newDescription,
@@ -797,9 +814,6 @@ internal class EventControllerTest @Autowired constructor(
                 "category" to newCategory,
                 "slug" to newSlug
             )
-
-            accountRepository.save(testAccount)
-            repository.save(testEvent)
         }
 
         @BeforeAll
@@ -823,7 +837,8 @@ internal class EventControllerTest @Autowired constructor(
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.title").value(newTitle),
                     jsonPath("$.description").value(newDescription),
-                    jsonPath("$.teamMembers.length()").value(0),
+                    jsonPath("$.teamMembers.length()").value(newTeamMembers.size),
+                    jsonPath("$.teamMembers[0].id").value(testAccount2.id),
                     jsonPath("$.registerUrl").value(newRegisterUrl),
                     jsonPath("$.dateInterval.startDate").value(newDateInterval.startDate.toJson()),
                     jsonPath("$.dateInterval.endDate").value(newDateInterval.endDate.toJson()),
@@ -850,6 +865,8 @@ internal class EventControllerTest @Autowired constructor(
             assertEquals(newCategory, updatedEvent.category)
             assertEquals(newSlug, updatedEvent.slug)
             assertEquals(testEvent.image, updatedEvent.image)
+            assertEquals(newTeamMembers.size, updatedEvent.teamMembers.size)
+            assertEquals(testAccount2.id, updatedEvent.teamMembers[0].id)
         }
 
         @Test
@@ -864,7 +881,7 @@ internal class EventControllerTest @Autowired constructor(
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.title").value(newTitle),
                     jsonPath("$.description").value(newDescription),
-                    jsonPath("$.teamMembers.length()").value(0),
+                    jsonPath("$.teamMembers.length()").value(newTeamMembers.size),
                     jsonPath("$.registerUrl").value(newRegisterUrl),
                     jsonPath("$.dateInterval.startDate").value(newDateInterval.startDate.toJson()),
                     jsonPath("$.dateInterval.endDate").value(newDateInterval.endDate.toJson()),
@@ -919,7 +936,7 @@ internal class EventControllerTest @Autowired constructor(
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.title").value(newTitle),
                     jsonPath("$.description").value(newDescription),
-                    jsonPath("$.teamMembers.length()").value(0),
+                    jsonPath("$.teamMembers.length()").value(newTeamMembers.size),
                     jsonPath("$.registerUrl").value(newRegisterUrl),
                     jsonPath("$.dateInterval.startDate").value(newDateInterval.startDate.toJson()),
                     jsonPath("$.dateInterval.endDate").value(newDateInterval.endDate.toJson()),
