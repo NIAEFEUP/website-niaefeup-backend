@@ -1,5 +1,6 @@
 package pt.up.fe.ni.website.backend.controller
 
+import pt.up.fe.ni.website.backend.model.constants.EventConstants as Constants
 import com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.util.Calendar
@@ -26,7 +27,6 @@ import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.CustomWebsite
 import pt.up.fe.ni.website.backend.model.Event
 import pt.up.fe.ni.website.backend.model.constants.ActivityConstants
-import pt.up.fe.ni.website.backend.model.constants.EventConstants as Constants
 import pt.up.fe.ni.website.backend.model.embeddable.DateInterval
 import pt.up.fe.ni.website.backend.repository.AccountRepository
 import pt.up.fe.ni.website.backend.repository.EventRepository
@@ -116,8 +116,9 @@ internal class EventControllerTest @Autowired constructor(
                 .andExpect(content().json(objectMapper.writeValueAsString(testEvents)))
                 .andDocument(
                     documentation.getModelDocumentationArray(),
-                    "Get all the events",
+                    "Get all the events or filter them by category",
                     """The operation returns an array of events, allowing to easily retrieve all the created events.
+                        |It also allows to filter the events by category, using the query parameter "category".
                         |This is useful for example in the frontend's event page, where events are displayed.
                     """.trimMargin()
                 )
