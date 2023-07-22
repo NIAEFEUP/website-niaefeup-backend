@@ -1,5 +1,6 @@
 package pt.up.fe.ni.website.backend.model
 
+import pt.up.fe.ni.website.backend.model.constants.ProjectConstants as Constants
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
@@ -7,8 +8,7 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.OneToMany
 import jakarta.persistence.OrderBy
 import jakarta.validation.Valid
-import jakarta.validation.constraints.NotEmpty
-import pt.up.fe.ni.website.backend.utils.validation.NullOrNotBlank
+import jakarta.validation.constraints.Size
 
 @Entity
 class Project(
@@ -23,10 +23,10 @@ class Project(
 
     val technologies: List<String> = emptyList(),
 
-    @field:NullOrNotBlank
+    @field:Size(min = Constants.Slogan.minSize, max = Constants.Slogan.maxSize)
     var slogan: String? = null,
 
-    @field:NotEmpty
+    @field:Size(min = Constants.TargetAudience.minSize, max = Constants.TargetAudience.maxSize)
     var targetAudience: String,
 
     @JoinColumn

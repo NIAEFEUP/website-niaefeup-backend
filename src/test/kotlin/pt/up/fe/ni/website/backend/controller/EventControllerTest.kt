@@ -446,6 +446,7 @@ internal class EventControllerTest @Autowired constructor(
         @Test
         fun `should fail when missing event part`() {
             mockMvc.multipartBuilder("/events/new")
+                .addFile(name = "image")
                 .perform()
                 .andExpectAll(
                     status().isBadRequest,
@@ -719,7 +720,7 @@ internal class EventControllerTest @Autowired constructor(
     }
 
     @NestedTest
-    @DisplayName("PUT /events/{projectId}/addTeamMember/{accountId}")
+    @DisplayName("PUT /events/{projectId}/removeTeamMember/{accountId}")
     inner class RemoveTeamMember {
 
         @BeforeEach
@@ -780,8 +781,8 @@ internal class EventControllerTest @Autowired constructor(
         private val newLocation = "FLUP"
         private val newCategory = "Greatest Events"
         private val newSlug = "new-slug"
-        private val parameters = listOf(parameterWithName("id").description("ID of the event to update"))
 
+        private val parameters = listOf(parameterWithName("id").description("ID of the event to update"))
         private lateinit var eventPart: MutableMap<String, Any>
 
         @BeforeEach
@@ -830,7 +831,6 @@ internal class EventControllerTest @Autowired constructor(
                     jsonPath("$.category").value(newCategory),
                     jsonPath("$.slug").value(newSlug),
                     jsonPath("$.image").value(testEvent.image)
-
                 )
 //                .andDocument(
 //                    documentation,

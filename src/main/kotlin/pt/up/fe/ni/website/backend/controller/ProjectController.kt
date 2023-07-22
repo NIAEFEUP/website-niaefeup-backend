@@ -1,5 +1,6 @@
 package pt.up.fe.ni.website.backend.controller
 
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -17,6 +18,7 @@ import pt.up.fe.ni.website.backend.utils.validation.ValidImage
 
 @RestController
 @RequestMapping("/projects")
+@Validated
 class ProjectController(private val service: ProjectService) {
 
     @GetMapping
@@ -29,7 +31,7 @@ class ProjectController(private val service: ProjectService) {
     fun getProjectBySlug(@PathVariable projectSlug: String) = service.getProjectBySlug(projectSlug)
 
     @PostMapping("/new", consumes = ["multipart/form-data"])
-    fun createNewProject(
+    fun createProject(
         @RequestPart project: ProjectDto,
         @RequestParam
         @ValidImage

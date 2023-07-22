@@ -190,7 +190,8 @@ class AccountControllerTest @Autowired constructor(
                     jsonPath("$.github").value(testAccount.github),
                     jsonPath("$.websites.length()").value(1),
                     jsonPath("$.websites[0].url").value(testAccount.websites[0].url),
-                    jsonPath("$.websites[0].iconPath").value(testAccount.websites[0].iconPath)
+                    jsonPath("$.websites[0].iconPath").value(testAccount.websites[0].iconPath),
+                    jsonPath("$.websites[0].label").value(testAccount.websites[0].label)
                 )
         }
 
@@ -525,6 +526,21 @@ class AccountControllerTest @Autowired constructor(
                     fun `must be URL`() {
                         validationTester.parameterName = "websites[0].iconPath"
                         validationTester.isUrl()
+                    }
+                }
+
+                @NestedTest
+                @DisplayName("label")
+                inner class LabelValidation {
+                    @BeforeAll
+                    fun setParam() {
+                        validationTester.param = "label"
+                    }
+
+                    @Test
+                    fun `should be null or not blank`() {
+                        validationTester.parameterName = "websites[0].label"
+                        validationTester.isNullOrNotBlank()
                     }
                 }
             }
