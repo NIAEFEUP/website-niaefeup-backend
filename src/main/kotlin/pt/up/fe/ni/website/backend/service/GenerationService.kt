@@ -19,7 +19,7 @@ class GenerationService(
     private val activityService: ActivityService
 ) {
 
-    fun getAllGenerations(): List<String> = repository.findAllSchoolYearOrdered()
+    fun getGenerationsSchoolYears(): List<String> = repository.findAllSchoolYearOrdered()
 
     fun getGenerationById(id: Long): GetGenerationDto {
         val generation =
