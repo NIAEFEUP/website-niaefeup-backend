@@ -93,7 +93,7 @@ class GenerationControllerTest @Autowired constructor(
     )
 
     @NestedTest
-    @DisplayName("GET /generations/years")
+    @DisplayName("GET /generations")
     inner class GetAllGenerations {
 
         @BeforeEach
@@ -105,7 +105,7 @@ class GenerationControllerTest @Autowired constructor(
 
         @Test
         fun `should return all generation years`() {
-            mockMvc.perform(get("/generations/years"))
+            mockMvc.perform(get("/generations"))
                 .andExpectAll(
                     status().isOk,
                     content().contentType(MediaType.APPLICATION_JSON),

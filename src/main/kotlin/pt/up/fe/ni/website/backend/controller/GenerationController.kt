@@ -16,8 +16,8 @@ import pt.up.fe.ni.website.backend.service.GenerationService
 @RestController
 @RequestMapping("/generations")
 class GenerationController(private val service: GenerationService) {
-    @GetMapping("/years")
-    fun getGenerationsSchoolYears() = service.getGenerationsSchoolYears()
+    @GetMapping
+    fun getAllGenerations() = service.getAllGenerations()
 
     @GetMapping("/{id:\\d+}")
     fun getGenerationById(@PathVariable id: Long) = service.getGenerationById(id)

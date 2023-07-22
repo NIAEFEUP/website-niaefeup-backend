@@ -1,6 +1,5 @@
 package pt.up.fe.ni.website.backend.controller
 
-import pt.up.fe.ni.website.backend.model.constants.AccountConstants as Constants
 import com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.util.Calendar
@@ -30,6 +29,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import pt.up.fe.ni.website.backend.config.upload.UploadConfigProperties
 import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.CustomWebsite
+import pt.up.fe.ni.website.backend.model.constants.AccountConstants as Constants
 import pt.up.fe.ni.website.backend.repository.AccountRepository
 import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.ValidationTester

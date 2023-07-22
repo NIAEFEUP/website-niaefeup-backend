@@ -274,7 +274,7 @@ internal class ProjectControllerTest @Autowired constructor(
     }
 
     @NestedTest
-    @DisplayName("POST /projects/new")
+    @DisplayName("POST /projects")
     inner class CreateProject {
         private val uuid: UUID = UUID.randomUUID()
         private val mockedSettings = Mockito.mockStatic(UUID::class.java)
@@ -315,7 +315,7 @@ internal class ProjectControllerTest @Autowired constructor(
                 )
             )
 
-            mockMvc.multipartBuilder("/projects/new")
+            mockMvc.multipartBuilder("/projects")
                 .addPart("project", projectPart)
                 .addFile(name = "image")
                 .perform()
@@ -368,13 +368,13 @@ internal class ProjectControllerTest @Autowired constructor(
                 mutableListOf(testAccount)
             )
 
-            mockMvc.multipartBuilder("/projects/new")
+            mockMvc.multipartBuilder("/projects")
                 .addPart("project", objectMapper.writeValueAsString(testProject))
                 .addFile(name = "image")
                 .perform()
                 .andExpect { status().isOk }
 
-            mockMvc.multipartBuilder("/projects/new")
+            mockMvc.multipartBuilder("/projects")
                 .addPart("project", objectMapper.writeValueAsString(duplicatedSlugProject))
                 .addFile(name = "image")
                 .perform()
@@ -389,7 +389,7 @@ internal class ProjectControllerTest @Autowired constructor(
 
         @Test
         fun `should fail to create project with invalid filename extension`() {
-            mockMvc.multipartBuilder("/projects/new")
+            mockMvc.multipartBuilder("/projects")
                 .addPart("project", objectMapper.writeValueAsString(testProject))
                 .addFile(name = "image", filename = "image.pdf")
                 .perform()
@@ -405,7 +405,7 @@ internal class ProjectControllerTest @Autowired constructor(
 
         @Test
         fun `should fail to create project with invalid filename media type`() {
-            mockMvc.multipartBuilder("/projects/new")
+            mockMvc.multipartBuilder("/projects")
                 .addPart("project", objectMapper.writeValueAsString(testProject))
                 .addFile(name = "image", contentType = MediaType.APPLICATION_PDF_VALUE)
                 .perform()
@@ -421,7 +421,7 @@ internal class ProjectControllerTest @Autowired constructor(
 
         @Test
         fun `should fail when missing project part`() {
-            mockMvc.multipartBuilder("/projects/new")
+            mockMvc.multipartBuilder("/projects")
                 .addFile(name = "image")
                 .perform()
                 .andExpectAll(
@@ -438,7 +438,7 @@ internal class ProjectControllerTest @Autowired constructor(
         inner class InputValidation {
             private val validationTester = ValidationTester(
                 req = { params: Map<String, Any?> ->
-                    mockMvc.multipartBuilder("/projects/new")
+                    mockMvc.multipartBuilder("/projects")
                         .addPart("project", objectMapper.writeValueAsString(params))
                         .addFile(name = "image")
                         .perform()
@@ -1289,7 +1289,7 @@ internal class ProjectControllerTest @Autowired constructor(
     }
 
     @NestedTest
-    @DisplayName("PUT /projects/{projectId}/addTeamMember/{accountId}")
+    @DisplayName("PUT /projects/{projectId}/team/{accountId}")
     inner class AddTeamMember {
 
         private val newAccount = Account(
@@ -1324,7 +1324,7 @@ internal class ProjectControllerTest @Autowired constructor(
         @Test
         fun `should add a team member`() {
             mockMvc.perform(
-                put("/projects/{projectId}/addTeamMember/{accountId}", testProject.id, newAccount.id)
+                put("/projects/{projectId}/team/{accountId}", testProject.id, newAccount.id)
             )
                 .andExpectAll(
                     status().isOk, content().contentType(MediaType.APPLICATION_JSON),
@@ -1358,7 +1358,7 @@ internal class ProjectControllerTest @Autowired constructor(
 
         @Test
         fun `should fail if the team member does not exist`() {
-            mockMvc.perform(put("/projects/{projectId}/addTeamMember/{accountId}", testProject.id, 1234))
+            mockMvc.perform(put("/projects/{projectId}/team/{accountId}", testProject.id, 1234))
                 .andExpectAll(
                     status().isNotFound,
                     content().contentType(MediaType.APPLICATION_JSON),
@@ -1373,7 +1373,7 @@ internal class ProjectControllerTest @Autowired constructor(
     }
 
     @NestedTest
-    @DisplayName("PUT /projects/{projectId}/removeTeamMember/{accountId}")
+    @DisplayName("DELETE /projects/{projectId}/team/{accountId}")
     inner class RemoveTeamMember {
 
         @BeforeEach
@@ -1392,7 +1392,7 @@ internal class ProjectControllerTest @Autowired constructor(
 
         @Test
         fun `should remove a team member`() {
-            mockMvc.perform(put("/projects/{projectId}/removeTeamMember/{accountId}", testProject.id, testAccount.id))
+            mockMvc.perform(delete("/projects/{projectId}/team/{accountId}", testProject.id, testAccount.id))
                 .andExpectAll(
                     status().isOk,
                     content().contentType(MediaType.APPLICATION_JSON),
@@ -1408,7 +1408,7 @@ internal class ProjectControllerTest @Autowired constructor(
 
         @Test
         fun `should fail if the team member does not exist`() {
-            mockMvc.perform(put("/projects/{projectId}/removeTeamMember/{accountId}", testProject.id, 1234))
+            mockMvc.perform(delete("/projects/{projectId}/team/{accountId}", testProject.id, 1234))
                 .andExpectAll(
                     status().isNotFound,
                     content().contentType(MediaType.APPLICATION_JSON),

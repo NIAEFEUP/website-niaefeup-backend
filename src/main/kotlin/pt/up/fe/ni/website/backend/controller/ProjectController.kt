@@ -30,7 +30,7 @@ class ProjectController(private val service: ProjectService) {
     @GetMapping("/{projectSlug}**")
     fun getProjectBySlug(@PathVariable projectSlug: String) = service.getProjectBySlug(projectSlug)
 
-    @PostMapping("/new", consumes = ["multipart/form-data"])
+    @PostMapping(consumes = ["multipart/form-data"])
     fun createProject(
         @RequestPart project: ProjectDto,
         @RequestParam
@@ -65,13 +65,13 @@ class ProjectController(private val service: ProjectService) {
     @PutMapping("/{id}/unarchive")
     fun unarchiveProjectById(@PathVariable id: Long) = service.unarchiveProjectById(id)
 
-    @PutMapping("/{idProject}/addTeamMember/{idAccount}")
+    @PutMapping("/{idProject}/team/{idAccount}")
     fun addTeamMemberById(
         @PathVariable idProject: Long,
         @PathVariable idAccount: Long
     ) = service.addTeamMemberById(idProject, idAccount)
 
-    @PutMapping("/{idProject}/removeTeamMember/{idAccount}")
+    @DeleteMapping("/{idProject}/team/{idAccount}")
     fun removeTeamMemberById(
         @PathVariable idProject: Long,
         @PathVariable idAccount: Long

@@ -1,6 +1,5 @@
 package pt.up.fe.ni.website.backend.controller
 
-import pt.up.fe.ni.website.backend.model.constants.EventConstants as Constants
 import com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.util.Calendar
@@ -27,6 +26,7 @@ import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.CustomWebsite
 import pt.up.fe.ni.website.backend.model.Event
 import pt.up.fe.ni.website.backend.model.constants.ActivityConstants
+import pt.up.fe.ni.website.backend.model.constants.EventConstants as Constants
 import pt.up.fe.ni.website.backend.model.embeddable.DateInterval
 import pt.up.fe.ni.website.backend.repository.AccountRepository
 import pt.up.fe.ni.website.backend.repository.EventRepository
@@ -143,7 +143,7 @@ internal class EventControllerTest @Autowired constructor(
                     null
                 ),
                 null,
-                null,
+                null
             ),
             Event(
                 "Mid event",
@@ -158,7 +158,7 @@ internal class EventControllerTest @Autowired constructor(
                     null
                 ),
                 null,
-                "Other category",
+                "Other category"
             ),
             Event(
                 "Cool event",
@@ -173,7 +173,7 @@ internal class EventControllerTest @Autowired constructor(
                     null
                 ),
                 null,
-                "Great Events",
+                "Great Events"
             )
         )
 
