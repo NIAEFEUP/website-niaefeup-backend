@@ -746,6 +746,64 @@ class AccountControllerTest @Autowired constructor(
         }
 
         @Test
+        fun `should update the account when email is unchanged`() {
+            val newName = "Test Account 2"
+            val newBio = "This is a test account with no altered email"
+            val newBirthDate = TestUtils.createDate(2003, Calendar.JULY, 28)
+            val newLinkedin = "https://linkedin2.com"
+            val newGithub = "https://github2.com"
+            val newWebsites = listOf(
+                CustomWebsite("https://test-website2.com", "https://test-website.com/logo.png")
+            )
+
+            val data = objectMapper.writeValueAsString(
+                mapOf(
+                    "name" to newName,
+                    "email" to testAccount.email,
+                    "bio" to newBio,
+                    "birthDate" to newBirthDate,
+                    "linkedin" to newLinkedin,
+                    "github" to newGithub,
+                    "websites" to newWebsites
+                )
+            )
+
+            mockMvc.multipartBuilder("/accounts/${testAccount.id}")
+                .addPart("dto", data)
+                .asPutMethod()
+                .perform()
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.name").value(newName),
+                    jsonPath("$.email").value(testAccount.email),
+                    jsonPath("$.bio").value(newBio),
+                    jsonPath("$.birthDate").value(newBirthDate.toJson()),
+                    jsonPath("$.linkedin").value(newLinkedin),
+                    jsonPath("$.github").value(newGithub),
+                    jsonPath("$.websites.length()").value(1),
+                    jsonPath("$.websites[0].url").value(newWebsites[0].url),
+                    jsonPath("$.websites[0].iconPath").value(newWebsites[0].iconPath)
+                )
+//                .andDocument(
+//                    documentation,
+//                    "Update accounts",
+//                    "Update a previously created account, with the exception of its password, using its ID.",
+//                    urlParameters = parameters,
+//                    documentRequestPayload = true
+//            )
+
+            val updatedAccount = repository.findById(testAccount.id!!).get()
+            Assertions.assertEquals(newName, updatedAccount.name)
+            Assertions.assertEquals(testAccount.email, updatedAccount.email)
+            Assertions.assertEquals(newBio, updatedAccount.bio)
+            Assertions.assertEquals(newBirthDate.toJson(), updatedAccount.birthDate.toJson())
+            Assertions.assertEquals(newLinkedin, updatedAccount.linkedin)
+            Assertions.assertEquals(newWebsites[0].url, updatedAccount.websites[0].url)
+            Assertions.assertEquals(newWebsites[0].iconPath, updatedAccount.websites[0].iconPath)
+        }
+
+        @Test
         fun `should update the account with valid image`() {
             val uuid: UUID = UUID.randomUUID()
             val mockedSettings = Mockito.mockStatic(UUID::class.java)
