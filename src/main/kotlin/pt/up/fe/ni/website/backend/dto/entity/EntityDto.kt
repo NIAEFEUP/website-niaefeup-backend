@@ -6,7 +6,9 @@ import jakarta.persistence.Entity
 import jakarta.validation.ConstraintViolationException
 import jakarta.validation.Validator
 import kotlin.reflect.KClass
+import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.hasAnnotation
+import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.jvm.jvmErasure
 import pt.up.fe.ni.website.backend.config.ApplicationContextUtils
 
@@ -57,9 +59,13 @@ abstract class EntityDto<T : Any> {
         // The use of suppress is explained at https://github.com/NIAEFEUP/website-niaefeup-backend/pull/20#discussion_r985236224
         @Suppress("UNCHECKED_CAST")
         private fun <T : Any> getTypeConversionClass(clazz: KClass<out EntityDto<T>>): KClass<T>? {
-            val thisType = clazz.supertypes.first { it.classifier == EntityDto::class }
+            val superType = clazz.supertypes.firstOrNull { it.jvmErasure.isSubclassOf(EntityDto::class) } ?: return null
+            val conversionClassArg =
+                superType.arguments.firstOrNull {
+                    it.type?.jvmErasure?.findAnnotation<Entity>() != null
+                } ?: return getTypeConversionClass(superType.jvmErasure as KClass<out EntityDto<T>>)
 
-            return thisType.arguments.firstOrNull()?.type?.jvmErasure as KClass<T>?
+            return conversionClassArg.type?.jvmErasure as KClass<T>?
         }
 
         /**

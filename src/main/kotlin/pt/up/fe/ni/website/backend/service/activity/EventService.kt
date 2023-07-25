@@ -15,61 +15,26 @@ class EventService(
     accountService: AccountService,
     fileUploader: FileUploader
 ) : AbstractActivityService<Event>(repository, accountService, fileUploader) {
-    fun getAllEvents(): List<Event> = repository.findAll().toList()
 
-    fun getEventBySlug(eventSlug: String): Event =
-        repository.findBySlug(eventSlug) ?: throw NoSuchElementException(ErrorMessages.eventNotFound(eventSlug))
-
-    // TODO refactor common lines with ProjectService
-    fun createEvent(dto: EventDto): Event {
-        repository.findBySlug(dto.slug)?.let {
-            throw IllegalArgumentException(ErrorMessages.slugAlreadyExists)
-        }
-
-        dto.imageFile?.let {
-            val fileName = fileUploader.buildFileName(it, dto.title)
-            dto.image = fileUploader.uploadImage("events", fileName, it.bytes)
-        }
-
-        val event = dto.create()
-
-        dto.teamMembersIds?.forEach {
-            val account = accountService.getAccountById(it)
-            event.teamMembers.add(account)
-        }
-
-        return repository.save(event)
+    companion object {
+        const val IMAGE_FOLDER = "events"
     }
+
+    fun getAllEvents(): List<Event> = repository.findAll().toList()
 
     fun getEventsByCategory(category: String): List<Event> = repository.findAllByCategory(category)
 
     fun getEventById(eventId: Long): Event = repository.findByIdOrNull(eventId)
         ?: throw NoSuchElementException(ErrorMessages.eventNotFound(eventId))
 
+    fun getEventBySlug(eventSlug: String): Event =
+        repository.findBySlug(eventSlug) ?: throw NoSuchElementException(ErrorMessages.eventNotFound(eventSlug))
+
+    fun createEvent(dto: EventDto) = createActivity(dto, IMAGE_FOLDER)
+
     fun updateEventById(eventId: Long, dto: EventDto): Event {
         val event = getEventById(eventId)
-
-        repository.findBySlug(dto.slug)?.let {
-            if (it.id != event.id) throw IllegalArgumentException(ErrorMessages.slugAlreadyExists)
-        }
-
-        val imageFile = dto.imageFile
-        if (imageFile == null) {
-            dto.image = event.image
-        } else {
-            val fileName = fileUploader.buildFileName(imageFile, dto.title)
-            dto.image = fileUploader.uploadImage("events", fileName, imageFile.bytes)
-        }
-
-        val newEvent = dto.update(event)
-        newEvent.apply {
-            teamMembers.clear()
-            dto.teamMembersIds?.forEach {
-                val account = accountService.getAccountById(it)
-                teamMembers.add(account)
-            }
-        }
-        return repository.save(newEvent)
+        return updateActivityById(event, dto, IMAGE_FOLDER)
     }
 
     fun deleteEventById(eventId: Long) {
