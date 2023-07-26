@@ -925,7 +925,7 @@ internal class ProjectControllerTest @Autowired constructor(
 
         private val parameters = listOf(
             parameterWithName("idProject").description(
-                "ID of the project to add the account to the hall of fame"
+                "ID of the project whose hall of fame the account will be added to"
             ),
             parameterWithName("idAccount").description("ID of the account to add")
         )
