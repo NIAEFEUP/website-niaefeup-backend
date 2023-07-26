@@ -993,7 +993,7 @@ internal class ProjectControllerTest @Autowired constructor(
 
         private val parameters = listOf(
             parameterWithName("idProject").description(
-                "ID of the project to remove the account from the hall of fame"
+                "ID of the project whose hall of fame the account will be removed from"
             ),
             parameterWithName("idAccount").description("ID of the account to remove")
         )
