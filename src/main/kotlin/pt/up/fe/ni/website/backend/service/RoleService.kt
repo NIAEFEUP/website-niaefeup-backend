@@ -3,9 +3,7 @@ package pt.up.fe.ni.website.backend.service
 import jakarta.transaction.Transactional
 import jakarta.validation.Validator
 import org.springframework.stereotype.Service
-import pt.up.fe.ni.website.backend.config.ApplicationContextUtils
 import pt.up.fe.ni.website.backend.dto.entity.RoleDto
-import pt.up.fe.ni.website.backend.model.Generation
 import pt.up.fe.ni.website.backend.model.PerActivityRole
 import pt.up.fe.ni.website.backend.model.Role
 import pt.up.fe.ni.website.backend.model.permissions.Permissions
@@ -19,12 +17,14 @@ import pt.up.fe.ni.website.backend.service.activity.ActivityService
 class RoleService(
     private val roleRepository: RoleRepository,
     private val perActivityRoleRepository: PerActivityRoleRepository,
-    private val generationRepository: GenerationRepository,
+    private val generationService: GenerationService,
     private val accountService: AccountService,
-    private val activityService: ActivityService
+    private val activityService: ActivityService,
+    private val generationRepository: GenerationRepository,
+    private val validator: Validator
 ) {
 
-    fun getRole(roleId: Long): Role {
+    fun getRoleById(roleId: Long): Role {
         val role = roleRepository.findById(roleId).orElseThrow {
             throw NoSuchElementException(ErrorMessages.roleNotFound(roleId))
         }
@@ -32,20 +32,20 @@ class RoleService(
     }
     fun getAllRoles(): List<Role> = roleRepository.findAll().toList()
     fun grantPermissionToRole(roleId: Long, permissions: Permissions) {
-        val role = getRole(roleId)
+        val role = getRoleById(roleId)
         role.permissions.addAll(permissions)
         roleRepository.save(role)
     }
 
     fun revokePermissionFromRole(roleId: Long, permissions: Permissions) {
-        val role = getRole(roleId)
+        val role = getRoleById(roleId)
         role.permissions.removeAll(permissions)
         roleRepository.save(role)
     }
 
     fun grantPermissionToRoleOnActivity(roleId: Long, activityId: Long, permissions: Permissions) {
         val activity = activityService.getActivityById(activityId)
-        val role = getRole(roleId)
+        val role = getRoleById(roleId)
         val perActivityRole = activity.associatedRoles
             .find { it.activity == activity } ?: PerActivityRole(Permissions())
         perActivityRole.role = role
@@ -57,7 +57,7 @@ class RoleService(
 
     fun revokePermissionFromRoleOnActivity(roleId: Long, activityId: Long, permissions: Permissions) {
         val activity = activityService.getActivityById(activityId)
-        val role = getRole(roleId)
+        val role = getRoleById(roleId)
         val foundActivity = activity.associatedRoles
             .find { it.role == role } ?: return
         foundActivity.permissions.removeAll(permissions)
@@ -66,43 +66,34 @@ class RoleService(
 
     fun createNewRole(dto: RoleDto): Role {
         val role = dto.create()
-        val generation: Generation = if (dto.generationId != null) {
-            generationRepository.findById(dto.generationId).orElseThrow {
-                IllegalArgumentException(ErrorMessages.generationNotFound(dto.generationId))
-            }
-        } else {
-            generationRepository.findFirstByOrderBySchoolYearDesc()
-                ?: throw IllegalArgumentException(ErrorMessages.noGenerations)
-        }
+        val generation = generationService.getGenerationByIdOrInferLatest(dto.generationId)
 
-        role.generation = generation
-        generation.roles.add(role)
-        val validator: Validator = ApplicationContextUtils.getBean(Validator::class.java)
-        // we can infer that if something goes wrong is with adding a new role with the same name
-        if (validator.validate(generation).isNotEmpty()) {
+        generation.roles.add(role) // just for validation and will not be persisted
+        if (validator.validateProperty(generation, "roles").isNotEmpty()) {
             throw IllegalArgumentException(ErrorMessages.roleAlreadyExists(role.name, generation.schoolYear))
         }
+        role.generation = generation
         roleRepository.save(role)
         return role
     }
 
     fun deleteRole(roleId: Long) {
-        val role = getRole(roleId)
+        val role = getRoleById(roleId)
         role.generation.roles.remove(role)
         generationRepository.save(role.generation)
         roleRepository.delete(role)
     }
 
     fun addUserToRole(roleId: Long, userId: Long) {
-        val role = getRole(roleId)
+        val role = getRoleById(roleId)
         val account = accountService.getAccountById(userId)
         if (role.accounts.any { it.id == account.id }) return
-        role.accounts.add(account)
+        account.roles.add(role)
         roleRepository.save(role)
     }
 
     fun removeUserFromRole(roleId: Long, userId: Long) {
-        val role = getRole(roleId)
+        val role = getRoleById(roleId)
         val account = accountService.getAccountById(userId)
         role.accounts.remove(account)
         roleRepository.save(role)

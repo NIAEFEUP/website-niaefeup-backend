@@ -530,6 +530,7 @@ class GenerationControllerTest @Autowired constructor(
             @BeforeEach
             fun addGenerations() {
                 initializeTestGenerations()
+                TestUtils.startNewTransaction()
             }
 
             @Test
@@ -574,7 +575,7 @@ class GenerationControllerTest @Autowired constructor(
                         jsonPath("$.roles.length()").value(1),
                         jsonPath("$.roles[0].name").value("role1")
                     ).andDocument(documentation, documentRequestPayload = true)
-
+                TestUtils.startNewTransaction()
                 val role = roleRepository.findAll().toList()
                     .filter { it.generation.schoolYear == "20-21" }
                     .find { it.name == "role1" }

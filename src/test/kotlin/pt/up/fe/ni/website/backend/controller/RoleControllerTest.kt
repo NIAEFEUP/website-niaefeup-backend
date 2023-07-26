@@ -292,10 +292,11 @@ internal class RoleControllerTest @Autowired constructor(
         @BeforeEach
         fun addRole() {
             generation1 = Generation("22-23")
-            role = Role("test-role-1", Permissions(), true)
-            generation1.roles.add(role)
             generationRepository.save(generation1)
+            role = Role("test-role-1", Permissions(), true)
             role.generation = generation1
+            roleRepository.save(role)
+            TestUtils.startNewTransaction()
         }
 
         @AfterEach
@@ -314,6 +315,7 @@ internal class RoleControllerTest @Autowired constructor(
                 "The id must exist in order to remove it correctly",
                 urlParameters = parameters
             )
+            TestUtils.startNewTransaction()
             assert(roleRepository.findByIdOrNull(id) == null)
             assert(generationRepository.findFirstByOrderBySchoolYearDesc()!!.roles.size == 0)
         }
@@ -457,6 +459,7 @@ internal class RoleControllerTest @Autowired constructor(
         fun addRoleAndUser() {
             roleRepository.save(testRole)
             accountRepository.save(testAccount)
+            TestUtils.startNewTransaction()
         }
 
         @Test
@@ -475,7 +478,9 @@ internal class RoleControllerTest @Autowired constructor(
                 hasRequestPayload = true,
                 urlParameters = parameters
             )
+            TestUtils.startNewTransaction()
             assert(roleRepository.findByIdOrNull(testRole.id!!)!!.accounts.size != 0)
+            assert(accountRepository.findByIdOrNull(testAccount.id!!)!!.roles.size != 0)
         }
 
         @Test
@@ -534,16 +539,10 @@ internal class RoleControllerTest @Autowired constructor(
 
         @BeforeEach
         fun addRoleAndUser() {
+            roleRepository.save(testRole)
+            testAccount.roles.add(testRole)
             accountRepository.save(testAccount)
-            roleRepository.save(testRole)
-            testRole.accounts.add(testAccount)
-            roleRepository.save(testRole)
-        }
-
-        @AfterEach
-        fun removeRolesAndUser() {
-            testRole.accounts.remove(testAccount)
-            roleRepository.save(testRole)
+            TestUtils.startNewTransaction()
         }
 
         @Test
@@ -571,12 +570,13 @@ internal class RoleControllerTest @Autowired constructor(
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(mapOf("userId" to 1234)))
             ).andExpectAll(
-                status().isNotFound()
+                status().isNotFound
             ).andDocumentErrorResponse(
                 documentationRoles,
                 hasRequestPayload = true,
                 urlParameters = parameters
             )
+            TestUtils.startNewTransaction(rollback = true)
             assert(roleRepository.findByIdOrNull(testRole.id!!)!!.accounts.size != 0)
         }
 
@@ -587,12 +587,13 @@ internal class RoleControllerTest @Autowired constructor(
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(mapOf("userId" to 1234)))
             ).andExpectAll(
-                status().isNotFound()
+                status().isNotFound
             ).andDocumentErrorResponse(
                 documentationRoles,
                 hasRequestPayload = true,
                 urlParameters = parameters
             )
+            TestUtils.startNewTransaction(rollback = true)
             assert(roleRepository.findByIdOrNull(testRole.id!!)!!.accounts.size != 0)
         }
 
@@ -603,12 +604,13 @@ internal class RoleControllerTest @Autowired constructor(
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(mapOf("userId" to testAccount.id)))
             ).andExpectAll(
-                status().isNotFound()
+                status().isNotFound
             ).andDocumentErrorResponse(
                 documentationRoles,
                 hasRequestPayload = true,
                 urlParameters = parameters
             )
+            TestUtils.startNewTransaction(rollback = true)
             assert(roleRepository.findByIdOrNull(testRole.id!!)!!.accounts.size != 0)
         }
     }

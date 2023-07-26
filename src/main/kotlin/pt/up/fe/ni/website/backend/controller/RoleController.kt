@@ -20,7 +20,7 @@ class RoleController(private val roleService: RoleService) {
     fun getAllRoles() = roleService.getAllRoles()
 
     @GetMapping("/{id}")
-    fun getRole(@PathVariable id: Long) = roleService.getRole(id)
+    fun getRole(@PathVariable id: Long) = roleService.getRoleById(id)
 
     @PostMapping
     fun createNewRole(@RequestBody dto: RoleDto) = roleService.createNewRole(dto)
