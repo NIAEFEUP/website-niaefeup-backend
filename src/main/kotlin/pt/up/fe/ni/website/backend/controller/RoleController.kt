@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RestController
 import pt.up.fe.ni.website.backend.dto.auth.UserIdDto
 import pt.up.fe.ni.website.backend.dto.entity.RoleDto
 import pt.up.fe.ni.website.backend.dto.roles.PermissionsDto
-import pt.up.fe.ni.website.backend.model.permissions.Permissions
 import pt.up.fe.ni.website.backend.service.RoleService
 
 @RestController
@@ -81,7 +80,7 @@ class RoleController(private val roleService: RoleService) {
         roleService.revokePermissionFromRoleOnActivity(
             id,
             activityId,
-            Permissions(permissionsDto.permissions)
+            permissionsDto.permissions
         )
         return emptyMap()
     }
