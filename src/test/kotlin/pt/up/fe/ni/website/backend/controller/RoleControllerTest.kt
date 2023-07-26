@@ -540,9 +540,14 @@ internal class RoleControllerTest @Autowired constructor(
         @BeforeEach
         fun addRoleAndUser() {
             roleRepository.save(testRole)
-            testAccount.roles.add(testRole)
             accountRepository.save(testAccount)
-            TestUtils.startNewTransaction()
+            testRole.accounts.add(testAccount)
+            roleRepository.save(testRole)
+        }
+
+        @AfterEach
+        fun removeAssociations() {
+            if (testRole.accounts.size != 0) testRole.accounts.clear()
         }
 
         @Test
@@ -576,7 +581,6 @@ internal class RoleControllerTest @Autowired constructor(
                 hasRequestPayload = true,
                 urlParameters = parameters
             )
-            TestUtils.startNewTransaction(rollback = true)
             assert(roleRepository.findByIdOrNull(testRole.id!!)!!.accounts.size != 0)
         }
 
@@ -593,7 +597,6 @@ internal class RoleControllerTest @Autowired constructor(
                 hasRequestPayload = true,
                 urlParameters = parameters
             )
-            TestUtils.startNewTransaction(rollback = true)
             assert(roleRepository.findByIdOrNull(testRole.id!!)!!.accounts.size != 0)
         }
 
@@ -610,7 +613,6 @@ internal class RoleControllerTest @Autowired constructor(
                 hasRequestPayload = true,
                 urlParameters = parameters
             )
-            TestUtils.startNewTransaction(rollback = true)
             assert(roleRepository.findByIdOrNull(testRole.id!!)!!.accounts.size != 0)
         }
     }
