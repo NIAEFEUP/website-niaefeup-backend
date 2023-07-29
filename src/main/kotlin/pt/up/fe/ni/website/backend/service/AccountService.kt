@@ -48,8 +48,10 @@ class AccountService(
     fun updateAccountById(id: Long, dto: UpdateAccountDto): Account {
         val account = getAccountById(id)
 
-        repository.findByEmail(dto.email)?.let {
-            throw IllegalArgumentException(ErrorMessages.emailAlreadyExists)
+        if (account.email != dto.email) {
+            repository.findByEmail(dto.email)?.let {
+                throw IllegalArgumentException(ErrorMessages.emailAlreadyExists)
+            }
         }
 
         dto.photoFile?.let {
