@@ -39,8 +39,10 @@ abstract class AbstractActivityService<T : Activity>(
     }
 
     fun <U : ActivityDto<T>> updateActivityById(activity: T, dto: U, imageFolder: String): T {
-        repository.findBySlug(dto.slug)?.let {
-            if (it.id != activity.id) throw IllegalArgumentException(ErrorMessages.slugAlreadyExists)
+        if (dto.slug != activity.slug) {
+            repository.findBySlug(dto.slug)?.let {
+                throw IllegalArgumentException(ErrorMessages.slugAlreadyExists)
+            }
         }
 
         val imageFile = dto.imageFile
