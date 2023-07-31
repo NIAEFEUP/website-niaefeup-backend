@@ -13,7 +13,8 @@ class ProjectDto(
     val technologies: List<String> = emptyList(),
     val slogan: String?,
     val targetAudience: String,
+    val github: String?,
     val links: List<CustomWebsiteDto>?,
     val timeline: List<TimelineEventDto>?,
-    val hallOfFameIds: List<Long>?,
+    val hallOfFameIds: List<Long>?
 ) : ActivityDto<Project>(title, description, teamMembersIds, slug, image)

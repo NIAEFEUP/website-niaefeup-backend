@@ -34,6 +34,12 @@ class PayloadProject : ModelDocumentation(
         DocumentedJSONField(
             "targetAudience",
             "Information about the target audience",
+            JsonFieldType.STRING,
+            optional = true
+        ),
+        DocumentedJSONField(
+            "github",
+            "Handle/link to the project's GitHub repository",
             JsonFieldType.STRING
         ),
         DocumentedJSONField(

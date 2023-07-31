@@ -89,6 +89,7 @@ internal class ProjectControllerTest @Autowired constructor(
         listOf("Java", "Kotlin", "Spring"),
         "Nice one",
         "students",
+        "https://github.com/NIAEFEUP/website-niaefeup-backend",
         listOf(
             CustomWebsite("https://test-website.com", "https://test-website.com/logo.png", "Test")
         ),
@@ -97,7 +98,7 @@ internal class ProjectControllerTest @Autowired constructor(
             TimelineEvent(TestUtils.createDate(2020, 7, 28), "This is a new event"),
             TimelineEvent(TestUtils.createDate(2001, 2, 12), "This is an old event"),
             TimelineEvent(TestUtils.createDate(2010, 2, 12), "This is a middle event")
-        ),
+        )
     )
 
     val documentation: ModelDocumentation = PayloadProject()
@@ -117,7 +118,8 @@ internal class ProjectControllerTest @Autowired constructor(
                 false,
                 listOf("ExpressJS", "React"),
                 "Nice one",
-                "students"
+                "students",
+                "https://github.com/NIAEFEUP/nijobs-fe"
             )
         )
 
@@ -173,6 +175,7 @@ internal class ProjectControllerTest @Autowired constructor(
                     jsonPath("$.technologies[0]").value(testProject.technologies[0]),
                     jsonPath("$.slug").value(testProject.slug),
                     jsonPath("$.targetAudience").value(testProject.targetAudience),
+                    jsonPath("$.github").value(testProject.github),
                     jsonPath("$.image").value(testProject.image),
                     jsonPath("$.links.length()").value(testProject.links.size),
                     jsonPath("$.links[0].url").value(testProject.links[0].url),
@@ -304,6 +307,7 @@ internal class ProjectControllerTest @Autowired constructor(
                     "technologies" to testProject.technologies,
                     "slug" to testProject.slug,
                     "targetAudience" to testProject.targetAudience,
+                    "github" to testProject.github,
                     "links" to testProject.links,
                     "timeline" to testProject.timeline,
                     "slogan" to testProject.slogan
@@ -330,6 +334,7 @@ internal class ProjectControllerTest @Autowired constructor(
                     jsonPath("$.slug").value(testProject.slug),
                     jsonPath("$.slogan").value(testProject.slogan),
                     jsonPath("$.targetAudience").value(testProject.targetAudience),
+                    jsonPath("$.github").value(testProject.github),
                     jsonPath("$.image").value(expectedImagePath),
                     jsonPath("$.links.length()").value(testProject.links.size),
                     jsonPath("$.links[0].url").value(testProject.links[0].url),
@@ -357,6 +362,7 @@ internal class ProjectControllerTest @Autowired constructor(
                 listOf("Java", "Kotlin", "Spring"),
                 "Nice project",
                 "students",
+                "https://github.com/NIAEFEUP/website-niaefeup-backend",
                 mutableListOf(),
                 mutableListOf(testAccount)
             )
@@ -532,6 +538,21 @@ internal class ProjectControllerTest @Autowired constructor(
                 fun size() =
                     validationTester.hasSizeBetween(Constants.TargetAudience.minSize, Constants.TargetAudience.maxSize)
             }
+
+            @NestedTest
+            @DisplayName("github")
+            inner class GithubValidation {
+                @BeforeAll
+                fun setParam() {
+                    validationTester.param = "github"
+                }
+
+                @Test
+                fun `should be null or not blank`() = validationTester.isNullOrNotBlank()
+
+                @Test
+                fun `should be URL`() = validationTester.isUrl()
+            }
         }
     }
 
@@ -594,6 +615,7 @@ internal class ProjectControllerTest @Autowired constructor(
         private val newSlug = "new-slug"
         private val newSlogan = "new slogan"
         private val newTargetAudience = "new target audience"
+        private val newGithub = "https://github.com/NIAEFEUP/nijobs-be"
         private val newLinks = mutableListOf<CustomWebsite>()
         private val newTimeline = mutableListOf<TimelineEvent>()
 
@@ -610,6 +632,7 @@ internal class ProjectControllerTest @Autowired constructor(
                 "slug" to newSlug,
                 "slogan" to newSlogan,
                 "targetAudience" to newTargetAudience,
+                "github" to newGithub,
                 "links" to newLinks,
                 "timeline" to newTimeline
             )
@@ -645,6 +668,7 @@ internal class ProjectControllerTest @Autowired constructor(
                     jsonPath("$.slug").value(newSlug),
                     jsonPath("$.slogan").value(newSlogan),
                     jsonPath("$.targetAudience").value(newTargetAudience),
+                    jsonPath("$.github").value(newGithub),
                     jsonPath("$.links.length()").value(newLinks.size),
                     jsonPath("$.timeline.length()").value(newTimeline.size),
                     jsonPath("$.image").value(testProject.image)
@@ -664,6 +688,7 @@ internal class ProjectControllerTest @Autowired constructor(
             assertEquals(newSlug, updatedProject.slug)
             assertEquals(newSlogan, updatedProject.slogan)
             assertEquals(newTargetAudience, updatedProject.targetAudience)
+            assertEquals(newGithub, updatedProject.github)
             assertEquals(newLinks, updatedProject.links)
             assertEquals(newTimeline, updatedProject.timeline)
             assertEquals(testProject.image, updatedProject.image)
@@ -686,6 +711,7 @@ internal class ProjectControllerTest @Autowired constructor(
                     jsonPath("$.slug").value(testProject.slug),
                     jsonPath("$.slogan").value(newSlogan),
                     jsonPath("$.targetAudience").value(newTargetAudience),
+                    jsonPath("$.github").value(newGithub),
                     jsonPath("$.links.length()").value(newLinks.size),
                     jsonPath("$.timeline.length()").value(newTimeline.size)
                 )
@@ -719,6 +745,7 @@ internal class ProjectControllerTest @Autowired constructor(
                 slug = newSlug,
                 slogan = newSlogan,
                 targetAudience = newTargetAudience,
+                github = "https://github.com/NIAEFEUP/website-niaefeup-frontend",
                 links = mutableListOf(),
                 timeline = mutableListOf()
             )
@@ -756,6 +783,7 @@ internal class ProjectControllerTest @Autowired constructor(
                     jsonPath("$.slug").value(newSlug),
                     jsonPath("$.slogan").value(newSlogan),
                     jsonPath("$.targetAudience").value(newTargetAudience),
+                    jsonPath("$.github").value(newGithub),
                     jsonPath("$.links.length()").value(newLinks.size),
                     jsonPath("$.timeline.length()").value(newTimeline.size),
                     jsonPath("$.image").value(expectedImagePath)
@@ -775,6 +803,7 @@ internal class ProjectControllerTest @Autowired constructor(
             assertEquals(newSlug, updatedProject.slug)
             assertEquals(newSlogan, updatedProject.slogan)
             assertEquals(newTargetAudience, updatedProject.targetAudience)
+            assertEquals(newGithub, updatedProject.github)
             assertEquals(newLinks, updatedProject.links)
             assertEquals(newTimeline, updatedProject.timeline)
             assertEquals(expectedImagePath, updatedProject.image)
@@ -933,6 +962,21 @@ internal class ProjectControllerTest @Autowired constructor(
                 )
                 fun size() =
                     validationTester.hasSizeBetween(Constants.TargetAudience.minSize, Constants.TargetAudience.maxSize)
+            }
+
+            @NestedTest
+            @DisplayName("github")
+            inner class GithubValidation {
+                @BeforeAll
+                fun setParam() {
+                    validationTester.param = "github"
+                }
+
+                @Test
+                fun `should be null or not blank`() = validationTester.isNullOrNotBlank()
+
+                @Test
+                fun `should be URL`() = validationTester.isUrl()
             }
 
             @NestedTest
@@ -1147,7 +1191,8 @@ internal class ProjectControllerTest @Autowired constructor(
             true,
             listOf("React", "TailwindCSS"),
             "Nice one",
-            "students"
+            "students",
+            "https://github.com/NIAEFEUP/website-niaefeup-frontend"
         )
 
         @BeforeEach

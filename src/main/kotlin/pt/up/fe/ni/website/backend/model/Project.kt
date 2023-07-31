@@ -1,6 +1,5 @@
 package pt.up.fe.ni.website.backend.model
 
-import pt.up.fe.ni.website.backend.model.constants.ProjectConstants as Constants
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
@@ -9,6 +8,9 @@ import jakarta.persistence.OneToMany
 import jakarta.persistence.OrderBy
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Size
+import org.hibernate.validator.constraints.URL
+import pt.up.fe.ni.website.backend.model.constants.ProjectConstants as Constants
+import pt.up.fe.ni.website.backend.utils.validation.NullOrNotBlank
 
 @Entity
 class Project(
@@ -28,6 +30,10 @@ class Project(
 
     @field:Size(min = Constants.TargetAudience.minSize, max = Constants.TargetAudience.maxSize)
     var targetAudience: String,
+
+    @field:NullOrNotBlank
+    @field:URL
+    var github: String? = null,
 
     @JoinColumn
     @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)

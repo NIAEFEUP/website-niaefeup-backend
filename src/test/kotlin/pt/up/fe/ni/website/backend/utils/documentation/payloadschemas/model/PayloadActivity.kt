@@ -44,6 +44,11 @@ class PayloadActivity {
                     JsonFieldType.STRING
                 ),
                 DocumentedJSONField(
+                    "github",
+                    "Handle/link to the project's GitHub repository",
+                    JsonFieldType.STRING
+                ),
+                DocumentedJSONField(
                     "links",
                     "Array of links associated with the activity",
                     JsonFieldType.ARRAY,

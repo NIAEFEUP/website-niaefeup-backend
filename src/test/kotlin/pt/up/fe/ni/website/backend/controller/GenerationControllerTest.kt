@@ -1055,7 +1055,13 @@ class GenerationControllerTest @Autowired constructor(
                     listOf(testAccount),
                     listOf(
                         buildTestPerActivityRole(
-                            Project("NIJobs", "cool project", image = "cool-image.png", targetAudience = "students")
+                            Project(
+                                "NIJobs",
+                                "cool project",
+                                image = "cool-image.png",
+                                targetAudience = "students",
+                                github = "https://github.com/NIAEFEUP/nijobs-be"
+                            )
                         )
                     )
                 ),
