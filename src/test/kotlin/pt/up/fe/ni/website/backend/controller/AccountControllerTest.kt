@@ -2,10 +2,8 @@ package pt.up.fe.ni.website.backend.controller
 
 import com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName
 import com.fasterxml.jackson.databind.ObjectMapper
-import java.util.Calendar
-import java.util.Date
-import java.util.UUID
-import org.junit.jupiter.api.AfterEach
+import java.util.*
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
@@ -169,9 +167,17 @@ class AccountControllerTest @Autowired constructor(
     @NestedTest
     @DisplayName("POST /accounts/new")
     inner class CreateAccount {
-        @AfterEach
-        fun clearAccounts() {
-            repository.deleteAll()
+        private val uuid: UUID = UUID.randomUUID()
+        private val mockedSettings = Mockito.mockStatic(UUID::class.java)
+
+        @BeforeAll
+        fun setupMocks() {
+            Mockito.`when`(UUID.randomUUID()).thenReturn(uuid)
+        }
+
+        @AfterAll
+        fun cleanup() {
+            mockedSettings.close()
         }
 
         @Test
@@ -238,10 +244,6 @@ class AccountControllerTest @Autowired constructor(
 
         @Test
         fun `should create the account with valid image`() {
-            val uuid: UUID = UUID.randomUUID()
-            val mockedSettings = Mockito.mockStatic(UUID::class.java)
-            Mockito.`when`(UUID.randomUUID()).thenReturn(uuid)
-
             val expectedPhotoPath = "${uploadConfigProperties.staticServe}/profile/${testAccount.email}-$uuid.jpeg"
 
             mockMvc.multipartBuilder("/accounts/new")
@@ -268,16 +270,10 @@ class AccountControllerTest @Autowired constructor(
 //                    "This endpoint operation creates a new account.",
 //                    documentRequestPayload = true
 //                )
-
-            mockedSettings.close()
         }
 
         @Test
         fun `should fail to create account with invalid filename extension`() {
-            val uuid: UUID = UUID.randomUUID()
-            val mockedSettings = Mockito.mockStatic(UUID::class.java)
-            Mockito.`when`(UUID.randomUUID()).thenReturn(uuid)
-
             mockMvc.multipartBuilder("/accounts/new")
                 .addPart("account", testAccount.toJson())
                 .addFile(filename = "photo.pdf")
@@ -290,16 +286,10 @@ class AccountControllerTest @Autowired constructor(
                     jsonPath("$.errors[0].param").value("createAccount.photo")
                 )
                 .andDocumentErrorResponse(documentation, hasRequestPayload = true)
-
-            mockedSettings.close()
         }
 
         @Test
         fun `should fail to create account with invalid filename media type`() {
-            val uuid: UUID = UUID.randomUUID()
-            val mockedSettings = Mockito.mockStatic(UUID::class.java)
-            Mockito.`when`(UUID.randomUUID()).thenReturn(uuid)
-
             mockMvc.multipartBuilder("/accounts/new")
                 .addPart("account", testAccount.toJson())
                 .addFile(contentType = MediaType.APPLICATION_PDF_VALUE)
@@ -311,8 +301,6 @@ class AccountControllerTest @Autowired constructor(
                     jsonPath("$.errors[0].message").value("invalid image type (png, jpg or jpeg)"),
                     jsonPath("$.errors[0].param").value("createAccount.photo")
                 )
-
-            mockedSettings.close()
         }
 
         @Test
@@ -714,10 +702,23 @@ class AccountControllerTest @Autowired constructor(
             )
         )
 
+        private val uuid: UUID = UUID.randomUUID()
+        private val mockedSettings = Mockito.mockStatic(UUID::class.java)
+
         @BeforeEach
         fun addAccounts() {
             repository.save(testAccount)
             repository.save(newAccount)
+        }
+
+        @BeforeAll
+        fun setupMocks() {
+            Mockito.`when`(UUID.randomUUID()).thenReturn(uuid)
+        }
+
+        @AfterAll
+        fun cleanup() {
+            mockedSettings.close()
         }
 
         private val parameters = listOf(parameterWithName("id").description("ID of the account to update"))
@@ -766,7 +767,7 @@ class AccountControllerTest @Autowired constructor(
 //                .andDocument(
 //                    documentationNoPassword,
 //                    "Update accounts",
-//                    "Update a previously created account, with the exception of the password, using its ID (no image).",
+//                    "Update a previously created account, except the password, using its ID (no image).",
 //                    urlParameters = parameters,
 //                    documentRequestPayload = true
 //                )
@@ -824,7 +825,7 @@ class AccountControllerTest @Autowired constructor(
 //                .andDocument(
 //                    documentationNoPassword,
 //                    "Update accounts",
-//                    "Update a previously created account, with the exception of the password, using its ID.",
+//                    "Update a previously created account, except the password, using its ID.",
 //                    urlParameters = parameters,
 //                    documentRequestPayload = true
 //                )
@@ -841,10 +842,6 @@ class AccountControllerTest @Autowired constructor(
 
         @Test
         fun `should update the account with valid image`() {
-            val uuid: UUID = UUID.randomUUID()
-            val mockedSettings = Mockito.mockStatic(UUID::class.java)
-            Mockito.`when`(UUID.randomUUID()).thenReturn(uuid)
-
             val expectedPhotoPath = "${uploadConfigProperties.staticServe}/profile/$newEmail-$uuid.jpeg"
 
             mockMvc.multipartBuilder("/accounts/${testAccount.id}")
@@ -883,20 +880,14 @@ class AccountControllerTest @Autowired constructor(
             Assertions.assertEquals(newLinkedin, updatedAccount.linkedin)
             Assertions.assertEquals(newWebsites[0].url, updatedAccount.websites[0].url)
             Assertions.assertEquals(newWebsites[0].iconPath, updatedAccount.websites[0].iconPath)
-
-            mockedSettings.close()
         }
 
         @Test
         fun `should fail to update account with invalid filename extension`() {
-            val uuid: UUID = UUID.randomUUID()
-            val mockedSettings = Mockito.mockStatic(UUID::class.java)
-            Mockito.`when`(UUID.randomUUID()).thenReturn(uuid)
-
             mockMvc.multipartBuilder("/accounts/${testAccount.id}")
                 .asPutMethod()
                 .addPart("account", data)
-                .addFile(filename = "photo.pdf", contentType = MediaType.APPLICATION_PDF_VALUE)
+                .addFile(filename = "photo.pdf")
                 .perform()
                 .andExpectAll(
                     status().isBadRequest,
@@ -906,16 +897,10 @@ class AccountControllerTest @Autowired constructor(
                     jsonPath("$.errors[0].param").value("updateAccountById.photo")
                 )
                 .andDocumentErrorResponse(documentation, hasRequestPayload = true)
-
-            mockedSettings.close()
         }
 
         @Test
         fun `should fail to update account with invalid filename media type`() {
-            val uuid: UUID = UUID.randomUUID()
-            val mockedSettings = Mockito.mockStatic(UUID::class.java)
-            Mockito.`when`(UUID.randomUUID()).thenReturn(uuid)
-
             mockMvc.multipartBuilder("/accounts/${testAccount.id}")
                 .asPutMethod()
                 .addPart("account", data)
@@ -929,8 +914,6 @@ class AccountControllerTest @Autowired constructor(
                     jsonPath("$.errors[0].param").value("updateAccountById.photo")
                 )
                 .andDocumentErrorResponse(documentation, hasRequestPayload = true)
-
-            mockedSettings.close()
         }
 
         @Test
