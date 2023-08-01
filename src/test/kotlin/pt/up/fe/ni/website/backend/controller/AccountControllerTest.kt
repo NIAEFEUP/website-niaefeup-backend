@@ -2,7 +2,9 @@ package pt.up.fe.ni.website.backend.controller
 
 import com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName
 import com.fasterxml.jackson.databind.ObjectMapper
-import java.util.*
+import java.util.Calendar
+import java.util.Date
+import java.util.UUID
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeAll
