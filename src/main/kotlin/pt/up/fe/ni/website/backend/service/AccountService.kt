@@ -3,10 +3,8 @@ package pt.up.fe.ni.website.backend.service
 import java.util.UUID
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.password.PasswordEncoder
-import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
-import pt.up.fe.ni.website.backend.config.Logging
 import pt.up.fe.ni.website.backend.dto.auth.ChangePasswordDto
 import pt.up.fe.ni.website.backend.dto.entity.account.CreateAccountDto
 import pt.up.fe.ni.website.backend.dto.entity.account.UpdateAccountDto
@@ -19,9 +17,8 @@ import pt.up.fe.ni.website.backend.utils.extensions.filenameExtension
 class AccountService(
     private val repository: AccountRepository,
     private val encoder: PasswordEncoder,
-    private val jwtDecoder: JwtDecoder,
     private val fileUploader: FileUploader
-) : Logging {
+) {
     fun getAllAccounts(): List<Account> = repository.findAll().toList()
 
     fun createAccount(dto: CreateAccountDto): Account {

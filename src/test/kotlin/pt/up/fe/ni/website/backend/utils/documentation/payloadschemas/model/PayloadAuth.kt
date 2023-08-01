@@ -71,7 +71,7 @@ class PayloadRecoverPassword : ModelDocumentation(
             "URL to recover the password",
             JsonFieldType.STRING,
             isInRequest = false,
-            optional = true // change this when email service is implemented
+            optional = true // TODO change this when email service is implemented
         )
     )
 )

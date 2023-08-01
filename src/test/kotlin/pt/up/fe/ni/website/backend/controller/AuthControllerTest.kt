@@ -29,6 +29,7 @@ import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.CustomWebsite
 import pt.up.fe.ni.website.backend.model.constants.AccountConstants
 import pt.up.fe.ni.website.backend.repository.AccountRepository
+import pt.up.fe.ni.website.backend.service.ErrorMessages
 import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.ValidationTester
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
@@ -204,18 +205,17 @@ class AuthControllerTest @Autowired constructor(
         }
 
         @Test
-        fun `should fail if email is not found`() {
+        fun `should return empty if email is not found`() {
             mockMvc.perform(
                 post("/auth/password/recovery")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(mapOf("email" to "dont@exist.com")))
             )
                 .andExpectAll(
-                    status().isNotFound(),
-                    jsonPath("$.errors.length()").value(1),
-                    jsonPath("$.errors[0].message").value("account not found with email dont@exist.com")
+                    status().isOk(),
+                    jsonPath("$.recovery_url").doesNotExist()
                 )
-                .andDocumentErrorResponse(
+                .andDocument(
                     documentation,
                     "Recover password",
                     "This endpoint operation allows the recovery of the password of an account, " +
@@ -402,7 +402,7 @@ class AuthControllerTest @Autowired constructor(
                     ).andExpectAll(
                         status().isUnauthorized(),
                         jsonPath("$.errors.length()").value(1),
-                        jsonPath("$.errors[0].message").value("invalid password recovery token")
+                        jsonPath("$.errors[0].message").value(ErrorMessages.expiredRecoveryToken)
                     ).andDocumentCustomRequestSchemaErrorResponse(
                         documentation,
                         passwordRecoveryPayload,

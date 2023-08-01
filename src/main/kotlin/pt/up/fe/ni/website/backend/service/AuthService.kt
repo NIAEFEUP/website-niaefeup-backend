@@ -59,7 +59,11 @@ class AuthService(
     }
 
     fun generateRecoveryToken(email: String): String? {
-        val account = accountService.getAccountByEmail(email)
+        val account = try {
+            accountService.getAccountByEmail(email)
+        } catch (e: Exception) {
+            return null
+        }
         return generateToken(
             account,
             Duration.ofMinutes(authConfigProperties.jwtRecoveryExpirationMinutes),
@@ -84,7 +88,7 @@ class AuthService(
             ?: throw InvalidBearerTokenException(ErrorMessages.invalidRecoveryToken)
 
         if (account.password != tokenPasswordHash) {
-            throw InvalidBearerTokenException(ErrorMessages.invalidRecoveryToken)
+            throw InvalidBearerTokenException(ErrorMessages.expiredRecoveryToken)
         }
 
         account.password = passwordEncoder.encode(dto.password)

@@ -39,6 +39,7 @@ class AuthController(val authService: AuthService) {
     @PostMapping("/password/recovery")
     fun generateRecoveryToken(@RequestBody recoveryRequestDto: PasswordRecoveryRequestDto): Map<String, String> {
         val recoveryToken = authService.generateRecoveryToken(recoveryRequestDto.email)
+            ?: return emptyMap()
         // TODO: Change to email service
         return mapOf("recovery_url" to "$recoverPasswordPage/$recoveryToken/confirm")
     }
