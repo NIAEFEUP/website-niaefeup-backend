@@ -1,10 +1,9 @@
 package pt.up.fe.ni.website.backend.controller
 
+import pt.up.fe.ni.website.backend.model.constants.ProjectConstants as Constants
 import com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName
 import com.fasterxml.jackson.databind.ObjectMapper
-import java.util.Calendar
-import java.util.Date
-import java.util.UUID
+import java.util.*
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
@@ -27,7 +26,6 @@ import pt.up.fe.ni.website.backend.model.CustomWebsite
 import pt.up.fe.ni.website.backend.model.Project
 import pt.up.fe.ni.website.backend.model.TimelineEvent
 import pt.up.fe.ni.website.backend.model.constants.ActivityConstants
-import pt.up.fe.ni.website.backend.model.constants.ProjectConstants as Constants
 import pt.up.fe.ni.website.backend.repository.AccountRepository
 import pt.up.fe.ni.website.backend.repository.ProjectRepository
 import pt.up.fe.ni.website.backend.utils.TestUtils
@@ -174,6 +172,7 @@ internal class ProjectControllerTest @Autowired constructor(
                     jsonPath("$.technologies.length()").value(testProject.technologies.size),
                     jsonPath("$.technologies[0]").value(testProject.technologies[0]),
                     jsonPath("$.slug").value(testProject.slug),
+                    jsonPath("$.slogan").value(testProject.slogan),
                     jsonPath("$.targetAudience").value(testProject.targetAudience),
                     jsonPath("$.github").value(testProject.github),
                     jsonPath("$.image").value(testProject.image),

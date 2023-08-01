@@ -34,18 +34,19 @@ class PayloadProject : ModelDocumentation(
         DocumentedJSONField(
             "targetAudience",
             "Information about the target audience",
-            JsonFieldType.STRING,
-            optional = true
+            JsonFieldType.STRING
         ),
         DocumentedJSONField(
             "github",
             "Handle/link to the project's GitHub repository",
-            JsonFieldType.STRING
+            JsonFieldType.STRING,
+            optional = true
         ),
         DocumentedJSONField(
             "slogan",
             "Slogan of the project",
-            JsonFieldType.STRING
+            JsonFieldType.STRING,
+            optional = true
         ),
         DocumentedJSONField("id", "Project ID", JsonFieldType.NUMBER, isInRequest = false),
         DocumentedJSONField(
