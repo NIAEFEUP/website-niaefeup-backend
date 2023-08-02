@@ -284,7 +284,7 @@ class AccountControllerTest @Autowired constructor(
                     status().isBadRequest,
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.errors.length()").value(1),
-                    jsonPath("$.errors[0].message").value("invalid image type (png, jpg or jpeg)"),
+                    jsonPath("$.errors[0].message").value("invalid image type (png, jpg,  jpeg or webp)"),
                     jsonPath("$.errors[0].param").value("createAccount.photo")
                 )
                 .andDocumentErrorResponse(documentation, hasRequestPayload = true)
@@ -300,7 +300,7 @@ class AccountControllerTest @Autowired constructor(
                     status().isBadRequest,
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.errors.length()").value(1),
-                    jsonPath("$.errors[0].message").value("invalid image type (png, jpg or jpeg)"),
+                    jsonPath("$.errors[0].message").value("invalid image type (png, jpg,  jpeg or webp)"),
                     jsonPath("$.errors[0].param").value("createAccount.photo")
                 )
         }
@@ -792,7 +792,7 @@ class AccountControllerTest @Autowired constructor(
             val newLinkedin = "https://linkedin2.com"
             val newGithub = "https://github2.com"
             val newWebsites = listOf(
-                CustomWebsite("https://test-website2.com", "https://test-website.com/logo.png")
+                CustomWebsite("https://test-website2.com", "https://test-website.com/logo.png", "test")
             )
 
             val data = objectMapper.writeValueAsString(
@@ -895,7 +895,7 @@ class AccountControllerTest @Autowired constructor(
                     status().isBadRequest,
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.errors.length()").value(1),
-                    jsonPath("$.errors[0].message").value("invalid image type (png, jpg or jpeg)"),
+                    jsonPath("$.errors[0].message").value("invalid image type (png, jpg,  jpeg or webp)"),
                     jsonPath("$.errors[0].param").value("updateAccountById.photo")
                 )
                 .andDocumentErrorResponse(documentation, hasRequestPayload = true)
@@ -912,7 +912,7 @@ class AccountControllerTest @Autowired constructor(
                     status().isBadRequest,
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.errors.length()").value(1),
-                    jsonPath("$.errors[0].message").value("invalid image type (png, jpg or jpeg)"),
+                    jsonPath("$.errors[0].message").value("invalid image type (png, jpg,  jpeg or webp)"),
                     jsonPath("$.errors[0].param").value("updateAccountById.photo")
                 )
                 .andDocumentErrorResponse(documentation, hasRequestPayload = true)

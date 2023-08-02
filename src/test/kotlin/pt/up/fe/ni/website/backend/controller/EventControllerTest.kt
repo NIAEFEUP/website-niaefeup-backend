@@ -421,7 +421,7 @@ internal class EventControllerTest @Autowired constructor(
                     status().isBadRequest,
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.errors.length()").value(1),
-                    jsonPath("$.errors[0].message").value("invalid image type (png, jpg or jpeg)"),
+                    jsonPath("$.errors[0].message").value("invalid image type (png, jpg,  jpeg or webp)"),
                     jsonPath("$.errors[0].param").value("createEvent.image")
                 )
                 .andDocumentErrorResponse(documentation, hasRequestPayload = true)
@@ -437,7 +437,7 @@ internal class EventControllerTest @Autowired constructor(
                     status().isBadRequest,
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.errors.length()").value(1),
-                    jsonPath("$.errors[0].message").value("invalid image type (png, jpg or jpeg)"),
+                    jsonPath("$.errors[0].message").value("invalid image type (png, jpg,  jpeg or webp)"),
                     jsonPath("$.errors[0].param").value("createEvent.image")
                 )
                 .andDocumentErrorResponse(documentation, hasRequestPayload = true)
@@ -1000,7 +1000,7 @@ internal class EventControllerTest @Autowired constructor(
                     status().isBadRequest,
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.errors.length()").value(1),
-                    jsonPath("$.errors[0].message").value("invalid image type (png, jpg or jpeg)"),
+                    jsonPath("$.errors[0].message").value("invalid image type (png, jpg,  jpeg or webp)"),
                     jsonPath("$.errors[0].param").value("updateEventById.image")
                 )
                 .andDocumentErrorResponse(documentation, hasRequestPayload = true)
@@ -1017,7 +1017,7 @@ internal class EventControllerTest @Autowired constructor(
                     status().isBadRequest,
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.errors.length()").value(1),
-                    jsonPath("$.errors[0].message").value("invalid image type (png, jpg or jpeg)"),
+                    jsonPath("$.errors[0].message").value("invalid image type (png, jpg,  jpeg or webp)"),
                     jsonPath("$.errors[0].param").value("updateEventById.image")
                 )
                 .andDocumentErrorResponse(documentation, hasRequestPayload = true)
