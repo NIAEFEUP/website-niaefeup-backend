@@ -263,6 +263,8 @@ internal class ProjectControllerTest @Autowired constructor(
                     jsonPath("$.title").value(testProject.title),
                     jsonPath("$.description").value(testProject.description),
                     jsonPath("$.hallOfFame.length()").value(1),
+                    jsonPath("$.hallOfFame[0].email").value(testAccount2.email),
+                    jsonPath("$.hallOfFame[0].name").value(testAccount2.name),
                     jsonPath("$.teamMembers.length()").value(1),
                     jsonPath("$.teamMembers[0].email").value(testAccount.email),
                     jsonPath("$.teamMembers[0].name").value(testAccount.name),
