@@ -735,22 +735,20 @@ class AccountControllerTest @Autowired constructor(
             CustomWebsite("https://test-website2.com", "https://test-website.com/logo.png", "test")
         )
 
-        private val data: String = objectMapper.writeValueAsString(
-            mapOf(
-                "name" to newName,
-                "email" to newEmail,
-                "bio" to newBio,
-                "birthDate" to newBirthDate,
-                "linkedin" to newLinkedin,
-                "github" to newGithub,
-                "websites" to newWebsites
-            )
+        private val data = mutableMapOf(
+            "name" to newName,
+            "email" to newEmail,
+            "bio" to newBio,
+            "birthDate" to newBirthDate,
+            "linkedin" to newLinkedin,
+            "github" to newGithub,
+            "websites" to newWebsites
         )
 
         @Test
         fun `should update the account`() {
             mockMvc.multipartBuilder("/accounts/${testAccount.id}")
-                .addPart("account", data)
+                .addPart("account", objectMapper.writeValueAsString(data))
                 .asPutMethod()
                 .perform()
                 .andExpectAll(
@@ -786,29 +784,10 @@ class AccountControllerTest @Autowired constructor(
 
         @Test
         fun `should update the account when email is unchanged`() {
-            val newName = "Test Account 2"
-            val newBio = "This is a test account with no altered email"
-            val newBirthDate = TestUtils.createDate(2003, Calendar.JULY, 28)
-            val newLinkedin = "https://linkedin2.com"
-            val newGithub = "https://github2.com"
-            val newWebsites = listOf(
-                CustomWebsite("https://test-website2.com", "https://test-website.com/logo.png", "test")
-            )
-
-            val data = objectMapper.writeValueAsString(
-                mapOf(
-                    "name" to newName,
-                    "email" to testAccount.email,
-                    "bio" to newBio,
-                    "birthDate" to newBirthDate,
-                    "linkedin" to newLinkedin,
-                    "github" to newGithub,
-                    "websites" to newWebsites
-                )
-            )
+            data["email"] = testAccount.email
 
             mockMvc.multipartBuilder("/accounts/${testAccount.id}")
-                .addPart("dto", data)
+                .addPart("account", objectMapper.writeValueAsString(data))
                 .asPutMethod()
                 .perform()
                 .andExpectAll(
@@ -824,13 +803,6 @@ class AccountControllerTest @Autowired constructor(
                     jsonPath("$.websites[0].url").value(newWebsites[0].url),
                     jsonPath("$.websites[0].iconPath").value(newWebsites[0].iconPath)
                 )
-//                .andDocument(
-//                    documentationNoPassword,
-//                    "Update accounts",
-//                    "Update a previously created account, except the password, using its ID.",
-//                    urlParameters = parameters,
-//                    documentRequestPayload = true
-//                )
 
             val updatedAccount = repository.findById(testAccount.id!!).get()
             Assertions.assertEquals(newName, updatedAccount.name)
@@ -848,7 +820,7 @@ class AccountControllerTest @Autowired constructor(
 
             mockMvc.multipartBuilder("/accounts/${testAccount.id}")
                 .asPutMethod()
-                .addPart("account", data)
+                .addPart("account", objectMapper.writeValueAsString(data))
                 .addFile()
                 .perform()
                 .andExpectAll(
@@ -888,7 +860,7 @@ class AccountControllerTest @Autowired constructor(
         fun `should fail to update account with invalid filename extension`() {
             mockMvc.multipartBuilder("/accounts/${testAccount.id}")
                 .asPutMethod()
-                .addPart("account", data)
+                .addPart("account", objectMapper.writeValueAsString(data))
                 .addFile(filename = "photo.pdf")
                 .perform()
                 .andExpectAll(
@@ -905,7 +877,7 @@ class AccountControllerTest @Autowired constructor(
         fun `should fail to update account with invalid filename media type`() {
             mockMvc.multipartBuilder("/accounts/${testAccount.id}")
                 .asPutMethod()
-                .addPart("account", data)
+                .addPart("account", objectMapper.writeValueAsString(data))
                 .addFile(contentType = MediaType.APPLICATION_PDF_VALUE)
                 .perform()
                 .andExpectAll(
@@ -920,32 +892,8 @@ class AccountControllerTest @Autowired constructor(
 
         @Test
         fun `should fail if the account does not exist`() {
-            val newName = "Test Account 2"
-            val newEmail = "test_account2@test.com"
-            val newBio = "This is a test account altered"
-            val newBirthDate = TestUtils.createDate(2003, Calendar.JULY, 28)
-            val newPhotoPath = "https://test-photo2.com"
-            val newLinkedin = "https://linkedin2.com"
-            val newGithub = "https://github2.com"
-            val newWebsites = listOf(
-                CustomWebsite("https://test-website2.com", "https://test-website.com/logo.png", "test")
-            )
-
-            val data = objectMapper.writeValueAsString(
-                mapOf(
-                    "name" to newName,
-                    "email" to newEmail,
-                    "bio" to newBio,
-                    "birthDate" to newBirthDate,
-                    "photoPath" to newPhotoPath,
-                    "linkedin" to newLinkedin,
-                    "github" to newGithub,
-                    "websites" to newWebsites
-                )
-            )
-
             mockMvc.multipartBuilder("/accounts/${1234}")
-                .addPart("account", data)
+                .addPart("account", objectMapper.writeValueAsString(data))
                 .asPutMethod()
                 .perform()
                 .andExpectAll(
