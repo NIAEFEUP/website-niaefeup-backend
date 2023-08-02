@@ -5,6 +5,7 @@ import java.io.File
 class StaticFileUploader(private val storePath: String, private val servePath: String) : FileUploader() {
     override fun uploadImage(folder: String, fileName: String, image: ByteArray): String {
         val file = File("$storePath/$folder/$fileName")
+        file.parentFile.mkdirs()
         file.createNewFile()
         file.writeBytes(image)
 
