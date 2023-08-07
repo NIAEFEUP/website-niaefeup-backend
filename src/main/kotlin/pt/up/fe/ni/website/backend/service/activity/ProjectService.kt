@@ -23,6 +23,11 @@ class ProjectService(
 
         val project = dto.create()
 
+        dto.hallOfFameIds?.forEach {
+            val account = accountService.getAccountById(it)
+            project.hallOfFame.add(account)
+        }
+
         dto.teamMembersIds?.forEach {
             val account = accountService.getAccountById(it)
             project.teamMembers.add(account)
@@ -72,6 +77,26 @@ class ProjectService(
     fun unarchiveProjectById(id: Long): Project {
         val project = getProjectById(id)
         project.isArchived = false
+        return repository.save(project)
+    }
+
+    fun addHallOfFameMemberById(idProject: Long, idAccount: Long): Project {
+        val project = getProjectById(idProject)
+        val account = accountService.getAccountById(idAccount)
+        project.hallOfFame.add(account)
+        return repository.save(project)
+    }
+
+    fun removeHallOfFameMemberById(idProject: Long, idAccount: Long): Project {
+        val project = getProjectById(idProject)
+        if (!accountService.doesAccountExist(idAccount)) {
+            throw NoSuchElementException(
+                ErrorMessages.accountNotFound(
+                    idAccount
+                )
+            )
+        }
+        project.hallOfFame.removeIf { it.id == idAccount }
         return repository.save(project)
     }
 }

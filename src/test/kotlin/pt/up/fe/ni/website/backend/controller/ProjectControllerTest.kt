@@ -58,9 +58,24 @@ internal class ProjectControllerTest @Autowired constructor(
         )
     )
 
+    final val testAccount2 = Account(
+        "Test Old Account",
+        "test_account_old@test.com",
+        "test_password",
+        "This is an old test account",
+        TestUtils.createDate(1994, Calendar.JUNE, 19),
+        "https://test-photo.com",
+        "https://linkedin.com",
+        "https://github.com",
+        listOf(
+            CustomWebsite("https://test-website.com", "https://test-website.com/logo.png")
+        )
+    )
+
     val testProject = Project(
         "Awesome project",
         "this is a test project",
+        mutableListOf(testAccount2),
         mutableListOf(testAccount),
         mutableListOf(),
         "awesome-project",
@@ -80,6 +95,7 @@ internal class ProjectControllerTest @Autowired constructor(
                 "Job platform for students",
                 mutableListOf(),
                 mutableListOf(),
+                mutableListOf(),
                 null,
                 false,
                 listOf("ExpressJS", "React")
@@ -89,6 +105,7 @@ internal class ProjectControllerTest @Autowired constructor(
         @BeforeEach
         fun addToRepositories() {
             accountRepository.save(testAccount)
+            accountRepository.save(testAccount2)
             for (project in testProjects) repository.save(project)
         }
 
@@ -116,6 +133,7 @@ internal class ProjectControllerTest @Autowired constructor(
         @BeforeEach
         fun addToRepositories() {
             accountRepository.save(testAccount)
+            accountRepository.save(testAccount2)
             repository.save(testProject)
         }
 
@@ -164,6 +182,7 @@ internal class ProjectControllerTest @Autowired constructor(
         @BeforeEach
         fun addToRepositories() {
             accountRepository.save(testAccount)
+            accountRepository.save(testAccount2)
             repository.save(testProject)
         }
 
@@ -216,6 +235,7 @@ internal class ProjectControllerTest @Autowired constructor(
         @BeforeEach
         fun addToRepositories() {
             accountRepository.save(testAccount)
+            accountRepository.save(testAccount2)
         }
 
         @Test
@@ -228,6 +248,7 @@ internal class ProjectControllerTest @Autowired constructor(
                             mapOf(
                                 "title" to testProject.title,
                                 "description" to testProject.description,
+                                "hallOfFameIds" to mutableListOf(testAccount2.id!!),
                                 "teamMembersIds" to mutableListOf(testAccount.id!!),
                                 "isArchived" to testProject.isArchived,
                                 "technologies" to testProject.technologies,
@@ -241,6 +262,9 @@ internal class ProjectControllerTest @Autowired constructor(
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.title").value(testProject.title),
                     jsonPath("$.description").value(testProject.description),
+                    jsonPath("$.hallOfFame.length()").value(1),
+                    jsonPath("$.hallOfFame[0].email").value(testAccount2.email),
+                    jsonPath("$.hallOfFame[0].name").value(testAccount2.name),
                     jsonPath("$.teamMembers.length()").value(1),
                     jsonPath("$.teamMembers[0].email").value(testAccount.email),
                     jsonPath("$.teamMembers[0].name").value(testAccount.name),
@@ -261,6 +285,7 @@ internal class ProjectControllerTest @Autowired constructor(
             val duplicatedSlugProject = Project(
                 "Duplicated Slug",
                 "this is a test project with a duplicated slug",
+                mutableListOf(),
                 mutableListOf(testAccount),
                 mutableListOf(),
                 testProject.slug,
@@ -362,6 +387,7 @@ internal class ProjectControllerTest @Autowired constructor(
         @BeforeEach
         fun addToRepositories() {
             accountRepository.save(testAccount)
+            accountRepository.save(testAccount2)
             repository.save(testProject)
         }
 
@@ -408,6 +434,7 @@ internal class ProjectControllerTest @Autowired constructor(
         @BeforeEach
         fun addToRepositories() {
             accountRepository.save(testAccount)
+            accountRepository.save(testAccount2)
             repository.save(testProject)
         }
 
@@ -538,6 +565,7 @@ internal class ProjectControllerTest @Autowired constructor(
                     Project(
                         "Duplicated Slug",
                         "this is a test project with a duplicated slug",
+                        mutableListOf(),
                         mutableListOf(testAccount),
                         mutableListOf(),
                         newSlug,
@@ -653,6 +681,7 @@ internal class ProjectControllerTest @Autowired constructor(
         @BeforeEach
         fun addToRepositories() {
             accountRepository.save(testAccount)
+            accountRepository.save(testAccount2)
             repository.save(testProject)
         }
 
@@ -694,6 +723,7 @@ internal class ProjectControllerTest @Autowired constructor(
         private val project = Project(
             "proj1",
             "very cool project",
+            mutableListOf(),
             mutableListOf(),
             mutableListOf(),
             null,
@@ -757,6 +787,7 @@ internal class ProjectControllerTest @Autowired constructor(
         @BeforeEach
         fun addToRepositories() {
             accountRepository.save(testAccount)
+            accountRepository.save(testAccount2)
             accountRepository.save(newAccount)
             repository.save(testProject)
         }
@@ -826,6 +857,7 @@ internal class ProjectControllerTest @Autowired constructor(
         @BeforeEach
         fun addToRepositories() {
             accountRepository.save(testAccount)
+            accountRepository.save(testAccount2)
             repository.save(testProject)
         }
 
@@ -855,6 +887,140 @@ internal class ProjectControllerTest @Autowired constructor(
         @Test
         fun `should fail if the team member does not exist`() {
             mockMvc.perform(put("/projects/{projectId}/removeTeamMember/{accountId}", testProject.id, 1234))
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("account not found with id 1234")
+                )
+                .andDocumentErrorResponse(
+                    documentation,
+                    urlParameters = parameters
+                )
+        }
+    }
+
+    @NestedTest
+    @DisplayName("PUT /projects/{idProject}/addHallOfFameMember/{idAccount}")
+    inner class AddHallOfFameMember {
+        private val newAccount = Account(
+            "Another test Account",
+            "test3_account@test.com",
+            "test_password",
+            "This is another test account too",
+            TestUtils.createDate(2002, Calendar.JULY, 1),
+            "https://test-photo.com",
+            "https://linkedin.com",
+            "https://github.com",
+            listOf(
+                CustomWebsite("https://test-website.com", "https://test-website.com/logo.png")
+            )
+        )
+
+        @BeforeEach
+        fun addToRepositories() {
+            accountRepository.save(testAccount)
+            accountRepository.save(testAccount2)
+            accountRepository.save(newAccount)
+            repository.save(testProject)
+        }
+
+        private val parameters = listOf(
+            parameterWithName("idProject").description(
+                "ID of the project whose hall of fame the account will be added to"
+            ),
+            parameterWithName("idAccount").description("ID of the account to add")
+        )
+
+        @Test
+        fun `should add account to project's hall of fame`() {
+            mockMvc.perform(
+                put("/projects/{idProject}/addHallOfFameMember/{idAccount}", testProject.id, newAccount.id)
+            )
+                .andExpectAll(
+                    status().isOk, content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.hallOfFame.length()").value(2),
+                    jsonPath("$.hallOfFame[0].name").value(testAccount2.name),
+                    jsonPath("$.hallOfFame[0].email").value(testAccount2.email),
+                    jsonPath("$.hallOfFame[0].bio").value(testAccount2.bio),
+                    jsonPath("$.hallOfFame[0].birthDate").value(testAccount2.birthDate.toJson()),
+                    jsonPath("$.hallOfFame[0].linkedin").value(testAccount2.linkedin),
+                    jsonPath("$.hallOfFame[0].github").value(testAccount2.github),
+                    jsonPath("$.hallOfFame[0].websites.length()").value(1),
+                    jsonPath("$.hallOfFame[0].websites[0].url").value(testAccount2.websites[0].url),
+                    jsonPath("$.hallOfFame[0].websites[0].iconPath").value(testAccount2.websites[0].iconPath),
+                    jsonPath("$.hallOfFame[1].name").value(newAccount.name),
+                    jsonPath("$.hallOfFame[1].email").value(newAccount.email),
+                    jsonPath("$.hallOfFame[1].bio").value(newAccount.bio),
+                    jsonPath("$.hallOfFame[1].birthDate").value(newAccount.birthDate.toJson()),
+                    jsonPath("$.hallOfFame[1].linkedin").value(newAccount.linkedin),
+                    jsonPath("$.hallOfFame[1].github").value(newAccount.github),
+                    jsonPath("$.hallOfFame[1].websites.length()").value(1),
+                    jsonPath("$.hallOfFame[1].websites[0].url").value(newAccount.websites[0].url),
+                    jsonPath("$.hallOfFame[1].websites[0].iconPath").value(newAccount.websites[0].iconPath)
+                )
+                .andDocument(
+                    documentation,
+                    "Add account to the Project's Hall Of Fame",
+                    "This operation adds an account to a given project's hall of fame.",
+                    urlParameters = parameters
+                )
+        }
+
+        @Test
+        fun `should fail if the account does not exist`() {
+            mockMvc.perform(put("/projects/{idProject}/addHallOfFameMember/{idAccount}", testProject.id, 1234))
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("account not found with id 1234")
+                )
+                .andDocumentErrorResponse(
+                    documentation,
+                    urlParameters = parameters
+                )
+        }
+    }
+
+    @NestedTest
+    @DisplayName("PUT /projects/{idProject}/removeHallOfFameMember/{idAccount}")
+    inner class RemoveHallOfFameMember {
+        @BeforeEach
+        fun addToRepositories() {
+            accountRepository.save(testAccount)
+            accountRepository.save(testAccount2)
+            repository.save(testProject)
+        }
+
+        private val parameters = listOf(
+            parameterWithName("idProject").description(
+                "ID of the project whose hall of fame the account will be removed from"
+            ),
+            parameterWithName("idAccount").description("ID of the account to remove")
+        )
+
+        @Test
+        fun `should remove a account from project's hall of fame `() {
+            mockMvc.perform(
+                put("/projects/{idProject}/removeHallOfFameMember/{idAccount}", testProject.id, testAccount2.id)
+            )
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.hallOfFame.length()").value(0)
+                )
+                .andDocument(
+                    documentation,
+                    "Remove account from Project's Hall of Fame",
+                    "This operation removes an account from a given project's hall of fame.",
+                    urlParameters = parameters
+                )
+        }
+
+        @Test
+        fun `should fail if the account does not exist`() {
+            mockMvc.perform(put("/projects/{idProject}/removeHallOfFameMember/{idAccount}", testProject.id, 1234))
                 .andExpectAll(
                     status().isNotFound,
                     content().contentType(MediaType.APPLICATION_JSON),

@@ -13,6 +13,11 @@ class PayloadActivity {
                 DocumentedJSONField("id", "Id of the activity", JsonFieldType.NUMBER),
                 DocumentedJSONField("title", "Title of the activity", JsonFieldType.STRING),
                 DocumentedJSONField("description", "Description of the activity", JsonFieldType.STRING),
+                DocumentedJSONField(
+                    "hallOfFame",
+                    "Array of members that were once associated with the project",
+                    JsonFieldType.ARRAY
+                ),
                 DocumentedJSONField("teamMembers", "Array of team members", JsonFieldType.ARRAY),
                 DocumentedJSONField("isArchived", "If the activity is archived", JsonFieldType.BOOLEAN),
                 DocumentedJSONField(
