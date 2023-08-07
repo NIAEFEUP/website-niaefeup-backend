@@ -81,7 +81,7 @@ internal class ProjectControllerTest @Autowired constructor(
     val testProject = Project(
         "Awesome project",
         "this is a test project",
-        mutableListOf(testAccount2),
+        mutableListOf(testAccount),
         mutableListOf(),
         "awesome-project",
         "cool-image.png",
@@ -93,7 +93,7 @@ internal class ProjectControllerTest @Autowired constructor(
         listOf(
             CustomWebsite("https://test-website.com", "https://test-website.com/logo.png", "Test")
         ),
-        mutableListOf(testAccount),
+        mutableListOf(testAccount2),
         listOf(
             TimelineEvent(TestUtils.createDate(2020, 7, 28), "This is a new event"),
             TimelineEvent(TestUtils.createDate(2001, 2, 12), "This is an old event"),
@@ -1466,7 +1466,7 @@ internal class ProjectControllerTest @Autowired constructor(
         )
 
         @Test
-        fun `should remove a account from project's hall of fame `() {
+        fun `should remove an account from project's hall of fame`() {
             mockMvc.perform(
                 put("/projects/{idProject}/removeHallOfFameMember/{idAccount}", testProject.id, testAccount2.id)
             )
