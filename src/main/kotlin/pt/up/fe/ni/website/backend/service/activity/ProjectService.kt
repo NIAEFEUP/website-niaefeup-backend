@@ -39,7 +39,15 @@ class ProjectService(
 
     fun updateProjectById(id: Long, dto: ProjectDto): Project {
         val project = getProjectById(id)
-        return updateActivityById(project, dto, IMAGE_FOLDER)
+        val newProject = updateActivityById(project, dto, IMAGE_FOLDER)
+        newProject.apply {
+            hallOfFame.clear()
+            dto.hallOfFameIds?.forEach {
+                val account = accountService.getAccountById(it)
+                hallOfFame.add(account)
+            }
+        }
+        return repository.save(newProject)
     }
 
     fun deleteProjectById(id: Long) {

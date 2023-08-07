@@ -612,6 +612,7 @@ internal class ProjectControllerTest @Autowired constructor(
         private val newTitle = "New Title"
         private val newDescription = "New description of the project"
         private val newTeamMembers = mutableListOf<Long>()
+        private val newHallOfFame = mutableListOf<Long>()
         private val newIsArchived = true
         private val newSlug = "new-slug"
         private val newSlogan = "new slogan"
@@ -629,6 +630,7 @@ internal class ProjectControllerTest @Autowired constructor(
                 "title" to newTitle,
                 "description" to newDescription,
                 "teamMembersIds" to newTeamMembers,
+                "hallOfFameIds" to newHallOfFame,
                 "isArchived" to newIsArchived,
                 "slug" to newSlug,
                 "slogan" to newSlogan,
@@ -665,6 +667,7 @@ internal class ProjectControllerTest @Autowired constructor(
                     jsonPath("$.title").value(newTitle),
                     jsonPath("$.description").value(newDescription),
                     jsonPath("$.teamMembers.length()").value(newTeamMembers.size),
+                    jsonPath("$.hallOfFame.length()").value(newHallOfFame.size),
                     jsonPath("$.isArchived").value(newIsArchived),
                     jsonPath("$.slug").value(newSlug),
                     jsonPath("$.slogan").value(newSlogan),
@@ -693,6 +696,60 @@ internal class ProjectControllerTest @Autowired constructor(
             assertEquals(newLinks, updatedProject.links)
             assertEquals(newTimeline, updatedProject.timeline)
             assertEquals(testProject.image, updatedProject.image)
+        }
+
+        @Test
+        fun `should update the project with different hall of fame members`() {
+            projectPart["hallOfFameIds"] = listOf(testAccount.id!!)
+
+            mockMvc.multipartBuilder("/projects/${testProject.id}")
+                .asPutMethod()
+                .addPart("project", objectMapper.writeValueAsString(projectPart))
+                .perform()
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.hallOfFame.length()").value(1),
+                    jsonPath("$.hallOfFame[0].id").value(testAccount.id!!)
+                )
+//                .andDocument(
+//                    documentation,
+//                    "Update projects",
+//                    "Update a previously created project, using its ID.",
+//                    urlParameters = parameters,
+//                    documentRequestPayload = true
+//                )
+
+            val updatedProject = repository.findById(testProject.id!!).get()
+            assertEquals(1, updatedProject.hallOfFame.size)
+            assertEquals(testAccount.id, updatedProject.hallOfFame[0].id)
+        }
+
+        @Test
+        fun `should update the project with different team members`() {
+            projectPart["teamMembersIds"] = listOf(testAccount2.id!!)
+
+            mockMvc.multipartBuilder("/projects/${testProject.id}")
+                .asPutMethod()
+                .addPart("project", objectMapper.writeValueAsString(projectPart))
+                .perform()
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.teamMembers.length()").value(1),
+                    jsonPath("$.teamMembers[0].id").value(testAccount2.id!!)
+                )
+//                .andDocument(
+//                    documentation,
+//                    "Update projects",
+//                    "Update a previously created project, using its ID.",
+//                    urlParameters = parameters,
+//                    documentRequestPayload = true
+//                )
+
+            val updatedProject = repository.findById(testProject.id!!).get()
+            assertEquals(1, updatedProject.teamMembers.size)
+            assertEquals(testAccount2.id, updatedProject.teamMembers[0].id)
         }
 
         @Test
