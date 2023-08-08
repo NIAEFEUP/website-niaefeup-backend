@@ -3,11 +3,18 @@ package pt.up.fe.ni.website.backend.dto.entity
 import pt.up.fe.ni.website.backend.model.Project
 
 class ProjectDto(
-    val title: String,
-    val description: String,
-    var hallOfFameIds: List<Long>?,
-    val teamMembersIds: List<Long>?,
+    title: String,
+    description: String,
+    teamMembersIds: List<Long>?,
+    slug: String?,
+    image: String?,
+
     val isArchived: Boolean = false,
     val technologies: List<String> = emptyList(),
-    val slug: String?
-) : EntityDto<Project>()
+    val slogan: String?,
+    val targetAudience: String,
+    val github: String?,
+    val links: List<CustomWebsiteDto>?,
+    val timeline: List<TimelineEventDto>?,
+    val hallOfFameIds: List<Long>?
+) : ActivityDto<Project>(title, description, teamMembersIds, slug, image)

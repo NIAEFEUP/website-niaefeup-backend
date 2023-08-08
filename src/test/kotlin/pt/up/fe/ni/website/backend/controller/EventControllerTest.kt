@@ -4,22 +4,24 @@ import com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.util.Calendar
 import java.util.Date
+import java.util.UUID
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
-import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import pt.up.fe.ni.website.backend.config.upload.UploadConfigProperties
 import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.CustomWebsite
 import pt.up.fe.ni.website.backend.model.Event
@@ -36,13 +38,15 @@ import pt.up.fe.ni.website.backend.utils.documentation.payloadschemas.model.Payl
 import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocument
 import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentEmptyObjectResponse
 import pt.up.fe.ni.website.backend.utils.documentation.utils.MockMVCExtension.Companion.andDocumentErrorResponse
+import pt.up.fe.ni.website.backend.utils.mockmvc.multipartBuilder
 
 @ControllerTest
 internal class EventControllerTest @Autowired constructor(
     val mockMvc: MockMvc,
     val objectMapper: ObjectMapper,
     val repository: EventRepository,
-    val accountRepository: AccountRepository
+    val accountRepository: AccountRepository,
+    val uploadConfigProperties: UploadConfigProperties
 ) {
     final val testAccount = Account(
         "Test Account",
@@ -54,7 +58,7 @@ internal class EventControllerTest @Autowired constructor(
         "https://linkedin.com",
         "https://github.com",
         listOf(
-            CustomWebsite("https://test-website.com", "https://test-website.com/logo.png")
+            CustomWebsite("https://test-website.com", "https://test-website.com/logo.png", "test")
         )
     )
 
@@ -64,14 +68,14 @@ internal class EventControllerTest @Autowired constructor(
         mutableListOf(testAccount),
         mutableListOf(),
         "great-event",
+        "cool-image.png",
         "https://docs.google.com/forms",
         DateInterval(
             TestUtils.createDate(2022, Calendar.JULY, 28),
             TestUtils.createDate(2022, Calendar.JULY, 30)
         ),
         "FEUP",
-        "Great Events",
-        "https://example.com/exampleThumbnail"
+        "Great Events"
     )
 
     val documentation = PayloadEvent()
@@ -87,14 +91,14 @@ internal class EventControllerTest @Autowired constructor(
                 mutableListOf(),
                 mutableListOf(),
                 null,
+                "bad-image.png",
                 null,
                 DateInterval(
                     TestUtils.createDate(2021, Calendar.OCTOBER, 27),
                     null
                 ),
                 null,
-                null,
-                "https://example.com/exampleThumbnail2"
+                null
             )
         )
 
@@ -147,7 +151,7 @@ internal class EventControllerTest @Autowired constructor(
                     jsonPath("$.dateInterval.endDate").value(testEvent.dateInterval.endDate.toJson()),
                     jsonPath("$.location").value(testEvent.location),
                     jsonPath("$.category").value(testEvent.category),
-                    jsonPath("$.thumbnailPath").value(testEvent.thumbnailPath),
+                    jsonPath("$.image").value(testEvent.image),
                     jsonPath("$.slug").value(testEvent.slug)
 
                 )
@@ -202,7 +206,7 @@ internal class EventControllerTest @Autowired constructor(
                     jsonPath("$.dateInterval.endDate").value(testEvent.dateInterval.endDate.toJson()),
                     jsonPath("$.location").value(testEvent.location),
                     jsonPath("$.category").value(testEvent.category),
-                    jsonPath("$.thumbnailPath").value(testEvent.thumbnailPath),
+                    jsonPath("$.image").value(testEvent.image),
                     jsonPath("$.slug").value(testEvent.slug)
                 )
                 .andDocument(
@@ -237,14 +241,14 @@ internal class EventControllerTest @Autowired constructor(
                 mutableListOf(testAccount),
                 mutableListOf(),
                 null,
+                "bad-image.png",
                 null,
                 DateInterval(
                     TestUtils.createDate(2021, Calendar.OCTOBER, 27),
                     null
                 ),
                 null,
-                null,
-                "https://example.com/exampleThumbnail2"
+                null
             ),
             Event(
                 "Mid event",
@@ -252,14 +256,14 @@ internal class EventControllerTest @Autowired constructor(
                 mutableListOf(),
                 mutableListOf(),
                 null,
+                "mid-image.png",
                 null,
                 DateInterval(
                     TestUtils.createDate(2022, Calendar.JANUARY, 15),
                     null
                 ),
                 null,
-                "Other category",
-                "https://example.com/exampleThumbnail2"
+                "Other category"
             ),
             Event(
                 "Cool event",
@@ -267,14 +271,14 @@ internal class EventControllerTest @Autowired constructor(
                 mutableListOf(testAccount),
                 mutableListOf(),
                 null,
+                "cool-image.png",
                 null,
                 DateInterval(
                     TestUtils.createDate(2022, Calendar.SEPTEMBER, 11),
                     null
                 ),
                 null,
-                "Great Events",
-                "https://example.com/exampleThumbnail2"
+                "Great Events"
             )
         )
 
@@ -309,32 +313,44 @@ internal class EventControllerTest @Autowired constructor(
     @NestedTest
     @DisplayName("POST /events/new")
     inner class CreateEvent {
+        private val uuid: UUID = UUID.randomUUID()
+        private val mockedSettings = Mockito.mockStatic(UUID::class.java)
+        private val expectedImagePath = "${uploadConfigProperties.staticServe}/events/${testEvent.title}-$uuid.jpeg"
+
         @BeforeEach
         fun addAccount() {
             accountRepository.save(testAccount)
         }
 
+        @BeforeAll
+        fun setupMocks() {
+            Mockito.`when`(UUID.randomUUID()).thenReturn(uuid)
+        }
+
+        @AfterAll
+        fun cleanup() {
+            mockedSettings.close()
+        }
+
         @Test
         fun `should create a new event`() {
-            mockMvc.perform(
-                post("/events/new")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(
-                        objectMapper.writeValueAsString(
-                            mapOf(
-                                "title" to testEvent.title,
-                                "description" to testEvent.description,
-                                "dateInterval" to testEvent.dateInterval,
-                                "teamMembersIds" to mutableListOf(testAccount.id!!),
-                                "registerUrl" to testEvent.registerUrl,
-                                "location" to testEvent.location,
-                                "category" to testEvent.category,
-                                "thumbnailPath" to testEvent.thumbnailPath,
-                                "slug" to testEvent.slug
-                            )
-                        )
-                    )
+            val eventPart = objectMapper.writeValueAsString(
+                mapOf(
+                    "title" to testEvent.title,
+                    "description" to testEvent.description,
+                    "dateInterval" to testEvent.dateInterval,
+                    "teamMembersIds" to mutableListOf(testAccount.id!!),
+                    "registerUrl" to testEvent.registerUrl,
+                    "location" to testEvent.location,
+                    "category" to testEvent.category,
+                    "slug" to testEvent.slug
+                )
             )
+
+            mockMvc.multipartBuilder("/events/new")
+                .addPart("event", eventPart)
+                .addFile(name = "image")
+                .perform()
                 .andExpectAll(
                     status().isOk,
                     content().contentType(MediaType.APPLICATION_JSON),
@@ -347,15 +363,15 @@ internal class EventControllerTest @Autowired constructor(
                     jsonPath("$.dateInterval.endDate").value(testEvent.dateInterval.endDate.toJson()),
                     jsonPath("$.location").value(testEvent.location),
                     jsonPath("$.category").value(testEvent.category),
-                    jsonPath("$.thumbnailPath").value(testEvent.thumbnailPath),
+                    jsonPath("$.image").value(expectedImagePath),
                     jsonPath("$.slug").value(testEvent.slug)
                 )
-                .andDocument(
-                    documentation,
-                    "Create new events",
-                    "This endpoint operation creates a new event.",
-                    documentRequestPayload = true
-                )
+//                .andDocument(
+//                    documentation,
+//                    "Create new events",
+//                    "This endpoint operation creates a new event.",
+//                    documentRequestPayload = true
+//                )
         }
 
         @Test
@@ -366,26 +382,26 @@ internal class EventControllerTest @Autowired constructor(
                 mutableListOf(testAccount),
                 mutableListOf(),
                 testEvent.slug,
+                "duplicated-slug.png",
                 "https://docs.google.com/forms",
                 DateInterval(
                     TestUtils.createDate(2022, Calendar.AUGUST, 28),
                     TestUtils.createDate(2022, Calendar.AUGUST, 30)
                 ),
                 "FEUP",
-                "Great Events",
-                "https://example.com/exampleThumbnail"
+                "Great Events"
             )
 
-            mockMvc.post("/events/new") {
-                contentType = MediaType.APPLICATION_JSON
-                content = objectMapper.writeValueAsString(testEvent)
-            }.andExpect { status { isOk() } }
+            mockMvc.multipartBuilder("/events/new")
+                .addPart("event", objectMapper.writeValueAsString(testEvent))
+                .addFile(name = "image")
+                .perform()
+                .andExpect { status().isOk }
 
-            mockMvc.perform(
-                post("/events/new")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(duplicatedSlugEvent))
-            )
+            mockMvc.multipartBuilder("/events/new")
+                .addPart("event", objectMapper.writeValueAsString(duplicatedSlugEvent))
+                .addFile(name = "image")
+                .perform()
                 .andExpectAll(
                     status().isUnprocessableEntity,
                     content().contentType(MediaType.APPLICATION_JSON),
@@ -395,23 +411,68 @@ internal class EventControllerTest @Autowired constructor(
                 .andDocumentErrorResponse(documentation, hasRequestPayload = true)
         }
 
+        @Test
+        fun `should fail to create event with invalid filename extension`() {
+            mockMvc.multipartBuilder("/events/new")
+                .addPart("event", objectMapper.writeValueAsString(testEvent))
+                .addFile(name = "image", filename = "image.pdf")
+                .perform()
+                .andExpectAll(
+                    status().isBadRequest,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("invalid image type (png, jpg,  jpeg or webp)"),
+                    jsonPath("$.errors[0].param").value("createEvent.image")
+                )
+                .andDocumentErrorResponse(documentation, hasRequestPayload = true)
+        }
+
+        @Test
+        fun `should fail to create event with invalid filename media type`() {
+            mockMvc.multipartBuilder("/events/new")
+                .addPart("event", objectMapper.writeValueAsString(testEvent))
+                .addFile(name = "image", contentType = MediaType.APPLICATION_PDF_VALUE)
+                .perform()
+                .andExpectAll(
+                    status().isBadRequest,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("invalid image type (png, jpg,  jpeg or webp)"),
+                    jsonPath("$.errors[0].param").value("createEvent.image")
+                )
+                .andDocumentErrorResponse(documentation, hasRequestPayload = true)
+        }
+
+        @Test
+        fun `should fail when missing event part`() {
+            mockMvc.multipartBuilder("/events/new")
+                .addFile(name = "image")
+                .perform()
+                .andExpectAll(
+                    status().isBadRequest,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("required"),
+                    jsonPath("$.errors[0].param").value("event")
+                )
+        }
+
         @NestedTest
         @DisplayName("Input Validation")
         inner class InputValidation {
             private val validationTester = ValidationTester(
                 req = { params: Map<String, Any?> ->
-                    mockMvc.perform(
-                        post("/events/new")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(params))
-                    )
+                    mockMvc.multipartBuilder("/events/new")
+                        .addPart("event", objectMapper.writeValueAsString(params))
+                        .addFile(name = "image")
+                        .perform()
                         .andDocumentErrorResponse(documentation, hasRequestPayload = true)
                 },
                 requiredFields = mapOf(
                     "title" to testEvent.title,
                     "description" to testEvent.description,
                     "dateInterval" to testEvent.dateInterval,
-                    "thumbnailPath" to testEvent.thumbnailPath,
+                    "image" to testEvent.image,
                     "slug" to testEvent.slug
                 )
             )
@@ -518,24 +579,6 @@ internal class EventControllerTest @Autowired constructor(
             }
 
             @NestedTest
-            @DisplayName("thumbnailPath")
-            inner class ThumbnailPathValidation {
-                @BeforeAll
-                fun setParam() {
-                    validationTester.param = "thumbnailPath"
-                }
-
-                @Test
-                fun `should be required`() = validationTester.isRequired()
-
-                @Test
-                fun `should be a URL`() = validationTester.isUrl()
-
-                @Test
-                fun `should not be empty`() = validationTester.isNotEmpty()
-            }
-
-            @NestedTest
             @DisplayName("slug")
             inner class SlugValidation {
                 @BeforeAll
@@ -611,7 +654,7 @@ internal class EventControllerTest @Autowired constructor(
             "https://linkedin.com",
             "https://github.com",
             listOf(
-                CustomWebsite("https://test-website.com", "https://test-website.com/logo.png")
+                CustomWebsite("https://test-website.com", "https://test-website.com/logo.png", "test")
             )
         )
 
@@ -677,7 +720,7 @@ internal class EventControllerTest @Autowired constructor(
     }
 
     @NestedTest
-    @DisplayName("PUT /events/{projectId}/addTeamMember/{accountId}")
+    @DisplayName("PUT /events/{projectId}/removeTeamMember/{accountId}")
     inner class RemoveTeamMember {
 
         @BeforeEach
@@ -724,70 +767,93 @@ internal class EventControllerTest @Autowired constructor(
     @NestedTest
     @DisplayName("PUT /events/{eventId}")
     inner class UpdateEvent {
+        private val testAccount2 = Account(
+            "Test Account2",
+            "test_account2@test.com",
+            "test_password",
+            "This is a test account2",
+            TestUtils.createDate(2001, Calendar.JULY, 28),
+            "https://test-photo.com",
+            "https://linkedin.com",
+            "https://github.com"
+        )
+
+        private val uuid: UUID = UUID.randomUUID()
+        private val mockedSettings = Mockito.mockStatic(UUID::class.java)
+
+        private val newTitle = "New event title"
+        private val newDescription = "New event description"
+        private val newTeamMembers = mutableListOf<Long>()
+        private val newRegisterUrl = "https://example.com/newUrl"
+        private val newDateInterval = DateInterval(
+            TestUtils.createDate(2022, Calendar.DECEMBER, 1),
+            TestUtils.createDate(2022, Calendar.DECEMBER, 2)
+        )
+        private val newLocation = "FLUP"
+        private val newCategory = "Greatest Events"
+        private val newSlug = "new-slug"
+
+        private val parameters = listOf(parameterWithName("id").description("ID of the event to update"))
+        private lateinit var eventPart: MutableMap<String, Any>
+
         @BeforeEach
         fun addToRepositories() {
             accountRepository.save(testAccount)
+            accountRepository.save(testAccount2)
             repository.save(testEvent)
+
+            newTeamMembers.clear()
+            newTeamMembers.add(testAccount2.id!!)
+            eventPart = mutableMapOf(
+                "title" to newTitle,
+                "description" to newDescription,
+                "teamMembersIds" to newTeamMembers,
+                "registerUrl" to newRegisterUrl,
+                "dateInterval" to newDateInterval,
+                "location" to newLocation,
+                "category" to newCategory,
+                "slug" to newSlug
+            )
         }
 
-        val parameters = listOf(parameterWithName("id").description("ID of the event to update"))
+        @BeforeAll
+        fun setupMocks() {
+            Mockito.`when`(UUID.randomUUID()).thenReturn(uuid)
+        }
+
+        @AfterAll
+        fun cleanup() {
+            mockedSettings.close()
+        }
 
         @Test
-        fun `should update the event`() {
-            val newTitle = "New event title"
-            val newDescription = "New event description"
-            val newTeamMembers = mutableListOf<Long>()
-            val newRegisterUrl = "https://example.com/newUrl"
-            val newDateInterval = DateInterval(
-                TestUtils.createDate(2022, Calendar.DECEMBER, 1),
-                TestUtils.createDate(2022, Calendar.DECEMBER, 2)
-            )
-            val newLocation = "FLUP"
-            val newCategory = "Greatest Events"
-            val newThumbnailPath = "https://thumbnails/new.png"
-            val newSlug = "new-slug"
-
-            mockMvc.perform(
-                put("/events/{id}", testEvent.id)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(
-                        objectMapper.writeValueAsString(
-                            mapOf(
-                                "title" to newTitle,
-                                "description" to newDescription,
-                                "teamMembersIds" to newTeamMembers,
-                                "registerUrl" to newRegisterUrl,
-                                "dateInterval" to newDateInterval,
-                                "location" to newLocation,
-                                "category" to newCategory,
-                                "thumbnailPath" to newThumbnailPath,
-                                "slug" to newSlug
-                            )
-                        )
-                    )
-            )
+        fun `should update the event without image`() {
+            mockMvc.multipartBuilder("/events/${testEvent.id}")
+                .asPutMethod()
+                .addPart("event", objectMapper.writeValueAsString(eventPart))
+                .perform()
                 .andExpectAll(
                     status().isOk,
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.title").value(newTitle),
                     jsonPath("$.description").value(newDescription),
-                    jsonPath("$.teamMembers.length()").value(0),
+                    jsonPath("$.teamMembers.length()").value(newTeamMembers.size),
+                    jsonPath("$.teamMembers[0].id").value(testAccount2.id),
                     jsonPath("$.registerUrl").value(newRegisterUrl),
                     jsonPath("$.dateInterval.startDate").value(newDateInterval.startDate.toJson()),
                     jsonPath("$.dateInterval.endDate").value(newDateInterval.endDate.toJson()),
                     jsonPath("$.location").value(newLocation),
                     jsonPath("$.category").value(newCategory),
-                    jsonPath("$.thumbnailPath").value(newThumbnailPath),
-                    jsonPath("$.slug").value(newSlug)
-
+                    jsonPath("$.slug").value(newSlug),
+                    jsonPath("$.image").value(testEvent.image)
                 )
-                .andDocument(
-                    documentation,
-                    "Update events",
-                    "Update a previously created event, using its ID.",
-                    urlParameters = parameters,
-                    documentRequestPayload = true
-                )
+//                .andDocument(
+//                    documentation,
+//                    "Update events",
+//                    "Update a previously created event, using its ID.",
+//                    urlParameters = parameters,
+//                    documentRequestPayload = true
+//                )
 
             val updatedEvent = repository.findById(testEvent.id!!).get()
             assertEquals(newTitle, updatedEvent.title)
@@ -797,34 +863,178 @@ internal class EventControllerTest @Autowired constructor(
             assertEquals(newDateInterval.endDate.toJson(), updatedEvent.dateInterval.endDate.toJson())
             assertEquals(newLocation, updatedEvent.location)
             assertEquals(newCategory, updatedEvent.category)
-            assertEquals(newThumbnailPath, updatedEvent.thumbnailPath)
             assertEquals(newSlug, updatedEvent.slug)
+            assertEquals(testEvent.image, updatedEvent.image)
+            assertEquals(newTeamMembers.size, updatedEvent.teamMembers.size)
+            assertEquals(testAccount2.id, updatedEvent.teamMembers[0].id)
+        }
+
+        @Test
+        fun `should update the event with same slug`() {
+            eventPart["slug"] = testEvent.slug!!
+            mockMvc.multipartBuilder("/events/${testEvent.id}")
+                .asPutMethod()
+                .addPart("event", objectMapper.writeValueAsString(eventPart))
+                .perform()
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.title").value(newTitle),
+                    jsonPath("$.description").value(newDescription),
+                    jsonPath("$.teamMembers.length()").value(newTeamMembers.size),
+                    jsonPath("$.registerUrl").value(newRegisterUrl),
+                    jsonPath("$.dateInterval.startDate").value(newDateInterval.startDate.toJson()),
+                    jsonPath("$.dateInterval.endDate").value(newDateInterval.endDate.toJson()),
+                    jsonPath("$.location").value(newLocation),
+                    jsonPath("$.category").value(newCategory),
+                    jsonPath("$.slug").value(testEvent.slug)
+                )
+        }
+
+        @Test
+        fun `should fail to update if the slug already exists`() {
+            val otherEvent = Event(
+                title = newTitle,
+                description = newDescription,
+                teamMembers = mutableListOf(),
+                registerUrl = newRegisterUrl,
+                dateInterval = DateInterval(
+                    TestUtils.createDate(2022, Calendar.DECEMBER, 1),
+                    TestUtils.createDate(2022, Calendar.DECEMBER, 2)
+                ),
+                location = newLocation,
+                category = newCategory,
+                image = "image.png",
+                slug = newSlug
+            )
+            repository.save(otherEvent)
+
+            mockMvc.multipartBuilder("/events/${testEvent.id}")
+                .asPutMethod()
+                .addPart("event", objectMapper.writeValueAsString(eventPart))
+                .perform()
+                .andExpectAll(
+                    status().isUnprocessableEntity,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("slug already exists")
+                )
+                .andDocumentErrorResponse(documentation, hasRequestPayload = true)
+        }
+
+        @Test
+        fun `should update the event with image`() {
+            val expectedImagePath = "${uploadConfigProperties.staticServe}/events/$newTitle-$uuid.jpeg"
+
+            mockMvc.multipartBuilder("/events/${testEvent.id}")
+                .asPutMethod()
+                .addPart("event", objectMapper.writeValueAsString(eventPart))
+                .addFile("image", "new-image.jpeg", contentType = MediaType.IMAGE_JPEG_VALUE)
+                .perform()
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.title").value(newTitle),
+                    jsonPath("$.description").value(newDescription),
+                    jsonPath("$.teamMembers.length()").value(newTeamMembers.size),
+                    jsonPath("$.registerUrl").value(newRegisterUrl),
+                    jsonPath("$.dateInterval.startDate").value(newDateInterval.startDate.toJson()),
+                    jsonPath("$.dateInterval.endDate").value(newDateInterval.endDate.toJson()),
+                    jsonPath("$.location").value(newLocation),
+                    jsonPath("$.category").value(newCategory),
+                    jsonPath("$.slug").value(newSlug),
+                    jsonPath("$.image").value(expectedImagePath)
+                )
+//                .andDocument(
+//                    documentation,
+//                    "Update events",
+//                    "Update a previously created event and changes its image, using its ID.",
+//                    urlParameters = parameters,
+//                    documentRequestPayload = true
+//                )
+
+            val updatedEvent = repository.findById(testEvent.id!!).get()
+            assertEquals(newTitle, updatedEvent.title)
+            assertEquals(newDescription, updatedEvent.description)
+            assertEquals(newRegisterUrl, updatedEvent.registerUrl)
+            assertEquals(newDateInterval.startDate.toJson(), updatedEvent.dateInterval.startDate.toJson())
+            assertEquals(newDateInterval.endDate.toJson(), updatedEvent.dateInterval.endDate.toJson())
+            assertEquals(newLocation, updatedEvent.location)
+            assertEquals(newCategory, updatedEvent.category)
+            assertEquals(newSlug, updatedEvent.slug)
+            assertEquals(expectedImagePath, updatedEvent.image)
         }
 
         @Test
         fun `should fail if the event does not exist`() {
-            mockMvc.perform(
-                put("/events/{id}", 1234)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(
-                        objectMapper.writeValueAsString(
-                            mapOf(
-                                "title" to "New Title",
-                                "description" to "New Description",
-                                "dateInterval" to DateInterval(TestUtils.createDate(2022, Calendar.DECEMBER, 1), null),
-                                "thumbnailPath" to "http://test.com/thumbnail/1",
-                                "associatedRoles" to testEvent.associatedRoles
-                            )
-                        )
-                    )
+            val eventPart = objectMapper.writeValueAsString(
+                mapOf(
+                    "title" to "New Title",
+                    "description" to "New Description",
+                    "dateInterval" to DateInterval(TestUtils.createDate(2022, Calendar.DECEMBER, 1), null),
+                    "associatedRoles" to testEvent.associatedRoles
+                )
             )
+
+            mockMvc.multipartBuilder("/events/1234")
+                .asPutMethod()
+                .addPart("event", eventPart)
+                .perform()
                 .andExpectAll(
                     status().isNotFound,
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.errors.length()").value(1),
                     jsonPath("$.errors[0].message").value("event not found with id 1234")
                 )
-                .andDocumentErrorResponse(documentation, urlParameters = parameters, hasRequestPayload = true)
+                .andDocumentErrorResponse(documentation, hasRequestPayload = true)
+        }
+
+        @Test
+        fun `should fail to update event with invalid filename extension`() {
+            mockMvc.multipartBuilder("/events/${testEvent.id}")
+                .asPutMethod()
+                .addPart("event", objectMapper.writeValueAsString(eventPart))
+                .addFile(name = "image", filename = "image.pdf")
+                .perform()
+                .andExpectAll(
+                    status().isBadRequest,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("invalid image type (png, jpg,  jpeg or webp)"),
+                    jsonPath("$.errors[0].param").value("updateEventById.image")
+                )
+                .andDocumentErrorResponse(documentation, hasRequestPayload = true)
+        }
+
+        @Test
+        fun `should fail to update event with invalid filename media type`() {
+            mockMvc.multipartBuilder("/events/${testEvent.id}")
+                .asPutMethod()
+                .addPart("event", objectMapper.writeValueAsString(eventPart))
+                .addFile(name = "image", contentType = MediaType.APPLICATION_PDF_VALUE)
+                .perform()
+                .andExpectAll(
+                    status().isBadRequest,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("invalid image type (png, jpg,  jpeg or webp)"),
+                    jsonPath("$.errors[0].param").value("updateEventById.image")
+                )
+                .andDocumentErrorResponse(documentation, hasRequestPayload = true)
+        }
+
+        @Test
+        fun `should fail when missing event part`() {
+            mockMvc.multipartBuilder("/events/${testEvent.id}")
+                .asPutMethod()
+                .perform()
+                .andExpectAll(
+                    status().isBadRequest,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("required"),
+                    jsonPath("$.errors[0].param").value("event")
+                )
         }
 
         @NestedTest
@@ -832,18 +1042,17 @@ internal class EventControllerTest @Autowired constructor(
         inner class InputValidation {
             private val validationTester = ValidationTester(
                 req = { params: Map<String, Any?> ->
-                    mockMvc.perform(
-                        put("/events/{id}", testEvent.id)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(params))
-                    )
-                        .andDocumentErrorResponse(documentation, urlParameters = parameters, hasRequestPayload = true)
+                    mockMvc.multipartBuilder("/events/${testEvent.id}")
+                        .asPutMethod()
+                        .addPart("event", objectMapper.writeValueAsString(params))
+                        .perform()
+                        .andDocumentErrorResponse(documentation, hasRequestPayload = true)
                 },
                 requiredFields = mapOf(
                     "title" to testEvent.title,
                     "description" to testEvent.description,
                     "dateInterval" to testEvent.dateInterval,
-                    "thumbnailPath" to testEvent.thumbnailPath
+                    "image" to testEvent.image
                 )
             )
 
@@ -949,21 +1158,6 @@ internal class EventControllerTest @Autowired constructor(
                 @DisplayName("size should be between ${Constants.Category.minSize} and ${Constants.Category.maxSize}()")
                 fun size() =
                     validationTester.hasSizeBetween(Constants.Category.minSize, Constants.Category.maxSize)
-            }
-
-            @NestedTest
-            @DisplayName("thumbnailPath")
-            inner class ThumbnailPathValidation {
-                @BeforeAll
-                fun setParam() {
-                    validationTester.param = "thumbnailPath"
-                }
-
-                @Test
-                fun `should be required`() = validationTester.isRequired()
-
-                @Test
-                fun `should be a URL`() = validationTester.isUrl()
             }
         }
     }

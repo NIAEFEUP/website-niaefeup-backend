@@ -29,22 +29,27 @@ class AccountController(private val service: AccountService) {
     @GetMapping("/{id}")
     fun getAccountById(@PathVariable id: Long) = service.getAccountById(id)
 
-    @PostMapping("/changePassword/{id}")
-    fun changePassword(@PathVariable id: Long, @RequestBody dto: ChangePasswordDto): Map<String, String> {
-        service.changePassword(id, dto)
-        return emptyMap()
-    }
-
-    @PutMapping("/{id}")
-    fun updateAccountById(
-        @PathVariable id: Long,
-        @RequestPart dto: UpdateAccountDto,
+    @PostMapping("/new", consumes = ["multipart/form-data"])
+    fun createAccount(
+        @RequestPart account: CreateAccountDto,
         @RequestParam
         @ValidImage
         photo: MultipartFile?
     ): Account {
-        dto.photoFile = photo
-        return service.updateAccountById(id, dto)
+        account.photoFile = photo
+        return service.createAccount(account)
+    }
+
+    @PutMapping("/{id}", consumes = ["multipart/form-data"])
+    fun updateAccountById(
+        @PathVariable id: Long,
+        @RequestPart account: UpdateAccountDto,
+        @RequestParam
+        @ValidImage
+        photo: MultipartFile?
+    ): Account {
+        account.photoFile = photo
+        return service.updateAccountById(id, account)
     }
 
     @DeleteMapping("/{id}")
@@ -53,14 +58,9 @@ class AccountController(private val service: AccountService) {
         return emptyMap()
     }
 
-    @PostMapping("/new", consumes = ["multipart/form-data"])
-    fun createAccount(
-        @RequestPart dto: CreateAccountDto,
-        @RequestParam
-        @ValidImage
-        photo: MultipartFile?
-    ): Account {
-        dto.photoFile = photo
-        return service.createAccount(dto)
+    @PostMapping("/changePassword/{id}")
+    fun changePassword(@PathVariable id: Long, @RequestBody dto: ChangePasswordDto): Map<String, String> {
+        service.changePassword(id, dto)
+        return emptyMap()
     }
 }

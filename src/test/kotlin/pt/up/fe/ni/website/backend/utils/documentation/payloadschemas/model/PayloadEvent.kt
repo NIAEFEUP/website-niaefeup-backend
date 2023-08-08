@@ -12,7 +12,7 @@ class PayloadEvent : ModelDocumentation(
     mutableListOf(
         DocumentedJSONField("title", "Event title", JsonFieldType.STRING),
         DocumentedJSONField("description", "Event description", JsonFieldType.STRING),
-        DocumentedJSONField("thumbnailPath", "Thumbnail of the event", JsonFieldType.STRING),
+        DocumentedJSONField("image", "Thumbnail image of the event", JsonFieldType.STRING),
         DocumentedJSONField("registerUrl", "Link to the event registration", JsonFieldType.STRING, optional = true),
         DocumentedJSONField("location", "Location for the event", JsonFieldType.STRING, optional = true),
         DocumentedJSONField("dateInterval", "Date interval of the event", JsonFieldType.OBJECT, optional = true),

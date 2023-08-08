@@ -34,8 +34,59 @@ class PayloadActivity {
                     optional = true
                 ),
                 DocumentedJSONField(
-                    "thumbnailPath",
-                    "Path to the thumbnail",
+                    "image",
+                    "Path to the image",
+                    JsonFieldType.STRING
+                ),
+                DocumentedJSONField(
+                    "targetAudience",
+                    "Information about the target audience",
+                    JsonFieldType.STRING
+                ),
+                DocumentedJSONField(
+                    "slogan",
+                    "Slogan of the activity",
+                    JsonFieldType.STRING
+                ),
+                DocumentedJSONField(
+                    "github",
+                    "Handle/link to the activity's GitHub repository",
+                    JsonFieldType.STRING
+                ),
+                DocumentedJSONField(
+                    "links",
+                    "Array of links associated with the activity",
+                    JsonFieldType.ARRAY,
+                    optional = true
+                ),
+                DocumentedJSONField("links[].url", "URL to the link", JsonFieldType.STRING, optional = true),
+                DocumentedJSONField(
+                    "links[].iconPath",
+                    "URL to the link's icon",
+                    JsonFieldType.STRING,
+                    optional = true
+                ),
+                DocumentedJSONField(
+                    "links[].label",
+                    "Label for the link",
+                    JsonFieldType.STRING,
+                    optional = true
+                ),
+                DocumentedJSONField(
+                    "timeline",
+                    "Array of events defining the activity's timeline",
+                    JsonFieldType.ARRAY,
+                    optional = true
+                ),
+                DocumentedJSONField(
+                    "timeline[].date",
+                    "Date of the event",
+                    JsonFieldType.STRING,
+                    optional = true
+                ),
+                DocumentedJSONField(
+                    "timeline[].description",
+                    "Description of the event",
                     JsonFieldType.STRING,
                     optional = true
                 )
