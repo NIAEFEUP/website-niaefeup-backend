@@ -37,9 +37,7 @@ class Role(
     @OnDelete(action = OnDeleteAction.CASCADE) // Remove relationship, since this is the non-owner side
     val accounts: MutableList<@Valid Account> = mutableListOf(),
 
-    @JsonProperty(required = true)
-    @Id
-    @GeneratedValue
+    @Id @GeneratedValue
     val id: Long? = null
 ) {
     @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER, mappedBy = "role")
