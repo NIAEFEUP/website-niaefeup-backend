@@ -45,15 +45,7 @@ class AuthService(
     }
 
     fun refreshAccessToken(refreshToken: String): String {
-        val jwt =
-            try {
-                jwtDecoder.decode(refreshToken)
-            } catch (e: Exception) {
-                throw InvalidBearerTokenException(ErrorMessages.invalidRefreshToken)
-            }
-        if (jwt.expiresAt?.isBefore(Instant.now()) != false) {
-            throw InvalidBearerTokenException(ErrorMessages.expiredRefreshToken)
-        }
+        val jwt = jwtDecoder.decode(refreshToken)
         val account = accountService.getAccountByEmail(jwt.subject)
         return generateAccessToken(account)
     }
@@ -72,23 +64,14 @@ class AuthService(
     }
 
     fun confirmRecoveryToken(recoveryToken: String, dto: PasswordRecoveryConfirmDto): Account {
-        val jwt =
-            try {
-                jwtDecoder.decode(recoveryToken)
-            } catch (e: Exception) {
-                throw InvalidBearerTokenException(ErrorMessages.invalidRecoveryToken)
-            }
-
-        if (jwt.expiresAt?.isBefore(Instant.now()) != false) {
-            throw InvalidBearerTokenException(ErrorMessages.expiredRecoveryToken)
-        }
+        val jwt = jwtDecoder.decode(recoveryToken)
         val account = accountService.getAccountByEmail(jwt.subject)
 
         val tokenPasswordHash = jwt.getClaim<String>("passwordHash")
-            ?: throw InvalidBearerTokenException(ErrorMessages.invalidRecoveryToken)
+            ?: throw InvalidBearerTokenException(ErrorMessages.invalidToken)
 
         if (account.password != tokenPasswordHash) {
-            throw InvalidBearerTokenException(ErrorMessages.expiredRecoveryToken)
+            throw InvalidBearerTokenException(ErrorMessages.invalidToken)
         }
 
         account.password = passwordEncoder.encode(dto.password)

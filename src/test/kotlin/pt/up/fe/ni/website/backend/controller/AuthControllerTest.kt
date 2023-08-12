@@ -4,6 +4,8 @@ import com.epages.restdocs.apispec.HeaderDescriptorWithType
 import com.epages.restdocs.apispec.ResourceDocumentation
 import com.epages.restdocs.apispec.ResourceDocumentation.headerWithName
 import com.fasterxml.jackson.databind.ObjectMapper
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.Calendar
 import org.hamcrest.Matchers.startsWith
 import org.junit.jupiter.api.BeforeAll
@@ -18,6 +20,10 @@ import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.security.oauth2.jwt.JwtClaimsSet
+import org.springframework.security.oauth2.jwt.JwtDecoder
+import org.springframework.security.oauth2.jwt.JwtEncoder
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
@@ -29,7 +35,6 @@ import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.CustomWebsite
 import pt.up.fe.ni.website.backend.model.constants.AccountConstants
 import pt.up.fe.ni.website.backend.repository.AccountRepository
-import pt.up.fe.ni.website.backend.service.ErrorMessages
 import pt.up.fe.ni.website.backend.utils.TestUtils
 import pt.up.fe.ni.website.backend.utils.ValidationTester
 import pt.up.fe.ni.website.backend.utils.annotations.ControllerTest
@@ -52,6 +57,8 @@ class AuthControllerTest @Autowired constructor(
     val repository: AccountRepository,
     val mockMvc: MockMvc,
     val objectMapper: ObjectMapper,
+    val jwtEncoder: JwtEncoder,
+    val jwtDecoder: JwtDecoder,
     passwordEncoder: PasswordEncoder
 ) {
     final val testPassword = "testPassword"
@@ -162,7 +169,7 @@ class AuthControllerTest @Autowired constructor(
             )
                 .andExpectAll(
                     status().isUnauthorized,
-                    jsonPath("$.errors[0].message").value("invalid refresh token")
+                    jsonPath("$.errors[0].message").value("invalid token")
                 )
                 .andDocumentErrorResponse(documentation, hasRequestPayload = true)
         }
@@ -336,7 +343,7 @@ class AuthControllerTest @Autowired constructor(
             ).andExpectAll(
                 status().isUnauthorized(),
                 jsonPath("$.errors.length()").value(1),
-                jsonPath("$.errors[0].message").value("invalid password recovery token")
+                jsonPath("$.errors[0].message").value("invalid token")
             ).andDocumentCustomRequestSchemaErrorResponse(
                 documentation,
                 passwordRecoveryPayload,
@@ -355,6 +362,106 @@ class AuthControllerTest @Autowired constructor(
                     )
                 )
             }.andExpect { status { isUnauthorized() } }
+        }
+
+        @Test
+        fun `should fail when token is expired`() {
+            mockMvc.perform(
+                post("/auth/password/recovery")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf(
+                                "email" to testAccount.email
+                            )
+                        )
+                    )
+            )
+                .andReturn().response.let { authResponse ->
+                    val token = objectMapper.readTree(authResponse.contentAsString)["recovery_url"].asText()
+                        .removePrefix("$recoverPasswordPage/")
+                        .removeSuffix("/confirm")
+
+                    val decoded = jwtDecoder.decode(token)
+                    val newClaims = mutableMapOf<String, Any>()
+                    newClaims.putAll(decoded.claims)
+
+                    val claimsBuilder = JwtClaimsSet
+                        .builder()
+                        .issuer("self")
+                        .issuedAt(Instant.now().minus(2, ChronoUnit.DAYS))
+                        .expiresAt(Instant.now().minus(1, ChronoUnit.DAYS))
+                        .subject(decoded.subject)
+                        .claim("scope", decoded.claims["scope"])
+
+                    val newToken = jwtEncoder.encode(JwtEncoderParameters.from(claimsBuilder.build())).tokenValue
+
+                    mockMvc.perform(
+                        post("/auth/password/recovery/{token}/confirm", newToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(
+                                objectMapper.writeValueAsString(
+                                    mapOf(
+                                        "password" to newPassword
+                                    )
+                                )
+                            )
+                    ).andExpectAll(
+                        status().isUnauthorized(),
+                        jsonPath("$.errors.length()").value(1),
+                        jsonPath("$.errors[0].message").value("token has expired")
+                    )
+                }
+        }
+
+        @Test
+        fun `should fail when password hash claim is missing`() {
+            mockMvc.perform(
+                post("/auth/password/recovery")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf(
+                                "email" to testAccount.email
+                            )
+                        )
+                    )
+            )
+                .andReturn().response.let { authResponse ->
+                    val token = objectMapper.readTree(authResponse.contentAsString)["recovery_url"].asText()
+                        .removePrefix("$recoverPasswordPage/")
+                        .removeSuffix("/confirm")
+
+                    val decoded = jwtDecoder.decode(token)
+                    val newClaims = mutableMapOf<String, Any>()
+                    newClaims.putAll(decoded.claims)
+
+                    val claimsBuilder = JwtClaimsSet
+                        .builder()
+                        .issuer("self")
+                        .issuedAt(decoded.issuedAt)
+                        .expiresAt(decoded.expiresAt)
+                        .subject(decoded.subject)
+                        .claim("scope", decoded.claims["scope"])
+
+                    val newToken = jwtEncoder.encode(JwtEncoderParameters.from(claimsBuilder.build())).tokenValue
+
+                    mockMvc.perform(
+                        post("/auth/password/recovery/{token}/confirm", newToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(
+                                objectMapper.writeValueAsString(
+                                    mapOf(
+                                        "password" to newPassword
+                                    )
+                                )
+                            )
+                    ).andExpectAll(
+                        status().isUnauthorized(),
+                        jsonPath("$.errors.length()").value(1),
+                        jsonPath("$.errors[0].message").value("invalid token")
+                    )
+                }
         }
 
         @Test
@@ -402,7 +509,7 @@ class AuthControllerTest @Autowired constructor(
                     ).andExpectAll(
                         status().isUnauthorized(),
                         jsonPath("$.errors.length()").value(1),
-                        jsonPath("$.errors[0].message").value(ErrorMessages.expiredRecoveryToken)
+                        jsonPath("$.errors[0].message").value("invalid token")
                     ).andDocumentCustomRequestSchemaErrorResponse(
                         documentation,
                         passwordRecoveryPayload,
