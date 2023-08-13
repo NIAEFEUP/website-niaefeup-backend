@@ -7,48 +7,34 @@ import pt.up.fe.ni.website.backend.model.Event
 import pt.up.fe.ni.website.backend.repository.EventRepository
 import pt.up.fe.ni.website.backend.service.AccountService
 import pt.up.fe.ni.website.backend.service.ErrorMessages
+import pt.up.fe.ni.website.backend.service.upload.FileUploader
 
 @Service
 class EventService(
     override val repository: EventRepository,
-    accountService: AccountService
-) : AbstractActivityService<Event>(repository, accountService) {
-    fun getAllEvents(): List<Event> = repository.findAll().toList()
+    accountService: AccountService,
+    fileUploader: FileUploader
+) : AbstractActivityService<Event>(repository, accountService, fileUploader) {
 
-    fun getEventBySlug(eventSlug: String): Event =
-        repository.findBySlug(eventSlug) ?: throw NoSuchElementException(ErrorMessages.eventNotFound(eventSlug))
-
-    fun createEvent(dto: EventDto): Event {
-        repository.findBySlug(dto.slug)?.let {
-            throw IllegalArgumentException(ErrorMessages.slugAlreadyExists)
-        }
-
-        val event = dto.create()
-
-        dto.teamMembersIds?.forEach {
-            val account = accountService.getAccountById(it)
-            event.teamMembers.add(account)
-        }
-
-        return repository.save(event)
+    companion object {
+        const val IMAGE_FOLDER = "events"
     }
+
+    fun getAllEvents(): List<Event> = repository.findAll().toList()
 
     fun getEventsByCategory(category: String): List<Event> = repository.findAllByCategory(category)
 
     fun getEventById(eventId: Long): Event = repository.findByIdOrNull(eventId)
         ?: throw NoSuchElementException(ErrorMessages.eventNotFound(eventId))
 
+    fun getEventBySlug(eventSlug: String): Event =
+        repository.findBySlug(eventSlug) ?: throw NoSuchElementException(ErrorMessages.eventNotFound(eventSlug))
+
+    fun createEvent(dto: EventDto) = createActivity(dto, IMAGE_FOLDER)
+
     fun updateEventById(eventId: Long, dto: EventDto): Event {
         val event = getEventById(eventId)
-        val newEvent = dto.update(event)
-        newEvent.apply {
-            teamMembers.clear()
-            dto.teamMembersIds?.forEach {
-                val account = accountService.getAccountById(it)
-                teamMembers.add(account)
-            }
-        }
-        return repository.save(newEvent)
+        return updateActivityById(event, dto, IMAGE_FOLDER)
     }
 
     fun deleteEventById(eventId: Long) {
