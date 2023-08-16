@@ -1,6 +1,9 @@
 # Website NIAEFEUP - BackEnd
 [![codecov](https://codecov.io/gh/NIAEFEUP/website-niaefeup-backend/branch/develop/graph/badge.svg?token=4OPGXYESGP)](https://codecov.io/gh/NIAEFEUP/website-niaefeup-backend)
+
 The online platform for NIAEFEUP.
+
+Below, you can find a quickstart guide with development setup and project structure. For additional information about any implementation or usage details, please refer to our [Wiki Page](https://github.com/NIAEFEUP/website-niaefeup-backend/wiki).
 
 ## Development setup
 
@@ -73,7 +76,7 @@ Run the following command in your shell:
 ```
 
 
-### API Documentation
+## API Documentation
 API documentation is generated through the use of the [Spring REST Docs API specification Integration (aka restdocs-api-spec)](https://github.com/ePages-de/restdocs-api-spec), a [Spring Rest Docs](https://spring.io/projects/spring-restdocs) extension that builds an [OpenAPI specification](https://www.openapis.org/) or a [Postman collection](https://learning.postman.com/docs/sending-requests/intro-to-collections/) from its description, included in the controller tests. To see examples of how to document the API, hop to one of the controller tests and read the [API documentation wiki page](https://github.com/NIAEFEUP/website-niaefeup-backend/wiki/API-documentation).
 
 Find the current version of the API documentation [here](https://develop--niaefeup-backend-docs.netlify.app/).
@@ -94,16 +97,18 @@ Run the following command in your shell:
 Find the OpenAPI specification and Postman collection under `docs/` after running the task.
 
 
-## Project Details
-
-### Project Structure
+## Project Structure
 
 - `src/main`
-  - `controller/` - Methods that register endpoints for the app
-  - `model/` - Database entity models (Spring Data JPA entities)
+  - `backend/` - Contains all the source code (excluding tests and resources)
+    - `config/` - Configuration classes used at boot
+    - `controller/` - Methods that register endpoints for the app
+    - `model/` - Database entity models (Spring Data JPA entities)
     - `dto/` - Data Transfer Objects for creating and modifying entities
-  - `repository/` - Data access layer methods (Spring Data repositories)
-  - `service/` - Business logic for the controllers
-  - `annotations/` - Custom annotations used in the project
-    - `validation/` - Custom validations used across the different models
+    - `repository/` - Data access layer methods (Spring Data repositories)
+    - `service/` - Business logic for the controllers
+    - `utils/` - Auxiliary packages used in the project
+      - `extensions/` - [Extension functions](https://kotlinlang.org/docs/extensions.html) used throughout the project
+      - `validation/` - Custom validations used across the different models
+  - `resources/` - All assets and static files needed, including static configurations
 - `src/test/` - Self explanatory: unit tests, functional (end-to-end) tests, etc.

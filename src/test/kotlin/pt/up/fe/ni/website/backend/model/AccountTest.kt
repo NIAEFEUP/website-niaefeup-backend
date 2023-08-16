@@ -31,7 +31,10 @@ class AccountTest {
 
         val websiteProject = Project(
             "NI Website",
-            "NI's website is where everything about NI is shown to the public"
+            "NI's website is where everything about NI is shown to the public",
+            image = "cool-image.jpg",
+            targetAudience = "Everyone"
+
         )
 
         val managerAccount = Account(

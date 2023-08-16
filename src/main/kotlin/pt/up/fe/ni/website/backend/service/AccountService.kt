@@ -1,17 +1,14 @@
 package pt.up.fe.ni.website.backend.service
 
-import java.util.UUID
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
-import org.springframework.web.multipart.MultipartFile
 import pt.up.fe.ni.website.backend.dto.auth.ChangePasswordDto
 import pt.up.fe.ni.website.backend.dto.entity.account.CreateAccountDto
 import pt.up.fe.ni.website.backend.dto.entity.account.UpdateAccountDto
 import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.repository.AccountRepository
 import pt.up.fe.ni.website.backend.service.upload.FileUploader
-import pt.up.fe.ni.website.backend.utils.extensions.filenameExtension
 
 @Service
 class AccountService(
@@ -30,15 +27,12 @@ class AccountService(
         account.password = encoder.encode(dto.password)
 
         dto.photoFile?.let {
-            val fileName = photoFilename(dto.email, it)
+            val fileName = fileUploader.buildFileName(it, dto.email)
             account.photo = fileUploader.uploadImage("profile", fileName, it.bytes)
         }
 
         return repository.save(account)
     }
-
-    private fun photoFilename(email: String, photoFile: MultipartFile): String =
-        "$email-${UUID.randomUUID()}.${photoFile.filenameExtension()}"
 
     fun getAccountById(id: Long): Account = repository.findByIdOrNull(id)
         ?: throw NoSuchElementException(ErrorMessages.accountNotFound(id))
@@ -48,12 +42,14 @@ class AccountService(
     fun updateAccountById(id: Long, dto: UpdateAccountDto): Account {
         val account = getAccountById(id)
 
-        repository.findByEmail(dto.email)?.let {
-            throw IllegalArgumentException(ErrorMessages.emailAlreadyExists)
+        if (account.email != dto.email) {
+            repository.findByEmail(dto.email)?.let {
+                throw IllegalArgumentException(ErrorMessages.emailAlreadyExists)
+            }
         }
 
         dto.photoFile?.let {
-            val fileName = photoFilename(dto.email, it)
+            val fileName = fileUploader.buildFileName(it, dto.email)
             account.photo = fileUploader.uploadImage("profile", fileName, it.bytes)
         }
 

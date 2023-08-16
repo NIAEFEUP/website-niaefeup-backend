@@ -13,6 +13,7 @@ import jakarta.persistence.InheritanceType
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.OneToMany
 import jakarta.validation.Valid
+import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 import pt.up.fe.ni.website.backend.model.constants.ActivityConstants as Constants
 
@@ -38,6 +39,9 @@ abstract class Activity(
     @Column(unique = true)
     @field:Size(min = Constants.Slug.minSize, max = Constants.Slug.maxSize)
     open val slug: String? = null,
+
+    @field:NotBlank
+    open var image: String,
 
     @Id
     @GeneratedValue

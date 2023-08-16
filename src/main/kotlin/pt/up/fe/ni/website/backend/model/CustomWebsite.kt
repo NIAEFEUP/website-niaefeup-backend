@@ -19,6 +19,9 @@ class CustomWebsite(
     @field:URL
     val iconPath: String?,
 
+    @field:NullOrNotBlank
+    val label: String?,
+
     @Id @GeneratedValue
     val id: Long? = null
 )
