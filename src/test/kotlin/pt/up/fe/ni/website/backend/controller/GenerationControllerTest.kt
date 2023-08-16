@@ -24,7 +24,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPat
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import pt.up.fe.ni.website.backend.dto.entity.GenerationDto
 import pt.up.fe.ni.website.backend.dto.entity.PerActivityRoleDto
-import pt.up.fe.ni.website.backend.dto.entity.RoleDto
+import pt.up.fe.ni.website.backend.dto.entity.role.CreateRoleDto
 import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.Activity
 import pt.up.fe.ni.website.backend.model.Event
@@ -420,14 +420,14 @@ class GenerationControllerTest @Autowired constructor(
             val generationDtoWithRoles = GenerationDto(
                 "20-21",
                 listOf(
-                    RoleDto(
+                    CreateRoleDto(
                         "role1",
                         emptyList(),
                         true,
                         emptyList(),
                         emptyList()
                     ),
-                    RoleDto(
+                    CreateRoleDto(
                         "role2",
                         emptyList(),
                         false,
@@ -473,7 +473,7 @@ class GenerationControllerTest @Autowired constructor(
             val generationDtoWithRoles = GenerationDto(
                 "20-21",
                 listOf(
-                    RoleDto(
+                    CreateRoleDto(
                         "role1",
                         listOf(0, 1),
                         true,
@@ -553,7 +553,7 @@ class GenerationControllerTest @Autowired constructor(
                 val generationDtoWithAccounts = GenerationDto(
                     "20-21",
                     listOf(
-                        RoleDto(
+                        CreateRoleDto(
                             "role1",
                             emptyList(),
                             true,
@@ -595,7 +595,7 @@ class GenerationControllerTest @Autowired constructor(
                 val generationDtoWithActivities = GenerationDto(
                     "20-21",
                     listOf(
-                        RoleDto(
+                        CreateRoleDto(
                             "role1",
                             emptyList(),
                             true,

@@ -4,11 +4,13 @@ import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import pt.up.fe.ni.website.backend.dto.auth.UserIdDto
-import pt.up.fe.ni.website.backend.dto.entity.RoleDto
+import pt.up.fe.ni.website.backend.dto.entity.role.CreateRoleDto
+import pt.up.fe.ni.website.backend.dto.entity.role.UpdateRoleDto
 import pt.up.fe.ni.website.backend.dto.roles.PermissionsDto
 import pt.up.fe.ni.website.backend.service.RoleService
 
@@ -22,10 +24,13 @@ class RoleController(private val roleService: RoleService) {
     fun getRole(@PathVariable id: Long) = roleService.getRoleById(id)
 
     @PostMapping
-    fun createNewRole(@RequestBody dto: RoleDto) = roleService.createNewRole(dto)
+    fun createNewRole(@RequestBody dto: CreateRoleDto) = roleService.createNewRole(dto)
 
     @DeleteMapping("/{id}")
     fun deleteRole(@PathVariable id: Long) = roleService.deleteRole(id)
+
+    @PutMapping("/{id}")
+    fun updateRole(@PathVariable id: Long, @RequestBody dto: UpdateRoleDto) = roleService.updateRole(id, dto)
 
     @PostMapping("/{id}/permissions")
     fun grantPermissionToRole(

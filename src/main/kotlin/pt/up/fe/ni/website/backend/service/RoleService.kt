@@ -3,7 +3,8 @@ package pt.up.fe.ni.website.backend.service
 import jakarta.transaction.Transactional
 import jakarta.validation.Validator
 import org.springframework.stereotype.Service
-import pt.up.fe.ni.website.backend.dto.entity.RoleDto
+import pt.up.fe.ni.website.backend.dto.entity.role.CreateRoleDto
+import pt.up.fe.ni.website.backend.dto.entity.role.UpdateRoleDto
 import pt.up.fe.ni.website.backend.model.PerActivityRole
 import pt.up.fe.ni.website.backend.model.Role
 import pt.up.fe.ni.website.backend.model.permissions.Permissions
@@ -64,7 +65,7 @@ class RoleService(
         perActivityRoleRepository.save(foundActivity)
     }
 
-    fun createNewRole(dto: RoleDto): Role {
+    fun createNewRole(dto: CreateRoleDto): Role {
         val role = dto.create()
         val generation = generationService.getGenerationByIdOrInferLatest(dto.generationId)
 
@@ -97,5 +98,18 @@ class RoleService(
         val account = accountService.getAccountById(userId)
         role.accounts.remove(account)
         roleRepository.save(role)
+    }
+
+    fun updateRole(roleId: Long, dto: UpdateRoleDto): Role {
+        val role = getRoleById(roleId)
+
+        // just for validation
+        role.name = dto.name
+        if (validator.validateProperty(role.generation, "roles").isNotEmpty()) {
+            throw IllegalArgumentException(ErrorMessages.roleAlreadyExists(role.name, role.generation.schoolYear))
+        }
+
+        dto.update(role)
+        return roleRepository.save(role)
     }
 }

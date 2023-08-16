@@ -3,7 +3,7 @@ package pt.up.fe.ni.website.backend.controller
 import com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.transaction.Transactional
-import java.util.*
+import java.util.Calendar
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -14,14 +14,11 @@ import org.springframework.http.MediaType
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.delete
-import org.springframework.test.web.servlet.get
-import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import org.springframework.web.servlet.function.RequestPredicates.contentType
 import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.CustomWebsite
 import pt.up.fe.ni.website.backend.model.Generation
@@ -100,7 +97,7 @@ internal class RoleControllerTest @Autowired constructor(
     @DisplayName("GET /roles")
     inner class GetAllRoles {
 
-        val roles = listOf(
+        private val roles = listOf(
             testRole,
             Role(
                 "El Presidant",
@@ -859,6 +856,87 @@ internal class RoleControllerTest @Autowired constructor(
                     Permission.EDIT_ACTIVITY
                 )
             )
+        }
+    }
+
+    @NestedTest
+    @DisplayName("PUT /roles/{id}")
+    inner class UpdateRoleTest {
+
+        @BeforeEach
+        fun addAll() {
+            generationRepository.save(testGeneration)
+            testRole.generation = testGeneration
+            otherTestRole.generation = testGeneration
+            roleRepository.save(testRole)
+            roleRepository.save(otherTestRole)
+            TestUtils.startNewTransaction()
+        }
+
+        @Test
+        fun `should correctly update role name and isSection`() {
+            mockMvc.perform(
+                put("/roles/{id}", testRole.id)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf(
+                                "name" to "Membro",
+                                "isSection" to true
+                            )
+                        )
+                    )
+            )
+                .andExpectAll(status().isOk)
+                .andDocument(
+                    documentationRoles,
+                    "Updates role information by ID",
+                    "Updates some role information (eg: name and isSection). " +
+                        "It will throw an error if the desired name already exists on role generation " +
+                        "or if role doesn't exist.",
+                    hasRequestPayload = true
+                )
+            TestUtils.startNewTransaction()
+            assert(roleRepository.findByIdOrNull(testRole.id!!)!!.name == "Membro")
+            assert(roleRepository.findByIdOrNull(testRole.id!!)!!.isSection)
+        }
+
+        @Test
+        fun `should not update role name if it already exists in generation`() {
+            mockMvc.perform(
+                put("/roles/{id}", testRole.id)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf(
+                                "name" to otherTestRole.name,
+                                "isSection" to true
+                            )
+                        )
+                    )
+            )
+                .andExpectAll(status().isUnprocessableEntity)
+                .andDocumentErrorResponse(documentationRoles)
+            TestUtils.startNewTransaction(rollback = true)
+            assert(roleRepository.findByIdOrNull(testRole.id!!)!!.name == "TestRole")
+            assert(!roleRepository.findByIdOrNull(testRole.id!!)!!.isSection)
+        }
+
+        @Test
+        fun `should not update role name if role doesn't exist`() {
+            mockMvc.perform(
+                put("/roles/{id}", 1234)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf(
+                                "name" to otherTestRole.name,
+                                "isSection" to true
+                            )
+                        )
+                    )
+            )
+                .andExpectAll(status().isNotFound)
         }
     }
 }
