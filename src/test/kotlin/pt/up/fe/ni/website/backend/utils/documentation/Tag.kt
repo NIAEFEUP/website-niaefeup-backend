@@ -8,5 +8,6 @@ enum class Tag(override val fullName: String) : ITag {
     EVENT("Events"),
     GENERATION("Generations"),
     POST("Posts"),
-    PROJECT("Projects")
+    PROJECT("Projects"),
+    ROLES("Role Management")
 }
