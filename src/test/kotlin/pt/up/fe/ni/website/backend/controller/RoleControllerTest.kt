@@ -75,7 +75,9 @@ internal class RoleControllerTest @Autowired constructor(
 
     val project = Project(
         "UNI",
-        "Melhor app"
+        "Melhor app",
+        image = "image.png",
+        targetAudience = "Estudantes"
     )
 
     val testAccount = Account(
@@ -88,7 +90,7 @@ internal class RoleControllerTest @Autowired constructor(
         "https://linkedin.com",
         "https://github.com",
         listOf(
-            CustomWebsite("https://test-website.com", "https://test-website.com/logo.png")
+            CustomWebsite("https://test-website.com", "https://test-website.com/logo.png", "Website pessoal")
         ),
         mutableListOf()
     )
@@ -736,7 +738,7 @@ internal class RoleControllerTest @Autowired constructor(
 
         @BeforeEach
         fun addAll() {
-            project = Project("test project", "test")
+            project = Project("test project", "test", image = "image.png", targetAudience = "estudantes")
             roleRepository.save(testRole)
             projectRepository.save(project)
             val perActivityRole = PerActivityRole(Permissions(listOf(Permission.EDIT_ACTIVITY)))
