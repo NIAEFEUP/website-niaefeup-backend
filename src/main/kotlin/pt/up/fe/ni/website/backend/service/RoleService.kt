@@ -103,13 +103,11 @@ class RoleService(
     fun updateRole(roleId: Long, dto: UpdateRoleDto): Role {
         val role = getRoleById(roleId)
 
-        // just for validation
-        role.name = dto.name
+        dto.update(role)
         if (validator.validateProperty(role.generation, "roles").isNotEmpty()) {
             throw IllegalArgumentException(ErrorMessages.roleAlreadyExists(role.name, role.generation.schoolYear))
         }
 
-        dto.update(role)
         return roleRepository.save(role)
     }
 }
