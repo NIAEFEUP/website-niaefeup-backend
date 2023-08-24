@@ -37,7 +37,7 @@ dependencies {
     implementation("org.slf4j:slf4j-api:2.0.7")
     implementation("com.cloudinary:cloudinary:1.0.14")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-    implementation("org.springframework.boot:spring-boot-starter-validation:3.1.1")
+    implementation("org.springframework.boot:spring-boot-starter-validation:3.1.3")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("com.h2database:h2")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
