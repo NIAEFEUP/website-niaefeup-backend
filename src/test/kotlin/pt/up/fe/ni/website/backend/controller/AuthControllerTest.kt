@@ -74,7 +74,7 @@ class AuthControllerTest @Autowired constructor(
         "https://linkedin.com",
         "https://github.com",
         listOf(
-            CustomWebsite("https://test-website.com", "https://test-website.com/logo.png")
+            CustomWebsite("https://test-website.com", "https://test-website.com/logo.png", "test")
         ),
         mutableListOf()
     )

@@ -7,29 +7,20 @@ import pt.up.fe.ni.website.backend.model.Project
 import pt.up.fe.ni.website.backend.repository.ProjectRepository
 import pt.up.fe.ni.website.backend.service.AccountService
 import pt.up.fe.ni.website.backend.service.ErrorMessages
+import pt.up.fe.ni.website.backend.service.upload.FileUploader
 
 @Service
 class ProjectService(
     override val repository: ProjectRepository,
-    accountService: AccountService
-) : AbstractActivityService<Project>(repository, accountService) {
+    accountService: AccountService,
+    fileUploader: FileUploader
+) : AbstractActivityService<Project>(repository, accountService, fileUploader) {
+
+    companion object {
+        const val IMAGE_FOLDER = "projects"
+    }
 
     fun getAllProjects(): List<Project> = repository.findAll().toList()
-
-    fun createProject(dto: ProjectDto): Project {
-        repository.findBySlug(dto.slug)?.let {
-            throw IllegalArgumentException(ErrorMessages.slugAlreadyExists)
-        }
-
-        val project = dto.create()
-
-        dto.teamMembersIds?.forEach {
-            val account = accountService.getAccountById(it)
-            project.teamMembers.add(account)
-        }
-
-        return repository.save(project)
-    }
 
     fun getProjectById(id: Long): Project = repository.findByIdOrNull(id)
         ?: throw NoSuchElementException(ErrorMessages.projectNotFound(id))
@@ -37,19 +28,23 @@ class ProjectService(
     fun getProjectBySlug(projectSlug: String): Project = repository.findBySlug(projectSlug)
         ?: throw NoSuchElementException(ErrorMessages.projectNotFound(projectSlug))
 
+    fun createProject(dto: ProjectDto): Project {
+        val project = createActivity(dto, IMAGE_FOLDER)
+        dto.hallOfFameIds?.forEach {
+            val account = accountService.getAccountById(it)
+            project.hallOfFame.add(account)
+        }
+        return repository.save(project)
+    }
+
     fun updateProjectById(id: Long, dto: ProjectDto): Project {
         val project = getProjectById(id)
-
-        repository.findBySlug(dto.slug)?.let {
-            if (it.id != project.id) throw IllegalArgumentException(ErrorMessages.slugAlreadyExists)
-        }
-
-        val newProject = dto.update(project)
+        val newProject = updateActivityById(project, dto, IMAGE_FOLDER)
         newProject.apply {
-            teamMembers.clear()
-            dto.teamMembersIds?.forEach {
+            hallOfFame.clear()
+            dto.hallOfFameIds?.forEach {
                 val account = accountService.getAccountById(it)
-                teamMembers.add(account)
+                hallOfFame.add(account)
             }
         }
         return repository.save(newProject)
@@ -72,6 +67,26 @@ class ProjectService(
     fun unarchiveProjectById(id: Long): Project {
         val project = getProjectById(id)
         project.isArchived = false
+        return repository.save(project)
+    }
+
+    fun addHallOfFameMemberById(idProject: Long, idAccount: Long): Project {
+        val project = getProjectById(idProject)
+        val account = accountService.getAccountById(idAccount)
+        project.hallOfFame.add(account)
+        return repository.save(project)
+    }
+
+    fun removeHallOfFameMemberById(idProject: Long, idAccount: Long): Project {
+        val project = getProjectById(idProject)
+        if (!accountService.doesAccountExist(idAccount)) {
+            throw NoSuchElementException(
+                ErrorMessages.accountNotFound(
+                    idAccount
+                )
+            )
+        }
+        project.hallOfFame.removeIf { it.id == idAccount }
         return repository.save(project)
     }
 }

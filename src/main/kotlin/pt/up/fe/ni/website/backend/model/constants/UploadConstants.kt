@@ -5,13 +5,15 @@ object UploadConstants {
         val contentTypes = listOf(
             "image/png",
             "image/jpg",
-            "image/jpeg"
+            "image/jpeg",
+            "image/webp"
         )
 
         val fileExtensions = listOf(
             "png",
             "jpg",
-            "jpeg"
+            "jpeg",
+            "webp"
         )
     }
 }

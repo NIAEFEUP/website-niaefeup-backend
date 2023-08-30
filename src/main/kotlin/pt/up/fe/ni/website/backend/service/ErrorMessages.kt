@@ -17,6 +17,9 @@ object ErrorMessages {
 
     const val generationAlreadyExists = "generation already exists"
 
+    fun roleAlreadyExists(roleName: String, generationYear: String): String =
+        "role $roleName already exists in $generationYear"
+
     fun postNotFound(postId: Long): String = "post not found with id $postId"
 
     fun postNotFound(postSlug: String): String = "post not found with slug $postSlug"
@@ -38,4 +41,10 @@ object ErrorMessages {
     fun generationNotFound(year: String): String = "generation not found with year $year"
 
     fun emailNotFound(email: String): String = "account not found with email $email"
+
+    fun roleNotFound(id: Long): String = "role not found with id $id"
+
+    fun userAlreadyHasRole(roleId: Long, userId: Long): String = "user $userId already has role $roleId"
+
+    fun userNotInRole(roleId: Long, userId: Long): String = "user $userId doesn't have role $roleId"
 }

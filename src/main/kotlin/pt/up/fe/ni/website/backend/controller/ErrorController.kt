@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.multipart.MaxUploadSizeExceededException
+import org.springframework.web.multipart.support.MissingServletRequestPartException
 import pt.up.fe.ni.website.backend.config.Logging
 import pt.up.fe.ni.website.backend.service.ErrorMessages
 
@@ -68,6 +69,12 @@ class ErrorController(private val objectMapper: ObjectMapper) : ErrorController,
             )
         }
         return CustomError(errors)
+    }
+
+    @ExceptionHandler(MissingServletRequestPartException::class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun missingPart(e: MissingServletRequestPartException): CustomError {
+        return wrapSimpleError("required", param = e.requestPartName)
     }
 
     @ExceptionHandler(HttpMessageNotReadableException::class)
@@ -122,7 +129,7 @@ class ErrorController(private val objectMapper: ObjectMapper) : ErrorController,
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     fun unexpectedError(e: Exception): CustomError {
         logger.error(e.message)
-        return wrapSimpleError("unexpected error: " + e.message)
+        return wrapSimpleError("unexpected error")
     }
 
     @ExceptionHandler(AccessDeniedException::class)
