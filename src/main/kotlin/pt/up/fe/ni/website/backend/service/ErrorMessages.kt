@@ -7,9 +7,9 @@ object ErrorMessages {
 
     const val invalidCredentials = "invalid credentials"
 
-    const val invalidRefreshToken = "invalid refresh token"
+    const val invalidToken = "invalid token"
 
-    const val expiredRefreshToken = "refresh token has expired"
+    const val expiredToken = "token has expired"
 
     const val noGenerations = "no generations created yet"
 

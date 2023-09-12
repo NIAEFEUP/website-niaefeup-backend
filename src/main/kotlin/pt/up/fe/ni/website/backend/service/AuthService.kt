@@ -15,6 +15,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException
 import org.springframework.stereotype.Service
 import pt.up.fe.ni.website.backend.config.auth.AuthConfigProperties
+import pt.up.fe.ni.website.backend.dto.auth.PasswordRecoveryConfirmDto
 import pt.up.fe.ni.website.backend.model.Account
 
 @Service
@@ -44,17 +45,37 @@ class AuthService(
     }
 
     fun refreshAccessToken(refreshToken: String): String {
-        val jwt =
-            try {
-                jwtDecoder.decode(refreshToken)
-            } catch (e: Exception) {
-                throw InvalidBearerTokenException(ErrorMessages.invalidRefreshToken)
-            }
-        if (jwt.expiresAt?.isBefore(Instant.now()) != false) {
-            throw InvalidBearerTokenException(ErrorMessages.expiredRefreshToken)
-        }
+        val jwt = jwtDecoder.decode(refreshToken)
         val account = accountService.getAccountByEmail(jwt.subject)
         return generateAccessToken(account)
+    }
+
+    fun generateRecoveryToken(email: String): String? {
+        val account = try {
+            accountService.getAccountByEmail(email)
+        } catch (e: Exception) {
+            return null
+        }
+        return generateToken(
+            account,
+            Duration.ofMinutes(authConfigProperties.jwtRecoveryExpirationMinutes),
+            usePasswordHash = true
+        )
+    }
+
+    fun confirmRecoveryToken(recoveryToken: String, dto: PasswordRecoveryConfirmDto): Account {
+        val jwt = jwtDecoder.decode(recoveryToken)
+        val account = accountService.getAccountByEmail(jwt.subject)
+
+        val tokenPasswordHash = jwt.getClaim<String>("passwordHash")
+            ?: throw InvalidBearerTokenException(ErrorMessages.invalidToken)
+
+        if (account.password != tokenPasswordHash) {
+            throw InvalidBearerTokenException(ErrorMessages.invalidToken)
+        }
+
+        account.password = passwordEncoder.encode(dto.password)
+        return accountService.updateAccount(account)
     }
 
     fun getAuthenticatedAccount(): Account {
@@ -62,21 +83,31 @@ class AuthService(
         return accountService.getAccountByEmail(authentication.name)
     }
 
-    private fun generateToken(account: Account, expiration: Duration, isRefresh: Boolean = false): String {
+    private fun generateToken(
+        account: Account,
+        expiration: Duration,
+        isRefresh: Boolean = false,
+        usePasswordHash: Boolean = false
+    ): String {
         val roles = if (isRefresh) emptyList() else getAuthorities() // TODO: Pass account to getAuthorities()
         val scope = roles
             .stream()
             .map(GrantedAuthority::getAuthority)
             .collect(Collectors.joining(" "))
         val currentInstant = Instant.now()
-        val claims = JwtClaimsSet
+        val claimsBuilder = JwtClaimsSet
             .builder()
             .issuer("self")
             .issuedAt(currentInstant)
             .expiresAt(currentInstant.plus(expiration))
             .subject(account.email)
             .claim("scope", scope)
-            .build()
+
+        if (usePasswordHash) {
+            claimsBuilder.claim("passwordHash", account.password)
+        }
+
+        val claims = claimsBuilder.build()
         return jwtEncoder.encode(JwtEncoderParameters.from(claims)).tokenValue
     }
 

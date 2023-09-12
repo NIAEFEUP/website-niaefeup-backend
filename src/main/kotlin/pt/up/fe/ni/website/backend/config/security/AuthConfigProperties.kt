@@ -9,5 +9,6 @@ data class AuthConfigProperties(
     val publicKey: RSAPublicKey,
     val privateKey: RSAPrivateKey,
     val jwtAccessExpirationMinutes: Long,
-    val jwtRefreshExpirationDays: Long
+    val jwtRefreshExpirationDays: Long,
+    val jwtRecoveryExpirationMinutes: Long
 )

@@ -56,6 +56,26 @@ class PayloadAuthRefresh : ModelDocumentation(
     )
 )
 
+class PayloadRecoverPassword : ModelDocumentation(
+    Tag.AUTH.name.lowercase() + "-recover",
+    Tag.AUTH,
+    mutableListOf(
+        DocumentedJSONField(
+            "email",
+            "Email of the account",
+            JsonFieldType.STRING,
+            isInResponse = false
+        ),
+        DocumentedJSONField(
+            "recovery_url",
+            "URL to recover the password",
+            JsonFieldType.STRING,
+            isInRequest = false,
+            optional = true // TODO change this when email service is implemented
+        )
+    )
+)
+
 class PayloadAuthCheck : ModelDocumentation(
     Tag.AUTH.name.lowercase() + "-check",
     Tag.AUTH,

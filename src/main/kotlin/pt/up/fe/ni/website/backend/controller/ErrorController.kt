@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.core.AuthenticationException
+import org.springframework.security.oauth2.jwt.BadJwtException
+import org.springframework.security.oauth2.jwt.JwtValidationException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RequestMapping
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.multipart.MaxUploadSizeExceededException
 import org.springframework.web.multipart.support.MissingServletRequestPartException
 import pt.up.fe.ni.website.backend.config.Logging
+import pt.up.fe.ni.website.backend.service.ErrorMessages
 
 data class SimpleError(
     val message: String,
@@ -139,6 +142,22 @@ class ErrorController(private val objectMapper: ObjectMapper) : ErrorController,
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     fun invalidAuthentication(e: AuthenticationException): CustomError {
         return wrapSimpleError(e.message ?: "invalid authentication")
+    }
+
+    @ExceptionHandler(JwtValidationException::class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    fun invalidAuthentication(e: JwtValidationException): CustomError {
+        return if (e.message?.contains("expired") == true) {
+            wrapSimpleError(ErrorMessages.expiredToken)
+        } else {
+            wrapSimpleError(ErrorMessages.invalidToken)
+        }
+    }
+
+    @ExceptionHandler(BadJwtException::class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    fun invalidAuthentication(e: BadJwtException): CustomError {
+        return wrapSimpleError(ErrorMessages.invalidToken)
     }
 
     fun wrapSimpleError(msg: String, param: String? = null, value: Any? = null) = CustomError(

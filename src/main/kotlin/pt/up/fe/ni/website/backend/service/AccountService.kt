@@ -58,6 +58,8 @@ class AccountService(
         return repository.save(newAccount)
     }
 
+    fun updateAccount(account: Account): Account = repository.save(account)
+
     fun getAccountByEmail(email: String): Account = repository.findByEmail(email)
         ?: throw NoSuchElementException(ErrorMessages.emailNotFound(email))
 
