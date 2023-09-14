@@ -10,13 +10,11 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import pt.up.fe.ni.website.backend.dto.auth.LoginDto
 import pt.up.fe.ni.website.backend.dto.auth.TokenDto
-import pt.up.fe.ni.website.backend.model.Project
-import pt.up.fe.ni.website.backend.repository.ActivityRepository
 import pt.up.fe.ni.website.backend.service.AuthService
 
 @RestController
 @RequestMapping("/auth")
-class AuthController(val authService: AuthService, val repository: ActivityRepository<Project>) {
+class AuthController(val authService: AuthService) {
     @PostMapping("/new")
     fun getNewToken(@RequestBody loginDto: LoginDto): Map<String, String> {
         val account = authService.authenticate(loginDto.email, loginDto.password)
@@ -42,13 +40,13 @@ class AuthController(val authService: AuthService, val repository: ActivityRepos
         )
     }
 
-    @PreAuthorize("@authService.hasPermission(#permission.trim().toUpperCase())")
+    @PreAuthorize("@authService.hasPermission(#permission)")
     @GetMapping("/hasPermission/{permission}")
     fun protectedPermission(@PathVariable permission: String): Map<String, String> {
         return mapOf("message" to "You have permission to access this endpoint!")
     }
 
-    @PreAuthorize("@authService.hasActivityPermission(#activityId, #permission.trim().toUpperCase())")
+    @PreAuthorize("@authService.hasActivityPermission(#activityId, #permission)")
     @GetMapping("/hasPermission/{activityId}/{permission}")
     fun protectedPerActivityPermission(
         @PathVariable activityId: Long,
