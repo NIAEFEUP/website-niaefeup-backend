@@ -9,7 +9,6 @@ import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
 import jakarta.persistence.OneToMany
-import jakarta.persistence.OrderColumn
 import jakarta.validation.Valid
 import pt.up.fe.ni.website.backend.utils.validation.NoDuplicateRoles
 import pt.up.fe.ni.website.backend.utils.validation.SchoolYear
@@ -25,7 +24,6 @@ class Generation(
     val id: Long? = null
 ) {
     @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER, mappedBy = "generation")
-    @OrderColumn
     @JsonManagedReference
     @field:NoDuplicateRoles
     val roles: MutableList<@Valid Role> = mutableListOf()

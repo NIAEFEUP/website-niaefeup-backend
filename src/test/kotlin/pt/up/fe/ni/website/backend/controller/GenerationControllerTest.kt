@@ -24,7 +24,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPat
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import pt.up.fe.ni.website.backend.dto.entity.GenerationDto
 import pt.up.fe.ni.website.backend.dto.entity.PerActivityRoleDto
-import pt.up.fe.ni.website.backend.dto.entity.RoleDto
+import pt.up.fe.ni.website.backend.dto.entity.role.CreateRoleDto
 import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.model.Activity
 import pt.up.fe.ni.website.backend.model.Event
@@ -420,14 +420,14 @@ class GenerationControllerTest @Autowired constructor(
             val generationDtoWithRoles = GenerationDto(
                 "20-21",
                 listOf(
-                    RoleDto(
+                    CreateRoleDto(
                         "role1",
                         emptyList(),
                         true,
                         emptyList(),
                         emptyList()
                     ),
-                    RoleDto(
+                    CreateRoleDto(
                         "role2",
                         emptyList(),
                         false,
@@ -473,7 +473,7 @@ class GenerationControllerTest @Autowired constructor(
             val generationDtoWithRoles = GenerationDto(
                 "20-21",
                 listOf(
-                    RoleDto(
+                    CreateRoleDto(
                         "role1",
                         listOf(0, 1),
                         true,
@@ -530,6 +530,7 @@ class GenerationControllerTest @Autowired constructor(
             @BeforeEach
             fun addGenerations() {
                 initializeTestGenerations()
+                TestUtils.startNewTransaction()
             }
 
             @Test
@@ -552,7 +553,7 @@ class GenerationControllerTest @Autowired constructor(
                 val generationDtoWithAccounts = GenerationDto(
                     "20-21",
                     listOf(
-                        RoleDto(
+                        CreateRoleDto(
                             "role1",
                             emptyList(),
                             true,
@@ -574,7 +575,7 @@ class GenerationControllerTest @Autowired constructor(
                         jsonPath("$.roles.length()").value(1),
                         jsonPath("$.roles[0].name").value("role1")
                     ).andDocument(documentation, documentRequestPayload = true)
-
+                TestUtils.startNewTransaction()
                 val role = roleRepository.findAll().toList()
                     .filter { it.generation.schoolYear == "20-21" }
                     .find { it.name == "role1" }
@@ -594,7 +595,7 @@ class GenerationControllerTest @Autowired constructor(
                 val generationDtoWithActivities = GenerationDto(
                     "20-21",
                     listOf(
-                        RoleDto(
+                        CreateRoleDto(
                             "role1",
                             emptyList(),
                             true,

@@ -27,6 +27,16 @@ class GenerationService(
         return buildGetGenerationDto(generation)
     }
 
+    fun getGenerationByIdOrInferLatest(id: Long?): Generation {
+        return if (id != null) {
+            repository.findById(id).orElseThrow {
+                NoSuchElementException(ErrorMessages.generationNotFound(id))
+            }
+        } else {
+            repository.findFirstByOrderBySchoolYearDesc()
+                ?: throw IllegalArgumentException(ErrorMessages.noGenerations)
+        }
+    }
     fun getGenerationByYear(year: String): GetGenerationDto {
         val generation =
             repository.findBySchoolYear(year) ?: throw NoSuchElementException(ErrorMessages.generationNotFound(year))
@@ -96,9 +106,7 @@ class GenerationService(
             roleDto.accountIds.forEach {
                 val account = accountService.getAccountById(it)
 
-                // only owner side is needed after transaction, but it's useful to update the objects
                 account.roles.add(role)
-                role.accounts.add(account)
             }
 
             roleDto.associatedActivities.forEachIndexed associatedLoop@{ activityRoleIdx, activityRoleDto ->
@@ -106,9 +114,7 @@ class GenerationService(
                 val activityId = activityRoleDto.activityId ?: return@associatedLoop
                 val activity = activityService.getActivityById(activityId)
 
-                // only owner side is needed after transaction, but it's useful to update the objects
                 perActivityRole.activity = activity
-                activity.associatedRoles.add(perActivityRole)
             }
         }
     }
