@@ -18,6 +18,8 @@ class Event(
     slug: String? = null,
     image: String,
 
+    val gallery: MutableList<String> = mutableListOf(),
+
     @field:NullOrNotBlank
     @field:URL
     var registerUrl: String? = null,

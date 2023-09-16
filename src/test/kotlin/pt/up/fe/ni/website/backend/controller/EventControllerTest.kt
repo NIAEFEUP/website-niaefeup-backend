@@ -69,6 +69,7 @@ internal class EventControllerTest @Autowired constructor(
         mutableListOf(),
         "great-event",
         "cool-image.png",
+        mutableListOf(),
         "https://docs.google.com/forms",
         DateInterval(
             TestUtils.createDate(2022, Calendar.JULY, 28),
@@ -92,6 +93,7 @@ internal class EventControllerTest @Autowired constructor(
                 mutableListOf(),
                 null,
                 "bad-image.png",
+                mutableListOf(),
                 null,
                 DateInterval(
                     TestUtils.createDate(2021, Calendar.OCTOBER, 27),
@@ -242,6 +244,7 @@ internal class EventControllerTest @Autowired constructor(
                 mutableListOf(),
                 null,
                 "bad-image.png",
+                mutableListOf(),
                 null,
                 DateInterval(
                     TestUtils.createDate(2021, Calendar.OCTOBER, 27),
@@ -257,6 +260,7 @@ internal class EventControllerTest @Autowired constructor(
                 mutableListOf(),
                 null,
                 "mid-image.png",
+                mutableListOf(),
                 null,
                 DateInterval(
                     TestUtils.createDate(2022, Calendar.JANUARY, 15),
@@ -272,6 +276,7 @@ internal class EventControllerTest @Autowired constructor(
                 mutableListOf(),
                 null,
                 "cool-image.png",
+                mutableListOf(),
                 null,
                 DateInterval(
                     TestUtils.createDate(2022, Calendar.SEPTEMBER, 11),
@@ -383,6 +388,7 @@ internal class EventControllerTest @Autowired constructor(
                 mutableListOf(),
                 testEvent.slug,
                 "duplicated-slug.png",
+                mutableListOf(),
                 "https://docs.google.com/forms",
                 DateInterval(
                     TestUtils.createDate(2022, Calendar.AUGUST, 28),

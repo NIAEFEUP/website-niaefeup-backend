@@ -72,4 +72,16 @@ class EventController(private val service: EventService) {
         @PathVariable idEvent: Long,
         @PathVariable idAccount: Long
     ) = service.removeTeamMemberById(idEvent, idAccount)
+
+    @PutMapping("/{idEvent}/gallery/addPhoto")
+    fun addGalleryPhoto(
+        @PathVariable idEvent: Long,
+        @RequestParam photoUrl: String
+    ) = service.addGalleryPhoto(idEvent, photoUrl)
+
+    @PutMapping("/{idEvent}/gallery/removePhoto")
+    fun removeGalleryPhoto(
+        @PathVariable idEvent: Long,
+        @RequestParam photoUrl: String
+    ) = service.removeGalleryPhoto(idEvent, photoUrl)
 }

@@ -44,4 +44,20 @@ class EventService(
 
         repository.deleteById(eventId)
     }
+
+    fun addGalleryPhoto(eventId: Long, photoUrl: String) {
+        val event = getEventById(eventId)
+
+        event.gallery.add(photoUrl)
+
+        repository.save(event)
+    }
+
+    fun removeGalleryPhoto(eventId: Long, photoUrl: String) {
+        val event = getEventById(eventId)
+
+        event.gallery.remove(photoUrl)
+
+        repository.save(event)
+    }
 }
