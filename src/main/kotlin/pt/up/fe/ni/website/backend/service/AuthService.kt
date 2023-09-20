@@ -34,7 +34,7 @@ class AuthService(
     fun hasPermission(permission: String): Boolean {
         val authentication = SecurityContextHolder.getContext().authentication
         return authentication.authorities.any {
-            it.toString() == permission.trim().uppercase(Locale.getDefault())
+            it.toString() == permission.trim().uppercase()
         }
     }
 
@@ -42,7 +42,7 @@ class AuthService(
         val authentication = SecurityContextHolder.getContext().authentication
 
         val activity = activityService.getActivityById(activityId)
-        val name = activity.title.filter { it.isLetterOrDigit() }.uppercase(Locale.getDefault())
+        val name = activity.title.filter { it.isLetterOrDigit() }.uppercase()
 
         return authentication.authorities.any {
             val payload = it.toString().split(":")
