@@ -2,6 +2,7 @@ package pt.up.fe.ni.website.backend.service.activity
 
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import org.springframework.web.multipart.MultipartFile
 import pt.up.fe.ni.website.backend.dto.entity.EventDto
 import pt.up.fe.ni.website.backend.model.Event
 import pt.up.fe.ni.website.backend.repository.EventRepository
@@ -45,18 +46,21 @@ class EventService(
         repository.deleteById(eventId)
     }
 
-    fun addGalleryPhoto(eventId: Long, photoUrl: String) {
+    fun addGalleryPhoto(eventId: Long, image: MultipartFile) {
         val event = getEventById(eventId)
 
-        event.gallery.add(photoUrl)
+        val fileName = fileUploader.buildFileName(image, event.title)
+        val imageName = fileUploader.uploadImage("profile", fileName, image.bytes)
+
+        event.gallery.add(imageName)
 
         repository.save(event)
     }
 
-    fun removeGalleryPhoto(eventId: Long, photoUrl: String) {
+    fun removeGalleryPhoto(eventId: Long, photoName: String) {
         val event = getEventById(eventId)
 
-        event.gallery.remove(photoUrl)
+        event.gallery.remove(photoName)
 
         repository.save(event)
     }
