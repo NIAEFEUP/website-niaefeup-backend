@@ -27,6 +27,7 @@ import pt.up.fe.ni.website.backend.model.CustomWebsite
 import pt.up.fe.ni.website.backend.model.Event
 import pt.up.fe.ni.website.backend.model.constants.ActivityConstants
 import pt.up.fe.ni.website.backend.model.constants.EventConstants as Constants
+import org.junit.jupiter.api.Nested
 import pt.up.fe.ni.website.backend.model.embeddable.DateInterval
 import pt.up.fe.ni.website.backend.repository.AccountRepository
 import pt.up.fe.ni.website.backend.repository.EventRepository
@@ -80,26 +81,11 @@ internal class EventControllerTest @Autowired constructor(
 
     val documentation = PayloadEvent()
 
-    @NestedTest
-    @DisplayName("GET /events")
-    inner class GetAllEvents {
-        private val testEvents = listOf(
-            testEvent,
-            Event(
-                "Bad event",
-                "This event was a failure",
-                mutableListOf(),
-                mutableListOf(),
-                null,
-                "bad-image.png",
-                null,
-                DateInterval(
-                    TestUtils.createDate(2021, Calendar.OCTOBER, 27),
-                    null
-                ),
-                null,
-                null
-            )
+    @DisplayName("GET events?category={category}")
+    @Nested
+    inner class GetEvents {
+        private val testEvents = mutableListOf(
+            testEvent
         )
 
         @BeforeEach
@@ -123,72 +109,48 @@ internal class EventControllerTest @Autowired constructor(
                     """.trimMargin()
                 )
         }
-    }
-
-    @NestedTest
-    @DisplayName("GET events?category={category}")
-    inner class GetEventsByCategory {
-        private val testEvents = listOf(
-            testEvent,
-            Event(
-                "Bad event",
-                "This event was a failure",
-                mutableListOf(testAccount),
-                mutableListOf(),
-                null,
-                "weird-al.png",
-                null,
-                DateInterval(
-                    TestUtils.createDate(2021, Calendar.OCTOBER, 27),
-                    null
-                ),
-                null,
-                null
-            ),
-            Event(
-                "Mid event",
-                "This event was ok",
-                mutableListOf(),
-                mutableListOf(),
-                null,
-                "waldo.jpeg",
-                null,
-                DateInterval(
-                    TestUtils.createDate(2022, Calendar.JANUARY, 15),
-                    null
-                ),
-                null,
-                "Other category"
-            ),
-            Event(
-                "Cool event",
-                "This event was a awesome",
-                mutableListOf(testAccount),
-                mutableListOf(),
-                null,
-                "ni.png",
-                null,
-                DateInterval(
-                    TestUtils.createDate(2022, Calendar.SEPTEMBER, 11),
-                    null
-                ),
-                null,
-                "Great Events"
-            )
-        )
 
         private val queryParameters = listOf(
             parameterWithName("category").description("Category of the events to retrieve").optional()
         )
 
-        @BeforeEach
-        fun addToRepositories() {
-            accountRepository.save(testAccount)
-            for (event in testEvents) repository.save(event)
-        }
-
         @Test
         fun `should return all events of the category`() {
+            val extraEvents = listOf(
+                Event(
+                    "Mid event",
+                    "This event was ok",
+                    mutableListOf(),
+                    mutableListOf(),
+                    "bloat",
+                    "waldo.jpeg",
+                    null,
+                    DateInterval(
+                        TestUtils.createDate(2022, Calendar.JANUARY, 15),
+                        null
+                    ),
+                    "FCUP",
+                    "Other category"
+                ),
+                Event(
+                    "Cool event",
+                    "This event was a awesome",
+                    mutableListOf(testAccount),
+                    mutableListOf(),
+                    "ni",
+                    "ni.png",
+                    null,
+                    DateInterval(
+                        TestUtils.createDate(2022, Calendar.SEPTEMBER, 11),
+                        null
+                    ),
+                    "NI",
+                    "Great Events"
+                )
+            )
+            extraEvents.forEach { repository.save(it) }
+
+
             mockMvc.perform(get("/events?category={category}", testEvent.category))
                 .andExpectAll(
                     status().isOk,
