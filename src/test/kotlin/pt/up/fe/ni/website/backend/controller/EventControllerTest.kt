@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
@@ -27,7 +28,6 @@ import pt.up.fe.ni.website.backend.model.CustomWebsite
 import pt.up.fe.ni.website.backend.model.Event
 import pt.up.fe.ni.website.backend.model.constants.ActivityConstants
 import pt.up.fe.ni.website.backend.model.constants.EventConstants as Constants
-import org.junit.jupiter.api.Nested
 import pt.up.fe.ni.website.backend.model.embeddable.DateInterval
 import pt.up.fe.ni.website.backend.repository.AccountRepository
 import pt.up.fe.ni.website.backend.repository.EventRepository
@@ -149,7 +149,6 @@ internal class EventControllerTest @Autowired constructor(
                 )
             )
             extraEvents.forEach { repository.save(it) }
-
 
             mockMvc.perform(get("/events?category={category}", testEvent.category))
                 .andExpectAll(
