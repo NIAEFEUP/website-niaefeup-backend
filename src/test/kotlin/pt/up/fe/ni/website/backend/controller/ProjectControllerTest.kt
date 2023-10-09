@@ -1423,7 +1423,7 @@ internal class ProjectControllerTest @Autowired constructor(
     }
 
     @NestedTest
-    @DisplayName("PUT /projects/{idProject}/hallOfFameMember/{idAccount}")
+    @DisplayName("PUT /projects/{idProject}/hallOfFame/{idAccount}")
     inner class AddHallOfFameMember {
         private val newAccount = Account(
             "Another test Account",
@@ -1457,7 +1457,7 @@ internal class ProjectControllerTest @Autowired constructor(
         @Test
         fun `should add account to project's hall of fame`() {
             mockMvc.perform(
-                put("/projects/{idProject}/hallOfFameMember/{idAccount}", testProject.id, newAccount.id)
+                put("/projects/{idProject}/hallOfFame/{idAccount}", testProject.id, newAccount.id)
             )
                 .andExpectAll(
                     status().isOk, content().contentType(MediaType.APPLICATION_JSON),
@@ -1491,7 +1491,7 @@ internal class ProjectControllerTest @Autowired constructor(
 
         @Test
         fun `should fail if the account does not exist`() {
-            mockMvc.perform(put("/projects/{idProject}/hallOfFameMember/{idAccount}", testProject.id, 1234))
+            mockMvc.perform(put("/projects/{idProject}/hallOfFame/{idAccount}", testProject.id, 1234))
                 .andExpectAll(
                     status().isNotFound,
                     content().contentType(MediaType.APPLICATION_JSON),
@@ -1506,7 +1506,7 @@ internal class ProjectControllerTest @Autowired constructor(
     }
 
     @NestedTest
-    @DisplayName("DELETE /projects/{idProject}/hallOfFameMember/{idAccount}")
+    @DisplayName("DELETE /projects/{idProject}/hallOfFame/{idAccount}")
     inner class RemoveHallOfFameMember {
         @BeforeEach
         fun addToRepositories() {
@@ -1525,7 +1525,7 @@ internal class ProjectControllerTest @Autowired constructor(
         @Test
         fun `should remove an account from project's hall of fame`() {
             mockMvc.perform(
-                delete("/projects/{idProject}/hallOfFameMember/{idAccount}", testProject.id, testAccount2.id)
+                delete("/projects/{idProject}/hallOfFame/{idAccount}", testProject.id, testAccount2.id)
             )
                 .andExpectAll(
                     status().isOk,
@@ -1542,7 +1542,7 @@ internal class ProjectControllerTest @Autowired constructor(
 
         @Test
         fun `should fail if the account does not exist`() {
-            mockMvc.perform(delete("/projects/{idProject}/hallOfFameMember/{idAccount}", testProject.id, 1234))
+            mockMvc.perform(delete("/projects/{idProject}/hallOfFame/{idAccount}", testProject.id, 1234))
                 .andExpectAll(
                     status().isNotFound,
                     content().contentType(MediaType.APPLICATION_JSON),
