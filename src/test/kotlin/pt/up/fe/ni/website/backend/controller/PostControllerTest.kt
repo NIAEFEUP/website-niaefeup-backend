@@ -187,7 +187,7 @@ internal class PostControllerTest @Autowired constructor(
     }
 
     @NestedTest
-    @DisplayName("POST /posts/new")
+    @DisplayName("POST /posts")
     inner class CreatePost {
         @BeforeEach
         fun clearPosts() {
@@ -197,7 +197,7 @@ internal class PostControllerTest @Autowired constructor(
         @Test
         fun `should create a new post`() {
             mockMvc.perform(
-                post("/posts/new")
+                post("/posts")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(testPost))
             )
@@ -221,13 +221,13 @@ internal class PostControllerTest @Autowired constructor(
 
         @Test
         fun `should fail to create post with existing slug`() {
-            mockMvc.post("/posts/new") {
+            mockMvc.post("/posts") {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(testPost)
             }.andExpect { status { isOk() } }
 
             mockMvc.perform(
-                post("/posts/new")
+                post("/posts")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(testPost))
             )
@@ -246,7 +246,7 @@ internal class PostControllerTest @Autowired constructor(
             private val validationTester = ValidationTester(
                 req = { params: Map<String, Any?> ->
                     mockMvc.perform(
-                        post("/posts/new")
+                        post("/posts")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(params))
                     )

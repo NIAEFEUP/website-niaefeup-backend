@@ -24,7 +24,7 @@ class PostController(private val service: PostService) {
     @GetMapping("/{postSlug}**")
     fun getPost(@PathVariable postSlug: String) = service.getPostBySlug(postSlug)
 
-    @PostMapping("/new")
+    @PostMapping
     fun createPost(@RequestBody dto: PostDto) = service.createPost(dto)
 
     @PutMapping("/{postId}")

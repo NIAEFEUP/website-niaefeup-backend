@@ -14,7 +14,7 @@ import pt.up.fe.ni.website.backend.service.AuthService
 @RestController
 @RequestMapping("/auth")
 class AuthController(val authService: AuthService) {
-    @PostMapping("/new")
+    @PostMapping
     fun getNewToken(@RequestBody loginDto: LoginDto): Map<String, String> {
         val account = authService.authenticate(loginDto.email, loginDto.password)
         val accessToken = authService.generateAccessToken(account)
