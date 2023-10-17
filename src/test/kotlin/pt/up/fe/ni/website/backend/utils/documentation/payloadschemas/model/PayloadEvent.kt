@@ -42,6 +42,13 @@ class PayloadEvent : ModelDocumentation(
             JsonFieldType.NUMBER,
             isInResponse = false,
             optional = true
+        ),
+        DocumentedJSONField(
+            "gallery[]",
+            "Array of photos associated with the event",
+            JsonFieldType.ARRAY,
+            isInRequest = false,
+            optional = true
         )
     ).addFieldsBeneathPath(
         "teamMembers[]",

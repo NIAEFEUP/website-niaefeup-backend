@@ -771,6 +771,56 @@ internal class EventControllerTest @Autowired constructor(
     }
 
     @NestedTest
+    @DisplayName("PUT /events/{idEvent}/gallery/addPhoto")
+    inner class AddGalleryPhoto {
+
+        private val uuid: UUID = UUID.randomUUID()
+        private val mockedSettings = Mockito.mockStatic(UUID::class.java)
+
+        @BeforeAll
+        fun setupMocks() {
+            Mockito.`when`(UUID.randomUUID()).thenReturn(uuid)
+        }
+
+        @AfterAll
+        fun cleanup() {
+            mockedSettings.close()
+        }
+
+        @BeforeEach
+        fun addToRepositories() {
+            accountRepository.save(testAccount)
+            repository.save(testEvent)
+        }
+
+        @Test
+        fun `should add a photo`() {
+            val expectedPhotoPath = "${uploadConfigProperties.staticServe}/gallery/${testEvent.title}-$uuid.jpeg"
+
+            mockMvc.multipartBuilder("/events/${testEvent.id}/gallery/addPhoto")
+                .asPutMethod()
+                .addFile("image", contentType = MediaType.IMAGE_JPEG_VALUE)
+                .perform()
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.title").value(testEvent.title),
+                    jsonPath("$.description").value(testEvent.description),
+                    jsonPath("$.teamMembers.length()").value(testEvent.teamMembers.size),
+                    jsonPath("$.gallery.length()").value(1),
+                    jsonPath("$.gallery[0]").value(expectedPhotoPath),
+                    jsonPath("$.registerUrl").value(testEvent.registerUrl),
+                    jsonPath("$.dateInterval.startDate").value(testEvent.dateInterval.startDate.toJson()),
+                    jsonPath("$.dateInterval.endDate").value(testEvent.dateInterval.endDate.toJson()),
+                    jsonPath("$.location").value(testEvent.location),
+                    jsonPath("$.category").value(testEvent.category),
+                    jsonPath("$.slug").value(testEvent.slug),
+                    jsonPath("$.image").value(testEvent.image)
+                )
+        }
+    }
+
+    @NestedTest
     @DisplayName("PUT /events/{eventId}")
     inner class UpdateEvent {
         private val testAccount2 = Account(
