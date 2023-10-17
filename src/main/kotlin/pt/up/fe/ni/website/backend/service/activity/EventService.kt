@@ -46,15 +46,15 @@ class EventService(
         repository.deleteById(eventId)
     }
 
-    fun addGalleryPhoto(eventId: Long, image: MultipartFile) {
+    fun addGalleryPhoto(eventId: Long, image: MultipartFile): Event {
         val event = getEventById(eventId)
 
         val fileName = fileUploader.buildFileName(image, event.title)
-        val imageName = fileUploader.uploadImage("profile", fileName, image.bytes)
+        val imageName = fileUploader.uploadImage("gallery", fileName, image.bytes)
 
         event.gallery.add(imageName)
 
-        repository.save(event)
+        return repository.save(event)
     }
 
     fun removeGalleryPhoto(eventId: Long, photoName: String) {
