@@ -67,7 +67,7 @@ class EventController(private val service: EventService) {
         @PathVariable idAccount: Long
     ) = service.addTeamMemberById(idEvent, idAccount)
 
-    @PutMapping("/{idEvent}/removeTeamMember/{idAccount}", consumes = ["multipart/form-data"])
+    @PutMapping("/{idEvent}/removeTeamMember/{idAccount}")
     fun removeTeamMemberById(
         @PathVariable idEvent: Long,
         @PathVariable idAccount: Long
