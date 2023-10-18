@@ -47,6 +47,10 @@ class EventService(
     }
 
     fun addGalleryPhoto(eventId: Long, image: MultipartFile): Event {
+        if (!repository.existsById(eventId)) {
+            throw NoSuchElementException(ErrorMessages.eventNotFound(eventId))
+        }
+
         val event = getEventById(eventId)
 
         val fileName = fileUploader.buildFileName(image, event.title)
@@ -57,11 +61,19 @@ class EventService(
         return repository.save(event)
     }
 
-    fun removeGalleryPhoto(eventId: Long, photoName: String) {
+    fun removeGalleryPhoto(eventId: Long, photoName: String): Event {
+        if (!repository.existsById(eventId)) {
+            throw NoSuchElementException(ErrorMessages.eventNotFound(eventId))
+        }
+
         val event = getEventById(eventId)
 
-        event.gallery.remove(photoName)
+        val photoRemoved = event.gallery.remove(photoName)
 
-        repository.save(event)
+        if (!photoRemoved) {
+            throw NoSuchElementException(ErrorMessages.photoNotFound())
+        }
+
+        return repository.save(event)
     }
 }

@@ -44,6 +44,8 @@ object ErrorMessages {
 
     fun roleNotFound(id: Long): String = "role not found with id $id"
 
+    fun photoNotFound(): String = "photo not found"
+
     fun userAlreadyHasRole(roleId: Long, userId: Long): String = "user $userId already has role $roleId"
 
     fun userNotInRole(roleId: Long, userId: Long): String = "user $userId doesn't have role $roleId"

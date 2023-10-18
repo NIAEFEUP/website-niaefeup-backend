@@ -84,6 +84,6 @@ class EventController(private val service: EventService) {
     @PutMapping("/{idEvent}/gallery/removePhoto")
     fun removeGalleryPhoto(
         @PathVariable idEvent: Long,
-        @RequestParam photoUrl: String
+        @RequestPart photoUrl: String
     ) = service.removeGalleryPhoto(idEvent, photoUrl)
 }
