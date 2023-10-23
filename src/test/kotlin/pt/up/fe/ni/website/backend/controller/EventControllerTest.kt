@@ -879,7 +879,7 @@ internal class EventControllerTest @Autowired constructor(
         }
 
         @Test
-        fun `remove a photo`() {
+        fun `should remove a photo`() {
 
             mockMvc.multipartBuilder("/events/${testEvent.id}/gallery/removePhoto")
                 .asPutMethod()
@@ -915,6 +915,22 @@ internal class EventControllerTest @Autowired constructor(
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.errors.length()").value(1),
                     jsonPath("$.errors[0].message").value("event not found with id ${unexistentID}")
+                )
+        }
+
+        @Test
+        fun `should fail if image does not exist`() {
+            val wrongPhotoUrl = "${uploadConfigProperties.staticServe}/gallery/Another${testEvent.title}-$uuid.jpeg"
+
+            mockMvc.multipartBuilder("/events/${testEvent.id}/gallery/removePhoto")
+                .asPutMethod()
+                .addPart("photoUrl", wrongPhotoUrl)
+                .perform()
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("photo not found")
                 )
         }
     }
