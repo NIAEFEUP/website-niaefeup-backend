@@ -834,6 +834,20 @@ internal class EventControllerTest @Autowired constructor(
                     jsonPath("$.errors[0].message").value("event not found with id ${unexistentID}")
                 )
         }
+
+        @Test
+        fun `should fail if image in wrong format`() {
+            mockMvc.multipartBuilder("/events/${testEvent.id}/gallery/addPhoto")
+                .asPutMethod()
+                .addFile("image", filename = "image.gif",  contentType = MediaType.IMAGE_JPEG_VALUE)
+                .perform()
+                .andExpectAll(
+                    status().isBadRequest,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("invalid image type (png, jpg,  jpeg or webp)")
+                )
+        }
     }
 
     @NestedTest
