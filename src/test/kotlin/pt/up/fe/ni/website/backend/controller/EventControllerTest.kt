@@ -818,6 +818,22 @@ internal class EventControllerTest @Autowired constructor(
                     jsonPath("$.image").value(testEvent.image)
                 )
         }
+
+        @Test
+        fun `should fail if event does not exist`() {
+            val unexistentID = 5
+
+            mockMvc.multipartBuilder("/events/${unexistentID}/gallery/addPhoto")
+                .asPutMethod()
+                .addFile("image", contentType = MediaType.IMAGE_JPEG_VALUE)
+                .perform()
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("event not found with id ${unexistentID}")
+                )
+        }
     }
 
     @NestedTest
