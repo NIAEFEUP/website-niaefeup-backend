@@ -113,12 +113,12 @@ class ValidationTester(
 
     fun isPastDate() {
         val params = requiredFields.toMutableMap()
-        params[param] = "01-01-3000" // TODO: use a date in the future instead of hard coded
+        params[param] = "01-01-3000 00:00:00" // TODO: use a date in the future instead of hard coded
         req(params)
             .expectValidationError()
             .andExpectAll(
                 jsonPath("$.errors[0].message").value("must be a past date"),
-                jsonPath("$.errors[0].value").value("01-01-3000")
+                jsonPath("$.errors[0].value").value("01-01-3000 00:00:00")
             )
     }
 
@@ -132,8 +132,8 @@ class ValidationTester(
             )
 
         params[param] = mapOf(
-            "startDate" to "09-01-2023",
-            "endDate" to "08-01-2023"
+            "startDate" to "09-01-2023 00:00:00",
+            "endDate" to "08-01-2023 00:00:00"
         )
         req(params)
             .expectValidationError()
