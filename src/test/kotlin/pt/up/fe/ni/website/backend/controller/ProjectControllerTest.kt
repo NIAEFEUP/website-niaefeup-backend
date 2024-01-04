@@ -1153,7 +1153,7 @@ internal class ProjectControllerTest @Autowired constructor(
                             .andDocumentErrorResponse(documentation, hasRequestPayload = true)
                     },
                     requiredFields = mapOf(
-                        "date" to "22-07-2021",
+                        "date" to "22-07-2021 00:00:00",
                         "description" to "test description"
                     )
                 )
