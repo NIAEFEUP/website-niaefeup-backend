@@ -20,6 +20,7 @@ class Project(
     associatedRoles: MutableList<PerActivityRole> = mutableListOf(),
     slug: String? = null,
     image: String,
+    gallery: MutableList<String> = mutableListOf(),
 
     var isArchived: Boolean = false,
 
@@ -48,4 +49,4 @@ class Project(
     val timeline: List<@Valid TimelineEvent> = emptyList(),
 
     id: Long? = null
-) : Activity(title, description, teamMembers, associatedRoles, slug, image, id)
+) : Activity(title, description, teamMembers, associatedRoles, slug, image, gallery, id)

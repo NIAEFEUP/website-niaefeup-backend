@@ -43,6 +43,8 @@ abstract class Activity(
     @field:NotBlank
     open var image: String,
 
+    val gallery: MutableList<String> = mutableListOf(),
+
     @Id
     @GeneratedValue
     open val id: Long? = null

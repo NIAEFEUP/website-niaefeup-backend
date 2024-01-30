@@ -823,7 +823,7 @@ internal class EventControllerTest @Autowired constructor(
         fun `should fail if event does not exist`() {
             val unexistentID = 5
 
-            mockMvc.multipartBuilder("/events/${unexistentID}/gallery/addPhoto")
+            mockMvc.multipartBuilder("/events/$unexistentID/gallery/addPhoto")
                 .asPutMethod()
                 .addFile("image", contentType = MediaType.IMAGE_JPEG_VALUE)
                 .perform()
@@ -831,7 +831,7 @@ internal class EventControllerTest @Autowired constructor(
                     status().isNotFound,
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.errors.length()").value(1),
-                    jsonPath("$.errors[0].message").value("event not found with id ${unexistentID}")
+                    jsonPath("$.errors[0].message").value("event not found with id $unexistentID")
                 )
         }
 
@@ -839,7 +839,7 @@ internal class EventControllerTest @Autowired constructor(
         fun `should fail if image in wrong format`() {
             mockMvc.multipartBuilder("/events/${testEvent.id}/gallery/addPhoto")
                 .asPutMethod()
-                .addFile("image", filename = "image.gif",  contentType = MediaType.IMAGE_JPEG_VALUE)
+                .addFile("image", filename = "image.gif", contentType = MediaType.IMAGE_JPEG_VALUE)
                 .perform()
                 .andExpectAll(
                     status().isBadRequest,
@@ -880,7 +880,6 @@ internal class EventControllerTest @Autowired constructor(
 
         @Test
         fun `should remove a photo`() {
-
             mockMvc.multipartBuilder("/events/${testEvent.id}/gallery/removePhoto")
                 .asPutMethod()
                 .addPart("photoUrl", mockPhotoUrl)
@@ -906,7 +905,7 @@ internal class EventControllerTest @Autowired constructor(
         fun `should fail if event does not exist`() {
             val unexistentID = 5
 
-            mockMvc.multipartBuilder("/events/${unexistentID}/gallery/removePhoto")
+            mockMvc.multipartBuilder("/events/$unexistentID/gallery/removePhoto")
                 .asPutMethod()
                 .addPart("photoUrl", mockPhotoUrl)
                 .perform()
@@ -914,7 +913,7 @@ internal class EventControllerTest @Autowired constructor(
                     status().isNotFound,
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.errors.length()").value(1),
-                    jsonPath("$.errors[0].message").value("event not found with id ${unexistentID}")
+                    jsonPath("$.errors[0].message").value("event not found with id $unexistentID")
                 )
         }
 
@@ -1076,7 +1075,8 @@ internal class EventControllerTest @Autowired constructor(
                 location = newLocation,
                 category = newCategory,
                 image = "image.png",
-                slug = newSlug
+                slug = newSlug,
+                gallery = mutableListOf()
             )
             repository.save(otherEvent)
 

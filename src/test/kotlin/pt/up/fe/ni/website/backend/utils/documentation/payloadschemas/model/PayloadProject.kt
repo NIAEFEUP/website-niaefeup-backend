@@ -32,6 +32,13 @@ class PayloadProject : ModelDocumentation(
             JsonFieldType.STRING
         ),
         DocumentedJSONField(
+            "gallery[]",
+            "Array of photos associated with the project",
+            JsonFieldType.ARRAY,
+            isInRequest = false,
+            optional = true
+        ),
+        DocumentedJSONField(
             "targetAudience",
             "Information about the target audience",
             JsonFieldType.STRING
