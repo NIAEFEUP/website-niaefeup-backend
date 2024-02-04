@@ -2,6 +2,7 @@ package pt.up.fe.ni.website.backend.service.activity
 
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import org.springframework.web.multipart.MultipartFile
 import pt.up.fe.ni.website.backend.dto.entity.ActivityDto
 import pt.up.fe.ni.website.backend.model.Activity
 import pt.up.fe.ni.website.backend.repository.ActivityRepository
@@ -81,6 +82,37 @@ abstract class AbstractActivityService<T : Activity>(
             )
         }
         activity.teamMembers.removeIf { it.id == idAccount }
+        return repository.save(activity)
+    }
+
+    fun addGalleryPhoto(activityId: Long, image: MultipartFile): Activity {
+        if (!repository.existsById(activityId)) {
+            throw NoSuchElementException(ErrorMessages.eventNotFound(activityId))
+        }
+
+        val activity = getActivityById(activityId)
+
+        val fileName = fileUploader.buildFileName(image, activity.title)
+        val imageName = fileUploader.uploadImage("gallery", fileName, image.bytes)
+
+        activity.gallery.add(imageName)
+
+        return repository.save(activity)
+    }
+
+    fun removeGalleryPhoto(activityId: Long, photoName: String): Activity {
+        if (!repository.existsById(activityId)) {
+            throw NoSuchElementException(ErrorMessages.eventNotFound(activityId))
+        }
+
+        val activity = getActivityById(activityId)
+
+        val photoRemoved = activity.gallery.remove(photoName)
+
+        if (!photoRemoved) {
+            throw NoSuchElementException(ErrorMessages.photoNotFound())
+        }
+
         return repository.save(activity)
     }
 }

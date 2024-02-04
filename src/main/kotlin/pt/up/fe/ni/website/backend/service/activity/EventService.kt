@@ -2,7 +2,6 @@ package pt.up.fe.ni.website.backend.service.activity
 
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
-import org.springframework.web.multipart.MultipartFile
 import pt.up.fe.ni.website.backend.dto.entity.EventDto
 import pt.up.fe.ni.website.backend.model.Event
 import pt.up.fe.ni.website.backend.repository.EventRepository
@@ -44,36 +43,5 @@ class EventService(
         }
 
         repository.deleteById(eventId)
-    }
-
-    fun addGalleryPhoto(eventId: Long, image: MultipartFile): Event {
-        if (!repository.existsById(eventId)) {
-            throw NoSuchElementException(ErrorMessages.eventNotFound(eventId))
-        }
-
-        val event = getEventById(eventId)
-
-        val fileName = fileUploader.buildFileName(image, event.title)
-        val imageName = fileUploader.uploadImage("gallery", fileName, image.bytes)
-
-        event.gallery.add(imageName)
-
-        return repository.save(event)
-    }
-
-    fun removeGalleryPhoto(eventId: Long, photoName: String): Event {
-        if (!repository.existsById(eventId)) {
-            throw NoSuchElementException(ErrorMessages.eventNotFound(eventId))
-        }
-
-        val event = getEventById(eventId)
-
-        val photoRemoved = event.gallery.remove(photoName)
-
-        if (!photoRemoved) {
-            throw NoSuchElementException(ErrorMessages.photoNotFound())
-        }
-
-        return repository.save(event)
     }
 }
