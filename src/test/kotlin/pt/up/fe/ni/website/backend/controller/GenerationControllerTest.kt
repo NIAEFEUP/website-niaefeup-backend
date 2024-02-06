@@ -124,7 +124,7 @@ class GenerationControllerTest @Autowired constructor(
     }
 
     @NestedTest
-    @DisplayName("GET /generations/year")
+    @DisplayName("GET /generations/{year}")
     inner class GetGenerationByYear {
         @BeforeEach
         fun addGenerations() {
@@ -393,12 +393,12 @@ class GenerationControllerTest @Autowired constructor(
     }
 
     @NestedTest
-    @DisplayName("POST /generations/new")
+    @DisplayName("POST /generations")
     inner class CreateGeneration {
         @Test
         fun `should create a new generation`() {
             mockMvc.perform(
-                post("/generations/new").contentType(MediaType.APPLICATION_JSON).content(
+                post("/generations").contentType(MediaType.APPLICATION_JSON).content(
                     objectMapper.writeValueAsString(GenerationDto("22-23", emptyList()))
                 )
             )
@@ -438,7 +438,7 @@ class GenerationControllerTest @Autowired constructor(
             )
 
             mockMvc.perform(
-                post("/generations/new")
+                post("/generations")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(generationDtoWithRoles))
             )
@@ -484,7 +484,7 @@ class GenerationControllerTest @Autowired constructor(
             )
 
             mockMvc.perform(
-                post("/generations/new")
+                post("/generations")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(generationDtoWithRoles))
             )
@@ -511,7 +511,7 @@ class GenerationControllerTest @Autowired constructor(
         @Test
         fun `should fail if year is not specified and there are no generations`() {
             mockMvc.perform(
-                post("/generations/new")
+                post("/generations")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(GenerationDto(null, emptyList())))
             )
@@ -536,7 +536,7 @@ class GenerationControllerTest @Autowired constructor(
             @Test
             fun `should infer the year if not specified and create generation`() {
                 mockMvc.perform(
-                    post("/generations/new")
+                    post("/generations")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(GenerationDto(null, emptyList())))
                 )
@@ -564,7 +564,7 @@ class GenerationControllerTest @Autowired constructor(
                 )
 
                 mockMvc.perform(
-                    post("/generations/new")
+                    post("/generations")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(generationDtoWithAccounts))
                 )
@@ -615,7 +615,7 @@ class GenerationControllerTest @Autowired constructor(
                 )
 
                 mockMvc.perform(
-                    post("/generations/new")
+                    post("/generations")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(generationDtoWithActivities))
                 )
@@ -669,7 +669,7 @@ class GenerationControllerTest @Autowired constructor(
             @Test
             fun `should fail if the year already exists`() {
                 mockMvc.perform(
-                    post("/generations/new")
+                    post("/generations")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(
                             objectMapper.writeValueAsString(GenerationDto("22-23", emptyList()))
@@ -686,7 +686,7 @@ class GenerationControllerTest @Autowired constructor(
     }
 
     @NestedTest
-    @DisplayName("PATCH /generations/year")
+    @DisplayName("PATCH /generations/{year}")
     inner class UpdateGenerationByYear {
         @BeforeEach
         fun addGenerations() {

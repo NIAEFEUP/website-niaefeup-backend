@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
@@ -81,27 +82,11 @@ internal class EventControllerTest @Autowired constructor(
 
     val documentation = PayloadEvent()
 
-    @NestedTest
-    @DisplayName("GET /events")
-    inner class GetAllEvents {
-        private val testEvents = listOf(
-            testEvent,
-            Event(
-                "Bad event",
-                "This event was a failure",
-                mutableListOf(),
-                mutableListOf(),
-                null,
-                "bad-image.png",
-                mutableListOf(),
-                null,
-                DateInterval(
-                    TestUtils.createDate(2021, Calendar.OCTOBER, 27),
-                    null
-                ),
-                null,
-                null
-            )
+    @DisplayName("GET events?category={category}")
+    @Nested
+    inner class GetEvents {
+        private val testEvents = mutableListOf(
+            testEvent
         )
 
         @BeforeEach
@@ -118,10 +103,65 @@ internal class EventControllerTest @Autowired constructor(
                 .andExpect(content().json(objectMapper.writeValueAsString(testEvents)))
                 .andDocument(
                     documentation.getModelDocumentationArray(),
-                    "Get all the events",
+                    "Get all the events or filter them by category",
                     """The operation returns an array of events, allowing to easily retrieve all the created events.
+                        |It also allows to filter the events by category, using the query parameter "category".
                         |This is useful for example in the frontend's event page, where events are displayed.
                     """.trimMargin()
+                )
+        }
+
+        private val queryParameters = listOf(
+            parameterWithName("category").description("Category of the events to retrieve").optional()
+        )
+
+        @Test
+        fun `should return all events of the category`() {
+            val extraEvents = listOf(
+                Event(
+                    "Mid event",
+                    "This event was ok",
+                    mutableListOf(),
+                    mutableListOf(),
+                    "bloat",
+                    "waldo.jpeg",
+                    null,
+                    DateInterval(
+                        TestUtils.createDate(2022, Calendar.JANUARY, 15),
+                        null
+                    ),
+                    "FCUP",
+                    "Other category"
+                ),
+                Event(
+                    "Cool event",
+                    "This event was a awesome",
+                    mutableListOf(testAccount),
+                    mutableListOf(),
+                    "ni",
+                    "ni.png",
+                    null,
+                    DateInterval(
+                        TestUtils.createDate(2022, Calendar.SEPTEMBER, 11),
+                        null
+                    ),
+                    "NI",
+                    "Great Events"
+                )
+            )
+            extraEvents.forEach { repository.save(it) }
+
+            mockMvc.perform(get("/events?category={category}", testEvent.category))
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.length()").value(2),
+                    jsonPath("$[0].category").value(testEvent.category),
+                    jsonPath("$[1].category").value(testEvent.category)
+                )
+                .andDocument(
+                    documentation.getModelDocumentationArray(),
+                    queryParameters = queryParameters
                 )
         }
     }
@@ -316,7 +356,7 @@ internal class EventControllerTest @Autowired constructor(
     }
 
     @NestedTest
-    @DisplayName("POST /events/new")
+    @DisplayName("POST /events")
     inner class CreateEvent {
         private val uuid: UUID = UUID.randomUUID()
         private val mockedSettings = Mockito.mockStatic(UUID::class.java)
@@ -352,7 +392,7 @@ internal class EventControllerTest @Autowired constructor(
                 )
             )
 
-            mockMvc.multipartBuilder("/events/new")
+            mockMvc.multipartBuilder("/events")
                 .addPart("event", eventPart)
                 .addFile(name = "image")
                 .perform()
@@ -398,13 +438,13 @@ internal class EventControllerTest @Autowired constructor(
                 "Great Events"
             )
 
-            mockMvc.multipartBuilder("/events/new")
+            mockMvc.multipartBuilder("/events")
                 .addPart("event", objectMapper.writeValueAsString(testEvent))
                 .addFile(name = "image")
                 .perform()
                 .andExpect { status().isOk }
 
-            mockMvc.multipartBuilder("/events/new")
+            mockMvc.multipartBuilder("/events")
                 .addPart("event", objectMapper.writeValueAsString(duplicatedSlugEvent))
                 .addFile(name = "image")
                 .perform()
@@ -419,7 +459,7 @@ internal class EventControllerTest @Autowired constructor(
 
         @Test
         fun `should fail to create event with invalid filename extension`() {
-            mockMvc.multipartBuilder("/events/new")
+            mockMvc.multipartBuilder("/events")
                 .addPart("event", objectMapper.writeValueAsString(testEvent))
                 .addFile(name = "image", filename = "image.pdf")
                 .perform()
@@ -435,7 +475,7 @@ internal class EventControllerTest @Autowired constructor(
 
         @Test
         fun `should fail to create event with invalid filename media type`() {
-            mockMvc.multipartBuilder("/events/new")
+            mockMvc.multipartBuilder("/events")
                 .addPart("event", objectMapper.writeValueAsString(testEvent))
                 .addFile(name = "image", contentType = MediaType.APPLICATION_PDF_VALUE)
                 .perform()
@@ -451,7 +491,7 @@ internal class EventControllerTest @Autowired constructor(
 
         @Test
         fun `should fail when missing event part`() {
-            mockMvc.multipartBuilder("/events/new")
+            mockMvc.multipartBuilder("/events")
                 .addFile(name = "image")
                 .perform()
                 .andExpectAll(
@@ -468,7 +508,7 @@ internal class EventControllerTest @Autowired constructor(
         inner class InputValidation {
             private val validationTester = ValidationTester(
                 req = { params: Map<String, Any?> ->
-                    mockMvc.multipartBuilder("/events/new")
+                    mockMvc.multipartBuilder("/events")
                         .addPart("event", objectMapper.writeValueAsString(params))
                         .addFile(name = "image")
                         .perform()
@@ -647,7 +687,7 @@ internal class EventControllerTest @Autowired constructor(
     }
 
     @NestedTest
-    @DisplayName("PUT /events/{eventId}/addTeamMember/{accountId}")
+    @DisplayName("PUT /events/{eventId}/team/{accountId}")
     inner class AddTeamMember {
 
         private val newAccount = Account(
@@ -679,7 +719,7 @@ internal class EventControllerTest @Autowired constructor(
 
         @Test
         fun `should add a team member`() {
-            mockMvc.perform(put("/events/{eventId}/addTeamMember/{accountId}", testEvent.id, newAccount.id))
+            mockMvc.perform(put("/events/{eventId}/team/{accountId}", testEvent.id, newAccount.id))
                 .andExpectAll(
                     status().isOk,
                     content().contentType(MediaType.APPLICATION_JSON),
@@ -714,7 +754,7 @@ internal class EventControllerTest @Autowired constructor(
 
         @Test
         fun `should fail if the team member does not exist`() {
-            mockMvc.perform(put("/events/{eventId}/addTeamMember/{accountId}", testEvent.id, 1234))
+            mockMvc.perform(put("/events/{eventId}/team/{accountId}", testEvent.id, 1234))
                 .andExpectAll(
                     status().isNotFound,
                     content().contentType(MediaType.APPLICATION_JSON),
@@ -726,7 +766,7 @@ internal class EventControllerTest @Autowired constructor(
     }
 
     @NestedTest
-    @DisplayName("PUT /events/{projectId}/removeTeamMember/{accountId}")
+    @DisplayName("DELETE /events/{projectId}/team/{accountId}")
     inner class RemoveTeamMember {
 
         @BeforeEach
@@ -743,7 +783,7 @@ internal class EventControllerTest @Autowired constructor(
 
         @Test
         fun `should remove a team member`() {
-            mockMvc.perform(put("/events/{eventId}/removeTeamMember/{accountId}", testEvent.id, testAccount.id))
+            mockMvc.perform(delete("/events/{eventId}/team/{accountId}", testEvent.id, testAccount.id))
                 .andExpectAll(
                     status().isOk,
                     content().contentType(MediaType.APPLICATION_JSON),
@@ -759,7 +799,7 @@ internal class EventControllerTest @Autowired constructor(
 
         @Test
         fun `should fail if the team member does not exist`() {
-            mockMvc.perform(put("/events/{eventId}/removeTeamMember/{accountId}", testEvent.id, 1234))
+            mockMvc.perform(delete("/events/{eventId}/team/{accountId}", testEvent.id, 1234))
                 .andExpectAll(
                     status().isNotFound,
                     content().contentType(MediaType.APPLICATION_JSON),

@@ -21,7 +21,9 @@ import pt.up.fe.ni.website.backend.utils.validation.ValidImage
 @Validated
 class EventController(private val service: EventService) {
     @GetMapping
-    fun getAllEvents() = service.getAllEvents()
+    fun getEvents(@RequestParam(required = false, name = "category") category: String?): List<Event> {
+        return category?.let { service.getEventsByCategory(it) } ?: service.getAllEvents()
+    }
 
     @GetMapping("/{id:\\d+}")
     fun getEventById(@PathVariable id: Long) = service.getEventById(id)
@@ -32,7 +34,7 @@ class EventController(private val service: EventService) {
     @GetMapping("/{eventSlug}**")
     fun getEvent(@PathVariable eventSlug: String) = service.getEventBySlug(eventSlug)
 
-    @PostMapping("/new", consumes = ["multipart/form-data"])
+    @PostMapping(consumes = ["multipart/form-data"])
     fun createEvent(
         @RequestPart event: EventDto,
         @RequestParam
@@ -61,13 +63,13 @@ class EventController(private val service: EventService) {
         return service.updateEventById(id, event)
     }
 
-    @PutMapping("/{idEvent}/addTeamMember/{idAccount}")
+    @PutMapping("/{idEvent}/team/{idAccount}")
     fun addTeamMemberById(
         @PathVariable idEvent: Long,
         @PathVariable idAccount: Long
     ) = service.addTeamMemberById(idEvent, idAccount)
 
-    @PutMapping("/{idEvent}/removeTeamMember/{idAccount}")
+    @DeleteMapping("/{idEvent}/team/{idAccount}")
     fun removeTeamMemberById(
         @PathVariable idEvent: Long,
         @PathVariable idAccount: Long
