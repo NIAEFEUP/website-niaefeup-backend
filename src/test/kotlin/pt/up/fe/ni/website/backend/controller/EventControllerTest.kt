@@ -125,6 +125,7 @@ internal class EventControllerTest @Autowired constructor(
                     mutableListOf(),
                     "bloat",
                     "waldo.jpeg",
+                    mutableListOf(),
                     null,
                     DateInterval(
                         TestUtils.createDate(2022, Calendar.JANUARY, 15),
@@ -140,6 +141,7 @@ internal class EventControllerTest @Autowired constructor(
                     mutableListOf(),
                     "ni",
                     "ni.png",
+                    mutableListOf(),
                     null,
                     DateInterval(
                         TestUtils.createDate(2022, Calendar.SEPTEMBER, 11),
