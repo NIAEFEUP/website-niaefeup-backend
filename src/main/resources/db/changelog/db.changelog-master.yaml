@@ -1,0 +1,707 @@
+databaseChangeLog:
+- changeSet:
+    id: 1708908166673-1
+    author: sirze (generated)
+    changes:
+    - createSequence:
+        sequenceName: ACCOUNT_SEQ
+- changeSet:
+    id: 1708908166673-2
+    author: sirze (generated)
+    changes:
+    - createSequence:
+        sequenceName: ACTIVITY_SEQ
+- changeSet:
+    id: 1708908166673-3
+    author: sirze (generated)
+    changes:
+    - createSequence:
+        sequenceName: CUSTOM_WEBSITE_SEQ
+- changeSet:
+    id: 1708908166673-4
+    author: sirze (generated)
+    changes:
+    - createSequence:
+        sequenceName: GENERATION_SEQ
+- changeSet:
+    id: 1708908166673-5
+    author: sirze (generated)
+    changes:
+    - createSequence:
+        sequenceName: PER_ACTIVITY_ROLE_SEQ
+- changeSet:
+    id: 1708908166673-6
+    author: sirze (generated)
+    changes:
+    - createSequence:
+        sequenceName: POST_SEQ
+- changeSet:
+    id: 1708908166673-7
+    author: sirze (generated)
+    changes:
+    - createSequence:
+        sequenceName: ROLE_SEQ
+- changeSet:
+    id: 1708908166673-8
+    author: sirze (generated)
+    changes:
+    - createSequence:
+        sequenceName: TIMELINE_EVENT_SEQ
+- changeSet:
+    id: 1708908166673-9
+    author: sirze (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: CONSTRAINT_E
+            name: ID
+            type: BIGINT
+        - column:
+            name: BIO
+            type: VARCHAR(500)
+        - column:
+            name: BIRTH_DATE
+            type: TIMESTAMP
+        - column:
+            name: EMAIL
+            type: VARCHAR(255)
+        - column:
+            name: GITHUB
+            type: VARCHAR(255)
+        - column:
+            name: LINKEDIN
+            type: VARCHAR(255)
+        - column:
+            name: NAME
+            type: VARCHAR(100)
+        - column:
+            name: PASSWORD
+            type: VARCHAR(100)
+        - column:
+            name: PHOTO
+            type: VARCHAR(255)
+        - column:
+            name: HALL_OF_FAME_ID
+            type: BIGINT
+        - column:
+            name: TEAM_MEMBERS_ID
+            type: BIGINT
+        tableName: ACCOUNT
+- changeSet:
+    id: 1708908166673-10
+    author: sirze (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: CONSTRAINT_D
+            name: ACCOUNTS_ID
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+            name: ROLES_ID
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: CONSTRAINT_D
+            name: ROLES_ORDER
+            type: INT
+        tableName: ACCOUNT_ROLES
+- changeSet:
+    id: 1708908166673-11
+    author: sirze (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: CONSTRAINT_C
+            name: ID
+            type: BIGINT
+        - column:
+            name: DESCRIPTION
+            type: VARCHAR(10000)
+        - column:
+            name: IMAGE
+            type: VARCHAR(255)
+        - column:
+            name: SLUG
+            type: VARCHAR(500)
+        - column:
+            name: TITLE
+            type: VARCHAR(500)
+        tableName: ACTIVITY
+- changeSet:
+    id: 1708908166673-12
+    author: sirze (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: CONSTRAINT_A
+            name: ID
+            type: BIGINT
+        - column:
+            name: ICON_PATH
+            type: VARCHAR(255)
+        - column:
+            name: LABEL
+            type: VARCHAR(255)
+        - column:
+            name: URL
+            type: VARCHAR(255)
+        - column:
+            name: LINKS_ID
+            type: BIGINT
+        - column:
+            name: WEBSITES_ID
+            type: BIGINT
+        tableName: CUSTOM_WEBSITE
+- changeSet:
+    id: 1708908166673-13
+    author: sirze (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: CATEGORY
+            type: VARCHAR(50)
+        - column:
+            name: END_DATE
+            type: TIMESTAMP
+        - column:
+            name: START_DATE
+            type: TIMESTAMP
+        - column:
+            name: LOCATION
+            type: VARCHAR(500)
+        - column:
+            name: REGISTER_URL
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: CONSTRAINT_3
+            name: ID
+            type: BIGINT
+        tableName: EVENT
+- changeSet:
+    id: 1708908166673-14
+    author: sirze (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: CONSTRAINT_2
+            name: ID
+            type: BIGINT
+        - column:
+            name: SCHOOL_YEAR
+            type: VARCHAR(255)
+        tableName: GENERATION
+- changeSet:
+    id: 1708908166673-15
+    author: sirze (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: CONSTRAINT_1
+            name: ID
+            type: BIGINT
+        - column:
+            name: PERMISSIONS
+            type: BIGINT
+        - column:
+            name: ACTIVITY_ID
+            type: BIGINT
+        - column:
+            name: ROLE_ID
+            type: BIGINT
+        tableName: PER_ACTIVITY_ROLE
+- changeSet:
+    id: 1708908166673-16
+    author: sirze (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: CONSTRAINT_25
+            name: ID
+            type: BIGINT
+        - column:
+            name: BODY
+            type: VARCHAR(255)
+        - column:
+            name: LAST_UPDATED_AT
+            type: TIMESTAMP
+        - column:
+            name: PUBLISH_DATE
+            type: TIMESTAMP
+        - column:
+            name: SLUG
+            type: VARCHAR(500)
+        - column:
+            name: THUMBNAIL_PATH
+            type: VARCHAR(255)
+        - column:
+            name: TITLE
+            type: VARCHAR(500)
+        tableName: POST
+- changeSet:
+    id: 1708908166673-17
+    author: sirze (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: GITHUB
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: IS_ARCHIVED
+            type: BOOLEAN
+        - column:
+            name: SLOGAN
+            type: VARCHAR(100)
+        - column:
+            name: TARGET_AUDIENCE
+            type: VARCHAR(250)
+        - column:
+            name: TECHNOLOGIES
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: CONSTRAINT_18
+            name: ID
+            type: BIGINT
+        tableName: PROJECT
+- changeSet:
+    id: 1708908166673-18
+    author: sirze (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+            name: PROJECT_ID
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+            name: TIMELINE_ID
+            type: BIGINT
+        tableName: PROJECT_TIMELINE
+- changeSet:
+    id: 1708908166673-19
+    author: sirze (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: CONSTRAINT_26
+            name: ID
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+            name: IS_SECTION
+            type: BOOLEAN
+        - column:
+            name: NAME
+            type: VARCHAR(255)
+        - column:
+            name: PERMISSIONS
+            type: BIGINT
+        - column:
+            name: GENERATION_ID
+            type: BIGINT
+        tableName: ROLE
+- changeSet:
+    id: 1708908166673-20
+    author: sirze (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: CONSTRAINT_EE
+            name: ID
+            type: BIGINT
+        - column:
+            name: DATE
+            type: TIMESTAMP
+        - column:
+            name: DESCRIPTION
+            type: VARCHAR(255)
+        tableName: TIMELINE_EVENT
+- changeSet:
+    id: 1708908166673-21
+    author: sirze (generated)
+    changes:
+    - addUniqueConstraint:
+        columnNames: SLUG
+        constraintName: UK_1CG7FR7CKGM878V5J9BWJIXIS
+        tableName: POST
+- changeSet:
+    id: 1708908166673-22
+    author: sirze (generated)
+    changes:
+    - addUniqueConstraint:
+        columnNames: SCHOOL_YEAR
+        constraintName: UK_FPMTPF68189XADKVI6EKK6OA0
+        tableName: GENERATION
+- changeSet:
+    id: 1708908166673-23
+    author: sirze (generated)
+    changes:
+    - addUniqueConstraint:
+        columnNames: SLUG
+        constraintName: UK_NKL1YXLUYFLV6HF7HLDVOKA06
+        tableName: ACTIVITY
+- changeSet:
+    id: 1708908166673-24
+    author: sirze (generated)
+    changes:
+    - addUniqueConstraint:
+        columnNames: EMAIL
+        constraintName: UK_Q0UJA26QGU1ATULENWUP9RXYR
+        tableName: ACCOUNT
+- changeSet:
+    id: 1708908166673-25
+    author: sirze (generated)
+    changes:
+    - addUniqueConstraint:
+        columnNames: TIMELINE_ID
+        constraintName: UK_TL1MXLIN6HINWPGL786WM70DW
+        tableName: PROJECT_TIMELINE
+- changeSet:
+    id: 1708908166673-26
+    author: sirze (generated)
+    changes:
+    - createIndex:
+        columns:
+        - column:
+            name: ROLE_ID
+        indexName: FK1F84TXG9TDC3W1S4TNEEWCWEV_INDEX_1
+        tableName: PER_ACTIVITY_ROLE
+- changeSet:
+    id: 1708908166673-27
+    author: sirze (generated)
+    changes:
+    - createIndex:
+        columns:
+        - column:
+            name: LINKS_ID
+        indexName: FK5Y7LPLNIFD3OIHXAS72FJSBFL_INDEX_A
+        tableName: CUSTOM_WEBSITE
+- changeSet:
+    id: 1708908166673-28
+    author: sirze (generated)
+    changes:
+    - createIndex:
+        columns:
+        - column:
+            name: ROLES_ID
+        indexName: FK70S9ENQ5D1OYWL7V8VIS5KE5W_INDEX_6
+        tableName: ACCOUNT_ROLES
+- changeSet:
+    id: 1708908166673-29
+    author: sirze (generated)
+    changes:
+    - createIndex:
+        columns:
+        - column:
+            name: WEBSITES_ID
+        indexName: FK8AYAQI3JSFIR0280JEC3IYXKD_INDEX_A
+        tableName: CUSTOM_WEBSITE
+- changeSet:
+    id: 1708908166673-30
+    author: sirze (generated)
+    changes:
+    - createIndex:
+        columns:
+        - column:
+            name: PROJECT_ID
+        indexName: FK9AN5WB90DYVLDHK1WFQB2GX3K_INDEX_D
+        tableName: PROJECT_TIMELINE
+- changeSet:
+    id: 1708908166673-31
+    author: sirze (generated)
+    changes:
+    - createIndex:
+        columns:
+        - column:
+            name: ACTIVITY_ID
+        indexName: FKFBVXKO58XQV4J6T5S6E2UMLJQ_INDEX_1
+        tableName: PER_ACTIVITY_ROLE
+- changeSet:
+    id: 1708908166673-32
+    author: sirze (generated)
+    changes:
+    - createIndex:
+        columns:
+        - column:
+            name: GENERATION_ID
+        indexName: FKFWCGAJAP2P3U9I2IEW3QNJ8A6_INDEX_2
+        tableName: ROLE
+- changeSet:
+    id: 1708908166673-33
+    author: sirze (generated)
+    changes:
+    - createIndex:
+        columns:
+        - column:
+            name: HALL_OF_FAME_ID
+        indexName: FKHMSU0DU8GD9CTYBH6GNBOELD6_INDEX_E
+        tableName: ACCOUNT
+- changeSet:
+    id: 1708908166673-34
+    author: sirze (generated)
+    changes:
+    - createIndex:
+        columns:
+        - column:
+            name: TEAM_MEMBERS_ID
+        indexName: FKJ6GKDOOY0OTQUXCOEN9WOYC1M_INDEX_E
+        tableName: ACCOUNT
+- changeSet:
+    id: 1708908166673-35
+    author: sirze (generated)
+    changes:
+    - createIndex:
+        columns:
+        - column:
+            name: ACCOUNTS_ID
+        indexName: FKPWQETO2LYIJJWGYDRHQU7LKQ1_INDEX_6
+        tableName: ACCOUNT_ROLES
+- changeSet:
+    id: 1708908166673-36
+    author: sirze (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: ROLE_ID
+        baseTableName: PER_ACTIVITY_ROLE
+        constraintName: FK1F84TXG9TDC3W1S4TNEEWCWEV
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: RESTRICT
+        onUpdate: RESTRICT
+        referencedColumnNames: ID
+        referencedTableName: ROLE
+        validate: true
+- changeSet:
+    id: 1708908166673-37
+    author: sirze (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: LINKS_ID
+        baseTableName: CUSTOM_WEBSITE
+        constraintName: FK5Y7LPLNIFD3OIHXAS72FJSBFL
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: RESTRICT
+        onUpdate: RESTRICT
+        referencedColumnNames: ID
+        referencedTableName: PROJECT
+        validate: true
+- changeSet:
+    id: 1708908166673-38
+    author: sirze (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: ROLES_ID
+        baseTableName: ACCOUNT_ROLES
+        constraintName: FK70S9ENQ5D1OYWL7V8VIS5KE5W
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: CASCADE
+        onUpdate: RESTRICT
+        referencedColumnNames: ID
+        referencedTableName: ROLE
+        validate: true
+- changeSet:
+    id: 1708908166673-39
+    author: sirze (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: WEBSITES_ID
+        baseTableName: CUSTOM_WEBSITE
+        constraintName: FK8AYAQI3JSFIR0280JEC3IYXKD
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: RESTRICT
+        onUpdate: RESTRICT
+        referencedColumnNames: ID
+        referencedTableName: ACCOUNT
+        validate: true
+- changeSet:
+    id: 1708908166673-40
+    author: sirze (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: PROJECT_ID
+        baseTableName: PROJECT_TIMELINE
+        constraintName: FK9AN5WB90DYVLDHK1WFQB2GX3K
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: RESTRICT
+        onUpdate: RESTRICT
+        referencedColumnNames: ID
+        referencedTableName: PROJECT
+        validate: true
+- changeSet:
+    id: 1708908166673-41
+    author: sirze (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: ACTIVITY_ID
+        baseTableName: PER_ACTIVITY_ROLE
+        constraintName: FKFBVXKO58XQV4J6T5S6E2UMLJQ
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: RESTRICT
+        onUpdate: RESTRICT
+        referencedColumnNames: ID
+        referencedTableName: ACTIVITY
+        validate: true
+- changeSet:
+    id: 1708908166673-42
+    author: sirze (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: GENERATION_ID
+        baseTableName: ROLE
+        constraintName: FKFWCGAJAP2P3U9I2IEW3QNJ8A6
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: RESTRICT
+        onUpdate: RESTRICT
+        referencedColumnNames: ID
+        referencedTableName: GENERATION
+        validate: true
+- changeSet:
+    id: 1708908166673-43
+    author: sirze (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: HALL_OF_FAME_ID
+        baseTableName: ACCOUNT
+        constraintName: FKHMSU0DU8GD9CTYBH6GNBOELD6
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: RESTRICT
+        onUpdate: RESTRICT
+        referencedColumnNames: ID
+        referencedTableName: PROJECT
+        validate: true
+- changeSet:
+    id: 1708908166673-44
+    author: sirze (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: TEAM_MEMBERS_ID
+        baseTableName: ACCOUNT
+        constraintName: FKJ6GKDOOY0OTQUXCOEN9WOYC1M
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: RESTRICT
+        onUpdate: RESTRICT
+        referencedColumnNames: ID
+        referencedTableName: ACTIVITY
+        validate: true
+- changeSet:
+    id: 1708908166673-45
+    author: sirze (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: TIMELINE_ID
+        baseTableName: PROJECT_TIMELINE
+        constraintName: FKKBPNP8JEAA5YIRHJ3QNV7WMCN
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: RESTRICT
+        onUpdate: RESTRICT
+        referencedColumnNames: ID
+        referencedTableName: TIMELINE_EVENT
+        validate: true
+- changeSet:
+    id: 1708908166673-46
+    author: sirze (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: ID
+        baseTableName: EVENT
+        constraintName: FKL85UFY24EDPHEMHO9ABPM3X4Q
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: RESTRICT
+        onUpdate: RESTRICT
+        referencedColumnNames: ID
+        referencedTableName: ACTIVITY
+        validate: true
+- changeSet:
+    id: 1708908166673-47
+    author: sirze (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: ACCOUNTS_ID
+        baseTableName: ACCOUNT_ROLES
+        constraintName: FKPWQETO2LYIJJWGYDRHQU7LKQ1
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: RESTRICT
+        onUpdate: RESTRICT
+        referencedColumnNames: ID
+        referencedTableName: ACCOUNT
+        validate: true
+- changeSet:
+    id: 1708908166673-48
+    author: sirze (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: ID
+        baseTableName: PROJECT
+        constraintName: FKSV18U5MJU1Q0KH7BJNOGS7NQW
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: RESTRICT
+        onUpdate: RESTRICT
+        referencedColumnNames: ID
+        referencedTableName: ACTIVITY
+        validate: true
+

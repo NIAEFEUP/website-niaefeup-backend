@@ -10,6 +10,7 @@ plugins {
     kotlin("plugin.jpa") version "1.9.0"
     id("org.jlleitschuh.gradle.ktlint") version "11.4.2"
     id("com.epages.restdocs-api-spec") version "0.17.1"
+    id("org.liquibase.gradle") version "2.2.0"
 
     jacoco
 }
@@ -27,27 +28,36 @@ repositories {
 }
 
 dependencies {
+    developmentOnly("org.springframework.boot:spring-boot-devtools")
+
+    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
-    implementation("ch.qos.logback:logback-core:1.4.8")
+    implementation("ch.qos.logback:logback-core:1.4.12")
     implementation("org.slf4j:slf4j-api:2.0.7")
     implementation("com.cloudinary:cloudinary:1.0.14")
-    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     implementation("org.springframework.boot:spring-boot-starter-validation:3.1.1")
-    developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("com.h2database:h2")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("ch.qos.logback:logback-classic:1.4.8")
+    testImplementation("ch.qos.logback:logback-classic:1.4.14")
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc:3.0.0")
     testImplementation("com.epages:restdocs-api-spec-mockmvc:0.18.2")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.mockito2", module = "mockito-core")
     }
     testImplementation("org.mockito:mockito-inline:5.2.0")
+
+    liquibaseRuntime("org.liquibase:liquibase-core:4.26.0")
+    liquibaseRuntime("info.picocli:picocli:4.7.5")
+    liquibaseRuntime("org.postgresql:postgresql:42.7.2")
+    liquibaseRuntime("com.h2database:h2")
+    liquibaseRuntime("org.liquibase.ext:liquibase-hibernate6:4.26.0")
 }
 
 tasks.withType<KotlinCompile> {
@@ -122,7 +132,8 @@ configure<com.epages.restdocs.apispec.gradle.PostmanExtension> {
     baseUrl = "https://localhost:8080"
 }
 
-tasks.register<Copy>("generateDocs") {
+tasks.register<Copy>("generateDocs", ) {
+    group = "documentation"
     dependsOn(tasks.named("openapi3"))
     dependsOn(tasks.named("postman"))
     dependsOn(tasks.named("fixExamples"))
@@ -135,6 +146,7 @@ tasks.register<Copy>("generateDocs") {
 }
 
 tasks.register("fixExamples") {
+    group = "documentation"
     dependsOn(tasks.named("openapi3"))
     doLast {
         val objectMapper = com.fasterxml.jackson.databind.ObjectMapper()
@@ -152,5 +164,12 @@ tasks.register("fixExamples") {
             File("${project.buildDir}/api-spec/openapi3.json"),
             spec
         )
+    }
+}
+
+configurations{
+    liquibase{
+        activities.register("main")
+        runList = "main"
     }
 }
