@@ -78,7 +78,7 @@ class AuthControllerTest @Autowired constructor(
     )
 
     @NestedTest
-    @DisplayName("POST /auth/new")
+    @DisplayName("POST /auth")
     inner class GetNewToken {
         @BeforeEach
         fun setup() {
@@ -90,14 +90,17 @@ class AuthControllerTest @Autowired constructor(
         @Test
         fun `should fail when email is not registered`() {
             mockMvc.perform(
-                post("/auth/new").contentType(MediaType.APPLICATION_JSON).content(
-                    objectMapper.writeValueAsString(
-                        mapOf(
-                            "email" to "president@niaefeup.pt",
-                            "password" to testPassword
+                post("/auth")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            mapOf(
+                                "email" to "president@niaefeup.pt",
+                                "password" to testPassword
+                            )
                         )
                     )
-                )
+
             ).andExpectAll(
                 status().isNotFound,
                 jsonPath("$.errors[0].message").value("account not found with email president@niaefeup.pt")
@@ -107,7 +110,8 @@ class AuthControllerTest @Autowired constructor(
         @Test
         fun `should fail when password is incorrect`() {
             mockMvc.perform(
-                post("/auth/new").contentType(MediaType.APPLICATION_JSON)
+                post("/auth")
+                    .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(LoginDto(testAccount.email, "wrong_password")))
             ).andExpectAll(
                 status().isUnauthorized,
@@ -118,7 +122,8 @@ class AuthControllerTest @Autowired constructor(
         @Test
         fun `should return access and refresh tokens`() {
             mockMvc.perform(
-                post("/auth/new").contentType(MediaType.APPLICATION_JSON)
+                post("/auth")
+                    .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(LoginDto(testAccount.email, testPassword)))
             ).andExpectAll(
                 status().isOk,
@@ -157,7 +162,7 @@ class AuthControllerTest @Autowired constructor(
 
         @Test
         fun `should return new access token`() {
-            mockMvc.post("/auth/new") {
+            mockMvc.post("/auth") {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(LoginDto(testAccount.email, testPassword))
             }.andReturn().response.let { response ->
@@ -211,7 +216,7 @@ class AuthControllerTest @Autowired constructor(
 
         @Test
         fun `should return authenticated user`() {
-            mockMvc.post("/auth/new") {
+            mockMvc.post("/auth") {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(LoginDto(testAccount.email, testPassword))
             }.andReturn().response.let { response ->

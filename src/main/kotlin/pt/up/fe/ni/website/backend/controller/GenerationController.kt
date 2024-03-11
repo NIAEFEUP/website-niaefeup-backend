@@ -28,7 +28,7 @@ class GenerationController(private val service: GenerationService) {
     @GetMapping("/latest")
     fun getLatestGeneration() = service.getLatestGeneration()
 
-    @PostMapping("/new")
+    @PostMapping
     fun createNewGeneration(
         @RequestBody dto: GenerationDto
     ) = service.createNewGeneration(dto)

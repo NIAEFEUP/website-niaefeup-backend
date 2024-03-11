@@ -23,6 +23,7 @@ class MockMVCExtension {
             requestHeaders: List<HeaderDescriptorWithType> = emptyList(),
             responseHeaders: List<HeaderDescriptorWithType> = emptyList(),
             urlParameters: List<ParameterDescriptorWithType> = emptyList(),
+            queryParameters: List<ParameterDescriptorWithType> = emptyList(),
             documentRequestPayload: Boolean = false,
             hasRequestPayload: Boolean = false
         ): ResultActions {
@@ -31,6 +32,7 @@ class MockMVCExtension {
                 summary,
                 description,
                 urlParameters,
+                queryParameters,
                 documentation.payload.Request().schema(),
                 documentation.payload.Request().getSchemaFieldDescriptors(),
                 requestHeaders,
@@ -50,6 +52,7 @@ class MockMVCExtension {
             requestHeaders: List<HeaderDescriptorWithType> = emptyList(),
             responseHeaders: List<HeaderDescriptorWithType> = emptyList(),
             urlParameters: List<ParameterDescriptorWithType> = emptyList(),
+            queryParameters: List<ParameterDescriptorWithType> = emptyList(),
             documentRequestPayload: Boolean = false,
             hasRequestPayload: Boolean = false
         ): ResultActions {
@@ -58,6 +61,7 @@ class MockMVCExtension {
                 summary,
                 description,
                 urlParameters,
+                queryParameters,
                 requestPayload.Request().schema(),
                 requestPayload.Request().getSchemaFieldDescriptors(),
                 requestHeaders,
@@ -75,6 +79,7 @@ class MockMVCExtension {
             description: String? = null,
             requestHeaders: List<HeaderDescriptorWithType> = emptyList(),
             urlParameters: List<ParameterDescriptorWithType> = emptyList(),
+            queryParameters: List<ParameterDescriptorWithType> = emptyList(),
             documentRequestPayload: Boolean = false,
             hasRequestPayload: Boolean = false
         ): ResultActions {
@@ -83,6 +88,7 @@ class MockMVCExtension {
                 summary,
                 description,
                 urlParameters,
+                queryParameters,
                 documentation.payload.Request().schema(),
                 documentation.payload.Request().getSchemaFieldDescriptors(),
                 requestHeaders,
@@ -101,6 +107,7 @@ class MockMVCExtension {
             description: String? = null,
             requestHeaders: List<HeaderDescriptorWithType> = emptyList(),
             urlParameters: List<ParameterDescriptorWithType> = emptyList(),
+            queryParameters: List<ParameterDescriptorWithType> = emptyList(),
             documentRequestPayload: Boolean = false,
             hasRequestPayload: Boolean = false
         ): ResultActions {
@@ -109,6 +116,7 @@ class MockMVCExtension {
                 summary,
                 description,
                 urlParameters,
+                queryParameters,
                 requestPayload.Request().schema(),
                 requestPayload.Request().getSchemaFieldDescriptors(),
                 requestHeaders,
@@ -126,6 +134,7 @@ class MockMVCExtension {
             description: String? = null,
             requestHeaders: List<HeaderDescriptorWithType> = emptyList(),
             urlParameters: List<ParameterDescriptorWithType> = emptyList(),
+            queryParameters: List<ParameterDescriptorWithType> = emptyList(),
             documentRequestPayload: Boolean = false,
             hasRequestPayload: Boolean = false
         ): ResultActions {
@@ -134,6 +143,7 @@ class MockMVCExtension {
                 summary,
                 description,
                 urlParameters,
+                queryParameters,
                 documentation.payload.Request().schema(),
                 documentation.payload.Request().getSchemaFieldDescriptors(),
                 requestHeaders,
@@ -152,6 +162,7 @@ class MockMVCExtension {
             description: String? = null,
             requestHeaders: List<HeaderDescriptorWithType> = emptyList(),
             urlParameters: List<ParameterDescriptorWithType> = emptyList(),
+            queryParameters: List<ParameterDescriptorWithType> = emptyList(),
             documentRequestPayload: Boolean = false,
             hasRequestPayload: Boolean = false
         ): ResultActions {
@@ -160,6 +171,7 @@ class MockMVCExtension {
                 summary,
                 description,
                 urlParameters,
+                queryParameters,
                 requestPayload.Request().schema(),
                 requestPayload.Request().getSchemaFieldDescriptors(),
                 requestHeaders,
@@ -176,6 +188,7 @@ class MockMVCExtension {
             summary: String?,
             description: String?,
             urlParameters: List<ParameterDescriptorWithType>,
+            queryParameters: List<ParameterDescriptorWithType>,
             requestSchema: Schema,
             requestFields: List<FieldDescriptor>,
             requestHeaders: List<HeaderDescriptorWithType>,
@@ -202,7 +215,7 @@ class MockMVCExtension {
                 builder.requestFields(requestFields)
             }
 
-            builder.requestHeaders(requestHeaders).pathParameters(urlParameters)
+            builder.requestHeaders(requestHeaders).pathParameters(urlParameters).queryParameters(queryParameters)
 
             builder.responseSchema(responseSchema).responseFields(responseFields).responseHeaders(responseHeaders)
 

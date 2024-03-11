@@ -29,7 +29,7 @@ class AccountController(private val service: AccountService) {
     @GetMapping("/{id}")
     fun getAccountById(@PathVariable id: Long) = service.getAccountById(id)
 
-    @PostMapping("/new", consumes = ["multipart/form-data"])
+    @PostMapping(consumes = ["multipart/form-data"])
     fun createAccount(
         @RequestPart account: CreateAccountDto,
         @RequestParam
@@ -58,7 +58,7 @@ class AccountController(private val service: AccountService) {
         return emptyMap()
     }
 
-    @PostMapping("/changePassword/{id}")
+    @PostMapping("/{id}/password")
     fun changePassword(@PathVariable id: Long, @RequestBody dto: ChangePasswordDto): Map<String, String> {
         service.changePassword(id, dto)
         return emptyMap()

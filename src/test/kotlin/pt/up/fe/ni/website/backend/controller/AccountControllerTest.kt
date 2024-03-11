@@ -167,7 +167,7 @@ class AccountControllerTest @Autowired constructor(
     }
 
     @NestedTest
-    @DisplayName("POST /accounts/new")
+    @DisplayName("POST /accounts")
     inner class CreateAccount {
         private val uuid: UUID = UUID.randomUUID()
         private val mockedSettings = Mockito.mockStatic(UUID::class.java)
@@ -184,7 +184,7 @@ class AccountControllerTest @Autowired constructor(
 
         @Test
         fun `should create the account`() {
-            mockMvc.multipartBuilder("/accounts/new")
+            mockMvc.multipartBuilder("/accounts")
                 .addPart("account", testAccount.toJson())
                 .perform()
                 .andExpectAll(
@@ -228,7 +228,7 @@ class AccountControllerTest @Autowired constructor(
                 )
             )
 
-            mockMvc.multipartBuilder("/accounts/new")
+            mockMvc.multipartBuilder("/accounts")
                 .addPart("account", data)
                 .perform()
                 .andExpectAll(
@@ -248,7 +248,7 @@ class AccountControllerTest @Autowired constructor(
         fun `should create the account with valid image`() {
             val expectedPhotoPath = "${uploadConfigProperties.staticServe}/profile/${testAccount.email}-$uuid.jpeg"
 
-            mockMvc.multipartBuilder("/accounts/new")
+            mockMvc.multipartBuilder("/accounts")
                 .addPart("account", testAccount.toJson())
                 .addFile()
                 .perform()
@@ -276,7 +276,7 @@ class AccountControllerTest @Autowired constructor(
 
         @Test
         fun `should fail to create account with invalid filename extension`() {
-            mockMvc.multipartBuilder("/accounts/new")
+            mockMvc.multipartBuilder("/accounts")
                 .addPart("account", testAccount.toJson())
                 .addFile(filename = "photo.pdf")
                 .perform()
@@ -292,7 +292,7 @@ class AccountControllerTest @Autowired constructor(
 
         @Test
         fun `should fail to create account with invalid filename media type`() {
-            mockMvc.multipartBuilder("/accounts/new")
+            mockMvc.multipartBuilder("/accounts")
                 .addPart("account", testAccount.toJson())
                 .addFile(contentType = MediaType.APPLICATION_PDF_VALUE)
                 .perform()
@@ -307,7 +307,7 @@ class AccountControllerTest @Autowired constructor(
 
         @Test
         fun `should fail when missing account part`() {
-            mockMvc.multipartBuilder("/accounts/new")
+            mockMvc.multipartBuilder("/accounts")
                 .perform()
                 .andExpectAll(
                     status().isBadRequest,
@@ -323,7 +323,7 @@ class AccountControllerTest @Autowired constructor(
         inner class InputValidation {
             private val validationTester = ValidationTester(
                 req = { params: Map<String, Any?> ->
-                    mockMvc.multipartBuilder("/accounts/new")
+                    mockMvc.multipartBuilder("/accounts")
                         .addPart("account", objectMapper.writeValueAsString(params))
                         .perform()
                         .andDocumentErrorResponse(documentation, hasRequestPayload = true)
@@ -463,7 +463,7 @@ class AccountControllerTest @Autowired constructor(
                         )
                         accountPart.headers.contentType = MediaType.APPLICATION_JSON
 
-                        mockMvc.perform(multipart("/accounts/new").part(accountPart))
+                        mockMvc.perform(multipart("/accounts").part(accountPart))
                             .andDocumentErrorResponse(documentation, hasRequestPayload = true)
                     },
                     requiredFields = mapOf(
@@ -538,12 +538,12 @@ class AccountControllerTest @Autowired constructor(
 
         @Test
         fun `should fail to create account with existing email`() {
-            mockMvc.multipartBuilder("/accounts/new")
+            mockMvc.multipartBuilder("/accounts")
                 .addPart("account", testAccount.toJson())
                 .perform()
                 .andExpect(status().isOk)
 
-            mockMvc.multipartBuilder("/accounts/new")
+            mockMvc.multipartBuilder("/accounts")
                 .addPart("account", testAccount.toJson())
                 .perform()
                 .andExpectAll(
@@ -556,7 +556,7 @@ class AccountControllerTest @Autowired constructor(
     }
 
     @NestedTest
-    @DisplayName("POST /accounts/changePassword/{id}")
+    @DisplayName("POST /accounts/{id}/password")
     inner class ChangePassword {
         private val password = "test_password"
         private val changePasswordAccount: Account = ObjectMapper().readValue(
@@ -590,7 +590,7 @@ class AccountControllerTest @Autowired constructor(
         @Test
         fun `should change password`() {
             mockMvc.perform(
-                post("/accounts/changePassword/{id}", changePasswordAccount.id)
+                post("/accounts/{id}/password", changePasswordAccount.id)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(
                         objectMapper.writeValueAsString(
@@ -610,7 +610,7 @@ class AccountControllerTest @Autowired constructor(
                     documentRequestPayload = true
                 )
 
-            mockMvc.post("/auth/new") {
+            mockMvc.post("/auth") {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(
                     mapOf(
@@ -624,7 +624,7 @@ class AccountControllerTest @Autowired constructor(
         @Test
         fun `should fail due to wrong password`() {
             mockMvc.perform(
-                post("/accounts/changePassword/{id}", changePasswordAccount.id)
+                post("/accounts/{id}/password", changePasswordAccount.id)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(
                         objectMapper.writeValueAsString(
