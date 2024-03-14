@@ -34,6 +34,8 @@ object ErrorMessages {
 
     fun activityNotFound(id: Long): String = "activity not found with id $id"
 
+    fun activityNotFound(title: String): String = "activity not found with title $title"
+
     fun accountNotFound(id: Long): String = "account not found with id $id"
 
     fun generationNotFound(id: Long): String = "generation not found with id $id"

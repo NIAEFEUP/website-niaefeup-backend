@@ -65,6 +65,18 @@ class PayloadAuthCheck : ModelDocumentation(
             "Authenticated account's information.",
             JsonFieldType.OBJECT,
             isInRequest = false
+        ),
+        DocumentedJSONField(
+            "jwt_permissions",
+            "Textual representation of the permissions of the account serialized in a JWT",
+            JsonFieldType.ARRAY,
+            isInRequest = false
         )
     ).addFieldsBeneathPath("authenticated_user", PayloadAccount().payload.documentedJSONFields, addResponse = true)
+)
+
+class PayloadPermissionCheck : ModelDocumentation(
+    Tag.AUTH.name.lowercase() + "-permission-check",
+    Tag.AUTH,
+    mutableListOf()
 )

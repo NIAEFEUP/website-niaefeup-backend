@@ -52,7 +52,6 @@ class PayloadAccount(includePassword: Boolean = true) : ModelDocumentation(
             optional = true,
             isInRequest = false
         ),
-
         DocumentedJSONField("id", "Account ID", JsonFieldType.NUMBER, isInRequest = false),
         DocumentedJSONField(
             "websites[].id",
