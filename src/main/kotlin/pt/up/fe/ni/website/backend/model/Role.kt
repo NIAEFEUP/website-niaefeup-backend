@@ -54,6 +54,6 @@ class Role(
         if (associatedActivities.isEmpty()) {
             return permissionsPayload
         }
-        return "$permissionsPayload ${associatedActivities.joinToString(" ").trimEnd()}"
+        return "$this.name $permissionsPayload ${associatedActivities.joinToString(" ").trimEnd()}"
     }
 }
