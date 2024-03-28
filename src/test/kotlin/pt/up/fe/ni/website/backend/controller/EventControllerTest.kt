@@ -813,8 +813,8 @@ internal class EventControllerTest @Autowired constructor(
     }
 
     @NestedTest
-    @DisplayName("PUT /events/{idEvent}/gallery/addPhoto")
-    inner class AddGalleryPhoto {
+    @DisplayName("PUT /events/{idEvent}/gallery/addImage")
+    inner class AddGalleryImage {
 
         private val uuid: UUID = UUID.randomUUID()
         private val mockedSettings = Mockito.mockStatic(UUID::class.java)
@@ -836,10 +836,10 @@ internal class EventControllerTest @Autowired constructor(
         }
 
         @Test
-        fun `should add a photo`() {
-            val expectedPhotoPath = "${uploadConfigProperties.staticServe}/gallery/${testEvent.title}-$uuid.jpeg"
+        fun `should add an image`() {
+            val expectedImagePath = "${uploadConfigProperties.staticServe}/gallery/${testEvent.title}-$uuid.jpeg"
 
-            mockMvc.multipartBuilder("/events/${testEvent.id}/gallery/addPhoto")
+            mockMvc.multipartBuilder("/events/${testEvent.id}/gallery/addImage")
                 .asPutMethod()
                 .addFile("image", contentType = MediaType.IMAGE_JPEG_VALUE)
                 .perform()
@@ -850,7 +850,7 @@ internal class EventControllerTest @Autowired constructor(
                     jsonPath("$.description").value(testEvent.description),
                     jsonPath("$.teamMembers.length()").value(testEvent.teamMembers.size),
                     jsonPath("$.gallery.length()").value(1),
-                    jsonPath("$.gallery[0]").value(expectedPhotoPath),
+                    jsonPath("$.gallery[0]").value(expectedImagePath),
                     jsonPath("$.registerUrl").value(testEvent.registerUrl),
                     jsonPath("$.dateInterval.startDate").value(testEvent.dateInterval.startDate.toJson()),
                     jsonPath("$.dateInterval.endDate").value(testEvent.dateInterval.endDate.toJson()),
@@ -865,7 +865,7 @@ internal class EventControllerTest @Autowired constructor(
         fun `should fail if event does not exist`() {
             val unexistentID = 5
 
-            mockMvc.multipartBuilder("/events/$unexistentID/gallery/addPhoto")
+            mockMvc.multipartBuilder("/events/$unexistentID/gallery/addImage")
                 .asPutMethod()
                 .addFile("image", contentType = MediaType.IMAGE_JPEG_VALUE)
                 .perform()
@@ -873,13 +873,13 @@ internal class EventControllerTest @Autowired constructor(
                     status().isNotFound,
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.errors.length()").value(1),
-                    jsonPath("$.errors[0].message").value("event not found with id $unexistentID")
+                    jsonPath("$.errors[0].message").value("activity not found with id $unexistentID")
                 )
         }
 
         @Test
         fun `should fail if image in wrong format`() {
-            mockMvc.multipartBuilder("/events/${testEvent.id}/gallery/addPhoto")
+            mockMvc.multipartBuilder("/events/${testEvent.id}/gallery/addImage")
                 .asPutMethod()
                 .addFile("image", filename = "image.gif", contentType = MediaType.IMAGE_JPEG_VALUE)
                 .perform()
@@ -893,12 +893,12 @@ internal class EventControllerTest @Autowired constructor(
     }
 
     @NestedTest
-    @DisplayName("PUT /events/{idEvent}/gallery/removePhoto")
-    inner class RemoveGalleryPhoto {
+    @DisplayName("PUT /events/{idEvent}/gallery/removeImage")
+    inner class RemoveGalleryImage {
 
         private val uuid: UUID = UUID.randomUUID()
         private val mockedSettings = Mockito.mockStatic(UUID::class.java)
-        private val mockPhotoUrl = "${uploadConfigProperties.staticServe}/gallery/${testEvent.title}-$uuid.jpeg"
+        private val mockImageUrl = "${uploadConfigProperties.staticServe}/gallery/${testEvent.title}-$uuid.jpeg"
 
         @BeforeAll
         fun setupMocks() {
@@ -916,15 +916,15 @@ internal class EventControllerTest @Autowired constructor(
 
             val testEventClone = testEvent
 
-            testEvent.gallery.add(mockPhotoUrl)
+            testEvent.gallery.add(mockImageUrl)
             repository.save(testEventClone)
         }
 
         @Test
-        fun `should remove a photo`() {
-            mockMvc.multipartBuilder("/events/${testEvent.id}/gallery/removePhoto")
+        fun `should remove an image`() {
+            mockMvc.multipartBuilder("/events/${testEvent.id}/gallery/removeImage")
                 .asPutMethod()
-                .addPart("photoUrl", mockPhotoUrl)
+                .addPart("imageUrl", mockImageUrl)
                 .perform()
                 .andExpectAll(
                     status().isOk,
@@ -947,31 +947,31 @@ internal class EventControllerTest @Autowired constructor(
         fun `should fail if event does not exist`() {
             val unexistentID = 5
 
-            mockMvc.multipartBuilder("/events/$unexistentID/gallery/removePhoto")
+            mockMvc.multipartBuilder("/events/$unexistentID/gallery/removeImage")
                 .asPutMethod()
-                .addPart("photoUrl", mockPhotoUrl)
+                .addPart("imageUrl", mockImageUrl)
                 .perform()
                 .andExpectAll(
                     status().isNotFound,
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.errors.length()").value(1),
-                    jsonPath("$.errors[0].message").value("event not found with id $unexistentID")
+                    jsonPath("$.errors[0].message").value("activity not found with id $unexistentID")
                 )
         }
 
         @Test
         fun `should fail if image does not exist`() {
-            val wrongPhotoUrl = "${uploadConfigProperties.staticServe}/gallery/Another${testEvent.title}-$uuid.jpeg"
+            val wrongImageUrl = "${uploadConfigProperties.staticServe}/gallery/Another${testEvent.title}-$uuid.jpeg"
 
-            mockMvc.multipartBuilder("/events/${testEvent.id}/gallery/removePhoto")
+            mockMvc.multipartBuilder("/events/${testEvent.id}/gallery/removeImage")
                 .asPutMethod()
-                .addPart("photoUrl", wrongPhotoUrl)
+                .addPart("imageUrl", wrongImageUrl)
                 .perform()
                 .andExpectAll(
                     status().isNotFound,
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.errors.length()").value(1),
-                    jsonPath("$.errors[0].message").value("photo not found")
+                    jsonPath("$.errors[0].message").value("image not found with name $wrongImageUrl")
                 )
         }
     }

@@ -12,13 +12,13 @@ import pt.up.fe.ni.website.backend.service.upload.FileUploader
 
 @Service
 abstract class AbstractActivityService<T : Activity>(
-        protected val repository: ActivityRepository<T>,
-        protected val accountService: AccountService,
-        protected val fileUploader: FileUploader
+    protected val repository: ActivityRepository<T>,
+    protected val accountService: AccountService,
+    protected val fileUploader: FileUploader
 ) {
     fun getActivityById(id: Long): T =
-            repository.findByIdOrNull(id)
-                    ?: throw NoSuchElementException(ErrorMessages.activityNotFound(id))
+        repository.findByIdOrNull(id)
+            ?: throw NoSuchElementException(ErrorMessages.activityNotFound(id))
 
     fun <U : ActivityDto<T>> createActivity(dto: U, imageFolder: String): T {
         repository.findBySlug(dto.slug)?.let {
@@ -82,7 +82,7 @@ abstract class AbstractActivityService<T : Activity>(
         return repository.save(activity)
     }
 
-    fun addGalleryPhoto(activityId: Long, image: MultipartFile): Activity {
+    fun addGalleryImage(activityId: Long, image: MultipartFile): Activity {
         val activity = getActivityById(activityId)
 
         val fileName = fileUploader.buildFileName(image, activity.title)
@@ -93,13 +93,13 @@ abstract class AbstractActivityService<T : Activity>(
         return repository.save(activity)
     }
 
-    fun removeGalleryPhoto(activityId: Long, photoName: String): Activity {
+    fun removeGalleryImage(activityId: Long, imageName: String): Activity {
         val activity = getActivityById(activityId)
 
-        val photoRemoved = activity.gallery.remove(photoName)
+        val imageRemoved = activity.gallery.remove(imageName)
 
-        if (!photoRemoved) {
-            throw NoSuchElementException(ErrorMessages.photoNotFound())
+        if (!imageRemoved) {
+            throw NoSuchElementException(ErrorMessages.imageNotFound(imageName))
         }
 
         return repository.save(activity)
