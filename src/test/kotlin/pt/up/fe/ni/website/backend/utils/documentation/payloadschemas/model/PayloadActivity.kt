@@ -92,7 +92,7 @@ class PayloadActivity {
                 ),
                 DocumentedJSONField(
                     "gallery[]",
-                    "Array of photos associated with the activity",
+                    "Array of paths for the images associated with the activity",
                     JsonFieldType.ARRAY,
                     isInRequest = false,
                     optional = true

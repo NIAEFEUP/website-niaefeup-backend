@@ -45,7 +45,7 @@ class PayloadEvent : ModelDocumentation(
         ),
         DocumentedJSONField(
             "gallery[]",
-            "Array of photos associated with the event",
+            "Array of paths for the images associated with the event",
             JsonFieldType.ARRAY,
             isInRequest = false,
             optional = true

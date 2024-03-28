@@ -33,7 +33,7 @@ class PayloadProject : ModelDocumentation(
         ),
         DocumentedJSONField(
             "gallery[]",
-            "Array of photos associated with the project",
+            "Array of paths for the images associated with the project",
             JsonFieldType.ARRAY,
             isInRequest = false,
             optional = true
