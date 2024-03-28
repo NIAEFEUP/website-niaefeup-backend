@@ -12,12 +12,13 @@ import pt.up.fe.ni.website.backend.service.upload.FileUploader
 
 @Service
 abstract class AbstractActivityService<T : Activity>(
-    protected val repository: ActivityRepository<T>,
-    protected val accountService: AccountService,
-    protected val fileUploader: FileUploader
+        protected val repository: ActivityRepository<T>,
+        protected val accountService: AccountService,
+        protected val fileUploader: FileUploader
 ) {
-    fun getActivityById(id: Long): T = repository.findByIdOrNull(id)
-        ?: throw NoSuchElementException(ErrorMessages.activityNotFound(id))
+    fun getActivityById(id: Long): T =
+            repository.findByIdOrNull(id)
+                    ?: throw NoSuchElementException(ErrorMessages.activityNotFound(id))
 
     fun <U : ActivityDto<T>> createActivity(dto: U, imageFolder: String): T {
         repository.findBySlug(dto.slug)?.let {
@@ -75,21 +76,13 @@ abstract class AbstractActivityService<T : Activity>(
     fun removeTeamMemberById(idActivity: Long, idAccount: Long): T {
         val activity = getActivityById(idActivity)
         if (!accountService.doesAccountExist(idAccount)) {
-            throw NoSuchElementException(
-                ErrorMessages.accountNotFound(
-                    idAccount
-                )
-            )
+            throw NoSuchElementException(ErrorMessages.accountNotFound(idAccount))
         }
         activity.teamMembers.removeIf { it.id == idAccount }
         return repository.save(activity)
     }
 
     fun addGalleryPhoto(activityId: Long, image: MultipartFile): Activity {
-        if (!repository.existsById(activityId)) {
-            throw NoSuchElementException(ErrorMessages.eventNotFound(activityId))
-        }
-
         val activity = getActivityById(activityId)
 
         val fileName = fileUploader.buildFileName(image, activity.title)
@@ -101,10 +94,6 @@ abstract class AbstractActivityService<T : Activity>(
     }
 
     fun removeGalleryPhoto(activityId: Long, photoName: String): Activity {
-        if (!repository.existsById(activityId)) {
-            throw NoSuchElementException(ErrorMessages.eventNotFound(activityId))
-        }
-
         val activity = getActivityById(activityId)
 
         val photoRemoved = activity.gallery.remove(photoName)
