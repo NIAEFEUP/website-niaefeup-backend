@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import pt.up.fe.ni.website.backend.dto.entity.ActivityDto
 import pt.up.fe.ni.website.backend.model.Activity
+import pt.up.fe.ni.website.backend.model.Event
+import pt.up.fe.ni.website.backend.model.Project
 import pt.up.fe.ni.website.backend.repository.ActivityRepository
 import pt.up.fe.ni.website.backend.service.AccountService
 import pt.up.fe.ni.website.backend.service.ErrorMessages
@@ -16,6 +18,7 @@ abstract class AbstractActivityService<T : Activity>(
     protected val accountService: AccountService,
     protected val fileUploader: FileUploader
 ) {
+
     fun getActivityById(id: Long): T =
         repository.findByIdOrNull(id)
             ?: throw NoSuchElementException(ErrorMessages.activityNotFound(id))
@@ -85,8 +88,15 @@ abstract class AbstractActivityService<T : Activity>(
     fun addGalleryImage(activityId: Long, image: MultipartFile): Activity {
         val activity = getActivityById(activityId)
 
+        var imageFolder = "activities"
+
+        when (activity::javaClass) {
+            Event::class -> imageFolder = EventService.IMAGE_FOLDER
+            Project::class -> imageFolder = ProjectService.IMAGE_FOLDER
+        }
+
         val fileName = fileUploader.buildFileName(image, activity.title)
-        val imageName = fileUploader.uploadImage("gallery", fileName, image.bytes)
+        val imageName = fileUploader.uploadImage(imageFolder + "/gallery", fileName, image.bytes)
 
         activity.gallery.add(imageName)
 
