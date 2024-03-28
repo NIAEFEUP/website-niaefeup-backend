@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
+import jakarta.persistence.ElementCollection
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
@@ -12,7 +13,6 @@ import jakarta.persistence.Inheritance
 import jakarta.persistence.InheritanceType
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.OneToMany
-import jakarta.persistence.ElementCollection
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
