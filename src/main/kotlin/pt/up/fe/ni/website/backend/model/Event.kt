@@ -17,6 +17,7 @@ class Event(
     associatedRoles: MutableList<PerActivityRole> = mutableListOf(),
     slug: String? = null,
     image: String,
+    gallery: MutableList<String> = mutableListOf(),
 
     @field:NullOrNotBlank
     @field:URL
@@ -33,4 +34,4 @@ class Event(
     val category: String?,
 
     id: Long? = null
-) : Activity(title, description, teamMembers, associatedRoles, slug, image, id)
+) : Activity(title, description, teamMembers, associatedRoles, slug, image, gallery, id)
