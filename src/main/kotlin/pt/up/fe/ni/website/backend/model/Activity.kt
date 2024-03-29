@@ -44,7 +44,7 @@ abstract class Activity(
     @field:NotBlank
     open var image: String,
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     open val gallery: MutableList<String> = mutableListOf(),
 
     @Id

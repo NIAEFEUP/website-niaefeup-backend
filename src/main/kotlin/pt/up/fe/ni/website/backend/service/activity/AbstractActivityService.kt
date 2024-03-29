@@ -90,9 +90,10 @@ abstract class AbstractActivityService<T : Activity>(
 
         var imageFolder = "activities"
 
-        when (activity::javaClass) {
-            Event::class -> imageFolder = EventService.IMAGE_FOLDER
-            Project::class -> imageFolder = ProjectService.IMAGE_FOLDER
+        if (activity is Event) {
+            imageFolder = EventService.IMAGE_FOLDER
+        } else if (activity is Project) {
+            imageFolder = ProjectService.IMAGE_FOLDER
         }
 
         val fileName = fileUploader.buildFileName(image, activity.title)

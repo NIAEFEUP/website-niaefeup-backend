@@ -837,7 +837,7 @@ internal class EventControllerTest @Autowired constructor(
 
         @Test
         fun `should add an image`() {
-            val expectedImagePath = "${uploadConfigProperties.staticServe}/gallery/${testEvent.title}-$uuid.jpeg"
+            val expectedImagePath = "${uploadConfigProperties.staticServe}/events/gallery/${testEvent.title}-$uuid.jpeg"
 
             mockMvc.multipartBuilder("/events/${testEvent.id}/gallery/addImage")
                 .asPutMethod()
@@ -898,11 +898,13 @@ internal class EventControllerTest @Autowired constructor(
 
         private val uuid: UUID = UUID.randomUUID()
         private val mockedSettings = Mockito.mockStatic(UUID::class.java)
-        private val mockImageUrl = "${uploadConfigProperties.staticServe}/gallery/${testEvent.title}-$uuid.jpeg"
+        private val mockImageUrl = "${uploadConfigProperties.staticServe}/events/gallery/${testEvent.title}-$uuid.jpeg"
 
         @BeforeAll
         fun setupMocks() {
             Mockito.`when`(UUID.randomUUID()).thenReturn(uuid)
+
+            testEvent.gallery.add(mockImageUrl)
         }
 
         @AfterAll
@@ -914,10 +916,7 @@ internal class EventControllerTest @Autowired constructor(
         fun addToRepositories() {
             accountRepository.save(testAccount)
 
-            val testEventClone = testEvent
-
-            testEvent.gallery.add(mockImageUrl)
-            repository.save(testEventClone)
+            repository.save(testEvent)
         }
 
         @Test
