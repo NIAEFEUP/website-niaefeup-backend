@@ -1,7 +1,13 @@
 package pt.up.fe.ni.website.backend.model.seeders
 
-interface AbstractSeeder {
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.repository.CrudRepository
 
-    fun createObjects()
+@Suppress("SpringJavaInjectionPointsAutowiringInspection")
+abstract class AbstractSeeder<T, U, P> where T : CrudRepository<U, P> {
 
+    @Autowired
+    protected lateinit var repository: T
+
+    abstract fun createObjects()
 }

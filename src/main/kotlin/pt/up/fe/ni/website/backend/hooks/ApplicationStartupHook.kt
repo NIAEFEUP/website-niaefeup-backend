@@ -8,16 +8,18 @@ import pt.up.fe.ni.website.backend.config.Logging
 import pt.up.fe.ni.website.backend.model.seeders.ApplicationSeeder
 
 @Component
-class ApplicationStartupHook : ApplicationRunner, Logging{
+class ApplicationStartupHook(
+    val applicationSeeder: ApplicationSeeder
+) : ApplicationRunner, Logging {
 
     @Value("\${app.debug}")
     val debug: Boolean = false
 
     override fun run(args: ApplicationArguments?) {
         logger.info("Running Startup hook...")
-        if(debug){
+        if (debug) {
             logger.info("Running application seeder...")
-            ApplicationSeeder().seedDatabase()
+            applicationSeeder.seedDatabase()
         }
     }
 }

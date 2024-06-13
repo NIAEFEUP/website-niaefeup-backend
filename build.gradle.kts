@@ -36,6 +36,7 @@ dependencies {
     implementation("ch.qos.logback:logback-core:1.4.8")
     implementation("org.slf4j:slf4j-api:2.0.7")
     implementation("com.cloudinary:cloudinary:1.0.14")
+    implementation("net.datafaker:datafaker:2.2.2")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     implementation("org.springframework.boot:spring-boot-starter-validation:3.1.1")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
