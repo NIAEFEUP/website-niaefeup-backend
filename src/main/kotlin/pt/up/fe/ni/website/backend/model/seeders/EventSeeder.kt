@@ -1,30 +1,30 @@
 package pt.up.fe.ni.website.backend.model.seeders
 
-import java.util.*
-import net.datafaker.Faker
-import org.springframework.security.crypto.password.PasswordEncoder
+import java.util.stream.StreamSupport
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import pt.up.fe.ni.website.backend.config.Logging
-import pt.up.fe.ni.website.backend.model.Account
+import pt.up.fe.ni.website.backend.model.Event
 import pt.up.fe.ni.website.backend.repository.AccountRepository
+import pt.up.fe.ni.website.backend.repository.EventRepository
 
 @Component
-class AccountSeeder(
-    private val encoder: PasswordEncoder
-) : AbstractSeeder<AccountRepository, Account, Long>(), Logging {
+class EventSeeder(
+    @Autowired val accountRepository: AccountRepository
+) : AbstractSeeder<EventRepository, Event, Long>(), Logging {
 
     override fun createObjects() {
-        logger.info("Running account seeder...")
-        for (i in 1..10) {
-            val account = Account(
-                faker.name().firstName(),
-                faker.internet().emailAddress(),
-                encoder.encode(faker.random().hex(16)),
+        logger.info("Running event logger...")
+        val accounts = StreamSupport
+            .stream(accountRepository.findAll().spliterator(), false)
+            .limit(10).toList();
+        /*for (i in 1..10) {
+            val event = Event(
+                faker.lorem().sentence(4),
                 faker.lorem().sentence(),
-                Date.from(faker.date().birthday().toInstant()),
-                photo = faker.internet().image(),
-                github = null,
-                linkedin = null
+                listOf(accounts[i]).toMutableList(),
+                null,
+                faker.internet().image()
             )
             val accountWithSocials = Account(
                 faker.name().firstName(),
@@ -60,6 +60,6 @@ class AccountSeeder(
             repository.saveAll(
                 listOf(account, accountWithLinkedin, accountWithSocials, accountWithGithub, accountWithLinkedin)
             )
-        }
+        }*/
     }
 }

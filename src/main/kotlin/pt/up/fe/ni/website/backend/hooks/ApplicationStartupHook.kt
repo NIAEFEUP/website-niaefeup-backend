@@ -15,9 +15,23 @@ class ApplicationStartupHook(
     @Value("\${app.debug}")
     val debug: Boolean = false
 
+
+    var seed: Boolean = false
+
+    fun checkSeedArgument() {
+        try {
+            val seedProperty = System.getProperty("seed")
+            if (seedProperty == "true"){
+                seed = true
+            }
+        } catch (_: NullPointerException ) { }
+        catch (_: IllegalArgumentException) {}
+    }
+
     override fun run(args: ApplicationArguments?) {
         logger.info("Running Startup hook...")
-        if (debug) {
+        checkSeedArgument()
+        if (debug && seed) {
             logger.info("Running application seeder...")
             applicationSeeder.seedDatabase()
         }

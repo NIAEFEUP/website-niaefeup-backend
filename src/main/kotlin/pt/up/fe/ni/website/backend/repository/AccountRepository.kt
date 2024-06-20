@@ -7,4 +7,5 @@ import pt.up.fe.ni.website.backend.model.Account
 @Repository
 interface AccountRepository : CrudRepository<Account, Long> {
     fun findByEmail(email: String): Account?
+
 }
