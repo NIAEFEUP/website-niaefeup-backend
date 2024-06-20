@@ -17,7 +17,7 @@ class EventSeeder(
         logger.info("Running event logger...")
         val accounts = StreamSupport
             .stream(accountRepository.findAll().spliterator(), false)
-            .limit(10).toList();
+            .limit(10).toList()
         /*for (i in 1..10) {
             val event = Event(
                 faker.lorem().sentence(4),

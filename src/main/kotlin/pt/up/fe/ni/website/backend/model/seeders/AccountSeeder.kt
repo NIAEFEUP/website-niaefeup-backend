@@ -1,7 +1,6 @@
 package pt.up.fe.ni.website.backend.model.seeders
 
 import java.util.*
-import net.datafaker.Faker
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
 import pt.up.fe.ni.website.backend.config.Logging

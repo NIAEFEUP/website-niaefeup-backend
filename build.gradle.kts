@@ -1,7 +1,6 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.springframework.boot.gradle.tasks.run.BootRun
 
 plugins {
     id("org.springframework.boot") version "3.1.1"
@@ -137,7 +136,7 @@ tasks.register<Copy>("generateDocs") {
 }
 
 tasks.bootRun {
-    if(project.hasProperty("seed")){
+    if (project.hasProperty("seed")) {
         systemProperties(mapOf("seed" to "true"))
     }
 }

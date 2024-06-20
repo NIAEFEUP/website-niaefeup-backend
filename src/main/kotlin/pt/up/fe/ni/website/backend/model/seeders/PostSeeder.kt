@@ -19,14 +19,20 @@ class PostSeeder() : AbstractSeeder<PostRepository, Post, Long>(), Logging {
                 faker.internet().url(),
                 Date.from(faker.date().birthday().toInstant()),
                 Date.from(faker.date().birthday().toInstant()),
-                slug = faker.lorem().characters(PostConstants.Slug.minSize, PostConstants.Slug.maxSize),
+                slug = faker.lorem().characters(PostConstants.Slug.minSize, PostConstants.Slug.maxSize)
             )
 
             val postWithoutDate = Post(
                 faker.lorem().characters(PostConstants.Title.minSize, PostConstants.Title.maxSize, true, true, true),
                 faker.lorem().characters(PostConstants.Body.minSize, 500, true, true, true),
                 faker.internet().url(),
-                slug = faker.lorem().characters(PostConstants.Slug.minSize, PostConstants.Slug.maxSize, false, false, false),
+                slug = faker.lorem().characters(
+                    PostConstants.Slug.minSize,
+                    PostConstants.Slug.maxSize,
+                    false,
+                    false,
+                    false
+                )
             )
 
             repository.saveAll(listOf(post, postWithoutDate))
