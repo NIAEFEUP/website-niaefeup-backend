@@ -75,15 +75,15 @@ class EventController(private val service: EventService) {
         @PathVariable idAccount: Long
     ) = service.removeTeamMemberById(idEvent, idAccount)
 
-    @PutMapping("/{idEvent}/gallery/addImage", consumes = ["multipart/form-data"])
+    @PutMapping("/{idEvent}/gallery", consumes = ["multipart/form-data"])
     fun addGalleryImage(
         @PathVariable idEvent: Long,
         @RequestParam
         @ValidImage
         image: MultipartFile
-    ) = service.addGalleryImage(idEvent, image)
+    ) = service.addGalleryImage(idEvent, image, EventService.IMAGE_FOLDER)
 
-    @PutMapping("/{idEvent}/gallery/removeImage")
+    @DeleteMapping("/{idEvent}/gallery")
     fun removeGalleryImage(
         @PathVariable idEvent: Long,
         @RequestPart imageUrl: String

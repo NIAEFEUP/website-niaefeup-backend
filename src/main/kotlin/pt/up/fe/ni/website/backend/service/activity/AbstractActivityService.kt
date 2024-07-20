@@ -5,8 +5,6 @@ import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import pt.up.fe.ni.website.backend.dto.entity.ActivityDto
 import pt.up.fe.ni.website.backend.model.Activity
-import pt.up.fe.ni.website.backend.model.Event
-import pt.up.fe.ni.website.backend.model.Project
 import pt.up.fe.ni.website.backend.repository.ActivityRepository
 import pt.up.fe.ni.website.backend.service.AccountService
 import pt.up.fe.ni.website.backend.service.ErrorMessages
@@ -85,16 +83,8 @@ abstract class AbstractActivityService<T : Activity>(
         return repository.save(activity)
     }
 
-    fun addGalleryImage(activityId: Long, image: MultipartFile): Activity {
+    fun addGalleryImage(activityId: Long, image: MultipartFile, imageFolder: String): Activity {
         val activity = getActivityById(activityId)
-
-        var imageFolder = "activities"
-
-        if (activity is Event) {
-            imageFolder = EventService.IMAGE_FOLDER
-        } else if (activity is Project) {
-            imageFolder = ProjectService.IMAGE_FOLDER
-        }
 
         val fileName = fileUploader.buildFileName(image, activity.title)
         val imageName = fileUploader.uploadImage(imageFolder + "/gallery", fileName, image.bytes)

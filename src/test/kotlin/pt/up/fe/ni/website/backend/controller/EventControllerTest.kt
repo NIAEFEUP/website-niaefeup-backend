@@ -813,7 +813,7 @@ internal class EventControllerTest @Autowired constructor(
     }
 
     @NestedTest
-    @DisplayName("PUT /events/{idEvent}/gallery/addImage")
+    @DisplayName("PUT /events/{idEvent}/gallery")
     inner class AddGalleryImage {
 
         private val uuid: UUID = UUID.randomUUID()
@@ -839,7 +839,7 @@ internal class EventControllerTest @Autowired constructor(
         fun `should add an image`() {
             val expectedImagePath = "${uploadConfigProperties.staticServe}/events/gallery/${testEvent.title}-$uuid.jpeg"
 
-            mockMvc.multipartBuilder("/events/${testEvent.id}/gallery/addImage")
+            mockMvc.multipartBuilder("/events/${testEvent.id}/gallery")
                 .asPutMethod()
                 .addFile("image", contentType = MediaType.IMAGE_JPEG_VALUE)
                 .perform()
@@ -865,7 +865,7 @@ internal class EventControllerTest @Autowired constructor(
         fun `should fail if event does not exist`() {
             val unexistentID = 5
 
-            mockMvc.multipartBuilder("/events/$unexistentID/gallery/addImage")
+            mockMvc.multipartBuilder("/events/$unexistentID/gallery")
                 .asPutMethod()
                 .addFile("image", contentType = MediaType.IMAGE_JPEG_VALUE)
                 .perform()
@@ -879,7 +879,7 @@ internal class EventControllerTest @Autowired constructor(
 
         @Test
         fun `should fail if image in wrong format`() {
-            mockMvc.multipartBuilder("/events/${testEvent.id}/gallery/addImage")
+            mockMvc.multipartBuilder("/events/${testEvent.id}/gallery")
                 .asPutMethod()
                 .addFile("image", filename = "image.gif", contentType = MediaType.IMAGE_JPEG_VALUE)
                 .perform()
@@ -892,8 +892,9 @@ internal class EventControllerTest @Autowired constructor(
         }
     }
 
+    @Nested
     @NestedTest
-    @DisplayName("PUT /events/{idEvent}/gallery/removeImage")
+    @DisplayName("DELETE /events/{idEvent}/gallery")
     inner class RemoveGalleryImage {
 
         private val uuid: UUID = UUID.randomUUID()
@@ -921,8 +922,8 @@ internal class EventControllerTest @Autowired constructor(
 
         @Test
         fun `should remove an image`() {
-            mockMvc.multipartBuilder("/events/${testEvent.id}/gallery/removeImage")
-                .asPutMethod()
+            mockMvc.multipartBuilder("/events/${testEvent.id}/gallery")
+                .asDeleteMethod()
                 .addPart("imageUrl", mockImageUrl)
                 .perform()
                 .andExpectAll(
@@ -946,8 +947,8 @@ internal class EventControllerTest @Autowired constructor(
         fun `should fail if event does not exist`() {
             val unexistentID = 5
 
-            mockMvc.multipartBuilder("/events/$unexistentID/gallery/removeImage")
-                .asPutMethod()
+            mockMvc.multipartBuilder("/events/$unexistentID/gallery")
+                .asDeleteMethod()
                 .addPart("imageUrl", mockImageUrl)
                 .perform()
                 .andExpectAll(
@@ -962,8 +963,8 @@ internal class EventControllerTest @Autowired constructor(
         fun `should fail if image does not exist`() {
             val wrongImageUrl = "${uploadConfigProperties.staticServe}/gallery/Another${testEvent.title}-$uuid.jpeg"
 
-            mockMvc.multipartBuilder("/events/${testEvent.id}/gallery/removeImage")
-                .asPutMethod()
+            mockMvc.multipartBuilder("/events/${testEvent.id}/gallery")
+                .asDeleteMethod()
                 .addPart("imageUrl", wrongImageUrl)
                 .perform()
                 .andExpectAll(
