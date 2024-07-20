@@ -971,7 +971,7 @@ internal class EventControllerTest @Autowired constructor(
                     status().isNotFound,
                     content().contentType(MediaType.APPLICATION_JSON),
                     jsonPath("$.errors.length()").value(1),
-                    jsonPath("$.errors[0].message").value("image not found with name $wrongImageUrl")
+                    jsonPath("$.errors[0].message").value("file not found with name $wrongImageUrl")
                 )
         }
     }

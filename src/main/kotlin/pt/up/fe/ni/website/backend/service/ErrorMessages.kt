@@ -44,7 +44,7 @@ object ErrorMessages {
 
     fun roleNotFound(id: Long): String = "role not found with id $id"
 
-    fun imageNotFound(imageName: String): String = "image not found with name $imageName"
+    fun fileNotFound(fileName: String): String = "file not found with name $fileName"
 
     fun userAlreadyHasRole(roleId: Long, userId: Long): String = "user $userId already has role $roleId"
 

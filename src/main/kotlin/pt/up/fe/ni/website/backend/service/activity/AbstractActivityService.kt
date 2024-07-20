@@ -100,7 +100,7 @@ abstract class AbstractActivityService<T : Activity>(
         val imageRemoved = activity.gallery.remove(imageName)
 
         if (!imageRemoved) {
-            throw NoSuchElementException(ErrorMessages.imageNotFound(imageName))
+            throw NoSuchElementException(ErrorMessages.fileNotFound(imageName))
         }
 
         return repository.save(activity)
