@@ -97,9 +97,10 @@ abstract class AbstractActivityService<T : Activity>(
     fun removeGalleryImage(activityId: Long, imageName: String): Activity {
         val activity = getActivityById(activityId)
 
-        val imageRemoved = activity.gallery.remove(imageName)
-
-        if (!imageRemoved) {
+        if (activity.gallery.contains(imageName)) {
+            fileUploader.deleteImage(imageName)
+            activity.gallery.remove(imageName)
+        } else {
             throw NoSuchElementException(ErrorMessages.fileNotFound(imageName))
         }
 

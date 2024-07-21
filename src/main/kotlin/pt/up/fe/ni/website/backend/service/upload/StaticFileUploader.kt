@@ -11,4 +11,11 @@ class StaticFileUploader(private val storePath: String, private val servePath: S
 
         return "$servePath/$folder/$fileName"
     }
+
+    override fun deleteImage(fileName: String) {
+        val storedFileName = fileName.replace(servePath, storePath)
+        val file = File(storedFileName)
+
+        if (file.exists()) file.delete()
+    }
 }
