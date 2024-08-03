@@ -113,6 +113,6 @@ class AuthService(
             .distinct()
             .map {
                 SimpleGrantedAuthority(it)
-        } 
+            }
     }
 }

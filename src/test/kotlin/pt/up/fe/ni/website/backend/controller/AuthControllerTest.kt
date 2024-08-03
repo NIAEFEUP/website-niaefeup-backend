@@ -281,7 +281,7 @@ class AuthControllerTest @Autowired constructor(
 
         @Test
         fun `should fail when user doesn't have global permission`() {
-            mockMvc.post("/auth/new") {
+            mockMvc.post("/auth") {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(LoginDto(testAccount.email, testPassword))
             }.andReturn().response.let { response ->
@@ -296,7 +296,7 @@ class AuthControllerTest @Autowired constructor(
 
         @Test
         fun `should succeed when user has global permission`() {
-            mockMvc.post("/auth/new") {
+            mockMvc.post("/auth") {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(LoginDto(testAccount.email, testPassword))
             }.andReturn().response.let { response ->
@@ -319,7 +319,7 @@ class AuthControllerTest @Autowired constructor(
 
         @Test
         fun `should fail when user doesn't have activity permission`() {
-            mockMvc.post("/auth/new") {
+            mockMvc.post("/auth") {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(LoginDto(testAccount.email, testPassword))
             }.andReturn().response.let { response ->
@@ -336,7 +336,7 @@ class AuthControllerTest @Autowired constructor(
 
         @Test
         fun `should succeed when user has activity permission`() {
-            mockMvc.post("/auth/new") {
+            mockMvc.post("/auth") {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(LoginDto(testAccount.email, testPassword))
             }.andReturn().response.let { response ->
