@@ -12,6 +12,7 @@ class SimpleEmailBuilder : BaseEmailBuilder() {
     private var html: String? = null
     private var subject: String? = null
     private var attachments: MutableList<EmailFile> = mutableListOf()
+    // Inlines - similar to attachments, not shown as downloadable but can be inserted in an email. For example, inline images.
     private var inlines: MutableList<EmailFile> = mutableListOf()
 
     fun text(text: String) = apply {

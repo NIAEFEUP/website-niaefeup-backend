@@ -8,13 +8,13 @@ import pt.up.fe.ni.website.backend.config.email.EmailConfigProperties
 import pt.up.fe.ni.website.backend.model.Account
 
 abstract class BaseEmailBuilder : EmailBuilder {
-    protected val emailConfigProperties = ApplicationContextUtils.getBean(EmailConfigProperties::class.java)
+    protected open val emailConfigProperties = ApplicationContextUtils.getBean(EmailConfigProperties::class.java)
 
-    private var from: String? = null
-    private var fromPersonal: String? = null
-    private var to: MutableSet<String> = mutableSetOf()
-    private var cc: MutableSet<String> = mutableSetOf()
-    private var bcc: MutableSet<String> = mutableSetOf()
+    var from: String? = null
+    var fromPersonal: String? = null
+    var to: MutableSet<String> = mutableSetOf()
+    var cc: MutableSet<String> = mutableSetOf()
+    var bcc: MutableSet<String> = mutableSetOf()
 
     fun from(@Email email: String, personal: String = email) = apply {
         from = email
