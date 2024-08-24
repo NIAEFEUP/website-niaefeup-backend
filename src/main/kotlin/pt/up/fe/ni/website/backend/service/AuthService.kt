@@ -43,9 +43,13 @@ class AuthService(
 
         return authentication.authorities.any {
             val payload = it.toString().split(":")
-            payload.size == 2 && payload[0].toLong() == activityId && payload[1].split("-").any { p ->
+            val checkSize = payload.size == 2
+            val checkActivityID = checkSize && payload[0].toLong() == activityId
+            val checkPermission = checkSize && payload[1].split("-").any { p ->
                 p == permission.trim().uppercase(Locale.getDefault())
             }
+
+            checkActivityID && checkPermission
         }
     }
 
