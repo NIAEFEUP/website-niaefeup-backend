@@ -60,7 +60,7 @@ class AuthConfig(
 
     fun rolesConverter(): JwtAuthenticationConverter? {
         val authoritiesConverter = JwtGrantedAuthoritiesConverter()
-        authoritiesConverter.setAuthorityPrefix("ROLE_")
+        authoritiesConverter.setAuthorityPrefix("")
         val converter = JwtAuthenticationConverter()
         converter.setJwtGrantedAuthoritiesConverter(authoritiesConverter)
         return converter

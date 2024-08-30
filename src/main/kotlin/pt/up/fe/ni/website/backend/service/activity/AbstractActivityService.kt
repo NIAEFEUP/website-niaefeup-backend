@@ -15,6 +15,8 @@ abstract class AbstractActivityService<T : Activity>(
     protected val accountService: AccountService,
     protected val fileUploader: FileUploader
 ) {
+    fun getAll() = repository.findAll().toList()
+
     fun getActivityById(id: Long): T = repository.findByIdOrNull(id)
         ?: throw NoSuchElementException(ErrorMessages.activityNotFound(id))
 

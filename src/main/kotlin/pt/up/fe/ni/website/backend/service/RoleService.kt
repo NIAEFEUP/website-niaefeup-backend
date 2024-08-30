@@ -73,6 +73,16 @@ class RoleService(
         if (validator.validateProperty(generation, "roles").isNotEmpty()) {
             throw IllegalArgumentException(ErrorMessages.roleAlreadyExists(role.name, generation.schoolYear))
         }
+
+        for (perActivityRoleDto in dto.associatedActivities) {
+            val activity = activityService.getActivityById(perActivityRoleDto.activityId!!)
+
+            for (perActivityRole in role.associatedActivities) {
+                perActivityRole.role = role
+                perActivityRole.activity = activity
+            }
+        }
+
         role.generation = generation
         roleRepository.save(role)
         return role
