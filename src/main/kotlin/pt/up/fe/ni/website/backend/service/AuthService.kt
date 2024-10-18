@@ -2,6 +2,7 @@ package pt.up.fe.ni.website.backend.service
 
 import java.time.Duration
 import java.time.Instant
+import java.util.Locale
 import java.util.stream.Collectors
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.GrantedAuthority
@@ -16,21 +17,48 @@ import org.springframework.security.oauth2.server.resource.InvalidBearerTokenExc
 import org.springframework.stereotype.Service
 import pt.up.fe.ni.website.backend.config.auth.AuthConfigProperties
 import pt.up.fe.ni.website.backend.model.Account
+import pt.up.fe.ni.website.backend.model.Project
+import pt.up.fe.ni.website.backend.repository.ActivityRepository
+import pt.up.fe.ni.website.backend.service.activity.ActivityService
 
 @Service
 class AuthService(
     val accountService: AccountService,
+    val activityService: ActivityService,
     val authConfigProperties: AuthConfigProperties,
     val jwtEncoder: JwtEncoder,
     val jwtDecoder: JwtDecoder,
-    private val passwordEncoder: PasswordEncoder
+    private val passwordEncoder: PasswordEncoder,
+    val repository: ActivityRepository<Project>
 ) {
+    fun hasPermission(permission: String): Boolean {
+        val authentication = SecurityContextHolder.getContext().authentication
+        return authentication.authorities.any {
+            it.toString() == permission.trim().uppercase(Locale.getDefault())
+        }
+    }
+
+    fun hasActivityPermission(activityId: Long, permission: String): Boolean {
+        val authentication = SecurityContextHolder.getContext().authentication
+
+        return authentication.authorities.any {
+            val payload = it.toString().split(":")
+            val checkSize = payload.size == 2
+            val checkActivityID = checkSize && payload[0].toLong() == activityId
+            val checkPermission = checkSize && payload[1].split("-").any { p ->
+                p == permission.trim().uppercase(Locale.getDefault())
+            }
+
+            checkActivityID && checkPermission
+        }
+    }
+
     fun authenticate(email: String, password: String): Account {
         val account = accountService.getAccountByEmail(email)
         if (!passwordEncoder.matches(password, account.password)) {
             throw InvalidBearerTokenException(ErrorMessages.invalidCredentials)
         }
-        val authentication = UsernamePasswordAuthenticationToken(email, password, getAuthorities())
+        val authentication = UsernamePasswordAuthenticationToken(email, password, generateAuthorities(account))
         SecurityContextHolder.getContext().authentication = authentication
         return account
     }
@@ -44,12 +72,11 @@ class AuthService(
     }
 
     fun refreshAccessToken(refreshToken: String): String {
-        val jwt =
-            try {
-                jwtDecoder.decode(refreshToken)
-            } catch (e: Exception) {
-                throw InvalidBearerTokenException(ErrorMessages.invalidRefreshToken)
-            }
+        val jwt = try {
+            jwtDecoder.decode(refreshToken)
+        } catch (e: Exception) {
+            throw InvalidBearerTokenException(ErrorMessages.invalidRefreshToken)
+        }
         if (jwt.expiresAt?.isBefore(Instant.now()) != false) {
             throw InvalidBearerTokenException(ErrorMessages.expiredRefreshToken)
         }
@@ -63,7 +90,7 @@ class AuthService(
     }
 
     private fun generateToken(account: Account, expiration: Duration, isRefresh: Boolean = false): String {
-        val roles = if (isRefresh) emptyList() else getAuthorities() // TODO: Pass account to getAuthorities()
+        val roles = if (isRefresh) emptyList() else generateAuthorities(account)
         val scope = roles
             .stream()
             .map(GrantedAuthority::getAuthority)
@@ -75,14 +102,18 @@ class AuthService(
             .issuedAt(currentInstant)
             .expiresAt(currentInstant.plus(expiration))
             .subject(account.email)
-            .claim("scope", scope)
-            .build()
+            .claim("scope", scope).build()
         return jwtEncoder.encode(JwtEncoderParameters.from(claims)).tokenValue
     }
 
-    private fun getAuthorities(): List<GrantedAuthority> {
-        return listOf("BOARD", "MEMBER").stream() // TODO: get roles from account
-            .map { role -> SimpleGrantedAuthority(role) }
-            .collect(Collectors.toList())
+    private fun generateAuthorities(account: Account): List<GrantedAuthority> {
+        return account.roles.map {
+            it.toString().split(" ")
+        }
+            .flatten()
+            .distinct()
+            .map {
+                SimpleGrantedAuthority(it)
+            }
     }
 }

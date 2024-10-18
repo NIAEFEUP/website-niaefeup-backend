@@ -60,7 +60,7 @@ class Account(
     @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
     val websites: List<@Valid CustomWebsite> = emptyList(),
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable
     @OrderColumn
     @JsonIgnore // TODO: Decide if we want to return roles (or IDs) by default

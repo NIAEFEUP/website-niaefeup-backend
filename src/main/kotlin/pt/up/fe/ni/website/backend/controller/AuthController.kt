@@ -1,14 +1,15 @@
 package pt.up.fe.ni.website.backend.controller
 
 import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import pt.up.fe.ni.website.backend.dto.auth.LoginDto
 import pt.up.fe.ni.website.backend.dto.auth.TokenDto
-import pt.up.fe.ni.website.backend.model.Account
 import pt.up.fe.ni.website.backend.service.AuthService
 
 @RestController
@@ -28,10 +29,29 @@ class AuthController(val authService: AuthService) {
         return mapOf("access_token" to accessToken)
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping
-    @PreAuthorize("hasRole('MEMBER')")
-    fun checkAuthentication(): Map<String, Account> {
+    fun checkAuthentication(): Map<String, Any> {
+        val authentication = SecurityContextHolder.getContext().authentication
         val account = authService.getAuthenticatedAccount()
-        return mapOf("authenticated_user" to account)
+        return mapOf(
+            "authenticated_user" to account,
+            "jwt_permissions" to authentication.authorities.map { it.toString() }.toList()
+        )
+    }
+
+    @PreAuthorize("@authService.hasPermission(#permission)")
+    @GetMapping("/hasPermission/{permission}")
+    fun protectedPermission(@PathVariable permission: String): Map<String, String> {
+        return mapOf("message" to "You have permission to access this endpoint!")
+    }
+
+    @PreAuthorize("@authService.hasActivityPermission(#activityId, #permission)")
+    @GetMapping("/hasPermission/{activityId}/{permission}")
+    fun protectedPerActivityPermission(
+        @PathVariable activityId: Long,
+        @PathVariable permission: String
+    ): Map<String, String> {
+        return mapOf("message" to "You have permission to access this endpoint!")
     }
 }
