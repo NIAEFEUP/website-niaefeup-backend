@@ -12,12 +12,12 @@ import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.core.AuthenticationException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
-import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.multipart.MaxUploadSizeExceededException
 import org.springframework.web.multipart.support.MissingServletRequestPartException
+import org.springframework.web.servlet.NoHandlerFoundException
 import pt.up.fe.ni.website.backend.config.Logging
 
 data class SimpleError(
@@ -32,7 +32,7 @@ data class CustomError(val errors: List<SimpleError>)
 @RestControllerAdvice
 class ErrorController(private val objectMapper: ObjectMapper) : ErrorController, Logging {
 
-    @RequestMapping("/**")
+    @ExceptionHandler(NoHandlerFoundException::class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     fun endpointNotFound(): CustomError = wrapSimpleError("invalid endpoint")
 
