@@ -4,7 +4,8 @@ import org.springframework.stereotype.Component
 
 @Component
 class ApplicationSeeder(
-    private val accountSeeder: AccountSeeder
+    private val accountSeeder: AccountSeeder,
+    private val eventSeeder: EventSeeder
 ) {
 
     fun seedDatabase() {
@@ -13,5 +14,6 @@ class ApplicationSeeder(
 
         // NOTE(luisd): you must consider the dependencies between seeders
         accountSeeder.createObjects()
+        eventSeeder.createObjects()
     }
 }

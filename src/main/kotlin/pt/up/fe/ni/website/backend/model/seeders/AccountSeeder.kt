@@ -55,7 +55,36 @@ class AccountSeeder(
                 github = null,
                 linkedin = faker.internet().url()
             )
-
+            val accountWithoutBio = Account(
+                faker.name().firstName(),
+                faker.internet().emailAddress(),
+                encoder.encode(faker.random().hex(16)),
+                null,
+                Date.from(faker.date().birthday().toInstant()),
+                photo = faker.internet().image(),
+                github = faker.internet().url(),
+                linkedin = faker.internet().url()
+            )
+            val accountWithoutPhoto = Account(
+                faker.name().firstName(),
+                faker.internet().emailAddress(),
+                encoder.encode(faker.random().hex(16)),
+                faker.lorem().sentence(),
+                Date.from(faker.date().birthday().toInstant()),
+                null,
+                github = faker.internet().url(),
+                linkedin = faker.internet().url()
+            )
+            val accountWithoutBioAndPhoto = Account(
+                faker.name().firstName(),
+                faker.internet().emailAddress(),
+                encoder.encode(faker.random().hex(16)),
+                null,
+                Date.from(faker.date().birthday().toInstant()),
+                null,
+                github = faker.internet().url(),
+                linkedin = faker.internet().url()
+            )
             repository.saveAll(
                 listOf(account, accountWithLinkedin, accountWithSocials, accountWithGithub, accountWithLinkedin)
             )
