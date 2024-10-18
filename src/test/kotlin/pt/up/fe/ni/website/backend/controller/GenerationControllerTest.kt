@@ -1061,7 +1061,8 @@ class GenerationControllerTest @Autowired constructor(
                                 "cool project",
                                 image = "cool-image.png",
                                 targetAudience = "students",
-                                github = "https://github.com/NIAEFEUP/nijobs-be"
+                                github = "https://github.com/NIAEFEUP/nijobs-be",
+                                gallery = mutableListOf()
                             )
                         )
                     )
@@ -1084,7 +1085,8 @@ class GenerationControllerTest @Autowired constructor(
                                 dateInterval = DateInterval(TestUtils.createDate(2023, 9, 10)),
                                 location = null,
                                 category = null,
-                                image = "cool-image.png"
+                                image = "cool-image.png",
+                                gallery = mutableListOf()
                             )
                         )
                     )

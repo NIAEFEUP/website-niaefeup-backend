@@ -49,6 +49,16 @@ class MockMvcMultipartBuilder(
         return this
     }
 
+    fun asDeleteMethod(): MockMvcMultipartBuilder {
+        multipart.with(
+            {
+                it.method = "DELETE"
+                it
+            }
+        )
+        return this
+    }
+
     fun perform(): ResultActions {
         return mockMvc.perform(multipart)
     }

@@ -89,6 +89,13 @@ class PayloadActivity {
                     "Description of the event",
                     JsonFieldType.STRING,
                     optional = true
+                ),
+                DocumentedJSONField(
+                    "gallery[]",
+                    "Array of paths for the images associated with the activity",
+                    JsonFieldType.ARRAY,
+                    isInRequest = false,
+                    optional = true
                 )
             ).addFieldsBeneathPath(
                 "dateInterval",

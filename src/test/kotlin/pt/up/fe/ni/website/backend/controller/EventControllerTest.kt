@@ -70,6 +70,7 @@ internal class EventControllerTest @Autowired constructor(
         mutableListOf(),
         "great-event",
         "cool-image.png",
+        mutableListOf(),
         "https://docs.google.com/forms",
         DateInterval(
             TestUtils.createDate(2022, Calendar.JULY, 28),
@@ -124,6 +125,7 @@ internal class EventControllerTest @Autowired constructor(
                     mutableListOf(),
                     "bloat",
                     "waldo.jpeg",
+                    mutableListOf(),
                     null,
                     DateInterval(
                         TestUtils.createDate(2022, Calendar.JANUARY, 15),
@@ -139,6 +141,7 @@ internal class EventControllerTest @Autowired constructor(
                     mutableListOf(),
                     "ni",
                     "ni.png",
+                    mutableListOf(),
                     null,
                     DateInterval(
                         TestUtils.createDate(2022, Calendar.SEPTEMBER, 11),
@@ -272,6 +275,89 @@ internal class EventControllerTest @Autowired constructor(
     }
 
     @NestedTest
+    @DisplayName("GET events/category/{category}")
+    inner class GetEventsByCategory {
+        private val testEvents = listOf(
+            testEvent,
+            Event(
+                "Bad event",
+                "This event was a failure",
+                mutableListOf(testAccount),
+                mutableListOf(),
+                null,
+                "bad-image.png",
+                mutableListOf(),
+                null,
+                DateInterval(
+                    TestUtils.createDate(2021, Calendar.OCTOBER, 27),
+                    null
+                ),
+                null,
+                null
+            ),
+            Event(
+                "Mid event",
+                "This event was ok",
+                mutableListOf(),
+                mutableListOf(),
+                null,
+                "mid-image.png",
+                mutableListOf(),
+                null,
+                DateInterval(
+                    TestUtils.createDate(2022, Calendar.JANUARY, 15),
+                    null
+                ),
+                null,
+                "Other category"
+            ),
+            Event(
+                "Cool event",
+                "This event was a awesome",
+                mutableListOf(testAccount),
+                mutableListOf(),
+                null,
+                "cool-image.png",
+                mutableListOf(),
+                null,
+                DateInterval(
+                    TestUtils.createDate(2022, Calendar.SEPTEMBER, 11),
+                    null
+                ),
+                null,
+                "Great Events"
+            )
+        )
+
+        private val parameters = listOf(parameterWithName("category").description("Category of the events to retrieve"))
+
+        @BeforeEach
+        fun addToRepositories() {
+            accountRepository.save(testAccount)
+            for (event in testEvents) repository.save(event)
+        }
+
+        @Test
+        fun `should return all events of the category`() {
+            mockMvc.perform(get("/events/category/{category}", testEvent.category))
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.length()").value(2),
+                    jsonPath("$[0].category").value(testEvent.category),
+                    jsonPath("$[1].category").value(testEvent.category)
+                )
+                .andDocument(
+                    documentation.getModelDocumentationArray(),
+                    "Get events by category",
+                    "This endpoint allows the retrieval of events labeled with a given category. " +
+                        "It might be used to filter events in the event page.",
+                    urlParameters = parameters
+                )
+        }
+    }
+
+    @NestedTest
     @DisplayName("POST /events")
     inner class CreateEvent {
         private val uuid: UUID = UUID.randomUUID()
@@ -344,6 +430,7 @@ internal class EventControllerTest @Autowired constructor(
                 mutableListOf(),
                 testEvent.slug,
                 "duplicated-slug.png",
+                mutableListOf(),
                 "https://docs.google.com/forms",
                 DateInterval(
                     TestUtils.createDate(2022, Calendar.AUGUST, 28),
@@ -726,6 +813,170 @@ internal class EventControllerTest @Autowired constructor(
     }
 
     @NestedTest
+    @DisplayName("PUT /events/{idEvent}/gallery")
+    inner class AddGalleryImage {
+
+        private val uuid: UUID = UUID.randomUUID()
+        private val mockedSettings = Mockito.mockStatic(UUID::class.java)
+
+        @BeforeAll
+        fun setupMocks() {
+            Mockito.`when`(UUID.randomUUID()).thenReturn(uuid)
+        }
+
+        @AfterAll
+        fun cleanup() {
+            mockedSettings.close()
+        }
+
+        @BeforeEach
+        fun addToRepositories() {
+            accountRepository.save(testAccount)
+            repository.save(testEvent)
+        }
+
+        @Test
+        fun `should add an image`() {
+            val expectedImagePath = "${uploadConfigProperties.staticServe}/events/gallery/${testEvent.title}-$uuid.jpeg"
+
+            mockMvc.multipartBuilder("/events/${testEvent.id}/gallery")
+                .asPutMethod()
+                .addFile("image", contentType = MediaType.IMAGE_JPEG_VALUE)
+                .perform()
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.title").value(testEvent.title),
+                    jsonPath("$.description").value(testEvent.description),
+                    jsonPath("$.teamMembers.length()").value(testEvent.teamMembers.size),
+                    jsonPath("$.gallery.length()").value(1),
+                    jsonPath("$.gallery[0]").value(expectedImagePath),
+                    jsonPath("$.registerUrl").value(testEvent.registerUrl),
+                    jsonPath("$.dateInterval.startDate").value(testEvent.dateInterval.startDate.toJson()),
+                    jsonPath("$.dateInterval.endDate").value(testEvent.dateInterval.endDate.toJson()),
+                    jsonPath("$.location").value(testEvent.location),
+                    jsonPath("$.category").value(testEvent.category),
+                    jsonPath("$.slug").value(testEvent.slug),
+                    jsonPath("$.image").value(testEvent.image)
+                )
+        }
+
+        @Test
+        fun `should fail if event does not exist`() {
+            val unexistentID = 5
+
+            mockMvc.multipartBuilder("/events/$unexistentID/gallery")
+                .asPutMethod()
+                .addFile("image", contentType = MediaType.IMAGE_JPEG_VALUE)
+                .perform()
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("activity not found with id $unexistentID")
+                )
+        }
+
+        @Test
+        fun `should fail if image in wrong format`() {
+            mockMvc.multipartBuilder("/events/${testEvent.id}/gallery")
+                .asPutMethod()
+                .addFile("image", filename = "image.gif", contentType = MediaType.IMAGE_JPEG_VALUE)
+                .perform()
+                .andExpectAll(
+                    status().isBadRequest,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("invalid image type (png, jpg,  jpeg or webp)")
+                )
+        }
+    }
+
+    @Nested
+    @NestedTest
+    @DisplayName("DELETE /events/{idEvent}/gallery")
+    inner class RemoveGalleryImage {
+
+        private val uuid: UUID = UUID.randomUUID()
+        private val mockedSettings = Mockito.mockStatic(UUID::class.java)
+        private val mockImageUrl = "${uploadConfigProperties.staticServe}/events/gallery/${testEvent.title}-$uuid.jpeg"
+
+        @BeforeAll
+        fun setupMocks() {
+            Mockito.`when`(UUID.randomUUID()).thenReturn(uuid)
+
+            testEvent.gallery.add(mockImageUrl)
+        }
+
+        @AfterAll
+        fun cleanup() {
+            mockedSettings.close()
+        }
+
+        @BeforeEach
+        fun addToRepositories() {
+            accountRepository.save(testAccount)
+
+            repository.save(testEvent)
+        }
+
+        @Test
+        fun `should remove an image`() {
+            mockMvc.multipartBuilder("/events/${testEvent.id}/gallery")
+                .asDeleteMethod()
+                .addPart("imageUrl", mockImageUrl)
+                .perform()
+                .andExpectAll(
+                    status().isOk,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.title").value(testEvent.title),
+                    jsonPath("$.description").value(testEvent.description),
+                    jsonPath("$.teamMembers.length()").value(testEvent.teamMembers.size),
+                    jsonPath("$.gallery.length()").value(0),
+                    jsonPath("$.registerUrl").value(testEvent.registerUrl),
+                    jsonPath("$.dateInterval.startDate").value(testEvent.dateInterval.startDate.toJson()),
+                    jsonPath("$.dateInterval.endDate").value(testEvent.dateInterval.endDate.toJson()),
+                    jsonPath("$.location").value(testEvent.location),
+                    jsonPath("$.category").value(testEvent.category),
+                    jsonPath("$.slug").value(testEvent.slug),
+                    jsonPath("$.image").value(testEvent.image)
+                )
+        }
+
+        @Test
+        fun `should fail if event does not exist`() {
+            val unexistentID = 5
+
+            mockMvc.multipartBuilder("/events/$unexistentID/gallery")
+                .asDeleteMethod()
+                .addPart("imageUrl", mockImageUrl)
+                .perform()
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("activity not found with id $unexistentID")
+                )
+        }
+
+        @Test
+        fun `should fail if image does not exist`() {
+            val wrongImageUrl = "${uploadConfigProperties.staticServe}/gallery/Another${testEvent.title}-$uuid.jpeg"
+
+            mockMvc.multipartBuilder("/events/${testEvent.id}/gallery")
+                .asDeleteMethod()
+                .addPart("imageUrl", wrongImageUrl)
+                .perform()
+                .andExpectAll(
+                    status().isNotFound,
+                    content().contentType(MediaType.APPLICATION_JSON),
+                    jsonPath("$.errors.length()").value(1),
+                    jsonPath("$.errors[0].message").value("file not found with name $wrongImageUrl")
+                )
+        }
+    }
+
+    @NestedTest
     @DisplayName("PUT /events/{eventId}")
     inner class UpdateEvent {
         private val testAccount2 = Account(
@@ -866,7 +1117,8 @@ internal class EventControllerTest @Autowired constructor(
                 location = newLocation,
                 category = newCategory,
                 image = "image.png",
-                slug = newSlug
+                slug = newSlug,
+                gallery = mutableListOf()
             )
             repository.save(otherEvent)
 

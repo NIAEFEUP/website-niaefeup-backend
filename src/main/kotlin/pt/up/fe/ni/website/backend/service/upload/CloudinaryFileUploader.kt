@@ -20,4 +20,11 @@ class CloudinaryFileUploader(private val basePath: String, private val cloudinar
 
         return result["url"]?.toString() ?: ""
     }
+
+    override fun deleteImage(fileName: String) {
+        cloudinary.uploader().destroy(
+            fileName,
+            null
+        )
+    }
 }

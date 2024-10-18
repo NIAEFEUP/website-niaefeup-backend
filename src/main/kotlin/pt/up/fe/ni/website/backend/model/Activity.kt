@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
+import jakarta.persistence.ElementCollection
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
@@ -42,6 +43,9 @@ abstract class Activity(
 
     @field:NotBlank
     open var image: String,
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    open val gallery: MutableList<String> = mutableListOf(),
 
     @Id
     @GeneratedValue
