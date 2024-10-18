@@ -244,7 +244,7 @@ class AuthControllerTest @Autowired constructor(
     inner class CheckPermissions {
         private val testPermissions = listOf(Permission.CREATE_ACCOUNT, Permission.CREATE_ACTIVITY)
         private val testActivity = Project(
-            "Test Activity", "Test Description", mutableListOf(), mutableListOf(), "test slug", "test image", false,
+            "Test Activity", "Test Description", mutableListOf(), mutableListOf(), "test slug", "test image", mutableListOf(), false,
             emptyList(), null, "test target audience"
         )
         private val testRole = Role("MEMBER", Permissions(testPermissions), false)
