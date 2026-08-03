@@ -23,6 +23,7 @@
             nodejs_22
             nest-cli
             postgresql_16
+            docker-compose
           ];
         };
       }
