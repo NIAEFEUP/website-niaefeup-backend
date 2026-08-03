@@ -147,7 +147,18 @@
           },
           "style": {
             "useConst": "error",
-            "useSpreadOverApply": "error"
+            "useSpreadOverApply": "error",
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["../**"],
+                    "message": "Use absolute aliases (@/...) instead of relative parent imports."
+                  }
+                ]
+              }
+            }
           },
           "suspicious": {
             "noClassAssign": "off",
