@@ -1,23 +1,23 @@
-import { config } from 'dotenv';
-import { DataSource, DataSourceOptions } from 'typeorm';
-import { User } from '@/users/entities/user.entity';
-import { getDatabaseSynchronize } from './synchronize';
+import { config } from "dotenv";
+import { DataSource, DataSourceOptions } from "typeorm";
+import { User } from "@/users/entities/user.entity";
+import { getDatabaseSynchronize } from "./synchronize";
 
-if (process.env.NODE_ENV !== 'test') {
-  config({ path: '.env' });
+if (process.env.NODE_ENV !== "test") {
+  config({ path: ".env" });
 }
 
 export const createSchema = async () => {
   const options: DataSourceOptions = {
-    type: 'postgres',
+    type: "postgres",
     host: process.env.DATABASE_MASTER,
-    port: parseInt(process.env.DATABASE_PORT || '5432', 10),
+    port: parseInt(process.env.DATABASE_PORT || "5432", 10),
     username: process.env.DATABASE_USER,
     password: process.env.DATABASE_PASSWORD,
     database: process.env.DATABASE_NAME,
     synchronize: getDatabaseSynchronize(),
     dropSchema: false,
-    schema: 'public',
+    schema: "public",
     entities: [User],
   };
 
@@ -25,15 +25,15 @@ export const createSchema = async () => {
   try {
     await dataSource.initialize();
     if (options.synchronize) {
-      console.log('Database schema created successfully.');
+      console.log("Database schema created successfully.");
     } else {
       console.log(
-        'Database connection initialized; schema synchronization is disabled (set DATABASE_SYNCHRONIZE=true to enable it).',
+        "Database connection initialized; schema synchronization is disabled (set DATABASE_SYNCHRONIZE=true to enable it).",
       );
     }
     await dataSource.destroy();
   } catch (err) {
-    console.error('Schema creation failed:', err);
+    console.error("Schema creation failed:", err);
     throw err;
   }
 };

@@ -1,25 +1,25 @@
-import { config } from 'dotenv';
-import { DataSource, DataSourceOptions } from 'typeorm';
-import { runSeeders, SeederOptions } from 'typeorm-extension';
+import { config } from "dotenv";
+import { DataSource, DataSourceOptions } from "typeorm";
+import { runSeeders, SeederOptions } from "typeorm-extension";
 
-if (process.env.NODE_ENV !== 'test') {
-  config({ path: '.env' });
+if (process.env.NODE_ENV !== "test") {
+  config({ path: ".env" });
 }
 
 export const seed = async () => {
   const options: DataSourceOptions & SeederOptions = {
-    type: 'postgres',
+    type: "postgres",
     host: process.env.DATABASE_MASTER,
-    port: parseInt(process.env.DATABASE_PORT || '5432', 10),
+    port: parseInt(process.env.DATABASE_PORT || "5432", 10),
     username: process.env.DATABASE_USER,
     password: process.env.DATABASE_PASSWORD,
     database: process.env.DATABASE_NAME,
     synchronize: true,
     dropSchema: true,
-    schema: 'public',
-    entities: ['src/**/*.entity{.ts,.js}'],
-    seeds: ['src/database/seeds/*.seeder.{ts,js}'],
-    factories: ['src/database/factories/*.factory.{ts,js}'],
+    schema: "public",
+    entities: ["src/**/*.entity{.ts,.js}"],
+    seeds: ["src/database/seeds/*.seeder.{ts,js}"],
+    factories: ["src/database/factories/*.factory.{ts,js}"],
   };
 
   const dataSource = new DataSource(options);
@@ -36,7 +36,7 @@ export const handleMain = (
 ) => {
   if (mainModule === moduleRef) {
     seed().catch((err) => {
-      console.error('Seeding failed:', err);
+      console.error("Seeding failed:", err);
       process.exit(1);
     });
   }
