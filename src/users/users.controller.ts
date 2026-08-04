@@ -7,7 +7,6 @@ import {
   ParseIntPipe,
   Patch,
   Post,
-  ValidationPipe,
 } from "@nestjs/common";
 import {
   ApiCreatedResponse,
@@ -30,7 +29,7 @@ export class UsersController {
   @Post()
   @ApiOperation({ summary: "Create a new user" })
   @ApiCreatedResponse({ description: "User created successfully", type: User })
-  create(@Body(ValidationPipe) createUserDto: CreateUserDto): Promise<User> {
+  create(@Body() createUserDto: CreateUserDto): Promise<User> {
     return this.usersService.create(createUserDto);
   }
 
@@ -55,7 +54,7 @@ export class UsersController {
   @ApiNotFoundResponse({ description: "User not found" })
   update(
     @Param("id", ParseIntPipe) id: number,
-    @Body(ValidationPipe) updateUserDto: UpdateUserDto,
+    @Body() updateUserDto: UpdateUserDto,
   ): Promise<User> {
     return this.usersService.update(id, updateUserDto);
   }
