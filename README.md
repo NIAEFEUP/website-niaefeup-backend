@@ -1,7 +1,7 @@
 # Website NIAEFEUP - BackEnd
 
 [![Checks](https://github.com/NIAEFEUP/website-niaefeup-backend/actions/workflows/checks.yml/badge.svg)](https://github.com/NIAEFEUP/website-niaefeup-backend/actions/workflows/checks.yml)
-[![codecov](https://codecov.io/gh/NIAEFEUP/website-niaefeup-backend/branch/main/graph/badge.svg)](https://codecov.io/gh/NIAEFEUP/website-niaefeup-backend)
+[![codecov](https://codecov.io/gh/NIAEFEUP/website-niaefeup-backend/branch/develop/graph/badge.svg)](https://codecov.io/gh/NIAEFEUP/website-niaefeup-backend)
 [![Node.js](https://img.shields.io/badge/Node.js-22+-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Biome](https://img.shields.io/badge/Code_style-Biome-60A5FA)](https://biomejs.dev/)
