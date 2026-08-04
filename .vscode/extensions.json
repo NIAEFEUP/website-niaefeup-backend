@@ -1,0 +1,10 @@
+{
+  "recommendations": [
+    "biomejs.biome",
+    "ms-vscode.vscode-typescript-next",
+    "firsttris.vscode-jest-runner",
+    "orta.vscode-jest",
+    "christian-kohler.path-intellisense",
+    "humao.rest-client"
+  ]
+}
