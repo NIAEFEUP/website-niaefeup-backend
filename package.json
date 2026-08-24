@@ -15,7 +15,7 @@
   "license": "GPL-3.0-only",
   "scripts": {
     "build": "nest build",
-    "seed": "npm run build && node dist/database/seed.js",
+    "seed": "node dist/database/seed.js",
     "schema:create": "node dist/database/schema.js",
     "start": "nest start",
     "start:dev": "nest start --watch",
