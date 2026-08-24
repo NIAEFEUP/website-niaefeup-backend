@@ -17,9 +17,9 @@ export const seed = async () => {
     synchronize: true,
     dropSchema: true,
     schema: "public",
-    entities: ["src/**/*.entity{.ts,.js}"],
-    seeds: ["src/database/seeds/*.seeder.{ts,js}"],
-    factories: ["src/database/factories/*.factory.{ts,js}"],
+    entities: ["dist/**/*.entity.js"],
+    seeds: ["dist/database/seeds/*.seeder.js"],
+    factories: ["dist/database/factories/*.factory.js"],
   };
 
   const dataSource = new DataSource(options);

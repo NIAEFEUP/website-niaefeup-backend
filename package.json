@@ -15,7 +15,7 @@
   "license": "GPL-3.0-only",
   "scripts": {
     "build": "nest build",
-    "seed": "ts-node -r tsconfig-paths/register src/database/seed.ts",
+    "seed": "npm run build && node dist/database/seed.js",
     "schema:create": "node dist/database/schema.js",
     "start": "nest start",
     "start:dev": "nest start --watch",
@@ -30,7 +30,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
-    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+    "test:debug": "node --inspect-brk node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "prepare": "husky"
   },
@@ -69,8 +69,6 @@
     "supertest": "^7.0.0",
     "ts-jest": "^29.2.5",
     "ts-loader": "^9.5.2",
-    "ts-node": "^10.9.2",
-    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.3"
   }
 }
