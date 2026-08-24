@@ -2,7 +2,7 @@
 
 [![Checks](https://github.com/NIAEFEUP/website-niaefeup-backend/actions/workflows/checks.yml/badge.svg)](https://github.com/NIAEFEUP/website-niaefeup-backend/actions/workflows/checks.yml)
 [![codecov](https://codecov.io/gh/NIAEFEUP/website-niaefeup-backend/branch/develop/graph/badge.svg)](https://codecov.io/gh/NIAEFEUP/website-niaefeup-backend)
-[![Node.js](https://img.shields.io/badge/Node.js-22+-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-24+-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Biome](https://img.shields.io/badge/Code_style-Biome-60A5FA)](https://biomejs.dev/)
 [![License](https://img.shields.io/badge/License-GPL--3.0-blue)](LICENSE)
@@ -21,7 +21,7 @@ The backend API for the NIAEFEUP website, built with NestJS.
 
 ### Prerequisites
 
-- [Node.js 22+](https://nodejs.org/)
+- [Node.js 24+](https://nodejs.org/)
 - [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/)
 
 ### Running

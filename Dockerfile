@@ -1,5 +1,5 @@
 # ---- Build stage ----
-FROM docker.io/library/node:22-alpine AS build
+FROM docker.io/library/node:24-alpine AS build
 WORKDIR /usr/src/app
 
 COPY package.json package-lock.json ./
@@ -9,7 +9,7 @@ RUN npm run build
 RUN npm prune --omit=dev
 
 # ---- Production stage ----
-FROM docker.io/library/node:22-alpine AS production
+FROM docker.io/library/node:24-alpine AS production
 WORKDIR /usr/src/app
 
 ENV NODE_ENV=production

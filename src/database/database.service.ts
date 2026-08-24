@@ -11,7 +11,7 @@ export class DatabaseService implements TypeOrmOptionsFactory {
     const isTest = this.configService.get<string>("NODE_ENV") === "test";
     if (isTest) {
       return {
-        type: "sqlite",
+        type: "better-sqlite3",
         database: ":memory:",
         dropSchema: true,
         autoLoadEntities: true,
