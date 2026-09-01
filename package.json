@@ -59,7 +59,7 @@
     "@nestjs/testing": "^11.0.1",
     "@types/express": "^5.0.0",
     "@types/jest": "^30.0.0",
-    "@types/node": "^24.0.0",
+    "@types/node": "^26.4.0",
     "@types/supertest": "^7.0.0",
     "better-sqlite3": "^12.11.1",
     "husky": "^9.1.7",
